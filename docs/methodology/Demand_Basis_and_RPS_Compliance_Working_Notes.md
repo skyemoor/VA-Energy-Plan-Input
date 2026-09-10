@@ -248,3 +248,56 @@ which is Total DOM LSE **load** — a third basis, distinct from both of the abo
 None of these are wrong on their own terms, but they are not the same quantity, and the
 deliverables do not currently distinguish them. All affected figures should carry
 `provisional` status in the provenance register pending a decision on item 2 above.
+
+---
+
+## 10. Statutory Floor (S2) capacity standard — resolved 2026-09-10
+
+Investigating whether Scenario 2 lacked a reserve margin found something different: it uses a
+*different* standard, not no standard. Appendix C.2 sizes its gas to the worst single hourly gap
+while **crediting storage at zero**. Scenarios 1 and 3 apply a 17.7% margin with storage credited
+at its power rating. The two are conservative in opposite directions and are not comparable.
+
+Gas capacity required under each, all four checkpoints
+(`scripts/compare_scenario2_capacity_standards.py`):
+
+| Year | Peak demand MW | Appendix C.2 rule | Reserve-margin standard | Difference | Storage credited |
+|---|---:|---:|---:|---:|---:|
+| 2030 | 19,511 | 15,604 | 12,058 | −3,547 | 7,000 |
+| 2035 | 23,325 | 19,098 | 10,227 | −8,871 | 13,000 |
+| 2040 | 27,782 | 23,556 | 10,473 | −13,083 | 18,000 |
+| 2045 | 28,466 | 22,446 | **4,485** | **−17,962** | 23,000 |
+
+**The reserve-margin standard requires less gas at every checkpoint, and the gap widens as the
+statutory storage build grows** — from 3.5 GW in 2030 to 18.0 GW in 2045. By 2045, crediting
+23,000 MW of storage at nameplate leaves the Statutory Floor needing only 4,485 MW of gas for
+capacity purposes, against 22,446 MW under the zero-credit rule.
+
+**This does not mean 4,485 MW is the right answer.** The entire 18 GW difference is the storage
+accreditation assumption, and this project's own evidence argues that assumption is optimistic:
+
+- The eight-year continuous dispatch test found reserve margin was **never violated** on a
+  nameplate-credited basis while 6.44 million MWh went unserved, because storage sat empty 85% of
+  hours (see § 9 above and the 2030 charge-starvation finding).
+- E3's independent evaluation of PJM's capacity model states that scrambling "risks overstating
+  … the ELCC of energy storage resources" because storage "is likely to run out of charge" during
+  the multi-day events that method underrepresents (citation C126 region; see
+  `registers/Master_Citations_updated.xlsx`).
+- PJM's own Independent Market Monitor has separately criticised class-level ELCC accreditation
+  as not "unit specific" and not incorporating "hourly supply and demand matching."
+
+**Adopted approach:** report both figures for the Statutory Floor rather than selecting one.
+The reserve-margin figure is the *comparable* one and should carry the headline, since Scenarios
+1 and 3 use it. The Appendix C.2 figure is retained as a bounding case. The difference between
+them is not a modeling nuisance — it is a quantification of how much rests on storage capacity
+accreditation, which is unsettled at PJM and material at this scale.
+
+**Consequence for existing figures:** every published Statutory Floor cost rests on the Appendix
+C.2 sizing and is therefore not comparable to the Build to Zero figures it has been compared
+against. Those cost figures require re-derivation before the comparison is used externally. The
+direction of change is now known — less gas capacity under the comparable standard, so lower
+capital cost, narrowing rather than widening the gap the Executive Summary currently reports.
+
+**Note on leap years:** building these fiscal years by hour offset failed on 2040 (8,784 hours).
+The script selects by calendar date and excludes February 29 explicitly. This is open item 6
+below, encountered in practice rather than in theory.
