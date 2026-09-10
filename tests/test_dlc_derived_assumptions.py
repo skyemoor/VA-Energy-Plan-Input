@@ -126,16 +126,28 @@ class TestAvoidedCostComparisonEndToEnd:
         # 5% was never a sourced figure). Recomputed precisely, not guessed:
         # (713 + 90.98) * 1.00 = 803.98; (1175 + 136.29) * 1.00 = 1311.29
         result = da.avoided_cost_comparison()
-        assert result["properly_priced_low_usd_per_kw_yr"] == pytest.approx(803.98, abs=0.5)
-        assert result["properly_priced_high_usd_per_kw_yr"] == pytest.approx(1311.29, abs=0.5)
+        # BASELINE MOVED 2026-09-10 (Rule 3.3), from 803.98. Two corrections, both real:
+        #  (a) UNITS. This module used installed capex ($1,175/$713 per kW, one-time) as annual
+        #      avoided capacity cost, copying the raw capex constant from a sibling module rather
+        #      than that module's annualized value -- the right module, the wrong variable, as its
+        #      own comment recorded. PJM has never cleared near $713/kW-yr; the 2026/27 cap is
+        #      $118.6/kW-yr, so the old figure sat ~6x above any price ever paid.
+        #  (b) COST VINTAGE. The benchmark now reads current peaker costs from assumptions.py
+        #      rather than superseded Gas Turbine World figures.
+        # Superseded values are recorded in registers/Provenance_Register.xlsx.
+        assert result["properly_priced_low_usd_per_kw_yr"] == pytest.approx(185.46, abs=1.0)
+        assert result["properly_priced_high_usd_per_kw_yr"] == pytest.approx(240.07, abs=1.0)
 
     def test_current_rate_is_far_below_properly_priced_range(self):
         # The core finding this section exists to establish -- a regression guard against it ever
         # silently flipping (e.g. if a future benchmark revision brought them close together, that
         # would be worth knowing, not masked by a loose test bound)
         result = da.avoided_cost_comparison()
-        assert result["current_rate_as_multiple_of_low"] > 50
-        assert result["current_rate_as_multiple_of_high"] > 50
+        # BASELINE MOVED 2026-09-10 (Rule 3.3), from >50x. See the units note above -- the old
+        # multiple rested on a benchmark ~14x too high. The corrected gap is ~16x, which remains a
+        # substantial underpricing finding and is defensible in a way "70-115x" was not.
+        assert result["current_rate_as_multiple_of_low"] > 10
+        assert result["current_rate_as_multiple_of_high"] > 15
 
     def test_low_bound_is_actually_lower_than_high_bound(self):
         result = da.avoided_cost_comparison()

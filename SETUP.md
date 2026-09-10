@@ -99,9 +99,18 @@ resting on stated limitations documented there.
 cd tests && python3 -m pytest -q
 ```
 
-Some pre-existing suites cannot yet be collected because they need feature modules absent from the
-repository — see `docs/PIPELINE_COMPLETENESS.md`. The suites covering the current modeling
-package all pass.
+A clean checkout gives **212 passed, 52 skipped, 0 failed**.
+
+Skips are expected, not problems. Tests needing large source data (NSRDB irradiance, SAM exports)
+or modules recorded as not-yet-restored in `docs/PIPELINE_COMPLETENESS.md` skip with a reason
+naming what they need. Run `pytest -rs` to list them.
+
+Suites whose modules are absent entirely are ignored at collection, determined by attempting the
+import rather than from a maintained list — so a suite un-ignores itself the moment its module is
+restored, instead of staying silently skipped.
+
+**A failure means something is actually wrong.** That distinction is the point: a suite that
+reports red on a clean checkout trains people to ignore it.
 
 ## If something fails
 
