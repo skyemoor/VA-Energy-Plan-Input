@@ -61,11 +61,17 @@ those that worked.
 
 ## License
 
-Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE).
+This repository is dual-licensed by content type:
 
-You may use, modify, and redistribute this work, including commercially, provided you
-retain attribution and the license notice. The license includes an express patent grant
-and requires that modified files be marked as changed.
+| Content | License |
+|---|---|
+| **Software** — everything in `lp_package/`, `tests/`, `scripts/` | [Apache License 2.0](LICENSE) |
+| **Documentation and data** — `docs/`, `registers/`, `data/`, and this README | [CC BY 4.0](LICENSE-DOCS) |
+
+Both permit free use, modification, and redistribution, including commercially, provided
+attribution is retained. Apache-2.0 adds an express patent grant and requires that modified
+source files be marked as changed. CC BY 4.0 is the appropriate counterpart for prose,
+methodology write-ups, registers, and datasets.
 
 This work is offered freely as public input to Virginia energy planning. Independent
 reproduction, extension, and critique are all explicitly welcomed.
