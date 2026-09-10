@@ -19,6 +19,8 @@ window -- explicitly rejected as "a deep rabbit hole" relative to the value it w
 single-window approach here is a deliberate simplification, not an oversight.
 """
 
+import assumptions  # Rule 6: policy-adjustable values live there
+
 import sys
 import os
 
@@ -41,7 +43,7 @@ from demand_side_feature import DEFAULT_UTILITY_MARGIN_PCT  # noqa: E402
 # internally (Rule 4): the same source's own separately-stated "88.5 billion VMT, population
 # 8,631,393" implies 10,254 mi/capita -- matches this figure almost exactly, confirming internal
 # consistency of the underlying source rather than a typo or unit error.
-VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES = 10_255
+VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES = assumptions.VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES
 
 # DERIVED.
 VIRGINIA_DAILY_VMT_PER_DRIVER_MILES = VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES / 365.0  # ~28.1 mi/day
@@ -58,8 +60,8 @@ VIRGINIA_DAILY_VMT_PER_DRIVER_MILES = VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES / 365
 # toward larger SUVs/trucks, so this is a real, current figure, not a stale one to round down
 # from. The Edmunds/EnergySage 0.35 figure is kept as a documented lower-bound cross-check, not
 # discarded -- see EV_EFFICIENCY_KWH_PER_MILE_LOW_BOUND below.
-EV_EFFICIENCY_KWH_PER_MILE = 0.375  # Recurrent 2026 model-year average
-EV_EFFICIENCY_KWH_PER_MILE_LOW_BOUND = 0.35  # Edmunds/EnergySage cross-check, kept for sensitivity
+EV_EFFICIENCY_KWH_PER_MILE = assumptions.EV_EFFICIENCY_KWH_PER_MILE  # Recurrent 2026 model-year average
+EV_EFFICIENCY_KWH_PER_MILE_LOW_BOUND = assumptions.EV_EFFICIENCY_KWH_PER_MILE_LOW_BOUND  # Edmunds/EnergySage cross-check, kept for sensitivity
 
 # DERIVED.
 DAILY_CHARGING_ENERGY_NEED_KWH = VIRGINIA_DAILY_VMT_PER_DRIVER_MILES * EV_EFFICIENCY_KWH_PER_MILE
@@ -75,7 +77,7 @@ DAILY_CHARGING_ENERGY_NEED_KWH = VIRGINIA_DAILY_VMT_PER_DRIVER_MILES * EV_EFFICI
 # stated, revisable placeholder. If the specific JuiceBox model/amperage is confirmed later, this
 # single constant is the only thing that needs updating -- nothing downstream needs to change
 # structurally.
-LEVEL2_CHARGER_POWER_KW = 9.0  # working midpoint, not model-specific
+LEVEL2_CHARGER_POWER_KW = assumptions.LEVEL2_CHARGER_POWER_KW  # working midpoint, not model-specific
 
 
 # ============================================================================
@@ -101,7 +103,7 @@ ACTIVE_CHARGING_SESSION_HOURS = DAILY_CHARGING_ENERGY_NEED_KWH / LEVEL2_CHARGER_
 # not worth pursuing relative to its marginal value here.
 # ============================================================================
 
-EVENT_WINDOW_HOURS = 3.0  # 3:00pm-6:00pm, locked in by direct user confirmation
+EVENT_WINDOW_HOURS = assumptions.EV_CHARGER_REWARDS_EVENT_WINDOW_HOURS  # 3:00pm-6:00pm, locked in by direct user confirmation
 
 # DERIVED. Probability a given enrolled vehicle is actively charging at any random moment within
 # the event window, under the uniform-arrival-within-window simplification.
@@ -158,7 +160,7 @@ EXPECTED_KW_REDUCTION_PER_PARTICIPANT = (
 # CONFIRMED, the same real, currently-operating Dominion incentive already used in Step 6 above --
 # restated here as its own named constant (not a bare literal) so this section's own calculations
 # are self-documenting.
-ANNUAL_INCENTIVE_USD_PER_PARTICIPANT = 40  # $/yr flat, EV Charger Rewards
+ANNUAL_INCENTIVE_USD_PER_PARTICIPANT = assumptions.EV_CHARGER_REWARDS_ANNUAL_INCENTIVE_USD  # $/yr flat, EV Charger Rewards
 
 # CORRECTED 2026-09-10 -- a real units error, not a staleness issue.
 #
@@ -300,26 +302,26 @@ def avoided_cost_comparison() -> dict:
 # current date, not a current-as-of-2026 figure -- the same source chain shows ~56,000 in July 2023
 # growing to 134,486 by April 2025 (~2.4x in under two years), so the true current total is plausibly
 # meaningfully higher. No more-recent statewide total was found.
-TOTAL_VA_REGISTERED_EVS_APRIL_2025 = 134_486
+TOTAL_VA_REGISTERED_EVS_APRIL_2025 = assumptions.TOTAL_VA_REGISTERED_EVS_APRIL_2025
 
 # CONFIRMED, a separate, BEV-only cut (does not include PHEV) from a different source/date
 # (RenewableEnergyWorld, Feb. 2025, citing state data as of June 30 [2024]) -- preserved separately
 # rather than conflated with the combined BEV+PHEV figure above, since they measure different things.
-TOTAL_VA_REGISTERED_BEV_ONLY_JUNE_2024 = 91_000
+TOTAL_VA_REGISTERED_BEV_ONLY_JUNE_2024 = assumptions.TOTAL_VA_REGISTERED_BEV_ONLY_JUNE_2024
 
 # CONFIRMED directly, Virginia Mercury (Oct. 2023), quoting Dominion's own 2021 Charging Tariff
 # program filing: "approximately 76% within the company's service territory," tied to a specific,
 # dated snapshot (25,500 total VA EVs at the time of that 2021 filing) -- NOT a current, ongoing
 # measurement. No more-recent %-share figure was found; used here as the best available proxy,
 # not a confirmed-current figure.
-DOMINION_SHARE_OF_VA_EVS_PCT_2021_SNAPSHOT = 76
+DOMINION_SHARE_OF_VA_EVS_PCT_2021_SNAPSHOT = assumptions.DOMINION_SHARE_OF_VA_EVS_PCT_2021_SNAPSHOT
 
 # CONFIRMED, two DIFFERENT Dominion-attributed projections found, from different sources/vintages --
 # preserved separately rather than collapsed to one, consistent with this project's own established
 # practice of not silently resolving genuine multi-source discrepancies:
-DOMINION_PROJECTED_VA_NC_EVS_BY_2027 = 220_000  # RenewableEnergyWorld, Feb. 2025
-DOMINION_PROJECTED_VA_EVS_BY_2030_LOW = 150_000  # Microgrid Knowledge, undated (cites a 2022 baseline)
-DOMINION_PROJECTED_VA_EVS_BY_2030_HIGH = 500_000  # same source -- a genuinely wide range, not a point estimate
+DOMINION_PROJECTED_VA_NC_EVS_BY_2027 = assumptions.DOMINION_PROJECTED_VA_NC_EVS_BY_2027  # RenewableEnergyWorld, Feb. 2025
+DOMINION_PROJECTED_VA_EVS_BY_2030_LOW = assumptions.DOMINION_PROJECTED_VA_EVS_BY_2030_LOW  # Microgrid Knowledge, undated (cites a 2022 baseline)
+DOMINION_PROJECTED_VA_EVS_BY_2030_HIGH = assumptions.DOMINION_PROJECTED_VA_EVS_BY_2030_HIGH  # same source -- a genuinely wide range, not a point estimate
 
 # CONFIRMED, Dominion's own reporting per RenewableEnergyWorld (Feb. 2025): "the peak need from
 # electric vehicles by 2038 is 1,600 megawatts." A DIFFERENT METRIC from the DLC-ceiling calculation
@@ -327,7 +329,7 @@ DOMINION_PROJECTED_VA_EVS_BY_2030_HIGH = 500_000  # same source -- a genuinely w
 # portion of that load reducible via the DLC program specifically. Not directly comparable or
 # additive to the ceiling figure below without a stated methodology connecting the two, which does
 # not currently exist -- kept here as real, useful, independently-sourced context only.
-DOMINION_EV_PEAK_DEMAND_MW_BY_2038 = 1_600
+DOMINION_EV_PEAK_DEMAND_MW_BY_2038 = assumptions.DOMINION_EV_PEAK_DEMAND_MW_BY_2038
 
 # A real, formal regulatory challenge to Dominion's own EV-adoption forecasts, found while
 # verifying the above -- disclosed directly rather than silently omitted, since it bears on how
@@ -394,7 +396,7 @@ def territory_wide_ceiling_estimate_mw() -> dict:
 # EV population 50/50 between EVChargerRewards (existing DLC) and CitizenEVV2G (new BYOD/V2G), given
 # their mutual exclusivity. Exposed as a named, overridable constant per Rule 8, not hardcoded
 # inline -- easily reconsidered if a different split is later justified.
-DLC_VS_V2G_POPULATION_SPLIT_PCT = 50
+DLC_VS_V2G_POPULATION_SPLIT_PCT = assumptions.DLC_VS_V2G_POPULATION_SPLIT_PCT
 
 
 def territory_wide_ceiling_estimate_50_50_split_mw() -> dict:

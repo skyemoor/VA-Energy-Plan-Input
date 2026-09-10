@@ -17,6 +17,8 @@ import distributed_physical_bounds
 import charging_adequacy
 import gas_outage_stress
 import rps_compliance
+import dlc_assumptions
+import large_ci_curtailment_assumptions
 
 
 class TestModulesSourceFromAssumptions:
@@ -68,3 +70,42 @@ class TestStatutoryParametersAreMutableButMarked:
         assert 'READ BEFORE CHANGING' in block
         assert 'HYPOTHETICAL AMENDMENT' in block
         assert 'never as compliance with existing law' in block
+
+
+class TestDomainAssumptionModulesSourceFromCore:
+    """The _assumptions modules keep their DERIVATIONS but not their primitive inputs. Established
+    2026-09-10: assumptions.py is the policy-adjustable surface, so anything a modeler or
+    legislator would vary belongs there regardless of domain."""
+
+    def test_large_ci_program_terms(self):
+        import assumptions
+        assert large_ci_curtailment_assumptions.COMPENSATION_USD_PER_KW_YEAR == assumptions.LARGE_CI_COMPENSATION_USD_PER_KW_YEAR
+        assert large_ci_curtailment_assumptions.ELIGIBILITY_THRESHOLD_KW == assumptions.LARGE_CI_ELIGIBILITY_THRESHOLD_KW
+
+    def test_dlc_primitive_inputs(self):
+        import assumptions
+        assert dlc_assumptions.EV_EFFICIENCY_KWH_PER_MILE == assumptions.EV_EFFICIENCY_KWH_PER_MILE
+        assert dlc_assumptions.LEVEL2_CHARGER_POWER_KW == assumptions.LEVEL2_CHARGER_POWER_KW
+        assert dlc_assumptions.EVENT_WINDOW_HOURS == assumptions.EV_CHARGER_REWARDS_EVENT_WINDOW_HOURS
+        assert dlc_assumptions.ANNUAL_INCENTIVE_USD_PER_PARTICIPANT == assumptions.EV_CHARGER_REWARDS_ANNUAL_INCENTIVE_USD
+
+    def test_derived_values_stay_derived(self):
+        """Derived values must recompute from their inputs, not be moved to assumptions.py where
+        they would look adjustable while silently disagreeing with those inputs."""
+        expected = (dlc_assumptions.VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES / 365.0
+                    * dlc_assumptions.EV_EFFICIENCY_KWH_PER_MILE
+                    / dlc_assumptions.LEVEL2_CHARGER_POWER_KW)
+        assert dlc_assumptions.ACTIVE_CHARGING_SESSION_HOURS == expected
+
+    def test_dlc_avoided_cost_is_annualized_not_raw_capex(self):
+        """Guards the units defect found 2026-09-10: raw capex ($1,175/$713 per kW) was used as
+        annual avoided capacity cost. PJM capacity has never cleared near $713/kW-yr."""
+        assert 80 < dlc_assumptions.AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR < 95
+        assert 45 < dlc_assumptions.F_CLASS_AVOIDED_COST_USD_PER_KW_YR < 55
+
+    def test_entry_82_baseline_capex_is_named_as_historical(self):
+        """The entry #82 peaker figures are a historical baseline, not current cost. The name must
+        say so, so a future reader cannot swap in current figures without noticing they would
+        change an established, cited result."""
+        assert hasattr(large_ci_curtailment_assumptions, 'AERODERIVATIVE_CAPEX_USD_PER_KW_ENTRY82_BASELINE')
+        assert hasattr(large_ci_curtailment_assumptions, 'F_CLASS_CAPEX_USD_PER_KW_ENTRY82_BASELINE')

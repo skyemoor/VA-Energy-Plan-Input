@@ -518,6 +518,52 @@ PEAKER_DUAL_FUEL_ADDER_KW = 200.0            # USP&E: $150-250/kW, midpoint
 PEAKER_FAST_TRACK_PREMIUM_FRACTION = 0.15    # USP&E: 10-20% for delivery under 18 months
 
 
+# ============================================================================
+# DEMAND-SIDE PROGRAM TERMS -- Dominion tariffs and program design
+# ============================================================================
+# What Dominion currently pays and requires. These are LEVERS: the whitepaper's own DSM-incentive
+# section recommends changing several of them, so they must be adjustable in one place. Peer
+# comparisons for each are in docs/research/Cross_State_Commercial_Curtailment_Incentive_Comparison.md
+# and Cross_Utility_VPP_Compensation_Comparison.md.
+
+# Non-Residential Curtailment Program (Scenario 3 A.2 extended).
+# $36/kW-yr captures only 40.7-70.9% of avoided generation-capacity cost alone (Internal Debugging
+# Log #82), against peers at $49-52 (NYSEG), $60 (Hawaiian Electric), up to $130 (Puget Sound) and
+# $216-300 (Con Edison).
+LARGE_CI_COMPENSATION_USD_PER_KW_YEAR = 36.0
+LARGE_CI_ELIGIBILITY_THRESHOLD_KW = 100.0
+
+# EV Charger Rewards. Flat annual payment, size-independent -- the structural defect is as
+# significant as the level: a larger enrolled load earns no more than a smaller one, severing the
+# link between incentive and delivered value that every scaling peer program preserves.
+EV_CHARGER_REWARDS_ANNUAL_INCENTIVE_USD = 40.0
+EV_CHARGER_REWARDS_EVENT_WINDOW_HOURS = 3.0        # 3:00pm-6:00pm
+DLC_VS_V2G_POPULATION_SPLIT_PCT = 50               # working assumption, not a sourced split
+
+
+# ============================================================================
+# ELECTRIC VEHICLE FLEET AND CHARGING
+# ============================================================================
+# Primitive inputs only. Values DERIVED from these (daily charging energy need, active session
+# hours, probability of charging during an event window, expected kW reduction per participant)
+# stay in dlc_assumptions.py and recompute from these -- moving a derived value here would create
+# something that looks adjustable but silently disagrees with its own inputs.
+VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES = 10_255
+EV_EFFICIENCY_KWH_PER_MILE = 0.375                 # Recurrent, 2026 model-year average
+EV_EFFICIENCY_KWH_PER_MILE_LOW_BOUND = 0.35        # Edmunds/EnergySage cross-check, sensitivity
+LEVEL2_CHARGER_POWER_KW = 9.0                      # working midpoint, not model-specific
+
+# Fleet size. The 2030 low/high spread is Dominion's own and is wide enough to matter: the high
+# case is 3.3x the low.
+TOTAL_VA_REGISTERED_EVS_APRIL_2025 = 134_486
+TOTAL_VA_REGISTERED_BEV_ONLY_JUNE_2024 = 91_000
+DOMINION_SHARE_OF_VA_EVS_PCT_2021_SNAPSHOT = 76
+DOMINION_PROJECTED_VA_NC_EVS_BY_2027 = 220_000
+DOMINION_PROJECTED_VA_EVS_BY_2030_LOW = 150_000
+DOMINION_PROJECTED_VA_EVS_BY_2030_HIGH = 500_000
+DOMINION_EV_PEAK_DEMAND_MW_BY_2038 = 1_600
+
+
 # ---------------------------------------------------------------------------
 # NOTE on the former Rule 6.2 cross-check (removed 2026-09-10)
 #

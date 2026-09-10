@@ -70,17 +70,31 @@ import assumptions
 # Both constrained by the surviving test suite: the adapter returns ELIGIBILITY_THRESHOLD_KW from
 # magnitude_per_unit() and COMPENSATION_USD_PER_KW_YEAR from current_compensation_usd(), and the
 # adapter's own docstring names the threshold as 100 kW and the rate as $36/kW/yr.
-ELIGIBILITY_THRESHOLD_KW = 100.0
-COMPENSATION_USD_PER_KW_YEAR = 36.0
+ELIGIBILITY_THRESHOLD_KW = assumptions.LARGE_CI_ELIGIBILITY_THRESHOLD_KW
+COMPENSATION_USD_PER_KW_YEAR = assumptions.LARGE_CI_COMPENSATION_USD_PER_KW_YEAR
 
 # --- Peaker benchmarks, Gas Turbine World ---------------------------------------------------
 # Installed capital cost and fixed O&M, as published. NOT avoided costs -- see the annualization
 # note in this module's docstring. Same figures cited in docs/research/
 # new_peaker_ccgt_costs_by_size.md.
-AERODERIVATIVE_CAPEX_USD_PER_KW = 1175.0      # 105 MW twin-unit genset, 41.5% efficiency
+# DELIBERATELY NOT sourced from assumptions.PEAKER_CAPEX_KW_BY_TIER, which holds CURRENT
+# (2026) simple-cycle costs of $1,116-1,900/kW. These are the older Gas Turbine World figures the
+# established entry #82 finding was computed from, retained ONLY so this reconstruction reproduces
+# that finding exactly (40.7% / 70.9%) and its surviving tests pass unmodified.
+#
+# They are therefore a HISTORICAL BASELINE, not a current cost, and the names say so. Re-running
+# the comparison on current costs is a deliberate, separate decision -- it would raise the avoided-
+# cost benchmark and LOWER these percentages, strengthening the underpricing finding rather than
+# weakening it. Do not silently swap in the current figures; that would change an established,
+# cited result without a note.
+AERODERIVATIVE_CAPEX_USD_PER_KW_ENTRY82_BASELINE = 1175.0   # 105 MW twin genset, 41.5% efficiency
 AERODERIVATIVE_FOM_USD_PER_KW_YR = 16.30
-F_CLASS_CAPEX_USD_PER_KW = 713.0              # 237 MW single-unit genset, 38.2% efficiency
+F_CLASS_CAPEX_USD_PER_KW_ENTRY82_BASELINE = 713.0           # 237 MW single genset, 38.2% efficiency
 F_CLASS_FOM_USD_PER_KW_YR = 7.00
+
+# Back-compatible aliases -- the adapter and dlc_assumptions reference the original names.
+AERODERIVATIVE_CAPEX_USD_PER_KW = AERODERIVATIVE_CAPEX_USD_PER_KW_ENTRY82_BASELINE
+F_CLASS_CAPEX_USD_PER_KW = F_CLASS_CAPEX_USD_PER_KW_ENTRY82_BASELINE
 
 
 def annualized_avoided_capacity_cost_usd_per_kw_yr(capex_usd_per_kw, fom_usd_per_kw_yr):
