@@ -60,6 +60,42 @@ def ensure_directories():
         os.makedirs(d, exist_ok=True)
 
 
+# Known filename variants for the same underlying dataset. This project has repeatedly received
+# the same file under different naming conventions -- nsrdb_data.py already carries equivalent
+# handling for two NSRDB conventions. Requiring users to rename a file they legitimately have is a
+# poor trade against a few lines of alias resolution.
+#
+# CAUTION: an alias means "same dataset, different filename", NOT "same layout". The
+# `_formatted` variant referenced by demand_shape_interpolation.py carries DateTime/MWh columns
+# rather than Year/Month/Day/1-24, so callers must still verify the columns they need are present
+# -- see require_columns() below.
+SOURCE_FILE_ALIASES = {
+    'DOMLSEHourlyLoadProjections2024through2048.csv': [
+        'DOM-LSE-HourlyLoadProjections-2024-through-2048.csv',
+        'DOM_LSE_HourlyLoadProjections_2024_through_2048.csv',
+        'DOMLSEHourlyLoadProjections2024through2048.csv',
+    ],
+}
+
+
+def require_columns(dataframe, columns, filename):
+    """Rule 5: fail with the actual column list rather than a KeyError several frames deep.
+
+    Filename aliasing resolves WHERE a file is, not WHAT is in it. A variant of the same dataset
+    can carry a different layout, so anything resolved by alias should pass through here before
+    use.
+    """
+    missing = [c for c in columns if c not in dataframe.columns]
+    if missing:
+        raise ValueError(
+            f"{filename} is missing expected column(s): {missing}\n"
+            f"  Columns present: {list(dataframe.columns)[:12]}"
+            f"{' ...' if len(dataframe.columns) > 12 else ''}\n"
+            f"  This file may be a differently-formatted variant of the same dataset. "
+            f"See docs/DATA_SOURCES.md.")
+    return dataframe
+
+
 def source_file(filename):
     """Absolute path to a large source data file, checking the development location first.
 
@@ -67,13 +103,19 @@ def source_file(filename):
     missing input fails at the point it is needed with an explanation, not later with an opaque
     numpy error.
     """
+    candidates = SOURCE_FILE_ALIASES.get(filename, [filename])
+    if filename not in candidates:
+        candidates = [filename] + candidates
     for root in (_LEGACY_SOURCE_DATA, SOURCE_DATA):
-        candidate = os.path.join(root, filename)
-        if os.path.exists(candidate):
-            return candidate
+        for name in candidates:
+            candidate = os.path.join(root, name)
+            if os.path.exists(candidate):
+                return candidate
+    tried = '\n    '.join(candidates)
     raise FileNotFoundError(
         f"source data file not found: {filename}\n"
         f"  Looked in: {_LEGACY_SOURCE_DATA} and {SOURCE_DATA}\n"
+        f"  Accepted filenames (any one of these works):\n    {tried}\n"
         f"  Large source data is not committed to this repository -- it is public and "
         f"re-downloadable.\n"
         f"  See docs/DATA_SOURCES.md for what this file is and where to obtain it, then place it "

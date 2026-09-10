@@ -63,8 +63,20 @@ bloat the repository without adding verifiability. Stages needing them are skipp
 naming the file.
 
 Place them in `data/source/`. See `docs/DATA_SOURCES.md` for what each file is and where to get
-it. The main one is Dominion's hourly load projection,
-`DOMLSEHourlyLoadProjections2024through2048.csv`.
+it. The main one is Dominion's hourly load projection, which is accepted under any of these
+filenames — this dataset circulates under several naming conventions and you do not need to
+rename yours:
+
+```
+DOMLSEHourlyLoadProjections2024through2048.csv
+DOM-LSE-HourlyLoadProjections-2024-through-2048.csv
+DOM_LSE_HourlyLoadProjections_2024_through_2048.csv
+```
+
+The filename is checked first, then the columns. A file with an accepted name but a different
+internal layout — a `_formatted` variant using `DateTime`/`MWh` rather than
+`Year`/`Month`/`Day`/`1`–`24` — reports which columns are missing and which are present, rather
+than failing obscurely.
 
 Derived weather years **are** committed (`data/weather_years/`) — small, and expensive to rebuild.
 

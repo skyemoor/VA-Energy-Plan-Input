@@ -119,6 +119,10 @@ def stage_demand_arrays():
     src = paths.source_file('DOMLSEHourlyLoadProjections2024through2048.csv')
     df = pd.read_csv(src)
     hrs = [str(h) for h in range(1, 25)]
+    # Filename aliasing resolves WHERE the file is, not WHAT is in it -- a differently-named
+    # variant of this dataset may carry a different layout (the `_formatted` variant uses
+    # DateTime/MWh instead). Check before use rather than failing deep in the reshape.
+    paths.require_columns(df, ['Year', 'Month', 'Day'] + hrs, os.path.basename(src))
     written = []
     for year in (2030, 2035, 2040, 2045):
         a = df[(df.Year == year) & (df.Month >= 4)].sort_values(['Month', 'Day'])
