@@ -97,8 +97,14 @@ class Stage:
         import paths
         return all(os.path.exists(os.path.join(paths.REPO_ROOT, o)) for o in self.outputs)
 
-    def unmet_prerequisites(self, stage_outputs_available):
+    def unmet_prerequisites(self, stages_by_name):
         """Names of declared input stages whose outputs are not on disk.
+
+        Judged on DISK STATE, not on what ran in this invocation. An earlier version tracked the
+        latter, which produced a false negative under --only: filtering the stage list meant the
+        upstream stages never entered the loop, so they were recorded as not-run even when their
+        outputs were sitting on disk from a previous run. Reported 2026-09-10 by
+        `--only scenario2_capacity --force`.
 
         The `inputs` field was previously declared and never read -- a stage would run even when
         the stage that produces its inputs had skipped, then fail on a missing file. Found
@@ -106,7 +112,12 @@ class Stage:
         died. Declaring a dependency graph and then not consulting it is worse than not declaring
         one, because the docstring claims a check that is not happening.
         """
-        return [name for name in self.inputs if not stage_outputs_available.get(name, False)]
+        unmet = []
+        for name in self.inputs:
+            upstream = stages_by_name.get(name)
+            if upstream is None or not upstream.outputs_exist():
+                unmet.append(name)
+        return unmet
 
     def missing_sources(self):
         import paths
@@ -303,14 +314,14 @@ def main():
         return 1
 
     ran = already_built = blocked = failed = 0
-    available = {}          # stage name -> its outputs are on disk
+    all_stages_by_name = {s.name: s for s in STAGES}   # full set, not the --only filtered view
     for i, stage in enumerate(stages, 1):
         label = f"[{i}/{len(stages)}] {stage.name}"
 
-        unmet = stage.unmet_prerequisites(available)
+        unmet = stage.unmet_prerequisites(all_stages_by_name)
         if unmet:
-            print(f"{label}: SKIPPED -- needs output from: {', '.join(unmet)}")
-            print(f"           That stage did not run, so its outputs do not exist.")
+            print(f"{label}: SKIPPED -- missing outputs from: {', '.join(unmet)}")
+            print(f"           Run those stages first:  python3 run_all.py --only {unmet[0]}")
             blocked += 1
             continue
 
@@ -323,7 +334,6 @@ def main():
 
         if stage.outputs_exist() and not args.force:
             print(f"{label}: already built (use --force to rebuild)")
-            available[stage.name] = True
             already_built += 1
             continue
 
@@ -352,7 +362,6 @@ def main():
             build_results=summary or {},
             runtime_seconds=round(elapsed, 1),
         ).write_json(paths.manifest(f'{stage.name}.json'))
-        available[stage.name] = True
         ran += 1
 
     print("\n" + "=" * 72)
@@ -365,8 +374,10 @@ def main():
         parts.append(f"{failed} failed")
     print("Complete: " + ", ".join(parts))
     if blocked:
-        print("\nBlocked stages need source data that is not committed to this repository.")
-        print(f"Place the named files in {paths.SOURCE_DATA} and re-run; see docs/DATA_SOURCES.md.")
+        print("\nBlocked stages were missing either their source data or an upstream stage's")
+        print("outputs. Each line above says which. For source data, place the named file in")
+        print(f"{paths.SOURCE_DATA} (see docs/DATA_SOURCES.md); for upstream outputs, run that")
+        print("stage first, or run the whole pipeline with no --only filter.")
     print(f"Results:   {paths.RESULTS}")
     print(f"Manifests: {paths.MANIFESTS}")
     print("=" * 72 + "\n")
