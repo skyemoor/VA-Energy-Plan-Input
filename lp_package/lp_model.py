@@ -14,6 +14,7 @@ import numpy as np
 # year (10,000 before 2035, 15,000 after). That is a year-specific override, not a policy change,
 # and must land in this module's own namespace without altering the project-wide default.
 # ---------------------------------------------------------------------------
+import assumptions  # noqa: E402
 from assumptions import (  # noqa: E402
     BATH_MW,
     BATH_MWH,
@@ -489,10 +490,13 @@ def exist_solar_mw(year):
                    # gathering constants directly from source surfaced the inconsistency. ~2.06% wind
                    # generation understatement in every checkpoint solved before this fix.
 
-print(f"SOLAR_CAPEX(${BUILD_YEAR})=${SOLAR_CAPEX:.1f}/kW  CRF={CRF:.5f}")
-print(f"NA power capex=${NA_POWER_CAPEX:.2f}/kW  NA energy capex=${NA_ENERGY_CAPEX:.2f}/kWh")
-print(f"FE energy capex=${FE_ENERGY_CAPEX:.2f}/kWh")
-print(f"Exist solar 2044 MW={exist_solar_mw(2044):.1f}  2045 MW={exist_solar_mw(2045):.1f}")
+# Gated on assumptions.QUIET_IMPORT -- see the note beside that flag for why. Read live rather
+# than imported as a value, so setting it before import works regardless of import order.
+if not assumptions.QUIET_IMPORT:
+    print(f"SOLAR_CAPEX(${BUILD_YEAR})=${SOLAR_CAPEX:.1f}/kW  CRF={CRF:.5f}")
+    print(f"NA power capex=${NA_POWER_CAPEX:.2f}/kW  NA energy capex=${NA_ENERGY_CAPEX:.2f}/kWh")
+    print(f"FE energy capex=${FE_ENERGY_CAPEX:.2f}/kWh")
+    print(f"Exist solar 2044 MW={exist_solar_mw(2044):.1f}  2045 MW={exist_solar_mw(2045):.1f}")
 
 
 def make_hv(hv_params):

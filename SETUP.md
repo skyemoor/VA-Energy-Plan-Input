@@ -51,6 +51,7 @@ running. Outputs land in `results/`.
 python3 run_all.py --graph          show the stage graph and exit, run nothing
 python3 run_all.py --only demand    run one named stage
 python3 run_all.py --force          rebuild everything, ignoring existing outputs
+python3 run_all.py --verbose        show the modules' import-time capex banners
 ```
 
 Stages whose outputs already exist are skipped, so an interrupted run resumes where it stopped

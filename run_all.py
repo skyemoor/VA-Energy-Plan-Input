@@ -39,6 +39,13 @@ import traceback
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lp_package'))
 
+# Silence the modules' import-time capex banners. They are useful when a modeler imports these
+# interactively, but here they interleave with this script's own progress output -- appearing
+# mid-stage and making a clean run look like something had gone wrong. Set before any project
+# import so it takes effect regardless of import order. Use --verbose to see them.
+if '--verbose' not in sys.argv:
+    os.environ['VA_ENERGY_QUIET_IMPORT'] = '1'
+
 
 # --- Environment check ------------------------------------------------------------------------
 REQUIRED_PACKAGES = [
@@ -264,6 +271,8 @@ def main():
                     help='rebuild every stage even if its outputs already exist')
     ap.add_argument('--graph', action='store_true', help='print the stage graph and exit')
     ap.add_argument('--only', metavar='STAGE', help='run one named stage only')
+    ap.add_argument('--verbose', action='store_true',
+                    help="show the modules' import-time capex banners (suppressed by default)")
     args = ap.parse_args()
 
     if args.graph:

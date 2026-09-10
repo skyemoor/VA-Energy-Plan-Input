@@ -18,6 +18,18 @@ lp_model.py imports every name it used to define locally from this module (`from
 *`), so existing code referencing `lp.SOLAR_CAPEX`, `lp.ccgt_capex_kw(y)`, etc. continues to work
 unchanged. New code should prefer `import assumptions as asn` directly.
 """
+import os
+
+# Import-time banner. Routed through a module-level flag rather than a bare print() so a caller can
+# silence it (2026-09-10): these lines interleaved with run_all.py's own progress output, appearing
+# mid-stage and making a clean run look like something had gone wrong. They remain ON by default,
+# because a modeler importing this module interactively benefits from seeing which capex vintage is
+# in force -- that is genuinely useful and was the reason they were added.
+#
+# Set VA_ENERGY_QUIET_IMPORT=1 in the environment, or assumptions.QUIET_IMPORT = True before
+# import, to suppress.
+QUIET_IMPORT = os.environ.get('VA_ENERGY_QUIET_IMPORT', '') == '1'
+
 
 # ============================================================================
 # FINANCIAL
@@ -386,7 +398,8 @@ SO2_BENEFIT_PER_TON_2016USD = 54000.0
 NOX_BENEFIT_PER_TON_2016USD = 8600.0
 CPI_DEFLATOR_2016_TO_2026 = 1.3913
 
-print(f"[assumptions.py] SOLAR_CAPEX(${BUILD_YEAR})=${solar_capex(BUILD_YEAR):.1f}/kW  "
+if not QUIET_IMPORT:
+    print(f"[assumptions.py] SOLAR_CAPEX(${BUILD_YEAR})=${solar_capex(BUILD_YEAR):.1f}/kW  "
       f"CCGT_CAPEX=${ccgt_capex_kw(BUILD_YEAR):.1f}/kW  CRF={CRF:.5f}")
 
 
