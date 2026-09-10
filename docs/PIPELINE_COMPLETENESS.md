@@ -67,9 +67,25 @@ The scenario-specific hook here would be technology selection, which is now docu
 `methodology/Gas_Technology_Selection_By_Scenario.md`: CCGT for the Statutory Floor, simple-cycle
 peakers for the VCEA scenarios.
 
-Recording this as a recommendation rather than building it, because moving costing into the class
-hierarchy requires the missing modules above to be present first — there is nothing to refactor
-while `compute_scenario2_costs.py` is absent.
+### Current state, stated precisely
+
+`Scenario2Solver` exists and composes `SocialCostRGGIMixin`, so the Statutory Floor's **social and
+RGGI** costs are computed inside the class hierarchy correctly. Its **capital** costs are not:
+they live in `compute_scenario2_costs.py`, a free-standing script that is not in this repository.
+
+That arrangement violates Rule 1.3 — "free-standing scripts are for orchestration and one-off
+analysis, not for logic that will be called more than once across scenarios" — and capital costing
+is called by every scenario. It is also the precise pattern that produced Internal Debugging Log
+#49: `compute_scenario2_costs.py`'s own `ccgt_capex_rate()` used the stale $1,775/kW constant
+while the correct $3,000/kW function sat unused in `lp_model.py`. A method on a shared mixin
+cannot drift from the class hierarchy that way.
+
+**The refactor is the right fix and does not require finding the original script.** A
+`CapitalCostMixin` can be written against the documented behaviour (annualized capex via CRF,
+vintage tracking, terminal value, with technology selection as the scenario hook) and locked to
+the established figures with baseline tests, as `SocialCostRGGIMixin` was. Recovering the original
+would make the refactor faster and would let the new implementation be checked against it, but is
+not a prerequisite.
 
 ## Priority
 

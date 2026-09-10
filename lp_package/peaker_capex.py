@@ -22,35 +22,59 @@ These are FULL INSTALLED PROJECT costs, not turbine-equipment-only. The two diff
 and are trivially easy to conflate — Wood Mackenzie's own figures are equipment-only and require
 dividing by the 20-30% equipment share to reach installed terms.
 
-SOURCING
+SOURCING (updated 2026-09-10 with material found after the initial version)
 
-- GridLab, "The New Reality of Power Generation: An Analysis of Increasing Gas Turbine Costs in
-  the U.S." (September 2025). The same survey ccgt_capex_kw() rests on. Combustion-turbine
-  projects with in-service dates 2025-2029; projects completing 2026-2027 reported at
-  **$1,116-$1,427/kW**. Regression on in-service year shows costs rising at a statistically
-  significant rate. This is the most rigorous source found and anchors the mid tier.
-- EIA, via the same GridLab dataset: CT plants placed in service in **2023 averaged $562/kW**;
-  2025 in-service costs range **$728-$1,544/kW**, with $920/kW cited as a mid case. Establishes
-  the trajectory rather than the current level.
-- USP&E, "Gas Turbine EPC Costs 2026" (April 2026). The only size-tiered current source found:
-  **25-50 MW at $1,400-2,000/kW**, **250+ MW at $700-1,100/kW**, economies of scale explicit.
-  Also notes dual-fuel capability adds $150-250/kW and fast-track delivery under 18 months
-  commands a 10-20% premium. **Carries its own volatility warning**: "pricing is highly volatile
-  in 2026. These prices are based on historical data but have been increasing by 2-3x due to
-  extraordinary demand from AI-driven hyperscalers and other market forces."
+The strongest derivation available anchors on the SAME Wood Mackenzie equipment figure that
+ccgt_capex_kw() uses, converted to installed terms using the simple-cycle equipment share rather
+than the combined-cycle one:
 
-RECONCILING THE TWO CURRENT SOURCES
+- Wood Mackenzie (April 2026, reported by Utility Dive): turbine EQUIPMENT-only cost reaching
+  **$600/kW by end-2027**, a 195% increase since 2019.
+- SecondWatt gas turbine market analysis (late August 2026 -- the most recent source found)
+  states the conversion rule explicitly and warns against the exact error this module could
+  otherwise make: "Do not blend the $/kW figures. The $600/kW estimate is turbine equipment only;
+  Wood Mackenzie puts turbines at 20-30% of a combined-cycle project's cost **and a higher share
+  of a simple-cycle one**."
 
-USP&E's tiers are explicitly historical-base with a stated 2-3x upward adjustment; GridLab's
-$1,116-1,427/kW is a directly-reported 2026-2027 completion range. Taking USP&E's 250+ MW
-historical base ($700-1,100/kW) and applying even the low end of its own 2x factor lands at
-$1,400-2,200/kW, which brackets GridLab's reported range from above. The two are therefore
-consistent once the adjustment is applied, and the figures below anchor on GridLab's reported
-level with USP&E supplying the SHAPE across size tiers rather than the level.
+That last clause is the key to deriving simple-cycle installed cost correctly. A simple-cycle
+plant has no heat recovery steam generator, no steam turbine and no associated water systems, so
+the turbine is a larger fraction of a smaller total. Taking the equipment share at roughly 40-50%
+for simple cycle against 20-30% for combined cycle:
 
-The size premium for small units is real and independently confirmed: Gas Turbine World's own
-older figures already show a 105 MW aeroderivative at $1,175/kW against a 237 MW F-Class at
-$713/kW — the smaller unit costing MORE per kW. That inversion is preserved here.
+    combined cycle:  $600 / 0.20-0.30  =  $2,000-3,000/kW   (matches ccgt_capex_kw()'s $3,000)
+    simple cycle:    $600 / 0.40-0.50  =  $1,200-1,500/kW
+
+**That derived range lands directly on GridLab's independently-reported figure**, which is the
+cross-check that makes it usable rather than merely plausible:
+
+- GridLab, "The New Reality of Power Generation" (September 2025), with Energy Futures Group,
+  Component Reliability Consultants and Halcyon. Combustion-turbine projects with in-service dates
+  2025-2029; projects completing 2026-2027 reported at **$1,116-$1,427/kW**. Regression on
+  in-service year shows costs rising at a statistically significant rate.
+- EIA, via the same dataset: CT plants placed in service in 2023 averaged **$562/kW**; 2025
+  in-service costs range **$728-$1,544/kW**. Establishes trajectory, not current level.
+- USP&E, "Gas Turbine EPC Costs 2026" (April 2026), the only size-tiered current source found:
+  **25-50 MW at $1,400-2,000/kW**, **250+ MW at $700-1,100/kW**. Supplies the SHAPE across size
+  tiers. Carries its own volatility warning -- prices "based on historical data but have been
+  increasing by 2-3x due to extraordinary demand from AI-driven hyperscalers" -- so its levels
+  are not used directly. Dual-fuel adds $150-250/kW; fast-track under 18 months adds 10-20%.
+
+Two independent derivations (Wood Mackenzie equipment-share conversion, and GridLab's reported
+project filings) converging on $1,100-1,500/kW for the mid tier is what this module rests on.
+
+MARKET CONTEXT THAT BOUNDS CONFIDENCE
+
+These are not stable prices. Global orders reached 110 GW by end-2025 against manufacturing
+capacity of 60-70 GW/year; Q2 2026 orders hit a record 38 GW, 29% above Q1. Wood Mackenzie's own
+read is that an order placed now does not take delivery before 2029, and the three major OEMs now
+require reservation fees to hold a manufacturing slot -- two Kentucky utilities paid GE Vernova
+$25 million to reserve a turbine for 2030 commercial operation. EPRI's figure moved from
+$2,000/kW to $3,000/kW in six months.
+
+**Implication for modeling**: the 'high' case is not a tail scenario, and the central case should
+not be treated as stable across a 20-year build programme. Anything relying on these figures for
+a checkpoint beyond roughly 2030 should carry an explicit escalation assumption rather than
+holding this level flat.
 """
 
 # Size tier boundaries (MW). Chosen to match the tiering in the sourced material rather than
