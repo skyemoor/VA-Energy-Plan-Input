@@ -1,0 +1,291 @@
+# Meeting Virginia's Clean Energy Requirements Under Doubled Demand
+## Compliance Pathways, Costs, and Where the Statute Needs Attention
+
+**A working draft prepared as input to the Virginia Energy Plan**
+*Version 0.1 — outline and initial text — 2026-09-10*
+
+---
+
+> **Status of this draft.** This is an outline with initial text, not a finished paper. Figures
+> marked *(provisional)* rest on stated limitations and should not be quoted as settled; see
+> `registers/Provenance_Register.xlsx` for the status of every number. Sections marked
+> **[TO WRITE]** are placeholders.
+
+---
+
+## How to read this document
+
+Four tiers, each self-contained:
+
+| Tier | Audience | Length |
+|---|---|---|
+| **Part I — Executive Summary** | Legislators, Governor's office and staff | ~3 pages |
+| **Part II — Technical Summary** | Senior Department of Energy staff | ~8 pages |
+| **Part III — Main Body** | Agency staff, county officials, utility and stakeholder engineers | ~30 pages |
+| **Part IV — Appendices** | Energy modelers; published in full in the public repository | — |
+
+All modeling code, input data, statutory text, and results are public and reproducible at
+`github.com/skyemoor/VA-Energy-Plan-Input` (Apache-2.0 for software, CC BY 4.0 for documents
+and data). Every figure can be independently regenerated from public sources.
+
+### Mapping to the statutory Plan elements
+
+§ 45.2-1710(B) enumerates twelve elements the Virginia Energy Plan must include. This paper
+addresses the following directly:
+
+| § 45.2-1710(B) element | Addressed in |
+|---|---|
+| B.1 — Projections of energy consumption and costs | Part III §3, §7 |
+| B.2 — Adequacy of generation, transmission, distribution; how distributed energy resources affect the Commonwealth | Part III §5, §6, §9 |
+| B.3 — Siting requirements; **state and local impediments to expanded use of distributed resources, and recommendations to reduce or eliminate such impediments** | Part III §8, §9; Part I recommendations |
+| B.4 — Fuel diversity, flexibility in meeting future capacity needs | Part III §4, §5 |
+| B.5 — Efficient use of energy resources and conservation initiatives | Part III §7 |
+| B.12 — **Recommendations for legislative, regulatory, and other public and private actions** | Part I §5; Part III §10 |
+
+Elements B.6–B.11 (regional initiatives, environmental justice siting analysis, EPA § 111(d),
+greenhouse gas inventory, electric vehicles, charging infrastructure) are outside this paper's
+scope and are noted here so the gap is explicit rather than implied.
+
+---
+---
+
+# Part I — Executive Summary
+
+*For legislators, the Governor's office, and their staff.*
+
+## 1. Why this analysis exists
+
+The Virginia Clean Economy Act and the Renewable Portfolio Standard set a legally binding path to
+100 percent clean electricity for Dominion Energy Virginia by 2045. Both were enacted in 2020,
+against demand projections that have since roughly doubled — driven overwhelmingly by data
+centers.
+
+Two things follow that the General Assembly has not yet had analysis on.
+
+**First, no current planning document reflects current law.** HB 895 / SB 448, signed April 13,
+2026, raised Dominion's energy storage requirement to 16,000 MW of short-duration and 4,000 MW of
+long-duration capacity by 2045. Dominion's most recent Integrated Resource Plan, filed October 15,
+2025, carries **2,000 MW** — roughly a tenth of what the law now requires. The 2026 IRP cycle
+cannot close that gap, because the legislation post-dates the filing's own input cutoff. Meanwhile
+the utility is actively seeking approval for approximately 6,500 MW of new gas generation.
+
+**Second, the statute already contains its own answer to the affordability question — and it may
+not be the answer legislators intend.** § 56-585.5(D)(5) caps the cost of non-compliance at $45
+per megawatt-hour, escalating one percent annually, reaching roughly **$57/MWh by 2045**. Our
+modeling puts the physical cost of a fully clean 2045 system near **$133/MWh** *(provisional)*.
+A utility facing that gap can lawfully pay the deficiency instead of building. **The question is
+not only whether 100 percent is achievable; it is whether the statute as written creates a
+sufficient incentive to try.**
+
+## 2. What we did
+
+We built a physical, hour-by-hour model of the Dominion zone — 8,760 hours per year, real
+historical weather, no representative-day shortcuts — and tested candidate resource portfolios
+against **eight real historical weather years** run continuously, with storage state carried
+across year boundaries rather than reset annually.
+
+Everything uses public data: NREL irradiance, NOAA weather, PJM market data, Dominion's own filed
+projections. Any party can reproduce it.
+
+This is deliberately **not** a competing Integrated Resource Plan. It is an independent check on
+what enacted law requires, offered during a window in which the utility's own planning process
+legitimately cannot reflect it.
+
+## 3. Principal findings
+
+**[TO WRITE — pending completion of the corrections identified in §11]**
+
+The following are stated as provisional findings and are expected to change in magnitude, though
+we do not expect the direction to change:
+
+1. **Statutory compliance and physical decarbonization are different targets, and the gap is
+   large.** Under § 56-585.5, the 2045 obligation covers roughly **148 TWh**; physically serving
+   all load with clean generation requires roughly **206 TWh** *(provisional)*. The difference
+   arises because the statute excludes existing in-Commonwealth nuclear from the compliance base,
+   permits certificates from anywhere in PJM, and caps the cost of falling short.
+
+2. **The largest single lever is not generation — it is who is counted.** Commercial and
+   industrial customers with more than 25 MW of aggregate load who procure their own clean energy
+   are removed from the utility's compliance base entirely (§ 56-585.5(G)). Applied to the data
+   centers driving demand growth, this alone moves the 2045 obligation from 148 TWh to
+   **108 TWh** *(provisional)* — from 72 percent of the physical requirement to 53 percent.
+
+3. **Long-duration storage is a seasonal, not a daily, resource — and the distinction changes the
+   sizing.** Testing against eight real weather years, the binding constraint was a continuous
+   **90-day winter drawdown**, not a short outage. Storage charged through spring and summer and
+   ran down from late October to late January. Sizing for daily cycling would not have revealed
+   this.
+
+4. **In 2030, additional storage cannot help much, because there is nothing to charge it with.**
+   At the clean-energy penetration the statute requires for 2030, the existing storage fleet
+   already captures **75 percent of all surplus clean energy that physically exists**. This is a
+   generation problem before it is a storage problem.
+
+5. **Parking canopies and rooftops are statutorily favored and materially under-used.**
+   § 56-585.5 defines "previously developed project site" to expressly include parking lots and
+   parking-lot canopies, and requires at least 1,000 MW of the 16,100 MW solar requirement to be
+   sited on such land. Our four-county assessment of Northern Virginia found roughly
+   **4,600–5,400 MW** of technical potential in those jurisdictions alone.
+
+## 4. What this means for the legislature
+
+**[TO WRITE — to be developed once §3 findings are final]**
+
+Framing to develop:
+- The compliance question and the affordability question are the same question, connected by the
+  deficiency payment
+- Whether the 2045 date, the percentage, or the cost cap is the right lever to adjust
+- What the accelerated-clean-energy-buyer mechanism implies for data-center policy
+
+## 5. Recommendations
+
+**[TO WRITE]**
+
+Candidate recommendations, to be finalised:
+
+1. **Commission modeling that reflects enacted law before approving long-lived gas assets.** The
+   plants now in permitting will operate for decades on planning that predates the storage
+   mandate.
+2. **Resolve the deficiency-payment ceiling deliberately.** At present the statute permits a
+   lawful outcome — pay rather than build — that is inconsistent with its own stated purpose.
+3. **Remove identified impediments to distributed resources** (§ 45.2-1710(B)(3) requires the Plan
+   to do this). Specific candidates in Part III §9.
+4. **Clarify the accelerated-clean-energy-buyer pathway** as deliberate data-center policy rather
+   than leaving it as an incidental exemption.
+
+---
+---
+
+# Part II — Technical Summary
+
+*For senior Department of Energy staff.*
+
+## 1. Scope and method
+
+**[TO WRITE]** Cover: hourly LP formulation; eight-year chronological weather validation; the
+dual-basis compliance treatment; what is and is not optimized.
+
+## 2. The two compliance bases, and why both are reported
+
+Virginia's requirement can be measured two ways, and they are not the same quantity.
+
+**Physical clean-generation requirement.** What fleet must exist so that a given percentage of
+electricity *generated* is carbon-free. Existing nuclear counts toward the clean share. At 100
+percent this requires new and existing clean resources to cover all load.
+
+**Statutory RPS obligation** (§ 56-585.5). How many renewable energy certificates the utility must
+*retire*. The base is Virginia retail sales, **less** energy from in-Commonwealth nuclear plants
+operating by July 1, 2020, **less** certified accelerated clean energy buyer load, **less**
+§ H legacy competitive-service customers. Certificates may originate anywhere in PJM, with at
+least 75 percent from Virginia-located resources beginning in 2027.
+
+Reporting only the first overstates what the law compels. Reporting only the second says nothing
+about whether the lights stay on, because certificate retirement is an accounting act. This paper
+reports both throughout, and treats the **gap between them** as a finding in its own right.
+
+## 3. Reliability treatment
+
+**[TO WRITE]** Cover: reserve margin methodology and its relationship to PJM's ELCC; the
+capacity-versus-energy distinction the eight-year testing exposed; what is not modeled
+(probabilistic resource adequacy, forced outages, load forecast error).
+
+## 4. Cost framework
+
+**[TO WRITE]** Cover: SLCOE construction; NPV comparability with the IRP's own 6.62 percent
+discount rate; the National Standard Practice Manual framing for demand-side resources; social
+cost treatment and the § 56-585.1(A)(6) direction to the Commission.
+
+## 5. Principal quantitative results
+
+**[TO WRITE — pending corrections in Part III §11]**
+
+## 6. Known limitations
+
+Stated plainly, because they bound what this work supports:
+
+1. Build optimization uses a single design weather year; cross-testing against eight historical
+   years is validation, not sizing.
+2. No probabilistic resource adequacy — no loss-of-load expectation, no forced outages, no load
+   forecast error. Industry practice is LOLE ≤ 0.1 day/year; this paper cannot state the
+   reliability level its portfolios achieve.
+3. The investment model (linear program, perfect foresight) and the dispatch validation model
+   (heuristic, no foresight) differ. That gap has not been fully quantified.
+4. Single-node — no transmission representation, which the transmission-avoidance objective
+   requires.
+5. No technology cost-decline curves applied to 2045; costs are likely conservative.
+6. REC banking under § 56-585.5(C)(4) is not modeled.
+
+**This paper is intended to induce deeper modeling, not to substitute for it.** Its most useful
+output may be a specification of what a rigorous effort must address.
+
+---
+---
+
+# Part III — Main Body
+
+## 1. Introduction and statutory framework
+**[TO WRITE]** § 56-585.5, § 45.2-1706.1, and the 2026 amendments. Full text in Part IV.
+
+## 2. The demand question
+**[TO WRITE]** Growth since 2020; data-center concentration; what "doubled" means precisely and
+on what basis. Draws on `docs/methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md`.
+*Addresses § 45.2-1710(B)(1).*
+
+## 3. Scenarios
+**[TO WRITE]** S1 (full compliance), S1B (5 percent gas from 2045), S2 (statutory minimum),
+S3 (distributed-heavy), S5 (demand sensitivity).
+
+## 4. Resource adequacy under real weather
+**[TO WRITE]** The eight-year continuous test; the seasonal storage finding; the capacity-versus-
+energy distinction. *Addresses § 45.2-1710(B)(2), (B)(4).*
+
+## 5. Storage
+**[TO WRITE]** Short- versus long-duration; the § 56-585.5(E) duration definitions and their
+modeling consequences; the 2030 charge-starvation finding.
+
+## 6. Cost results
+**[TO WRITE]** SLCOE by scenario; NPV comparison with the IRP; social cost; RGGI.
+*Addresses § 45.2-1710(B)(1).*
+
+## 7. Demand-side resources
+**[TO WRITE]** NSPM framing; measure-level analysis; what was scoped in and out and why.
+*Addresses § 45.2-1710(B)(5).*
+
+## 8. Distributed generation and siting
+**[TO WRITE]** The four-county assessment; extrapolation and its limits; the statutory preference
+for previously developed project sites. *Addresses § 45.2-1710(B)(3).*
+
+## 9. Impediments to distributed resources
+**[TO WRITE]** § 45.2-1710(B)(3) requires the Plan to identify these and recommend removing them.
+Candidates: the 100 MW co-located solar-plus-storage cap and its transmission consequences;
+interconnection process; data availability for independent verification.
+
+## 10. Legislative and regulatory options
+**[TO WRITE]** *Addresses § 45.2-1710(B)(12).*
+
+## 11. Corrections and open items
+**[TO WRITE]** Deliberately included. Documents what this analysis found wrong in its own prior
+work and what remains unresolved — see `docs/Internal_Debugging_Log.md` for the full record.
+
+---
+---
+
+# Part IV — Appendices
+
+Published in full at `github.com/skyemoor/VA-Energy-Plan-Input`.
+
+| | |
+|---|---|
+| A | Resource adequacy methodology |
+| B | Cost assumptions |
+| C | Scenario 2 methodology |
+| D | Tiered social cost framework |
+| E | Distributed energy resource owner economics |
+| F | Known limitations |
+| O | Demand shape and data-center flattening |
+| — | Demand basis and RPS compliance working notes |
+| — | Statutory text (§ 56-585.5, § 56-585.1:4, § 45.2-1701, § 45.2-1702, § 45.2-1706.1, § 45.2-1710) |
+| — | Northern Virginia solar siting assessment |
+| — | Weather-year selection and robustness |
+| — | Internal debugging log |
+| — | Provenance and citation registers |
