@@ -199,6 +199,25 @@ parking lot; (iii) as the site of a parking lot canopy or structure." At least 1
 
 ## 8. Open items
 
+**Decision taken 2026-09-10:** item 2 below is RESOLVED — the dual-basis approach is adopted and
+implemented in `lp_package/rps_compliance.py` with 21 baseline-locked tests
+(`tests/test_rps_compliance.py`). The physical LP is unchanged; the statutory basis is a
+post-processing layer. Reporting entry point is `compare_bases()`, which returns both figures and
+their gap. Remaining items below are unchanged.
+
+First illustrative output (2045, provisional inputs):
+
+| | TWh |
+|---|---:|
+| Statutory RPS obligation | 148.0 |
+| Physical clean requirement | 205.9 |
+| **Gap** | **57.9** |
+| Statutory as share of physical | 71.9% |
+| Deficiency ceiling | $57.14/MWh |
+
+With heavy ACEB participation (40 TWh self-procured) the statutory obligation falls to 108.0 TWh —
+52.5% of the physical requirement. ACEB participation is the largest single lever.
+
 1. **Confirm Virginia-only totals** against the original IRP PDF; the 2B-2 table was lost in
    text extraction and 106,994 GWh (2030) is currently derived by subtraction.
 2. **Decide the RPS formulation.** Recommendation: implement the statutory basis *alongside*
