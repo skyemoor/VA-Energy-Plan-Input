@@ -167,6 +167,89 @@
       ],
       "superseded_by": null,
       "notes": "Case PUR-2025-00184, 2026-2045, 6.62% discount rate. Includes only 2,000 MW storage -- predates HB895/SB448 requiring 19,480 MW."
+    },
+    {
+      "record_id": "R-ACCREDIT-2030",
+      "description": "Na-ion own-data capacity credit, 2030 checkpoint, no-foresight dispatch",
+      "created_date": "2026-09-10",
+      "value": 0.0,
+      "units": "fraction",
+      "scenario": "S1",
+      "year": 2030,
+      "status": "superseded",
+      "generating_script": "(not retained -- result discarded)",
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-CHECKPOINT-CSV-VINTAGE"
+      ],
+      "superseded_by": "pending re-solve on corrected demand",
+      "notes": "DISCARDED, not merely uncertain. Computed 0.0% but rests on the superseded demand vintage, so the peak net-demand hours identified are the wrong hours -- correcting the separate iron-air omission would not fix this. Also credited Na-ion only, omitting long-duration storage present at 2035 (116,127 MWh), which biases credit downward. BLOCKED pending a re-solve of these checkpoints on corrected demand."
+    },
+    {
+      "record_id": "R-ACCREDIT-2035",
+      "description": "Na-ion own-data capacity credit, 2035 checkpoint, no-foresight dispatch",
+      "created_date": "2026-09-10",
+      "value": 0.0,
+      "units": "fraction",
+      "scenario": "S1",
+      "year": 2035,
+      "status": "superseded",
+      "generating_script": "(not retained -- result discarded)",
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-CHECKPOINT-CSV-VINTAGE"
+      ],
+      "superseded_by": "pending re-solve on corrected demand",
+      "notes": "DISCARDED, not merely uncertain. Computed 0.0% but rests on the superseded demand vintage, so the peak net-demand hours identified are the wrong hours -- correcting the separate iron-air omission would not fix this. Also credited Na-ion only, omitting long-duration storage present at 2035 (116,127 MWh), which biases credit downward. BLOCKED pending a re-solve of these checkpoints on corrected demand."
+    },
+    {
+      "record_id": "R-ACCREDIT-2040",
+      "description": "Na-ion own-data capacity credit, 2040 checkpoint, no-foresight dispatch",
+      "created_date": "2026-09-10",
+      "value": 0.0,
+      "units": "fraction",
+      "scenario": "S1",
+      "year": 2040,
+      "status": "superseded",
+      "generating_script": "(not retained -- result discarded)",
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-CHECKPOINT-CSV-VINTAGE"
+      ],
+      "superseded_by": "pending re-solve on corrected demand",
+      "notes": "DISCARDED, not merely uncertain. Computed 0.0% but rests on the superseded demand vintage, so the peak net-demand hours identified are the wrong hours -- correcting the separate iron-air omission would not fix this. Also credited Na-ion only, omitting long-duration storage present at 2035 (116,127 MWh), which biases credit downward. BLOCKED pending a re-solve of these checkpoints on corrected demand."
+    },
+    {
+      "record_id": "R-ACCREDIT-2045",
+      "description": "Na-ion own-data capacity credit, 2045, no-foresight 8-year dispatch",
+      "created_date": "2026-09-10",
+      "value": 0.318,
+      "units": "fraction",
+      "scenario": "S1",
+      "year": 2045,
+      "status": "provisional",
+      "generating_script": "scripts/sim_2045_8yr.py + lp_package/storage_accreditation.py",
+      "input_files": [],
+      "depends_on_assumption_ids": [],
+      "superseded_by": null,
+      "notes": "STANDS. Derived from this session own 8-year heuristic simulation using corrected (2B-1 basis) demand and a fleet from this session own solve -- NOT from the superseded checkpoint CSVs. Below PJM published 50% for 4-hour storage, so the A.13 cross-validation rule adopts it. Provisional because it credits Na-ion only and rests on a single heuristic dispatch policy; a more anticipatory policy would raise it."
+    },
+    {
+      "record_id": "R-S2-GAS-CAPACITY-RANGE-2045",
+      "description": "Statutory Floor gas capacity requirement, 2045, range across storage accreditation bases",
+      "created_date": "2026-09-10",
+      "value": 20200.0,
+      "units": "MW",
+      "scenario": "S2",
+      "year": 2045,
+      "status": "provisional",
+      "generating_script": "scripts/compare_scenario2_capacity_standards.py",
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "R-ACCREDIT-2045"
+      ],
+      "superseded_by": null,
+      "notes": "Range: 4,485 MW at nameplate credit, ~20,200 MW at the 31.8% no-foresight credit, 22,446 MW at zero credit (Appendix C.2 rule). The 18 GW spread is entirely the storage accreditation assumption. Point value recorded is the derived conservative case."
     }
   ],
   "assumptions": [
@@ -239,6 +322,15 @@
       "created_date": "2026-09-10",
       "value": 19480.0,
       "units": "MW",
+      "citation_key": null,
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-CHECKPOINT-CSV-VINTAGE",
+      "description": "The four VA_YYYY_Scenario1_hourly CSVs in results/hourly_dispatch/ rest on the SUPERSEDED demand vintage (Internal Debugging Log #24). 2030 shows 144.1 TWh / 19,038 MW peak against the current sourced 110,864 GWh. Trajectory 144.1->176.7 TWh (+23%) versus the current 2B-1 series 110,864->186,462 GWh (+68%): wrong level AND wrong growth shape. The 2045 file also uses a different 17-column schema (net rather than separate charge/discharge), indicating a different code vintage.",
+      "created_date": "2026-09-10",
+      "value": "superseded demand basis",
+      "units": null,
       "citation_key": null,
       "dependent_result_ids": []
     }

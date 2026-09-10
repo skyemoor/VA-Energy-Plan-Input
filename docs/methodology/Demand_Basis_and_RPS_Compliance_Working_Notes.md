@@ -376,3 +376,55 @@ below — the zero-credit bound.
 
 Credits for 2030, 2035 and 2040 still require no-foresight dispatch runs for their own fleets;
 only 2045 has one. The LP-derived figures in the table above must **not** be used for those years.
+
+---
+
+## 12. Checkpoint dispatch files are not a consistent set (2026-09-10)
+
+Attempting to compute accreditation for 2030, 2035 and 2040 from the stored checkpoint dispatch
+CSVs found that **the four files are not from one consistent solve vintage.** Three independent
+indications:
+
+**Stale demand basis.** The 2030 file shows 144.1 TWh annual and a 19,038 MW peak. Internal
+Debugging Log #24 identified exactly this vintage as 1.30x too high against the current sourced
+figure of 110,864 GWh.
+
+**Wrong growth shape, not just wrong level.** The files run 144.1 -> 167.4 -> 171.9 -> 176.7 TWh
+(+23% over fifteen years). The current Appendix 2B-1 series runs 110,864 -> 186,462 GWh (+68%).
+This matches #24's finding that the discrepancy decayed toward 2040 and flipped sign by 2045.
+
+**Different schema at 2045.** Seventeen columns rather than nineteen — net storage columns instead
+of separate charge and discharge — indicating a different code vintage.
+
+Two further incoherences: long-duration storage is non-monotonic across checkpoints
+(0 -> 116,127 -> 0 -> 6,352,286 MWh), which the project's own monotonic-build convention should
+prevent; and curtailment runs 2,955 -> 2,658,772 -> 13,044,965 -> **0** MWh, with the zero
+appearing in a file named `TRUE_FINAL_ZeroCurt` alongside 109,560 MW of solar, suggesting
+curtailment was suppressed rather than solved.
+
+### Consequence for accreditation
+
+The 2030, 2035 and 2040 credits computed from these files are **discarded, not merely uncertain.**
+They returned 0.0%, and the underlying mechanism (storage sitting at exactly its 20% depth-of-
+discharge floor at every one of the ten peak hours) is real and consistent with the separately
+established charge-starvation finding. But the peak hours themselves were identified from stale
+demand, so they are the wrong hours. A separate defect — crediting Na-ion only, omitting the
+116,127 MWh of long-duration storage present at 2035 — biases the result further downward.
+Correcting the second would not fix the first.
+
+Recorded as `R-ACCREDIT-2030/2035/2040`, status `superseded`, superseded_by "pending re-solve on
+corrected demand".
+
+### What stands
+
+**The 2045 figure of 31.8% stands.** It derives from this session's own eight-year heuristic
+simulation using corrected demand and a fleet from this session's own solve, not from these files.
+Recorded as `R-ACCREDIT-2045`, status `provisional` — provisional because it credits Na-ion only
+and rests on a single heuristic dispatch policy, which a more anticipatory policy would improve on.
+
+### Blocked
+
+Accreditation for 2030, 2035 and 2040 is blocked pending a re-solve of those checkpoints on
+corrected demand. Until then the whitepaper can report 2045 only, and must state the earlier years
+as not yet available rather than substituting the LP-derived figures — which are the foresight
+artifact described in § 11.
