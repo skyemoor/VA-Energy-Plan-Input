@@ -13,7 +13,7 @@ Imported by code in the repository but not present:
 
 | Module | Imported by | Consequence |
 |---|---|---|
-| `assumptions` | `checkpoint_solver.py` | The centralized constants module built in Internal Debugging Log #49 specifically to prevent duplicate-constant bugs. Its absence is the most serious item here. |
+| ~~`assumptions`~~ | `checkpoint_solver.py` | **RESTORED 2026-09-10.** See "What restoring it found" below. |
 | `compute_scenario2_gas_replacement` | `checkpoint_solver.py` | `Scenario2Solver.get_existing_new_mw()` cannot run — blocks the social-cost/RGGI mixin for the Statutory Floor. |
 | `compute_tier123_final` | `checkpoint_solver.py` | Blocks Tier 1/2/3 social cost calculation for every scenario. |
 | `compute_scenario2_costs` | (not imported in-repo; referenced in docs) | The Statutory Floor capital cost pipeline. Calls `lp_model.ccgt_capex_kw()`, which nothing else in the repository calls. |
@@ -94,3 +94,41 @@ not a prerequisite.
 2. **Build `run_all.py`** so derived intermediates are produced in dependency order rather than
    assumed to exist.
 3. **Then** refactor capital costing into a `CapitalCostMixin`.
+
+---
+
+## What restoring `assumptions.py` found (2026-09-10)
+
+Restoring the module and comparing it value-by-value against `lp_model.py` — which legitimately
+holds its own copies, needing them at import time for objective construction — found **24 shared
+constants in agreement and one divergent**:
+
+| Constant | `assumptions.py` | `lp_model.py` |
+|---|---:|---:|
+| `RESILIENCE_TILT_PCT` | **0.0** | **0.03** |
+
+`lp_model.py` is the current one: it reinstated 0.03 on 2026-09-04 after the RBD trial (Internal
+Debugging Log #20.6) concluded, with a full rationale, and applies it to `IRON_AIR_ENERGY_MWH`'s
+objective coefficient. `assumptions.py` still carried the older held-at-zero value and its note
+"see lp_model.py's own fuller note if reinstating."
+
+**Solved results were never wrong**, because the LP reads `lp_model.py`'s copy. But any caller
+importing `assumptions.RESILIENCE_TILT_PCT` would have silently received 0.0 — for six days. This
+is precisely the divergence Rule 6.2 exists to catch, and the same class of defect as Debugging
+Log #49, which cost a full Scenario 2 re-run across three gas cases with and without RGGI.
+
+**Fixed two ways**: `assumptions.py` synchronized to 0.03 with a change note, and a runtime
+cross-check (`_assert_consistent_with_lp_model()`) added at the foot of the module covering all 25
+shared scalars. It raises at import rather than warning, because a divergence means some caller is
+already receiving a wrong number and which caller is not knowable from that module. Verified to
+fire on an injected mismatch, not merely present.
+
+## Test suite: `conftest.py` added
+
+`tests/test_provenance.py` could not be collected — it was written while `provenance.py` sat in
+the same working directory and lacked the `sys.path.insert` preamble the other test modules carry.
+A `conftest.py` now handles this for the whole directory, which is the correct scope; the per-file
+inserts were working only for the files that remembered them.
+
+The six test suites written this session (95 tests) now pass together. The pre-existing suites
+still cannot be collected: they need the feature modules listed above, which remain absent.
