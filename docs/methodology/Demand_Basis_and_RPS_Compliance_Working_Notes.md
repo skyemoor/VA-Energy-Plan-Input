@@ -428,3 +428,78 @@ Accreditation for 2030, 2035 and 2040 is blocked pending a re-solve of those che
 corrected demand. Until then the whitepaper can report 2045 only, and must state the earlier years
 as not yet available rather than substituting the LP-derived figures — which are the foresight
 artifact described in § 11.
+
+---
+
+## 13. Virginia-only load basis adopted (2026-09-10)
+
+§ 3 and § 4 established that the raw hourly file is VA+NC **load** and Appendix 2B-1 is VA+NC
+**sales**. A natural question is whether the two corrections offset — whether the raw file is
+"roughly right for Virginia because of losses." **They do not offset**, because they act on
+different quantities: losses separate sales from load, North Carolina is a difference in scope.
+
+Worked through for 2030:
+
+| Step | GWh |
+|---|---:|
+| Raw DOMLSE hourly (VA+NC **load**) | 122,164 |
+| ÷ loss factor 1.0925 → VA+NC sales | 110,864 |
+| − NC sales (Appendix 2B-3) → VA-only sales | 106,994 |
+| × loss factor → **VA-only load** | **117,900** |
+
+Raw exceeds VA-only load by **3.6%**, essentially exactly North Carolina's 3.5% share of sales.
+
+**The useful conclusion is favourable:** the raw hourly file already carries the loss gross-up
+correctly, and its only remaining error for Virginia purposes is the North Carolina inclusion.
+That is a far smaller error than scaling the hourly shape to a sales-basis annual total, which
+strips the losses back out and leaves generation need roughly 9% short. The earlier concern in
+§ 1 that the project systematically understates generation need by ~6% applies to the
+sales-scaled checkpoint files, **not** to work using the raw hourly file directly.
+
+### Adopted basis
+
+**Virginia-only load**, obtained by scaling the raw hourly array by that year's own Virginia
+share of DOM LSE sales (`lp_package/virginia_only_demand.py`), computed from filed Appendices
+2B-1 and 2B-3:
+
+| Year | Raw VA+NC load | VA share | VA-only load | VA-only sales |
+|---|---:|---:|---:|---:|
+| 2030 | 122,164 | 0.9651 | 117,900 | 106,994 |
+| 2035 | 153,006 | 0.9724 | 148,787 | 132,877 |
+| 2040 | 192,846 | 0.9773 | 188,469 | 158,398 |
+| 2045 | 206,308 | 0.9801 | 202,193 | 182,743 |
+
+Virginia's share rises across the horizon because North Carolina sales are roughly flat
+(3,870 → 3,719 GWh) while Virginia grows.
+
+**Stated approximation:** applying the share as a scalar assumes Virginia and North Carolina load
+share the same hourly shape. Dominion does not publish separate hourly profiles by jurisdiction.
+The effect is bounded by NC's small share, so even a materially different NC shape moves the
+Virginia hourly profile very little.
+
+**Scope is a choice, not a correction.** VA+NC load is what Dominion physically dispatches and is
+defensible for pure reliability modelling; VA-only load is what Virginia customers consume and is
+consistent with § 56-585.5 and with the compliance base in `rps_compliance.py`. This project uses
+VA-only and states it.
+
+### Statutory Floor re-run on the adopted basis
+
+`scripts/rerun_scenario2_virginia_only.py`. Solar per § 56-585.5(D)(2) ramp, storage per
+(E)(2)/(E)(4), CCGT sized per Appendix C.2 (worst hourly gap, zero storage credit):
+
+| Year | Solar MW | Na MW | Fe MW | CCGT MW | Gas TWh | Curtailment | Unserved |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 2030 | 7,156 | 4,000 | 0 | 14,923 | 55.7 | 0 | **0** |
+| 2035 | 16,100 | 8,000 | 2,000 | 18,455 | 69.8 | 0 | **0** |
+| 2040 | 16,100 | 12,000 | 3,000 | 22,925 | 109.0 | 0 | **0** |
+
+Zero unserved at every checkpoint, which is the expected result given CCGT was sized externally
+to cover the worst hour with no storage credit — Appendix C.2 notes a nonzero result here would
+be a reportable finding, and there is none.
+
+### Still blocked
+
+Storage accreditation for these years remains unavailable. Computing it from this Scenario 2 LP's
+own dispatch reproduces the § 11 foresight artifact (2030 100.0%, 2035 0.0%, 2040 100.0% —
+erratic and non-monotonic). A no-foresight heuristic dispatch against each year's Statutory Floor
+fleet is required, as was done for 2045.
