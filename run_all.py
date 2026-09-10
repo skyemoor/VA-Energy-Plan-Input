@@ -90,6 +90,17 @@ class Stage:
         import paths
         return all(os.path.exists(os.path.join(paths.REPO_ROOT, o)) for o in self.outputs)
 
+    def unmet_prerequisites(self, stage_outputs_available):
+        """Names of declared input stages whose outputs are not on disk.
+
+        The `inputs` field was previously declared and never read -- a stage would run even when
+        the stage that produces its inputs had skipped, then fail on a missing file. Found
+        2026-09-10 by a user whose source data was absent: stage 1 skipped, stage 4 ran anyway and
+        died. Declaring a dependency graph and then not consulting it is worse than not declaring
+        one, because the docstring claims a check that is not happening.
+        """
+        return [name for name in self.inputs if not stage_outputs_available.get(name, False)]
+
     def missing_sources(self):
         import paths
         missing = []
@@ -278,18 +289,29 @@ def main():
         print(f"No stage named '{args.only}'. Known stages: {', '.join(s.name for s in STAGES)}")
         return 1
 
-    ran = skipped = failed = 0
+    ran = already_built = blocked = failed = 0
+    available = {}          # stage name -> its outputs are on disk
     for i, stage in enumerate(stages, 1):
         label = f"[{i}/{len(stages)}] {stage.name}"
+
+        unmet = stage.unmet_prerequisites(available)
+        if unmet:
+            print(f"{label}: SKIPPED -- needs output from: {', '.join(unmet)}")
+            print(f"           That stage did not run, so its outputs do not exist.")
+            blocked += 1
+            continue
+
         missing = stage.missing_sources()
         if missing:
             print(f"{label}: SKIPPED -- source data not present: {', '.join(missing)}")
             print(f"           See docs/DATA_SOURCES.md; place files in {paths.SOURCE_DATA}")
-            skipped += 1
+            blocked += 1
             continue
+
         if stage.outputs_exist() and not args.force:
             print(f"{label}: already built (use --force to rebuild)")
-            skipped += 1
+            available[stage.name] = True
+            already_built += 1
             continue
 
         print(f"{label}: {stage.description}")
@@ -302,7 +324,7 @@ def main():
             print(f"           {type(exc).__name__}: {exc}")
             traceback.print_exc()
             failed += 1
-            break
+            continue   # later independent stages may still succeed; dependants will skip cleanly
         elapsed = time.time() - started
         print(f"           done ({elapsed:.0f}s)")
         if summary:
@@ -317,10 +339,21 @@ def main():
             build_results=summary or {},
             runtime_seconds=round(elapsed, 1),
         ).write_json(paths.manifest(f'{stage.name}.json'))
+        available[stage.name] = True
         ran += 1
 
     print("\n" + "=" * 72)
-    print(f"Complete: {ran} run, {skipped} skipped, {failed} failed")
+    parts = [f"{ran} run"]
+    if already_built:
+        parts.append(f"{already_built} already built")
+    if blocked:
+        parts.append(f"{blocked} blocked")
+    if failed:
+        parts.append(f"{failed} failed")
+    print("Complete: " + ", ".join(parts))
+    if blocked:
+        print("\nBlocked stages need source data that is not committed to this repository.")
+        print(f"Place the named files in {paths.SOURCE_DATA} and re-run; see docs/DATA_SOURCES.md.")
     print(f"Results:   {paths.RESULTS}")
     print(f"Manifests: {paths.MANIFESTS}")
     print("=" * 72 + "\n")

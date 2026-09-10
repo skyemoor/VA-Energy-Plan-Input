@@ -98,7 +98,12 @@ Common cases:
 | Message | Meaning |
 |---|---|
 | `'scipy' not installed` | Run the pip command in step 2 |
-| `SKIPPED -- source data not present` | Put the named file in `data/source/` |
-| `source data file not found` | Same, with the search paths listed |
+| `SKIPPED -- source data not present` | Put the named file in `data/source/` and re-run |
+| `SKIPPED -- needs output from: <stage>` | An upstream stage did not run; fix that one first |
+| `source data file not found` | Same as above, with the search paths listed |
+
+A blocked stage is not an error. Stages that do not depend on the missing input still run, so a
+partial result set is produced rather than nothing. Re-running after adding the file executes only
+the stages that were blocked — everything already built is skipped.
 
 Nothing writes outside the repository directory.
