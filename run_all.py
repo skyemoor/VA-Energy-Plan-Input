@@ -131,29 +131,19 @@ class Stage:
 
 
 def stage_demand_arrays():
-    """Virginia-only hourly demand for each checkpoint fiscal year."""
-    import numpy as np, pandas as pd, paths
-    from virginia_only_demand import to_virginia_only_load
-    src = paths.source_file('DOMLSEHourlyLoadProjections2024through2048.csv')
-    df = pd.read_csv(src)
-    hrs = [str(h) for h in range(1, 25)]
-    # Filename aliasing resolves WHERE the file is, not WHAT is in it -- a differently-named
-    # variant of this dataset may carry a different layout (the `_formatted` variant uses
-    # DateTime/MWh instead). Check before use rather than failing deep in the reshape.
-    paths.require_columns(df, ['Year', 'Month', 'Day'] + hrs, os.path.basename(src))
+    """Virginia-only hourly demand for each checkpoint fiscal year.
+
+    Fiscal-year construction, leap handling and column validation live in
+    demand_basis.VirginiaOnlyLoad, not here (Rule 1.3: scripts orchestrate, they do not own logic
+    called more than once). This stage now only chooses the years and writes the files.
+    """
+    import numpy as np, paths
+    from demand_basis import VirginiaOnlyLoad
     written = []
     for year in (2030, 2035, 2040, 2045):
-        a = df[(df.Year == year) & (df.Month >= 4)].sort_values(['Month', 'Day'])
-        b = df[(df.Year == year + 1) & (df.Month <= 3)].sort_values(['Month', 'Day'])
-        a = a[~((a.Month == 2) & (a.Day == 29))]
-        b = b[~((b.Month == 2) & (b.Day == 29))]
-        raw = np.concatenate([a[hrs].values.astype(float).flatten(),
-                              b[hrs].values.astype(float).flatten()])
-        if len(raw) != 8760:
-            raise ValueError(f"{year} fiscal year produced {len(raw)} hours, expected 8760")
-        out = to_virginia_only_load(raw, year)
-        path = paths.intermediate(f'demand_{year}fy_va_only.npy')
-        np.save(path, out)
+        basis = VirginiaOnlyLoad(year)
+        out = basis.hourly_mw()
+        np.save(paths.intermediate(f'demand_{year}fy_va_only.npy'), out)
         written.append((year, out.sum() / 1e6, out.max()))
     return {'years': [int(w[0]) for w in written],
             'annual_twh': [round(float(w[1]), 1) for w in written],
