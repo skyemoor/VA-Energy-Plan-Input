@@ -226,6 +226,31 @@ class StatutoryRPSObligation:
         }
 
 
+# ---------------------------------------------------------------------------
+# NOT YET IMPLEMENTED -- Activity Tracker ID 55, priority 2
+#
+# REC BANKING (§ 56-585.5(C)(4)): excess RECs may be applied "in the year in which it was
+# generated and the five calendar years after" -- a six-year validity window. This module is
+# single-year and does not model it, so a utility's ability to smooth compliance across years by
+# banking surplus is currently absent from every figure produced here.
+#
+# The tracked feature is deliberately BEHAVIORAL rather than accounting-only: it should model the
+# utility's economic CHOICE between banking surplus and paying the § 56-585.5(D)(5) deficiency,
+# in order to locate the point at which the deficiency ceiling (~$57/MWh by 2045) becomes cheaper
+# than building -- against a 2045 physical SLCOE modeled near $133/MWh. That crossover is the
+# weakness in the compliance regime the analysis is looking for.
+#
+# Design sketch, ordering decisions already reasoned through: a RECBank holding vintaged balances;
+# retire FIFO (oldest vintage first, since those expire soonest); expire AFTER retirement (vintage
+# Y is valid THROUGH Y+5, so during Y+5 it remains usable). A MultiYearComplianceTrajectory
+# sequences years and owns the bank; the single-year classes above stay unchanged and are used
+# inside it.
+#
+# Open question carried into that work: whether the § C.2 distributed and § C.1.b geothermal
+# carve-outs bank in separate vintage pools. Recommended conservative reading is that they do.
+# ---------------------------------------------------------------------------
+
+
 def compare_bases(statutory_obligation, physical_clean_requirement_mwh):
     """Reports the two bases together. This is the intended reporting entry point.
 
