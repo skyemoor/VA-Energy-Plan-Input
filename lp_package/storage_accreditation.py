@@ -101,10 +101,14 @@ a later one with a larger fleet. compute_from_dispatch() takes one checkpoint's 
 returns that checkpoint's own credit; callers must recompute per checkpoint.
 """
 import numpy as np
+import assumptions
 
 
-DEFAULT_PEAK_HOURS_COUNT = 10
-NA_DEPTH_OF_DISCHARGE_FLOOR_FRACTION = 0.20   # lp_model.NA_DOD_FLOOR
+# Rule 6: both sourced from assumptions.py. NA_DEPTH_OF_DISCHARGE_FLOOR_FRACTION was previously a
+# local 0.20 duplicating assumptions.NA_DOD_FLOOR -- exactly the divergence pattern that produced
+# the RESILIENCE_TILT_PCT defect, created here on 2026-09-10 and removed the same day.
+DEFAULT_PEAK_HOURS_COUNT = assumptions.CAPACITY_CREDIT_PEAK_HOURS_COUNT
+NA_DEPTH_OF_DISCHARGE_FLOOR_FRACTION = assumptions.NA_DOD_FLOOR
 
 
 def peak_net_demand_hours(demand, nuclear, exist_solar, wind_generation_mw,

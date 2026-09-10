@@ -76,23 +76,16 @@ not be treated as stable across a 20-year build programme. Anything relying on t
 a checkpoint beyond roughly 2030 should carry an explicit escalation assumption rather than
 holding this level flat.
 """
+import assumptions
 
-# Size tier boundaries (MW). Chosen to match the tiering in the sourced material rather than
-# invented: USP&E's own breakpoints are 25-50 MW and 250+ MW; the mid tier spans between.
-SMALL_TIER_MAX_MW = 50.0
-MEDIUM_TIER_MAX_MW = 250.0
-
-# Full installed project cost, $/kW, 2026 basis. Central values anchor on GridLab's reported
-# 2026-2027 completion range for combustion turbines, scaled across tiers using USP&E's own
-# size-cost shape. Ranges carry the sourced low/high rather than a synthetic confidence interval.
-PEAKER_CAPEX_KW_BY_TIER = {
-    'small':  {'low': 1400.0, 'central': 1750.0, 'high': 2400.0},   # <= 50 MW
-    'medium': {'low': 1116.0, 'central': 1425.0, 'high': 1900.0},   # 50-250 MW
-    'large':  {'low':  950.0, 'central': 1250.0, 'high': 1700.0},   # > 250 MW
-}
-
-DUAL_FUEL_ADDER_KW = 200.0            # USP&E: $150-250/kW, midpoint
-FAST_TRACK_PREMIUM_FRACTION = 0.15    # USP&E: 10-20% for delivery under 18 months, midpoint
+# Rule 6: all values sourced from assumptions.py's own CAPEX -- SIMPLE-CYCLE PEAKERS block, where
+# the derivation and volatility caveat are recorded alongside them. Aliased here rather than
+# redefined so this module reads standalone while remaining single-sourced.
+SMALL_TIER_MAX_MW = assumptions.PEAKER_SMALL_TIER_MAX_MW
+MEDIUM_TIER_MAX_MW = assumptions.PEAKER_MEDIUM_TIER_MAX_MW
+PEAKER_CAPEX_KW_BY_TIER = assumptions.PEAKER_CAPEX_KW_BY_TIER
+DUAL_FUEL_ADDER_KW = assumptions.PEAKER_DUAL_FUEL_ADDER_KW
+FAST_TRACK_PREMIUM_FRACTION = assumptions.PEAKER_FAST_TRACK_PREMIUM_FRACTION
 
 
 def size_tier(unit_mw):

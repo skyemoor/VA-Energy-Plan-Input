@@ -390,6 +390,134 @@ print(f"[assumptions.py] SOLAR_CAPEX(${BUILD_YEAR})=${solar_capex(BUILD_YEAR):.1
       f"CCGT_CAPEX=${ccgt_capex_kw(BUILD_YEAR):.1f}/kW  CRF={CRF:.5f}")
 
 
+# ============================================================================
+# STATUTORY PARAMETERS -- Va. Code § 56-585.5
+# ============================================================================
+#
+#   *** READ BEFORE CHANGING ANY VALUE IN THIS BLOCK ***
+#
+# These are figures the LAW currently specifies, not modeling judgments. Changing one does NOT
+# model Virginia as it is -- it models Virginia under a HYPOTHETICAL AMENDMENT to § 56-585.5.
+#
+# They are deliberately mutable, because this project's own purpose includes evaluating whether
+# the statute should be amended and what such an amendment would cost. Scenario 1B (Build to Zero,
+# 2045 Gas Exception) is exactly that case: it relaxes the 2045 requirement from 100% to 95%,
+# which is a legislative recommendation, not a fact about current law.
+#
+# THEREFORE: any result computed with a changed value here MUST be labelled as modeling a proposed
+# statutory change, never as compliance with existing law. The verbatim text of every provision
+# below is in docs/statutes/56-585.5.md -- check it before altering a value, and record the
+# rationale in the relevant scenario's technical notes.
+#
+# Values below reflect the statute as amended through 2026 (cc. 43, 512, 645, 646, 694, 695,
+# 733, 734), including HB 895 / SB 448.
+# ============================================================================
+
+# § 56-585.5(D)(5) -- deficiency payments. An economic CEILING on compliance cost: a utility
+# facing higher build costs may lawfully pay these instead of building.
+DEFICIENCY_PAYMENT_BASE_RATE_PER_MWH = 45.0
+DEFICIENCY_PAYMENT_SUB_ONE_MW_RATE_PER_MWH = 75.0      # sub-1 MW VA solar/wind/anaerobic shortfalls
+DEFICIENCY_PAYMENT_GEOTHERMAL_RATE_PER_MWH = 100.0     # § C.1.b geothermal shortfalls
+DEFICIENCY_PAYMENT_BASE_YEAR = 2021
+DEFICIENCY_PAYMENT_ANNUAL_ESCALATION = 0.01            # "shall increase by one percent annually"
+
+# § 56-585.5(A) -- accelerated clean energy buyer threshold. Aggregate load, prior calendar year.
+# Opt-in: exceeding this does not itself remove load from the compliance base; the customer must
+# contract under subsection G AND be certified by the Commission.
+ACCELERATED_CLEAN_ENERGY_BUYER_THRESHOLD_MW = 25.0
+
+# § 56-585.5(C)(3) -- minimum share of RECs from resources located in the Commonwealth.
+IN_COMMONWEALTH_REC_MINIMUM_SHARE = 0.75
+IN_COMMONWEALTH_REC_MINIMUM_FIRST_YEAR = 2027
+
+# § 56-585.5(C)(2) -- distributed carve-out: share of the RPS requirement that must come from
+# solar/wind/anaerobic digestion resources of one megawatt or less located in Virginia.
+DISTRIBUTED_CARVE_OUT_SHARE_2026_THROUGH_2030 = 0.045
+DISTRIBUTED_CARVE_OUT_SHARE_2031_THROUGH_2045 = 0.05
+
+# § 56-585.5(E)(6) -- maximum size of any single energy storage project.
+MAX_SINGLE_STORAGE_PROJECT_MW = 500.0
+MAX_SINGLE_STORAGE_PROJECT_PHASE_II_MW = 800.0
+
+# § 56-585.5(D)(2) -- Phase II solar/onshore wind requirement by December 31, 2035.
+STATUTORY_SOLAR_TARGET_MW = 16100.0
+STATUTORY_SOLAR_PREVIOUSLY_DEVELOPED_SITE_MIN_MW = 1000.0   # parking lots and canopies qualify
+
+
+# ============================================================================
+# RELIABILITY AND CAPACITY ACCREDITATION
+# ============================================================================
+# PJM Installed Reserve Margin. Applied uniformly across scenarios -- see
+# docs/methodology/ for the Statutory Floor asymmetry this corrected.
+INSTALLED_RESERVE_MARGIN = 0.177
+
+# Number of highest-net-demand hours used for own-data capacity credit, per Appendix A.13
+# Algorithm 1 step 2. A methodological choice, not a sourced figure.
+CAPACITY_CREDIT_PEAK_HOURS_COUNT = 10
+
+# Contiguous stress-window length for gas-outage testing. 144 hours = 6 days, matching this
+# project's own six-day-lookahead firming methodology rather than an arbitrary duration.
+GAS_OUTAGE_STRESS_WINDOW_HOURS = 144
+
+
+# ============================================================================
+# DISTRIBUTED SEGMENT -- physical bounds
+# ============================================================================
+# Distributed solar siting cap, DOM zone. Derived 2026-09-10 by re-basing the four-county NoVA
+# assessment (Prince William parking re-anchored to C&I footprint) and extrapolating statewide at
+# 0.93 kW/capita EXCLUDING Loudoun, whose data-center density is not representative.
+# See docs/methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md § 13.
+DOM_ZONE_DISTRIBUTED_SOLAR_CAP_MW = 7440.0
+
+# Distributed storage pairing, from this project's own parking-canopy convention: 1:1 MW with
+# distributed solar, 4-hour duration. Structurally excludes iron-air from the distributed segment,
+# since FE_DURATION=100 cannot satisfy a 4-hour duration -- which is also the physically right
+# answer, iron-air being a utility-scale rather than rooftop technology.
+DISTRIBUTED_STORAGE_DURATION_HR = 4.0
+DISTRIBUTED_STORAGE_POWER_RATIO_TO_SOLAR = 1.0
+
+
+# ============================================================================
+# STORAGE CYCLING REQUIREMENTS
+# ============================================================================
+# Annual cycle requirements for the charging-adequacy constraint. DISCLOSED MODELING CHOICES, not
+# sourced constants -- see lp_package/charging_adequacy.py for the full reasoning. Deliberately
+# per-technology: iron-air's ~1,000-cycle demonstrated life (FE_CYCLE_LIFE, citation C122) over a
+# ~25-year life is ~40 cycles/year, so requiring it to cycle at a sodium-ion-like daily rate would
+# consume its entire rated life in under three years.
+NA_CYCLES_PER_YEAR_REQUIREMENT = 200.0    # well inside sodium-ion's own ~500-600/yr envelope (C119)
+FE_CYCLES_PER_YEAR_REQUIREMENT = 40.0
+
+
+# ============================================================================
+# CAPEX -- SIMPLE-CYCLE PEAKERS (VCEA scenarios)
+# ============================================================================
+# Full INSTALLED PROJECT cost ($/kW), not turbine-equipment-only -- the two differ by roughly 4x.
+# Used by the VCEA scenarios (Build to Zero, 2045 Gas Exception, Distributed Build), where gas is
+# a residual gap-filler and cycling wear makes simple-cycle correct. The Statutory Floor uses
+# ccgt_capex_kw() instead, its gas running at 42-58% capacity factor -- see
+# docs/methodology/Gas_Technology_Selection_By_Scenario.md.
+#
+# Two independent derivations converge here: Wood Mackenzie's April 2026 equipment figure
+# ($600/kW by end-2027) converted at the SIMPLE-CYCLE equipment share of 40-50% (versus 20-30% for
+# combined cycle) gives $1,200-1,500/kW; GridLab's September 2025 survey of project filings
+# reports CT projects completing 2026-2027 at $1,116-1,427/kW. Size tiering from USP&E April 2026.
+#
+# VOLATILE. Global orders reached 110 GW against 60-70 GW/yr manufacturing capacity; EPRI's
+# combined-cycle figure moved $2,000 -> $3,000/kW in six months. The 'high' case is not a tail
+# scenario, and checkpoints beyond ~2030 need an explicit escalation assumption rather than these
+# held flat.
+PEAKER_SMALL_TIER_MAX_MW = 50.0
+PEAKER_MEDIUM_TIER_MAX_MW = 250.0
+PEAKER_CAPEX_KW_BY_TIER = {
+    'small':  {'low': 1400.0, 'central': 1750.0, 'high': 2400.0},   # <= 50 MW
+    'medium': {'low': 1116.0, 'central': 1425.0, 'high': 1900.0},   # 50-250 MW
+    'large':  {'low':  950.0, 'central': 1250.0, 'high': 1700.0},   # > 250 MW
+}
+PEAKER_DUAL_FUEL_ADDER_KW = 200.0            # USP&E: $150-250/kW, midpoint
+PEAKER_FAST_TRACK_PREMIUM_FRACTION = 0.15    # USP&E: 10-20% for delivery under 18 months
+
+
 # ---------------------------------------------------------------------------
 # Rule 6.2 cross-check: this module and lp_model.py legitimately both define these values --
 # lp_model.py needs them at import time for its own objective construction, and this module is the

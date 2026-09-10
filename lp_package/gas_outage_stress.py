@@ -37,8 +37,9 @@ this module own that bound entirely -- otherwise run_solve's own capacity_cap_mw
 after the hook, overwrites the stress window and silently produces an ordinary unstressed solve.
 """
 import numpy as np
+import assumptions
 
-SIX_DAY_WINDOW_HOURS = 144
+SIX_DAY_WINDOW_HOURS = assumptions.GAS_OUTAGE_STRESS_WINDOW_HOURS  # Rule 6
 
 
 def find_worst_net_load_window(demand, clean_gen, window_hours=SIX_DAY_WINDOW_HOURS):

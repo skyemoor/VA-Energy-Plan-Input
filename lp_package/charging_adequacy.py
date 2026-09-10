@@ -38,11 +38,14 @@ the unconstrained baseline; a large gas increase would indicate this loophole is
 """
 import numpy as np
 from scipy import sparse
+import assumptions
 
 # Disclosed modeling choices, not researched constants -- see module docstring for the reasoning and
 # the cited lifetime figures each is derived from.
-DEFAULT_NA_CYCLES_PER_YEAR = 200.0   # well inside Na-ion's own ~500-600/yr design envelope (C119)
-DEFAULT_FE_CYCLES_PER_YEAR = 40.0    # ~1,000-cycle demonstrated life (C122) over a ~25-year life
+# Rule 6: sourced from assumptions.py's STORAGE CYCLING REQUIREMENTS block, where the reasoning
+# for the per-technology split is recorded alongside the values.
+DEFAULT_NA_CYCLES_PER_YEAR = assumptions.NA_CYCLES_PER_YEAR_REQUIREMENT
+DEFAULT_FE_CYCLES_PER_YEAR = assumptions.FE_CYCLES_PER_YEAR_REQUIREMENT
 
 
 def add_charging_adequacy_constraint(problem, na_cycles_per_year=DEFAULT_NA_CYCLES_PER_YEAR,

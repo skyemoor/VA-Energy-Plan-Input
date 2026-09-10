@@ -38,29 +38,33 @@ returns statutory_rps_obligation_mwh; the physical requirement keeps its own nam
 without the other is the specific failure this dual-basis structure exists to prevent.
 """
 import driver
+import assumptions
 
 
 # Statutory constants, § 56-585.5(D)(5). Rule 6: the RPS percentage schedule itself is NOT
 # duplicated here -- driver.RPS_CLEAN_PCT_PHASE_II is already a direct transcription of the
 # statute's own table and is referenced instead.
-DEFICIENCY_PAYMENT_BASE_RATE_PER_MWH = 45.0
-DEFICIENCY_PAYMENT_BASE_YEAR = 2021
-DEFICIENCY_PAYMENT_ANNUAL_ESCALATION = 0.01
-DEFICIENCY_PAYMENT_SUB_ONE_MW_RATE_PER_MWH = 75.0
-DEFICIENCY_PAYMENT_GEOTHERMAL_RATE_PER_MWH = 100.0
+# Rule 6: sourced from assumptions.py's STATUTORY PARAMETERS block, not redefined here. Those
+# values are deliberately mutable so a proposed amendment to § 56-585.5 can be modelled -- read
+# that block's own caution before changing any of them.
+DEFICIENCY_PAYMENT_BASE_RATE_PER_MWH = assumptions.DEFICIENCY_PAYMENT_BASE_RATE_PER_MWH
+DEFICIENCY_PAYMENT_BASE_YEAR = assumptions.DEFICIENCY_PAYMENT_BASE_YEAR
+DEFICIENCY_PAYMENT_ANNUAL_ESCALATION = assumptions.DEFICIENCY_PAYMENT_ANNUAL_ESCALATION
+DEFICIENCY_PAYMENT_SUB_ONE_MW_RATE_PER_MWH = assumptions.DEFICIENCY_PAYMENT_SUB_ONE_MW_RATE_PER_MWH
+DEFICIENCY_PAYMENT_GEOTHERMAL_RATE_PER_MWH = assumptions.DEFICIENCY_PAYMENT_GEOTHERMAL_RATE_PER_MWH
 
 # § 56-585.5(A), "Accelerated clean energy buyer" -- aggregate load threshold.
-ACCELERATED_CLEAN_ENERGY_BUYER_THRESHOLD_MW = 25.0
+ACCELERATED_CLEAN_ENERGY_BUYER_THRESHOLD_MW = assumptions.ACCELERATED_CLEAN_ENERGY_BUYER_THRESHOLD_MW
 
 # § 56-585.5(C)(3) -- from the 2027 compliance year, at least this share of RECs must come from
 # RPS eligible resources located in the Commonwealth.
-IN_COMMONWEALTH_REC_MINIMUM_SHARE = 0.75
-IN_COMMONWEALTH_REC_MINIMUM_FIRST_YEAR = 2027
+IN_COMMONWEALTH_REC_MINIMUM_SHARE = assumptions.IN_COMMONWEALTH_REC_MINIMUM_SHARE
+IN_COMMONWEALTH_REC_MINIMUM_FIRST_YEAR = assumptions.IN_COMMONWEALTH_REC_MINIMUM_FIRST_YEAR
 
 # § 56-585.5(C)(2) -- distributed carve-out: share of the RPS requirement that must come from
 # solar/wind/anaerobic digestion resources of one megawatt or less located in the Commonwealth.
-DISTRIBUTED_CARVE_OUT_SHARE_2026_THROUGH_2030 = 0.045
-DISTRIBUTED_CARVE_OUT_SHARE_2031_THROUGH_2045 = 0.05
+DISTRIBUTED_CARVE_OUT_SHARE_2026_THROUGH_2030 = assumptions.DISTRIBUTED_CARVE_OUT_SHARE_2026_THROUGH_2030
+DISTRIBUTED_CARVE_OUT_SHARE_2031_THROUGH_2045 = assumptions.DISTRIBUTED_CARVE_OUT_SHARE_2031_THROUGH_2045
 
 
 def deficiency_payment_rate_per_mwh(year, rate_category='standard'):

@@ -36,9 +36,11 @@ Three bounds, each from a real, already-established source rather than invented 
 """
 import numpy as np
 from scipy import sparse
+import assumptions
 
-DISTRIBUTED_STORAGE_DURATION_HR = 4.0
-DOM_ZONE_DISTRIBUTED_SOLAR_CAP_MW = 7440.0
+# Rule 6: sourced from assumptions.py's DISTRIBUTED SEGMENT block.
+DISTRIBUTED_STORAGE_DURATION_HR = assumptions.DISTRIBUTED_STORAGE_DURATION_HR
+DOM_ZONE_DISTRIBUTED_SOLAR_CAP_MW = assumptions.DOM_ZONE_DISTRIBUTED_SOLAR_CAP_MW
 
 
 def add_distributed_physical_bounds(problem, siting_cap_mw=DOM_ZONE_DISTRIBUTED_SOLAR_CAP_MW,

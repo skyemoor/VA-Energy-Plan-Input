@@ -54,9 +54,10 @@ is the capacity calculation, which is here.
 """
 import numpy as np
 import lp_model as lp
+import assumptions
 
 
-DEFAULT_INSTALLED_RESERVE_MARGIN = 0.177
+DEFAULT_INSTALLED_RESERVE_MARGIN = assumptions.INSTALLED_RESERVE_MARGIN  # Rule 6
 
 
 def peak_net_demand_hour(demand, nuclear, exist_solar, wind_cf):
