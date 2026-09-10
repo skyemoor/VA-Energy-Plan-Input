@@ -55,8 +55,14 @@ _LEGACY_SOURCE_DATA = '/mnt/project'
 
 
 def ensure_directories():
-    """Creates the writable directories if absent. Safe to call repeatedly."""
-    for d in (INTERMEDIATES, RESULTS, HOURLY_DISPATCH, MANIFESTS):
+    """Creates the writable directories if absent. Safe to call repeatedly.
+
+    SOURCE_DATA is included even though nothing writes to it: it is gitignored, Git does not track
+    empty directories, so it is absent from a clean clone -- and SETUP.md tells users to put files
+    there. A user following those instructions found the directory did not exist (2026-09-10).
+    Creating it means the instruction works as written.
+    """
+    for d in (INTERMEDIATES, SOURCE_DATA, RESULTS, HOURLY_DISPATCH, MANIFESTS):
         os.makedirs(d, exist_ok=True)
 
 

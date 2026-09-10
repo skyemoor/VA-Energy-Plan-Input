@@ -1,0 +1,11 @@
+Place large public source data files here.
+
+This directory is gitignored -- these datasets are public and re-downloadable, and committing them
+would bloat the repository without adding verifiability. See docs/DATA_SOURCES.md for what each
+file is and where to obtain it.
+
+The main one is Dominion's hourly load projection, accepted under any of these filenames:
+
+    DOMLSEHourlyLoadProjections2024through2048.csv
+    DOM-LSE-HourlyLoadProjections-2024-through-2048.csv
+    DOM_LSE_HourlyLoadProjections_2024_through_2048.csv
