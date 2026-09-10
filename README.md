@@ -31,6 +31,14 @@ using methods and data anyone can check.
 - `docs/` — methodology, engineering standards, and the internal debugging log
 - `registers/` — provenance register (which figures are current) and citation tracker
 - `data/weather_years/` — derived hourly weather years (April–March hydrological convention)
+- `deliverables/` — executive and technical summaries, Energy Plan input (all working drafts)
+- `results/hourly_dispatch/` — hourly dispatch output for Scenario 1 checkpoints
+
+## What is not here
+
+Third-party copyrighted works cited by this analysis are **not** redistributed: the Dominion
+IRP filing, the NSPM, Lazard's LCOE report, the E3 ELCC evaluation, and journal articles.
+See `docs/DATA_SOURCES.md` for citations and retrieval.
 
 ## Reading the results
 

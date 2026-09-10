@@ -1,0 +1,46 @@
+## 1. The Translation Framework
+
+Do not show algebraic equations (like \(Max \sum C_j X_j\)) first. Instead, map the mathematical components to their real-world business equivalents.
+
+| **Mathematical Term** | **Business Presentation Term** | **How to Explain It** |
+| --- | --- | --- |
+| **Decision Variables** (X₁, X₂) | **Our Choices / Levers** | "The specific actions we need to decide on, like how many units to make or how much budget to allocate." |
+| **Objective Function** (Max / Min) | **The Goal / North Star** | "Our ultimate target—maximizing profit, minimizing cost, or reducing time." |
+| **Constraints** (≤, ≥) | **The Boundaries / Reality Check** | "Our real-world limits, such as budget ceilings, available labor hours, or supply shortages." |
+| **Coefficients** (\(C_j, A_{ij}\)) | **The Unit Impact / Rules** | "The cost, profit, or resource usage associated with every single choice we make." |
+
+## 2. A 3-Step Presentation Structure
+
+**Step 1: Start with "The Goal" (Objective)**
+
+Always lead with the business objective. Frame it as a question your team wants to solve.
+
+- ❌ *Instead of:* "We are maximizing Z = 50X₁ + 80X₂."
+
+- *Say:* "Our main goal today is to **maximize our total weekly profit**. To do this, we need to find the perfect mix of Product A and Product B to manufacture."
+
+**Step 2: Define "The Levers" (Decision Variables)**
+
+Explain what the team actually has control over. Keep it visual or concrete.
+
+- ❌ *Instead of:* "Let X₁ be production volume of line 1..."
+
+- *Say:* "The levers we can pull are the **weekly production volumes** for both products. We are looking for the exact numbers that give us the highest return."
+
+## Step 3: Introduce "The Guardrails" (Constraints)
+
+Group your constraints into logical business categories (e.g., Capacity, Financial, Market Demand) rather than listing individual inequalities.
+
+- ❌ *Instead of:* "Subject to: 2X₁ + 3X₂ ≤ 120 and X₁ + X₂ ≤ 50."
+
+- *Say:* "We can't just produce an infinite amount. We have to play within three boundaries: **Labor capacity** (we only have 120 hours available), **Raw materials** (limited supply), and **Market demand** (we shouldn't make more than we can sell)."
+
+## 3. How to Present the Results (The "So What?")
+
+A business team cares less about *how* the solver ran and more about what the output means. Present your findings focusing on:
+
+- **The Recommended Strategy:** State the exact optimal solution clearly (e.g., *"The model shows our best move is to produce 30 units of Product A and 20 units of Product B."*).
+
+- **The Expected Outcome:** State the final reward (e.g., *"This strategy yields a peak profit of $4,500 per week."*).
+
+- **The Bottlenecks (Shadow Prices):** Explain what is holding the business back. Instead of saying "the labor constraint is binding," say: *"Our biggest limiting factor right now is labor. If we can secure just 10 more hours of overtime, the model shows we can boost our profits by an extra $300."*

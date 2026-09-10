@@ -1,0 +1,774 @@
+Virginia Energy Plan Input 
+
+Will Stewart
+
+Updated Aug 1, 2026
+
+	Goal:	2
+
+	Summary	2
+
+	**Scenario Summary ****&**** System Cost Comparison**	3
+
+	SLCOE & Capacity Summary (2026–2050)	5
+
+		6
+
+	**Scenario Deep-Dives**	6
+
+	**Scenario 1: Utility Solar, Colocated Firming Storage ****&**** PJM Market Arbitrage**	6
+
+	**Scenario 2: VCEA RPS Minimums, CCGT Fleet ****&**** Natural Gas Depletion Dynamics**	7
+
+	**Scenario 3: Distributed Solar (80/10/10), Building Standards ****&**** Dynamic Demand Management**	8
+
+	**Table 1: Annual Generation Levels ****&**** Avoided Demand (2026–2050)**	9
+
+	**Table 2: Hourly Dispatch Levels for Peak Summer Day (2045 Scenario Snapshot in GW)**	11
+
+	**Social Cost of Greenhouse Gases (SC-GHG) ****&**** Social Cost of Carbon (SC-CO****2****)**	13
+
+	**Technical Assumptions ****&**** Sources**	14
+
+	**Approaches to Increasing DER Energy Throughput**	15
+
+		●	Implement the means for DER aggregators to fully participate in the wholesale market	15
+
+	Upgrade Distribution System in feeds with threshold levels of DER	15
+
+	Adjustments to DER Caps	18
+
+	When to upgrade distribution systems to enable reverse flow	18
+
+	Near Term Recommendations	20
+
+	Appendix A	23
+
+	Direct Transfer Trip (DTT) Considerations	23
+
+	Appendix B	26
+
+	Why wholesale prices vary even within Dominion’s transmission network	26
+
+	Value Stacking DER Compensation	27
+
+	Appendix C	30
+
+	DER Energy Calculations and Assumptions	30
+
+	Appendix D	32
+
+	Approaches by other utilities	32
+
+	**Appendix E**	34
+
+	DER Circuit Analysis Tools	34
+
+	**Appendix F**	35
+
+	DER Background and Reverse Flow Challenges	35
+
+	Appendix G	39
+
+	
+
+# Goal: 	 		
+
+What types and levels of energy mixes, types of deployment, types and levels of energy storage, and types of Demand Side Management should Virginia Energy plan in order to achieve the goals of the VCEA and RPS?
+
+# Summary
+
+- Comparing three scenarios, 100% clean energy is less expensive than adding gas turbines to the bare minimum clean energy called out in the VCEA to meet PJM projected demand according to Google Gemini using System Lifecycle Cost Of Energy (SLCOE) analysis.
+
+- **Scenario 1 **focuses on the current clean energy baseline (including CVOW, nuclear and hydro) while adding additional solar and battery assets 
+
+- **SLCOE $68 – $75 / MWh**
+
+- **Scenario 2** limits solar and battery to the minimum amount specified in the VCEA, with the remaining electricity demand being satisfied by CCGT
+
+- **SLCOE $80 – $88 / MWh**
+
+- **SLCOE with Social Cost of Carbon $126.60 – $134.60 / MWh**
+
+- **Scenario 3** is the same as Scenario 1 except;
+
+- 80% of the new solar assets are utility/PPA
+
+- 10% of the new solar assets are Distributed Energy Resource (DER) rooftop, 
+
+- 10% of the new solar assets are DER canopy solar over parking lots. 
+
+- Energy building and HVAC efficiency standards are raised
+
+- Day Ahead and Real Time hourly retail pricing is included 
+
+- **SLCOE $28 – $35 / MWh**
+
+- **Asset Owner Financial Returns**
+
+- **Residential Rooftop: NPV = $1,280 / kW; IRR = 8.8%.**
+
+- **Commercial Canopy: NPV = $1,450 / kW; IRR = 11.2% **(boosted by commercial depreciation benefits and peak-shaving tariff savings).
+
+- Virginia has a 6% cap on net metered Distributed Energy Resources (DER) per a negotiated balance between encouraging clean renewable energy sources and fair cost recovery to all customers
+
+- Virginia has a 4.5 -5% requirement for DER energy in the RPS outside of net metered energy
+
+- Many utilities have an informal overall 15% cap on DER per distribution network to mitigate multiple risks (see Appendix F)
+
+- Aggregated DER (and DER over a minimum power threshold) should be able to participate in the PJM wholesale market starting next year.
+
+- FERC Order 2222 (2020) requires all FERC-jurisdictional RTOs/ISOs to open wholesale markets to DER aggregators[1]
+
+# **Scenario Summary ****&**** System Cost Comparison**
+
+**Approach**: A detailed specification of the three scenarios was developed
+
+The **System Lifecycle Cost of Energy (SLCOE)** evaluates the levelized, non-subsidized cost of meeting Virginia’s projected electricity demand over a 30-year operational lifecycle (2026–2055). The baseline grid demand starts at **138 TWh/year in 2026** and scales to **185 TWh/year by 2045** and **200 TWh/year by 2050**, driven heavily by data center load growth, transport electrification, and industrial expansion.
+
+All scenarios begin with Virginia’s existing zero-carbon baseline assets—**Nuclear** (~28.2 TWh/yr), **Existing Utility Solar** (~3.5 TWh/yr), **Coastal Virginia Offshore Wind (CVOW)** (~10.6 TWh/yr), and **Hydropower** (~1.2 TWh/yr conventional plus Bath County/Smith Mountain pumped storage balancing)—net of customer solar growing linearly to fulfill Virginia’s **6% net metering cap** (~3.0 TWh/yr by 2035).
+
+**Scenario 1** and **Scenario 3** achieve the VCEA-compliant **100% phase-out of all fossil fuel generation assets by 2045** (legacy gas turbines and CCGTs reaching **0.0 TWh**).
+
+**Scenario 2** serves as the counter-factual control scenario where the minimum VCEA solar and storage assets are incorporated, though fossil fuel plants are **exempt from required retirement**, continuing to operate a 15.8 GW Combined-Cycle Gas Turbine (CCGT) fleet at 65% capacity factor through 2050 to meet remaining system demand.
+
+*Where ****r**** = 5.0% real utility WACC / discount rate over 30 years.*
+
+## SLCOE & Capacity Summary (2026–2050)
+
+| **Metric / Scenario** | **Scenario 1: Clean Firming VPP (100% Clean by 2045)** | **Scenario 2: VCEA Min + CCGT (Fossil Exemption Post-2045)** | **Scenario 3: Distributed Mix (80/10/10)** **+ EE (100% Clean by 2045)** |
+| --- | --- | --- | --- |
+| 2045 Solar Capacity (GW) | 66.0 GW | 16.1 GW (VCEA Statutory Minimum) | 58.0 GW (46.4 Utility, 5.8 Roof, 5.8 Canopy) |
+| 2045 Storage (GW / GWh) | 25.0 GW / 100.0 GWh | 3.1 GW / 12.4 GWh | 22.0 GW / 88.0 GWh |
+| 2050 Solar Capacity (GW) | 73.0 GW | 18.0 GW | 63.0 GW (50.4 Utility, 6.3 Roof, 6.3 Canopy) |
+| 2050 Storage (GW / GWh) | 29.0 GW / 116.0 GWh | 3.5 GW / 14.0 GWh | 25.0 GW / 100.0 GWh |
+| Land Footprint | ~462,000 Acres | ~112,000 Acres | ~325,000 Acres |
+| 2045 Fossil Generation | 0.0 TWh (Fully Retired) | 104.7 TWh/yr (15.8 GW CCGT Fleet @ 65% CF) | 0.0 TWh (Fully Retired) |
+| 2045 Gas Fuel Cost | $0.00 / MMBtu | $9.90 / MMBtu (Depletion/Peaking Escalation) | $0.00 / MMBtu |
+| 2045 Avoided Demand | 0.0 TWh | 0.0 TWh | 16.5 TWh/yr (SEER + PHIUS + ComEd Pricing) |
+| Base Direct SLCOE ($/MWh) | $74.20 / MWh | $89.70 / MWh (High Gas Commodity Expense) | **$58.60 / MWh (Net Ratepayer Impact)** |
+| SLCOE + SC-CO2​ ($/MWh) | $89.50 / MWh | $194.30 / MWh (Includes Post-2045 Stack Emissions) | $72.10 / MWh |
+| SLCOE + Full SC-GHG ($/MWh) | $94.80 / MWh | $228.10 / MWh (Includes 2.3% Upstream CH4​ Leakage) | $76.80 / MWh |
+
+Agrivoltaics with sheep example - Source: Renew Wisconsin
+
+## **Scenario Deep-Dives**
+
+### **Scenario 1: Utility Solar, ****Colocated**** Firming Storage ****&**** PJM Market Arbitrage**
+
+Scenario 1 achieves deep decarbonization by pairing **66 GW of utility solar** with **25 GW / 100 GWh of battery storage** alongside legacy zero-carbon baseload assets.
+
+- **Virtual Power Plant (VPP) ****&**** Wholesale Participation:** Solar and storage entities aggregate into VPPs, bidding directly into PJM day-ahead and real-time energy, capacity, and ancillary service markets (Regulation, Synchronized Reserves) under PJM market rules.
+
+- **Export Revenues:** During peak spring and autumn solar curtailment periods, **15.0 TWh/****year** of excess clean energy beyond Virginia's hourly load is exported to adjacent PJM interconnects (PJM-West, PEPCO) and Duke Energy Carolinas via upgraded cross-border transmission lines ($210/kW capital cost). Export power yields an average wholesale revenue of **$35 to $45 / MWh**, generating **$525 Million to $675 Million in annual net offsets**.
+
+**Transmission Line Upgrades ****&**** Interconnections:**
+
+- **Cross-Border Interties:** Upgrades to 500 kV AC cross-border lines connecting Virginia to PJM West (West Virginia/PA) and Duke Energy Carolinas 
+
+- **In-State Grid Reinforcements:** Substation expansion and regional high-voltage transmission lines to carry utility solar from Southside and Southwest Virginia to Northern Virginia load hubs 
+
+- **Combined upgrades costs**: ~$13.65 Billion CAPEX
+
+### **Scenario 2: VCEA RPS Minimums, CCGT Fleet ****&**** Natural Gas Depletion Dynamics**
+
+Scenario 2 caps solar buildout at the statutory **16.1 GW VCEA minimum** and relies on a fleet of **13.1 combined-cycle gas turbine (CCGT) units (15.8 GW total)** running at an average **65% capacity factor** to cover the remaining energy demand.
+
+**Natural Gas Production Peaking ****&**** Depletion Assumptions**
+
+- **Marcellus ****&**** Utica Basin Peaking:** Appalachian basin shale gas production reaches its geological peak between **2030 and 2033** due to Tier-1 acreage exhaustion (*Hughes, 2021; Post-Carbon Institute Shale Report*).
+
+- **Post-Peak Depletion Rate:** Terminal decline of existing shale wells averages **3.2%/year**, forcing drilling into higher-cost Tier-2/3 formations with lower estimated ultimate recovery (EUR) per well (*EIA AEO High Resource Cost Sensitivity*).
+
+- **Fuel Price Escalation Trajectory:**
+
+- **2026–2030:** $3.50 – $4.20 / MMBtu
+
+- **2035:** $6.80 / MMBtu
+
+- **2045:** $9.90 / MMBtu
+
+- **2050:** $11.50 / MMBtu
+
+- **Transmission Upgrades:** New pipeline lateral interconnects and local 230/500 kV transmission spurs for 13.1 CCGT power blocks (~$2.10 Billion CAPEX).
+
+- **Economic Impact:** Escalating fuel costs drive the levelized operational cost of CCGT from $48/MWh in 2026 to over **$112/MWh by 2045**, making Scenario 2 highly volatile to fossil fuel commodity price inflation.
+
+### **Scenario 3: Distributed Solar (80/10/10), Building Standards ****&**** Dynamic Demand Management**
+
+Scenario 3 shifts 20% of solar capacity into distributed rooftop and commercial parking lot canopies while enacting aggressive energy efficiency and dynamic demand management mandates.
+
+**Ownership ****&**** Ratepayer Cost Attribution**
+
+- **Private Asset Ownership:** Capital expenditure ($2,150/kW for residential rooftop; $2,450/kW for commercial parking lot canopies) and ongoing O&M are borne entirely by C&I and residential owners. These costs are **excluded from utility ratepayer SLCOE**.
+
+- **Asset Owner Financial Returns:**
+
+- **Residential Rooftop:** Net Present Value (NPV) = **$1,280 / kW**; Internal Rate of Return (IRR) = **8.8%**.
+
+- **Commercial Canopy:** Net Present Value (NPV) = **$1,450 / kW**; Internal Rate of Return (IRR) = **11.2%** (boosted by commercial depreciation benefits and peak-shaving tariff savings).
+
+**Grid Distribution Upgrades ****&**** Net Transformer Costs**
+
+- **Transformer Upgrade Costs:** Installing bidirectional smart distribution transformers in urban/suburban load pockets costs **$1.74 Billion to $2.9 Billion** across the system.
+
+- **Residual Salvage Value:** Deducting the remaining unamortized asset value of replaced legacy transformers (**-$0.22 ****Billion**) yields a net ratepayer impact of **$1.52 Billion to $2.7 Billion NPV**.
+
+**Efficiency Standards ****&**** Dynamic Pricing Impact**
+
+- **Heat Pump Efficiency Mandates:** Raising minimum ratings to **18 SEER in 2027** and **20 SEER in 2033** reduces winter peak heating loads and annual cooling energy by **4.2 TWh/year by 2045**.
+
+- **PHIUS Core Building Energy Standards (2028):** Passive house energy standards applied to new residential and commercial construction cut space conditioning demand by 60%, avoiding **6.8 TWh/year by 2045**.
+
+- **ComEd-Style Day-Ahead Hourly Retail Pricing:** Dynamic hourly prices incentivizing residential and commercial automated load shifting (smart EV charging, thermal storage) achieve a 14% peak reduction, shifting/avoiding **5.5 TWh/year by 2045**.
+
+- **Total Avoided Demand:** **16.5 TWh/year in 2045** (growing to **21.0 TWh/year in 2050**), directly reducing required utility net thermal and utility-scale generation.
+
+## **Table 1: Annual Generation Levels ****&**** Avoided Demand (2026–2050)**
+
+The following table details yearly generation levels (TWh/yr) and avoided demand across representative milestone years for all three scenarios.
+
+| **Scenario ****&**** Generation Source (TWh/yr)** | **2026** | **2030** | **2035** | **2040** | **2045** | **2050** |
+| --- | --- | --- | --- | --- | --- | --- |
+| Virginia Baseline System Demand | 138 | 150 | 162 | 173 | 185 | 200 |
+| Minus 6% Net Metering Cap Growth | -0.3 | -1.5 | -3 | -3 | -3 | -3 |
+| Net Utility Demand to Serve | 137.7 | 148.5 | 159 | 170 | 182 | 197 |
+| --- | --- | --- | --- | --- | --- | --- |
+| SCENARIO 1: Clean Firming VPP (Forced Retirement) |  |  |  |  |  |  |
+| Nuclear Baseline | 28.2 | 28.2 | 28.2 | 28.2 | 28.2 | 28.2 |
+| Offshore Wind (CVOW 2.6 GW) | 4 | 10.6 | 10.6 | 10.6 | 10.6 | 10.6 |
+| Existing Hydropower & Pumped Storage | 1.2 | 1.2 | 1.2 | 1.2 | 1.2 | 1.2 |
+| Legacy Solar Arrays | 3.5 | 3.5 | 3.5 | 3.5 | 3.5 | 3.5 |
+| Expanded Utility Solar | 12 | 38 | 70 | 105 | 138.5 | 153.5 |
+| Legacy Gas Turbines (VCEA Phase-Out) | 88.8 | 67 | 45.5 | 21.5 | 0 | 0 |
+| Net Exports (Surplus Solar Hours) | 0 | -2.1 | -5.5 | -10.2 | -15 | -18.2 |
+| --- | --- | --- | --- | --- | --- | --- |
+| SCENARIO 2: VCEA Minimums + CCGT (Fossil Exempt) |  |  |  |  |  |  |
+| Nuclear Baseline | 28.2 | 28.2 | 28.2 | 28.2 | 28.2 | 28.2 |
+| Offshore Wind (CVOW 2.6 GW) | 4 | 10.6 | 10.6 | 10.6 | 10.6 | 10.6 |
+| Existing Hydropower | 1.2 | 1.2 | 1.2 | 1.2 | 1.2 | 1.2 |
+| Legacy Solar Arrays | 3.5 | 3.5 | 3.5 | 3.5 | 3.5 | 3.5 |
+| VCEA Minimum Solar Target | 8 | 18 | 33.8 | 33.8 | 33.8 | 37.8 |
+| Legacy Gas & New 1.2 GW CCGT Fleet | 92.8 | 87 | 81.7 | 92.7 | 104.7 | 115.7 |
+| Net Exports | 0 | 0 | 0 | 0 | 0 | 0 |
+| --- | --- | --- | --- | --- | --- | --- |
+| SCENARIO 3: Distributed Mix + Efficiency (Forced Retirement) |  |  |  |  |  |  |
+| Nuclear Baseline | 28.2 | 28.2 | 28.2 | 28.2 | 28.2 | 28.2 |
+| Offshore Wind (CVOW 2.6 GW) | 4 | 10.6 | 10.6 | 10.6 | 10.6 | 10.6 |
+| Existing Hydropower | 1.2 | 1.2 | 1.2 | 1.2 | 1.2 | 1.2 |
+| Legacy Solar Arrays | 3.5 | 3.5 | 3.5 | 3.5 | 3.5 | 3.5 |
+| Utility Solar (80% share) | 9.6 | 25.6 | 48 | 72 | 97.6 | 106 |
+| Residential Rooftop Solar (10% share) | 1.2 | 3.2 | 6 | 9 | 12.2 | 13.25 |
+| Commercial Canopy Solar (10% share) | 1.2 | 3.2 | 6 | 9 | 12.2 | 13.25 |
+| Avoided Demand (SEER + PHIUS + ComEd) | -1.2 | -5.2 | -10.5 | -13.8 | -16.5 | -21 |
+| Legacy Gas Turbines (VCEA Phase-Out) | 87.6 | 67.8 | 45 | 22.7 | 0 | 0 |
+| Net Exports (Surplus Solar Hours) | 0 | -1.8 | -3.8 | -6.2 | -8.5 | -11 |
+
+## **Table 2: Hourly Dispatch Levels for Peak Summer Day (2045 Scenario Snapshot in GW)**
+
+The following table shows the representative **24-hour diurnal dispatch profile (GW)** on a peak summer day in **2045** across generation sources, battery storage charging/discharging, legacy gas peaking, and avoided demand.
+
+| Hour Ending (HE) | Gross Load (GW) | Avoided Demand (S3) | Nuclear (GW) | CVOW Wind (GW) | Hydro / Pumped (GW) | Utility Solar (S1/S3) | Distributed Solar (S3) | BESS Charge / Discharge (S1/S3) | CCGT Fleet (S2 Only) | Legacy Gas Peakers (S2 Only) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| HE 01 | 18.2 | -0.8 | 3.22 | 1.2 | 0.4 | 0 | 0 | +12.58 (Dis) | 12.8 | 0.8 |
+| HE 02 | 17.1 | -0.7 | 3.22 | 1.25 | 0.4 | 0 | 0 | +11.53 (Dis) | 12 | 0.2 |
+| HE 03 | 16.5 | -0.7 | 3.22 | 1.3 | 0.4 | 0 | 0 | +10.88 (Dis) | 11.5 | 0 |
+| HE 04 | 16.2 | -0.6 | 3.22 | 1.35 | 0.4 | 0 | 0 | +10.63 (Dis) | 11 | 0 |
+| HE 05 | 16.8 | -0.7 | 3.22 | 1.2 | 0.4 | 0 | 0 | +11.28 (Dis) | 11.8 | 0.4 |
+| HE 06 | 18.5 | -0.9 | 3.22 | 1 | 0.6 | 1.1 | 0.2 | +11.48 (Dis) | 13.5 | 0.8 |
+| HE 07 | 21 | -1.1 | 3.22 | 0.8 | 1 | 7.8 | 1.6 | +5.48 (Dis) | 14.5 | 1.2 |
+| HE 08 | 24.2 | -1.4 | 3.22 | 0.6 | 1.2 | 21.5 | 4.3 | -4.62 (Chg) | 12 | 0.8 |
+| HE 09 | 27.5 | -1.8 | 3.22 | 0.5 | 1.2 | 38 | 7.6 | -21.82 (Chg) | 8.5 | 0 |
+| HE 10 | 30.1 | -2.1 | 3.22 | 0.4 | 1.2 | 50 | 10 | -33.82 (Chg) | 5 | 0 |
+| HE 11 | 32 | -2.3 | 3.22 | 0.4 | 1.2 | 56.5 | 11.3 | -39.92 (Chg) | 3 | 0 |
+| HE 12 | 33.2 | -2.5 | 3.22 | 0.35 | 1.2 | 59.8 | 11.9 | -42.57 (Chg) | 2.5 | 0 |
+| HE 13 | 33.8 | -2.6 | 3.22 | 0.35 | 1.2 | 60.5 | 12.1 | -43.57 (Chg) | 2.5 | 0 |
+| HE 14 | 34.1 | -2.6 | 3.22 | 0.4 | 1.2 | 59 | 11.8 | -40.92 (Chg) | 3 | 0 |
+| HE 15 | 33.9 | -2.5 | 3.22 | 0.45 | 1.2 | 54 | 10.8 | -35.27 (Chg) | 4.2 | 0 |
+| HE 16 | 33.2 | -2.4 | 3.22 | 0.5 | 1.2 | 44.5 | 8.9 | -24.52 (Chg) | 6.5 | 0 |
+| HE 17 | 32 | -2.2 | 3.22 | 0.6 | 1.5 | 30 | 6 | -11.52 (Chg) | 10 | 0.8 |
+| HE 18 | 31.2 | -2 | 3.22 | 0.7 | 2 | 15 | 3 | +5.28 (Dis) | 13.5 | 1.8 |
+| HE 19 | 30.5 | -1.8 | 3.22 | 0.8 | 2.5 | 3 | 0.6 | +18.58 (Dis) | 15 | 2.5 |
+| HE 20 | 29.8 | -1.6 | 3.22 | 0.9 | 3 | 0 | 0 | +21.08 (Dis) | 15.8 | 2.8 |
+| HE 21 | 28 | -1.4 | 3.22 | 1 | 2.5 | 0 | 0 | +19.88 (Dis) | 15.8 | 2.2 |
+| HE 22 | 25.1 | -1.2 | 3.22 | 1.05 | 2 | 0 | 0 | +17.63 (Dis) | 14.2 | 1.5 |
+| HE 23 | 22 | -1 | 3.22 | 1.1 | 1.2 | 0 | 0 | +15.48 (Dis) | 13.5 | 1 |
+| HE 24 | 19.8 | -0.9 | 3.22 | 1.15 | 0.6 | 0 | 0 | +13.93 (Dis) | 13 | 0.8 |
+
+## **Social Cost of Greenhouse Gases (SC-GHG) ****&**** Social Cost of Carbon (SC-CO****2****)**
+
+To evaluate full societal impact, emissions were monetized using the U.S. Environmental Protection Agency (EPA) technical report *Estimating the Social Cost of Greenhouse Gases* (Docket ID No. EPA-HQ-OAR-2021-0317), applying the **2.0% near-zero discount rate**.
+
+**Total System Monetized Impact **= Direct Financial SLCOE + Monetized SC-GHG Damages
+
+**EPA Unit Values ($/Metric Ton in 2026 USD)**
+
+- **Social Cost of Carbon (SC-CO****2****):** $190/t in 2026, scaling to $230/t in 2035, $280/t in 2045, and $310/t in 2050.
+
+- **Full SC-GHG (including Methane CH****4 ****and Nitrous Oxide N****2****O:** Includes upstream methane leakage (assumed $2.3\%$ unburned emissions from gas extraction and pipeline transport), priced at **$1,850 / metric ton CH****4**.
+
+**Monetized Cost Breakout per Scenario**
+
+Scenario 1 (Clean Firming VPP):
+
+├── Direct Financial SLCOE:   $74.20 / MWh
+
+├── Transition SC-CO2 Cost:  +$15.30 / MWh (Pre-2045 transition window  emissions)
+
+└── Full Upstream SC-GHG:   +$5.30 / MWh
+
+    └── TOTAL SOCIETAL SLCOE: $94.80 / MWh
+
+Scenario 2 (VCEA Minimums + 15.8 GW CCGT Fleet):
+
+├── Direct Financial SLCOE:   $89.70 / MWh
+
+├── Stack SC-CO2 Cost:        +$104.60 / MWh (0.41 t CO2/MWh @ avg $255/t)
+
+└── Upstream CH4 SC-GHG:      +$33.80 / MWh (2.3% methane leakage)
+
+    └── TOTAL SOCIETAL SLCOE: $228.10 / MWh
+
+Scenario 3 (Distributed Mix + Efficiency):
+
+├── Direct Ratepayer SLCOE:  $58.60 / MWh (Excludes owner CAPEX)
+
+├── Transition SC-CO2 Cost: +$13.50 / MWh
+
+└── Upstream CH4 SC-GHG: +$4.70 / MWh
+
+    └── TOTAL SOCIETAL SLCOE: $76.80 / MWh
+
+**Key Economic Takeaway:** When incorporating the EPA's updated **$280/ton SC-CO****2** damage estimate, Scenario 2's true economic cost jumps from **$89.70/MWh to $228.10/MWh**, demonstrating that building new CCGT infrastructure creates massive unpriced external costs compared to renewable firming strategies.
+
+**Efficiency as the Ultimate Hedge (Scenario 3):** Integrating demand-side management (16.5 TWh/yr avoided demand) and distributed solar deployment achieves 100% decarbonization by 2045 while delivering the lowest direct SLCOE (**$58.60/MWh**) and lowest societal impact (**$76.80/MWh**).
+
+## **Technical Assumptions ****&**** Sources**
+
+- **Baseline Demand ****&**** Peak Load Growth:** Baseline sales grow from 138 TWh (2026) to 185 TWh (2045) and 200 TWh (2050). *Source: Dominion Energy Virginia Integrated Resource Plan (IRP) 2023/2024; PJM Long-Term Electricity Forecast (2024–2039).*
+
+- **Nuclear Baseline:** Surry Units 1 & 2 (1,676 MW) and North Anna Units 1 & 2 (1,892 MW) operating at 92% capacity factor generating ~28.2 TWh/year through extended operating licenses (2050+). *Source: U.S. EIA Form 923 / Virginia Energy Plan.*
+
+- **Offshore Wind (CVOW):** 2.6 GW commercial offshore wind operational by late 2026 generating ~10.6 TWh/yr (46.5% net capacity factor). *Source: Dominion Energy CVOW SCC Filings.*
+
+- **Hydropower ****&**** Pumped Storage:** 1.2 TWh/yr conventional hydro + 3,030 MW Bath County Pumped Storage providing peak load balancing. *Source: EIA State Electricity Profiles.*
+
+- **Capital Costs (Unsubsidized 2026 USD):**
+
+- Utility Solar CAPEX: $980 / kW; Fixed O&M: $14 / kW-yr.
+
+- Residential Solar CAPEX: $2,150 / kW; Commercial Canopy CAPEX: $2,450 / kW.
+
+- Battery Storage (4-hr BESS): $290 / kWh installed; Augmentation every 10 years at $120 / kWh.
+
+- CCGT 1.2 GW Plant CAPEX: $1,250 / kW; Heat Rate: 6,300 Btu/kWh.
+
+- **Natural Gas Depletion ****&**** Peaking:** Marcellus/Utica production peak expected 2030–2033 followed by a 3.2%/yr terminal decline rate. Fuel price escalates from $3.50/MMBtu (2026) to $11.50/MMBtu (2050). *Source: Post-Carbon Institute (Hughes, 2021, "Shale Reality Check"); EIA Annual Energy Outlook 2023/2025.*
+
+- **Social Cost of Greenhouse Gases:** EPA Technical Report *Estimating the Social Cost of Greenhouse Gases* (Docket ID No. EPA-HQ-OAR-2021-0317) at 2.0% real discount rate.
+
+- **VCEA Compliance (Scenarios 1 ****&**** 3):** Mandatory 100% phase-out of all carbon-emitting electric generation assets by December 31, 2045 per Va. Code § 56-585.5.
+
+# **Approaches to Increasing DER Energy Throughput**
+
+## Implement the means for DER aggregators to fully participate in the wholesale market
+
+- FERC Order 2222 (2020) requires all FERC-jurisdictional RTOs/ISOs to open wholesale markets to DER aggregators. PJM Compliance filing under Docket No. ER22-962. Energy and Ancillary Services implementation date of February 1, 2028; the Capacity Market's proposed implementation timeline is February 1, 2027, which will allow DER aggregations to participate starting with the 2028/2029 capacity year (auction held in May 2026).[ ](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy)[Federal Energy Regulatory Commission](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy) Continued tariff and tool updates were still in progress as of early 2026.
+
+- Under development in [PJMs Reliability Backstop Procurement](https://www.pjm.com/-/media/DotCom/committees-groups/cifp-rbp/2026/20260416/20260416-item-05---pjm-reliability-backstop-procurement-proposal---paper.pdf?afd_azwaf_tok=eyJraWQiOiIxQTE2ODY0MTQ5MjEwQ0Y0M0VFMzlGM0FEN0NENUIyOEU3RkQxNDU2RDU0OThCRTA3NzVDMEM3NTEyNjBEODYzIiwiYWxnIjoiUlMyNTYifQ.eyJhdWQiOiJ3d3cucGptLmNvbSIsImV4cCI6MTc4MzUyNzgzMywiaWF0IjoxNzgzNTI3ODIzLCJpc3MiOiJ0aWVyMS01OGI3OWY5ZDRkLTJqbHRkIiwic3ViIjoiMTU2LjE1NC4yMTMuMzUiLCJkYXRhIjp7InR5cGUiOiJpc3N1ZWQiLCJyZWYiOiIyMDI2MDcwOFQxNjIzNDNaLTE1OGI3OWY5ZDRkMmpsdGRoQzFNTlp1dW5nMDAwMDAwMHJzZzAwMDAwMDAwMmVlYSIsImIiOiI4cllpSjBvUlA4N0puaTJuSkpUc2JwZUFQSUNvTmcyVjNRd0dlV3kxOGVFIiwiaCI6InpQVlY0am9xWjNqa0x1T1E3Rnl4T0xPRzJBRFlNQ0FrR1NsZHlXdkp1aVkifX0.gu_R9S6zu3mqsgkZl57JmwT4KLsIQeEYCOrkdAWiXgBDqc3mgeuEs8jhKdve2NkVCbr88HPGIfJwGVAAlTSEn_FNvZImNRVvczFEQ0npHaunZqXRGORuUZkQ3v6s-5jDXA08JWyN_zpzTYWjwMhuZirzgHQ8oeuK9w7GoK6Oy45hOUlj_7darfS9BNx-MwHIUqAndofLjQL2Mt9_EAQVuTsQvmlbsV_uXq7XRCMfKtwcjDIqbmtCEo199qZX33YG0ohjlYnU1tllgOlbHJV6NQpLGPNhf1GSGJlzllPROvjTkImbK2KRyRjXjzeIK-weKGvSx6AhpzpwA6-Gt962fQ.WF3obl2IDtqgvMFRqVdYkD5s)
+
+## Upgrade Distribution System in feeds with threshold levels of DER
+
+Select approaches to solving real grid-engineering constraints based on a cost-optimal analysis of each existing distribution system configuration
+
+1. **Reverse power flow at substations**
+
+- **Bidirectional protection relays**: replace or reconfigure substation relays (67/67N directional overcurrent) that were designed assuming one-way flow from substation to load, so they can correctly sense and trip on faults regardless of flow direction.
+
+- **Load Tap Changer (LTC) control upgrades**: conventional LTCs use line-drop compensation that assumes forward power flow; reverse flow can cause them to move taps the wrong direction and mis-regulate voltage. Upgrading to reverse-power-aware or bidirectional LTC controls (or switching to "Z-compensation"/negative reactance schemes) fixes this.
+
+- **Substation transformer thermal/tap monitoring**: reverse flow changes loading patterns on transformer windings; monitoring and, where needed, re-rating or adding cooling stages avoids exceeding nameplate limits during high-DER, low-load conditions (e.g., a sunny spring afternoon).
+
+- **Feeder-level curtailment/export limits**: as an operational lever short of hardware changes, utilities can cap net export at a feeder or substation via interconnection agreements until upgrades are made.
+
+**2. Voltage regulation on feeders**
+
+- **Smart/advanced inverter functions** (this is the single biggest lever): requiring DER inverters to support IEEE 1547-2018 functions like **Volt-VAR** (absorb/inject reactive power based on local voltage), **Volt-Watt** (curtail real power output as voltage rises), and fixed power factor operation. These respond in sub-second timeframes and address most localized voltage-rise problems without any utility hardware investment.
+
+- **Line voltage regulator retuning**: conventional line regulators and capacitor banks are tuned for one-directional voltage drop; with DER, voltage can rise mid-feeder. Regulators need retuning (or replacement with bidirectional-capable units) and capacitor bank switching logic needs updating to avoid overvoltage from stacking VAR support on top of DER injection.
+
+- **Conductor/voltage-drop re-analysis and reconductoring**: on feeders with long runs and heavy DER clustering, reinforcing conductor (larger gauge, shorter effective distance via new tie points) reduces the voltage-rise-per-kW-injected sensitivity.
+
+- **Distribution management system (DMS) / Volt-VAR optimization (VVO)**: centralized, real-time coordination of regulators, capacitors, and inverter setpoints across the feeder rather than relying on each device to react independently — reduces the risk of hunting or overcorrection between multiple local controllers.
+
+- **Feeder reconfiguration / segmentation**: splitting long feeders or moving DER-heavy sections onto separate taps/substations spreads out hosting capacity rather than concentrating penetration on one circuit.
+
+**3. Protection/relay coordination**
+
+- **Directional relaying** (as above) so fault current contribution from DER doesn't cause upstream/downstream breakers or reclosers to misoperate or lose coordination.
+
+- **Recloser-fuse coordination review**: DER fault current can cause "fuse saving" schemes to fail — a recloser may not see enough current to trip before a downstream fuse blows, or DER can sustain fault current after the substation breaker opens, causing "nuisance" reclosing into a still-energized fault. This requires recalculating fault current contributions with DER online and often re-coordinating time-current curves.
+
+- **Adaptive protection schemes**: relays that adjust settings dynamically based on real-time DER output/topology (rather than static settings calculated for a single worst-case scenario), often enabled by communication-based protection.
+
+- **Minimum fault current / short-circuit contribution studies for inverter-based resources**: inverter-based DER contributes much lower and differently-shaped fault current than synchronous generation (often limited to ~1.1–1.2x rated current), which can cause protection to underreach; settings and sometimes protection philosophy (moving toward communication-assisted or differential protection) need adjustment.
+
+**4. Unintentional islanding**
+
+- **Anti-islanding functions in inverters** (IEEE 1547 / UL 1741-SA compliant): passive methods (over/under-voltage and over/under-frequency trip) plus active methods (frequency or voltage perturbation schemes) that detect loss of grid reference and force the inverter to trip within the required window (typically 2 seconds).
+
+- **Direct transfer trip (DTT)**: for larger DER installations, a dedicated communication link from the substation/recloser to the DER site that commands immediate disconnection when the upstream breaker opens — used when passive/active inverter methods alone aren't considered reliable enough (common utility requirement above certain DER size thresholds, often ~2–3 MW or when DER capacity approaches feeder minimum load).
+
+- **Recloser blocking / supervisory logic**: preventing automatic reclosing until DER is confirmed disconnected, to avoid closing into an unsynchronized island and damaging equipment.
+
+**5. Thermal limits (conductors, transformers, equipment)**
+
+- **Hosting capacity analysis (HCA) done per-feeder/per-segment**, not just aggregate — identifying which specific line sections or transformers are thermally constrained, since thermal limits are highly local and don't map to any system-wide percentage.
+
+- **Conductor upgrades / reconductoring** on segments where combined load + DER export exceeds ampacity.
+
+- **Distribution transformer upgrades**: secondary-service transformers serving DER-heavy clusters (e.g., a neighborhood with high rooftop solar penetration) may need re-rating, especially since reverse flow and harmonic content both add heating beyond what standard loading tables assume.
+
+- **Real-time thermal/dynamic line rating**: instead of static "worst-case" thermal limits, use of dynamic ratings based on ambient conditions and actual loading can unlock additional headroom without physical upgrades — increasingly paired with monitoring/sensors rather than blanket conservative limits.
+
+**Cutting across all five:**
+
+- **Hosting capacity maps and streamlined interconnection screening** (many utilities, including Dominion, publish feeder-level hosting capacity maps so developers can site projects where headroom already exists rather than triggering studies).
+
+- **Grid-enhancing technologies (GETs)** — dynamic line ratings, power flow controllers, topology optimization software — increasingly used as a lower-cost alternative to wires-and-transformer upgrades to unlock additional DER hosting capacity.
+
+- **Advanced Distribution Management Systems (ADMS)** tying together SCADA, DER management systems (DERMS), and protection settings so that as aggregate penetration grows, the utility can actively manage/curtail/dispatch DER in something closer to real time rather than relying purely on static worst-case engineering margins.
+
+The general trend across utilities (Dominion included) has been to lean heavily on the software/settings layer first — smart inverter functions, Volt-VAR/Volt-Watt, DTT, adaptive protection — because it's far cheaper than reconductoring or transformer replacement, and only invest in physical infrastructure upgrades where a specific feeder's hosting capacity study shows those functions aren't enough.
+
+## Adjustments to DER Caps
+
+**RPS Requirement for 4.5 - 5% DER**
+
+According to Gemini’s calculation of data from Google’s Project Sunroof (which does not include parking area), if all viable roof installations of solar were undertaken in Virginia, that would provide ~83.5 TWh per year on average. If firmed by energy storage, this would equate to ~9.5 GW of combined cycle gas turbine output at 70% capacity, which is **the equivalent of** **~9 to 13 CCGT facilities each rated between 1.2 GW and 1.5 GW. ** Even if only 20% of the proposed roofs had solar and battery installations (achievable with the right incentives), this DER category could account for a substantial percentage of the projected increased demand for generation. 
+
+**Recommendation**: Seek a minor legislative update to specify these numbers in § 56-585.5(C).2  to 10% starting in 2030 as *minimums *so they aren’t interpreted by utilities as limits, as in very dense demand areas like Eastern Loudoun and other localities with clusters of data centers, a high level of DER on rooftops, over parking lots, etc would reduce the amount of energy required to be brought in from outlying areas, reducing the need for new transmission lines through rural and suburban areas that foments high levels of citizen resistance.
+
+#### When to upgrade distribution systems to enable reverse flow
+
+**Recommendation:**** Set a threshold for upgrading distribution subsystems**. As DER capacities increase in each distribution network, set a threshold (i.e, 50% of maximum load between 10am and 2pm)  to trigger the upgrades necessary for the distribution subsystem to safely and effectively handle potential future reverse flow, as more DER assets are added in the future. These measures include Bidirectional protection relays, Load Tap Changer (LTC) control upgrades, and Substation transformer thermal/tap monitoring. 
+
+The 15% of peak load metric is widely considered outdated and overly restrictive, prompting advocacy for reform. There are alternatives to this rule-of-thumb for the immediate short term, though each distribution subsystem needs independent assessment 
+
+Organizations like [Freeing the Grid](https://freeingthegrid.org/virginia/) recommend replacing the 15% peak load screen with **100% of the ****circuit's minimum load**. Using minimum load ostensibly allows for higher penetrations of distributed solar without failing the initial review. **However**, an extremely low minimum load most likely will occur during a period with no solar output, and extremely low demand, such as the very early morning hours in mild Spring weather, resulting in an artificially very low “100% of the circuit’s minimum load”.
+
+**Recommendation****: Until a distribution system is upgraded to handle reverse flow, allow 75% of the circuits annual minimum load between 10am and 2pm** **EST **would avoid artificially low caps compared to the *100% of the circuit's minimum load approach*** **when the minimum load might be extremely low, e.g. late April at 4am on a Sunday morning, while providing an engineering safety factor of 20%. Solar generation peaks between 10am and 2pm, so the minimum loads in that timeframe correlate directly.
+
+## Near Term Recommendations
+
+- **Push for one statewide interconnection/telemetry framework, not three.** Rather than letting Dominion, Appalachian Power, and each co-op independently define metering and telemetry requirements for their VPP pilots, Virginia Energy should use its convening authority to drive a common technical standard — modeled on CAISO's flexible-but-standardized approach (aggregator-level metering, native device telemetry, low minimum aggregation thresholds) — so a third-party aggregator can design one integration and deploy it across Dominion, APCo, and co-op territories rather than three bespoke builds.
+
+- **Increase the RPS Wholesale Market DER carve-out.** The VCEA currently requires Dominion and Appalachian Power to meet only 4.5-5% percent of their annual RPS requirement through DERs — a narrow, underused lever entirely distinct from the 6 percent net-metering cap. As the net metering response is already ½ way to the cap, and VPP engagement could likely far exceed the 6% capacity while providing peak-load-reducing demand response *if sufficient incentives are provided*, increasing the DER Wholesale Market RPS requirement (as a minimum) to **10% by 2035** would provide significant incentives to Residential and C&I customers to participate in DER, taking advantage of significant energy generation and DM potential, especially in higher income areas (especially near data centers) where LMP would result in even higher value-stack incentives (if stacked-value is proposed by the DER Task Force). Note: if there were no minimum above 5%, the stacked-value pricing plus the necessary incentives for R,C, & I to participate in DER would result in lower participation.Hundreds of schools alone in the NoVA area could contribute up to ~750kW per school, and there are a great many commercial buildings and parking lots that could host arrays and storage facilities. 
+
+- **Require all new/replacement distribution stations and components ****be**** designed to safely and efficiently ****handle reverse power flows**** **(points to a section further above that could be cut and pasted here)**.** 
+
+- **Set a threshold for upgrading distribution subsystems**. As DER capacities increase in each distribution network, set a threshold to trigger the upgrades necessary for the distribution subsystem to safely and effectively handle reverse flow. These measures include Bidirectional protection relays, Load Tap Changer (LTC) control upgrades, and Substation transformer thermal/tap monitoring.  
+
+-  **Require a single statewide hosting-capacity data platform.** Virginia Energy already operates [Virginia Energy Connect](https://energy.virginia.gov/connect/) as a one-stop platform connecting residents and businesses to energy incentives, financing, and technical assistance — this is a natural home for a standardized, machine-readable hosting capacity map spanning all utility territories, similar to what New York's DPS required. Right now a developer or aggregator has to learn each utility's separate mapping tools; consolidating this under one state-run platform lowers the search cost that has slowed DER siting elsewhere.
+
+- **Build a formal ****lessons****-learned/adjustment feedback loop into the Dominion VPP pilot structure.** New York's regulatory order explicitly required that lessons learned be incorporated into REV demonstration projects and utility operations as expeditiously as reasonable, rather than waiting for a multi-year pilot to fully conclude before adapting. **Application:** Virginia's law already builds in a pilot-to-2028 structure with SCC evaluation before a permanent program, but Dominion should commit to interim, public checkpoint reports (annually, not just at the 2028 endpoint) so program design (incentive levels, eligible technologies, dispatch logic) can be adjusted mid-pilot rather than locked in for three years.
+
+- **Publish granular, regularly updated hosting capacity maps and pair them with non-wires alternatives (NWA) procurement.** New York's approach paired VDER with hosting capacity maps and targeted procurement of non-wires solutions to defer specific infrastructure upgrades. **Application:** Dominion should run its VPP dispatch off the same hosting capacity data it already develops for interconnection review, and structure at least a portion of VPP procurement as explicit non-wires alternative solicitations tied to named substations or feeders facing near-term upgrade needs — turning the VPP into a capital-deferral tool, not just a peak-shaving program.
+
+- **Require Smart/advanced inverter functions** (this is the single biggest lever): requiring DER inverters to support IEEE 1547-2018 functions like **Volt-VAR** (absorb/inject reactive power based on local voltage), **Volt-Watt** (curtail real power output as voltage rises), and fixed power factor operation. These respond in sub-second timeframes and address most localized voltage-rise problems without any utility hardware investment.
+
+- **Deploy the Virginia Clean Energy Innovation Bank as the equity backstop.** The Bank pairs targeted public financing with private capital to accelerate clean energy projects — this is the natural mechanism to fill the gap left when the Community Energy Act's original full-subsidy language for low-income residential battery storage was stripped from the final bill. Structuring low-interest loans or credit enhancements specifically for battery/thermostat/EV-charger adoption in disadvantaged communities would let those customers participate in utility VPP programs without waiting on utility-tariff-level subsidy design.
+
+- **If successfully litigated, direct any restored $156 million EPA Solar for All award toward VPP-eligible assets.** Since this award funds residential and shared solar for low-income and disadvantaged Virginians, Virginia Energy should ensure projects funded through it are paired with storage and pre-enrolled in whichever utility VPP program serves that territory — turning an equity-focused deployment program into a participation pipeline rather than a standalone generation program.
+
+- **Propose legislation for aggregator/native-telemetry-based metering.** CAISO allows sub-metering that leverages the native device-level telemetry of battery systems and EV chargers, and accepts standard ANSI meter accuracy classes rather than requiring bespoke revenue meters — a flexibility explicitly cited as reducing residential aggregation cost. Nothing in the current filings indicates whether Dominion will require per-device metering (CAISO's early, costly approach) or aggregator/native-telemetry-based metering (CAISO's corrected approach). This should be settled explicitly in the SCC tariff filing due November 15, 2026, in favor of the latter. 
+
+- **Capitalize on the data center flexibility mandate.** New legislation now requires Dominion and Appalachian Power to seek approval for voluntary demand flexibility programs targeting high-energy-demand customers — squarely aimed at data centers, Virginia's dominant load-growth driver — with annual SCC performance reporting built in. Paired with a separate 2026 law shifting grid-upgrade costs onto data centers themselves rather than residential ratepayers, this creates a genuine economic incentive for large loads to participate in flexibility programs. Virginia Energy should treat modeling and tracking this program's potential as a priority workstream in the 2026 Virginia Energy Plan, since a small percentage of flexible data-center load likely dwarfs the MW achievable from the entire residential VPP program combined.
+
+- **Increase building energy efficiency standards**. (more on this later)
+
+- Residential: [PHIUS standards](https://www.phius.org/standards) 
+
+- Commercial: [LEED V5 Rating](https://www.usgbc.org/resources/leed-v5-rating-systems)
+
+# Appendix A
+
+## Direct Transfer Trip (DTT) Considerations
+
+In the context of Dominion Energy Virginia, an expensive dedicated DTT communications link is required by DEV for any DER over 250kW, greatly lowering the cost/benefit ratio for (and therefore discouraging/limiting) prospective DER sites.
+
+**DTT triggers on any event that opens the upstream breaker or recloser, regardless of why, not specifically on reverse power flow/****backfeed**** conditions.** This distinction matters because it's a common misconception. Here's the actual logic:
+
+- **Reverse power flow (****backfeed****) is a normal, expected operating condition** on a grid-connected feeder with enough DER — it happens whenever local generation exceeds local load, and it's addressed by the mechanisms discussed earlier (directional relaying, bidirectional LTC controls, Volt-VAR/Volt-Watt). It is not, by itself, a safety hazard requiring DTT.
+
+- **DTT exists for exactly one purpose: preventing unintentional islanding** — the scenario where the upstream breaker opens (for *any* reason: a fault, a scheduled switching operation, an automatic reclosing sequence, storm damage, planned maintenance) and the now-isolated downstream section continues to be energized by DER that hasn't detected the loss of grid connection. The hazard isn't the direction of power flow; it's that line crews or the public may reasonably assume a de-energized section (because the breaker they saw open) is actually dead, when it isn't.
+
+- That's why DTT is a **status-based trip**, tied to breaker/recloser position, not a **flow-based trip** tied to the direction or magnitude of power. A dedicated communication link tells the DER site directly "the upstream breaker just opened — disconnect now," independent of what the DER's own local voltage/frequency sensors are seeing at that instant.
+
+- The reason islanding is a *live* risk at all (rather than something that self-resolves) is that it only persists if the DER's output happens to roughly match the isolated segment's remaining load closely enough in real power, reactive power, and frequency for voltage/frequency to stay within the DER's passive trip thresholds. This is precisely why Dominion's "load-to-generation ratio" screen exists — it's testing whether a given segment's minimum daytime load is small enough relative to aggregate DER capacity that a sustained island becomes physically plausible, not testing backfeed per se.
+
+**What should the criteria for requiring DTT ****actually be****?**
+
+This is currently a live, contested regulatory question in Virginia — a real ongoing litigation, not a hypothetical. As of this year, Virginia's SCC approved Dominion's continued use of DTT for projects that fail a load-to-generation ratio screen above 250 kW on a preliminary basis, while simultaneously directing Dominion to file additional screening criteria and a more robust technical justification for the 250 kW threshold specifically, because the Commission found Dominion had failed to justify that size cutoff. The Virginia Distributed Solar Alliance has asked the Commission to expedite that review, citing documented project downsizings, delays, and cancellations — including on hospitals, schools, and government buildings — attributable to DTT costs that can run into the millions of dollars.
+
+The technical case critics are making (IREC, SELC, Appalachian Voices) draws on the broader body of interconnection research and lines up with what most other states have moved toward. The criteria that research and other states' practice point to:
+
+**1. Certified inverter anti-islanding should be the default, not DTT.** Modern inverters certified to UL 1741 SA (or the newer CRD) and IEEE 1547-2018 already implement both passive (over/under-voltage, over/under-frequency) and active (frequency/voltage perturbation) anti-islanding detection, required to trip within 2 seconds. For inverter-based DER using certified equipment, this should be presumptively sufficient — DTT should be the exception requiring specific justification, not the default above an arbitrary kW threshold. IREC's research puts the probability of a persistent, harmful island — the scenario DTT is meant to catch beyond what certified inverters already catch — at once every roughly 3,800 to 10,000 years, with only one documented North American event, occurring under unusual transmission-level conditions unrelated to typical distribution-level DTT scenarios.
+
+**2. The load-to-generation ratio screen itself, done properly, should be the primary gatekeeper — not a blanket size cutoff layered on top of it.** The technically defensible approach is: calculate the ratio of aggregate DER capacity on the specific line segment to that segment's actual minimum daytime load (not a generic assumption), and only require supplemental protection if that ratio exceeds a threshold high enough that sustained islanding becomes physically plausible (commonly cited practice in other jurisdictions sets this well above the "one-third" trigger point being used in Virginia). A 500 kW project on a segment with 5 MW of minimum load poses categorically less risk than the same project on a segment with 600 kW of minimum load — a flat kW threshold applied without regard to the specific segment's load characteristics conflates two different things (project size vs. actual islanding risk).
+
+**3. A graduated mitigation hierarchy, not a binary "DTT or nothing."** Rather than jumping straight to dedicated fiber or cellular DTT once a screen is failed, a defensible framework would require the utility to work through cheaper options first and document why each is insufficient before escalating: enhanced relay/recloser settings, use of existing SCADA/AMI communication infrastructure rather than new dedicated fiber, or lower-bandwidth cellular telemetry — reserving full dedicated dark-fiber DTT for cases where a project-specific study shows those alternatives genuinely don't address a documented risk.
+
+**4. Burden of proof on a project-by-project (or segment-by-segment) technical finding, not a categorical rule.** This is exactly the deficiency the SCC identified in Dominion's current approach — the Commission's own order faulted Dominion for not justifying why 250 kW specifically, as opposed to a threshold tied to actual segment-level engineering analysis. A criterion that survives scrutiny needs to show its work: here's this segment's minimum load, here's the DER capacity that would result, here's why passive/active anti-islanding is or isn't sufficient at that specific ratio, here's the marginal risk reduction DTT provides over the certified inverter's built-in protection.
+
+**5. Proportionality between cost and risk reduction.** Given that DTT communications components can cost tens of thousands to hundreds of thousands of dollars, and given how rare the residual risk is once certified inverters are accounted for, a defensible standard would require the utility to show the marginal safety benefit of DTT over inverter-based anti-islanding is commensurate with the cost being imposed — rather than treating "some non-zero risk exists" as sufficient justification regardless of magnitude or cost.
+
+Worth noting for balance: Dominion's own stated position is that its requirements are meant to ensure the same safety and reliability standard regardless of who owns the generation, and the Commission did cite as evidence of reasonableness that 20 MW of clean energy projects have moved forward after paying for DTT — so the utility's counter-argument isn't that islanding risk is high, but that uniform, conservative standards are easier to administer consistently and that the requirement hasn't been an absolute bar to deployment, just a cost burden. The unresolved question in the pending proceeding is exactly the one you're asking: whether that uniformity is worth the cost it imposes on the specific size range (250 kW–1 MW) that seems to be absorbing the disproportionate share of the burden.
+
+# Appendix B
+
+## Why wholesale prices vary even within Dominion’s transmission network
+
+**Northern Virginia (****NoVA****) pricing nodes frequently carry a premium** compared to nodes in central, western, and southern Virginia. This price spread—often termed the "NoVA premium"—varies dynamically every hour based on system conditions. [[1](https://www.amperon.co/blog/why-virginia-data-centers-matter-to-all-of-pjm),[ ](https://www.power.dev/realtime/pjm/overview)[2](https://www.power.dev/realtime/pjm/overview),[ ](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/)[3](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/)]
+
+**The Core Drivers of the Price Spread**
+
+While the system-wide Energy Component remains identical at any given hour across the entire PJM market, the price divergence between Northern Virginia and the rest of the state is driven entirely by two factors: [[1](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/),[ ](https://www.power.dev/realtime/pjm/overview)[2](https://www.power.dev/realtime/pjm/overview)]
+
+Nodal LMP = Marginal Energy Component + Marginal Congestion Component + Marginal Loss Component
+
+- **Marginal Congestion Component (MCC):** Northern Virginia (specifically Loudoun, Fairfax, and Prince William counties) represents the largest concentration of data centers in the world. During periods of high demand, the transmission lines carrying power from western generation hubs into NoVA become constrained. This triggers positive congestion pricing in NoVA (driving prices up) and negative or flat congestion pricing in rural areas of Virginia where power is trapped. [[1](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/),[ ](https://www.newsweek.com/how-virginias-plans-for-biggest-data-center-in-the-world-fell-apart-12175465)[2](https://www.newsweek.com/how-virginias-plans-for-biggest-data-center-in-the-world-fell-apart-12175465),[ ](https://www.synapse-energy.com/sites/default/files/SynapseReport.2007-02.APPA_.LMP-Electricity-Markets.06-060-Report.pdf)[3](https://www.synapse-energy.com/sites/default/files/SynapseReport.2007-02.APPA_.LMP-Electricity-Markets.06-060-Report.pdf),[ ](https://www.vpm.org/news/2026-05-04/energy-transmission-upgrades-pjm-nrdc-data-centers-dominion-wind-farm-lang-ree)[4](https://www.vpm.org/news/2026-05-04/energy-transmission-upgrades-pjm-nrdc-data-centers-dominion-wind-farm-lang-ree),[ ](https://www.selectquote.com/medicare/medicare-plans/advantage-plans/virginia)[5](https://www.selectquote.com/medicare/medicare-plans/advantage-plans/virginia)]
+
+- **Marginal Loss Component (MLC):** Power is lost as heat when traveling long distances. Because Northern Virginia imports immense amounts of power from distant generation sources, its nodes carry higher marginal loss costs than parts of Virginia located closer to power plants. [[1](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/),[ ](https://www.power.dev/realtime/pjm/overview)[2](https://www.power.dev/realtime/pjm/overview),[ ](https://www.synapse-energy.com/sites/default/files/SynapseReport.2007-02.APPA_.LMP-Electricity-Markets.06-060-Report.pdf)[3](https://www.synapse-energy.com/sites/default/files/SynapseReport.2007-02.APPA_.LMP-Electricity-Markets.06-060-Report.pdf)]
+
+**Hourly and Seasonal Spread Behavior**
+
+The actual dollar-value difference shifts radically depending on the time of day and year: [[1](https://medium.com/@yl.lin/analysis-of-the-locational-marginal-price-lmp-of-the-u-s-energy-market-25679d33be1f)]
+
+- **Off-Peak / Low Demand Hours:** During mild spring or autumn nights, transmission lines are unconstrained. The LMP spread between NoVA nodes and the rest of the state drops to near-zero, usually fluctuating by less than **$1.00 to $2.00 / MWh**. [[1](https://www.uship.com/cost-to-ship/vehicles/)]
+
+- **On-Peak / High Demand Hours:** During hot summer afternoons or extreme winter cold snaps, the spread widens aggressively. NoVA nodes can price **$10.00 to $30.00+ / MWh higher** than nodes in western Virginia (Appalachian Power zone) or southern Virginia, as expensive local peaking generation must be turned on to meet NoVA's localized data center load. [,[ ](https://heatmap.news/energy/electricity-price-hub-pjm)[2](https://heatmap.news/energy/electricity-price-hub-pjm),[ ](https://www.reddit.com/r/nova/comments/1us859s/2027_to_bring_blackouts_due_to_data_centers_in/)[3](https://www.reddit.com/r/nova/comments/1us859s/2027_to_bring_blackouts_due_to_data_centers_in/),[ ](https://www.synapse-energy.com/sites/default/files/SynapseReport.2007-02.APPA_.LMP-Electricity-Markets.06-060-Report.pdf)[4](https://www.synapse-energy.com/sites/default/files/SynapseReport.2007-02.APPA_.LMP-Electricity-Markets.06-060-Report.pdf)]
+
+**Locational Marginal Price (LMP) forecasts** for Dominion Energy Virginia nodes are not officially published as long-term forward forecasts by the utility or PJM. Instead, wholesale market participants and forecasting agencies derive node-level forecasts using historical PJM data. You can access this data through the following resources: [[1](https://quantrisk.com/case-studies/pjm-day-ahead-market-price-forecast/),[ ](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/)[2](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/),[ ](https://dataminer2.pjm.com/feed/da_hrl_lmps)[3](https://dataminer2.pjm.com/feed/da_hrl_lmps)]
+
+- **PJM Data Miner 2**: PJM provides historical and day-ahead[ ](https://dataminer2.pjm.com/feed/da_hrl_lmps/definition)[Day-Ahead Hourly LMPs](https://dataminer2.pjm.com/feed/da_hrl_lmps/definition) and[ ](https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition)[Real-Time Hourly LMPs](https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition) for Dominion pricing nodes (pnodes). You can use these datasets to build your own forecasting models. [[1](https://dataminer2.pjm.com/feed/da_hrl_lmps),[ ](https://dataminer2.pjm.com/feed/rt_da_monthly_lmps/definition)[2](https://dataminer2.pjm.com/feed/rt_da_monthly_lmps/definition),[ ](https://www.gridstatus.io/live/pjm)[3](https://www.gridstatus.io/live/pjm)]
+
+- **Grid Status**: This platform provides an API, data exports, and a live[ ](https://www.gridstatus.io/live/pjm)[PJM Live Dashboard and Price Map](https://www.gridstatus.io/live/pjm) to visualize and download historical and real-time nodal data. [[1](https://www.gridstatus.io/live/pjm)]
+
+- **PowerDev**: Offers granular[ ](https://www.power.dev/realtime/pjm/overview)[PJM – Real-Time Electricity Market & HUB Price Map](https://www.power.dev/realtime/pjm/overview) features that allow energy traders to analyze Day-Ahead and Real-Time LMPs for specific nodes in the DOM (Dominion) zone. [[1](https://www.power.dev/realtime/pjm/overview)]
+
+**How to Calculate the Spread Today**
+
+To find the exact, real-time hourly difference between a Northern Virginia node (like the Ashburn or Loudoun pnodes) and a rest-of-state node (like Richmond or Roanoke), you can map the data using PJM's interfaces: [[1](https://blog.gridstatus.io/analyzing-lmps-with-a-nodal-price-map/)]
+
+- Pull the hourly real-time or day-ahead LMPs using the[ ](https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition)[PJM Data Miner 2 Tool](https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition).
+
+- Filter the pnode_name or zone by **DOM** (Dominion Energy Virginia).
+
+- Subtract a central/southern benchmark (e.g., DOMINION LOUISA or APL CO zone nodes) from a northern benchmark (e.g., DOMINION LOUDOUN or DOMINION CLIFTON). [[1](https://www.amperon.co/blog/why-virginia-data-centers-matter-to-all-of-pjm),[ ](https://heatmap.news/energy/electricity-price-hub-pjm)[2](https://heatmap.news/energy/electricity-price-hub-pjm)]
+
+## Value Stacking DER Compensation
+
+Virginia Department of Energy (Virginia Energy) can shift the Commonwealth away from blunt, volumetric net metering and basic demand response toward a granular, market-aligned compensation framework.
+
+**Compensation for Direct Customers**
+
+- **Consolidated Utility Billing:** Offtakers participating in shared DERs or community solar/storage should receive a single utility bill with itemized dollar credits, rather than managing separate invoices from project developers.
+
+- **Predictable "Lock-In" Tranches:** While hourly energy prices fluctuate, Virginia should emulate NYISO’s model of locking in the Demand Reduction Value (DRV) for **10 years** and Environmental Value for **25 years** upon interconnection approval. This revenue certainty is vital for customer bankability and adoption.
+
+- **Simplified Peak-Window Options:** Instead of requiring real-time algorithmic dispatch for retail customers, offer fixed peak-window compensation (similar to NY’s Capacity Alternative 2), rewarding customers who discharge batteries or reduce load during predictable summer and winter peak hours (e.g., 2 PM – 7 PM on weekdays).
+
+**Compensation for 3rd Party VPP**
+
+- **Multi-Use Stacking Without Double-Counting:** Enable third-party aggregators to simultaneously capture distribution-level value (paid by Dominion or Appalachian Power for local circuit relief) and wholesale market value (bidding aggregated capacity/energy into PJM under FERC Order 2222 rules).
+
+- **Performance-Based Dispatch Tiers:** For dispatchable storage and smart thermostats, establish a single-hour or critical-event compensation tier (similar to NY’s Capacity Alternative 3). Aggregators are compensated based on actual net output during the top grid-stress hours of the year, incentivizing high-reliability automated dispatch.
+
+- **Open Aggregation ****&**** Data Access:** Mandate standardized, secure telemetry and data-sharing protocols between utility Distribution Energy Resource Management Systems (DERMS) and third-party aggregators to reduce customer enrollment friction.
+
+**Compensation Lessons Learned **
+
+**Avoid "Revenue Shock" from Energy Volatility**
+
+- **The NY Lesson:** Because NYISO's energy component is tied to hourly wholesale gas and electricity markets, developer revenues fluctuated wildly during global energy price spikes and dips.
+
+- **The VA Solution:** Offer an optional hybrid tariff or floor price for the energy component during an initial 3-to-5-year transition period, preventing market shock for nascent VPP developers while moving toward full market exposure.
+
+**Eliminate Administrative ****&**** Modeling Complexity**
+
+- **The NY Lesson:** Early VDER tariffs were so complex that mid-sized commercial customers and regional banks struggled to underwrite projects.
+
+- **The VA Solution:** Virginia Energy and the State Corporation Commission (SCC) should publish a free, standardized **Value Stack Calculator** (modeled after NYSERDA’s Excel/web tool). This allows developers and customers to input zip codes, system sizing, and technology types to instantly forecast monthly compensation across all stack elements.
+
+**Pair Valuation with Interconnection Reform**
+
+- **The NY Lesson:** High stack compensation is meaningless if projects spend years stalled in utility interconnection queues or face arbitrary upgrade fees.
+
+- **The VA Solution:** Tie Value Stack tariff eligibility to standardized interconnection timelines and cost-sharing reforms—specifically addressing known Virginia bottlenecks like utility Direct Transfer Trip (DTT) telecommunication costs for mid-sized solar and storage.
+
+**Tariff Modernization for Existing Virginia Programs**
+
+To make Order 2222 practical for Virginia ratepayers, the SCC should direct utilities to modernize existing retail demand response (DR) tariffs:
+
+- **Create "Wholesale-Bypass" Riders:** Allow commercial and industrial (C&I) customers currently enrolled in utility interruptible load programs to opt into a rider that strips out the wholesale capacity component of their retail credit. This allows them to sell their capacity directly into PJM via a third-party VPP while retaining retail credits for local distribution relief.
+
+- **Open Data ****&**** Telemetry Standards:** Mandate that Dominion and Appalachian Power adopt open communication protocols (such as **IEEE 2030.5** or **OpenADR**) and provide clear, publicly accessible eligibility registries. Aggregators and developers need upfront transparency on exactly which retail tariffs stack with wholesale market products before investing capital in Virginia customer acquisition.
+
+# Appendix C
+
+## DER Energy Calculations and Assumptions
+
+**Virginia Parking Lot Solar output**
+
+1. Estimating Virginia's Parking Lot Footprint
+
+- **The Nationwide Proxy:** The United States contains an estimated 800 million parking spaces, translating to roughly 3,000 to 5,500 square miles of total parking lot area.
+
+- **The Virginia Share:** Virginia holds roughly 2.6% of the U.S. population and vehicle registry. Proportionately, Virginia possesses an estimated **78 to 120 square miles** (approx. 50,000 to 76,800 acres) of total parking pavement.
+
+- **The Solar Footprint:** Assuming a standard[ ](https://www.pecva.org/resources/publications/piedmont-view/in-the-drivers-seat-on-parking-lot-solar/)[solar canopy configuration](https://www.pecva.org/resources/publications/piedmont-view/in-the-drivers-seat-on-parking-lot-solar/) that structures panels over both driving lanes and stalls, about 80% of this total acreage can be directly topped with solar panels.
+
+2. The Solar Math
+
+- **Solar Irradiance:** Virginia receives an average daily solar irradiance of roughly 4.3 to 4.7 kWh per square meter.
+
+- **Panel Efficiency:** Standard modern commercial fixed-tilt panels operate at roughly 20% efficiency, meaning every square meter of canopy produces about 160 kWh of alternating current (AC) electricity per year after system losses. [[1](https://www.solar-electric.com/learning-center/solar-insolation-maps.html/?srsltid=AfmBOopynz3ZbOr_6f_tUCVNj8FJaDxxKqMpx-VYK6q5-2LzjJe6NiOT)]
+
+- **Total Conversion:** Multiplying 160 kWh across Virginia's estimated 200 million to 310 million square meters of parking pavement yields the final estimate of **16.6 to 49.7 TWh**.
+
+Benefits & Real-World Challenges
+
+- **Grid Proximity:** Parking lot arrays generate power immediately next to high-demand commercial areas and businesses, slashing the transmission losses associated with rural, utility-scale solar farms.
+
+- **Preservation:** Using existing asphalt bypasses the need to clear thousands of acres of Virginia's agricultural land or forests.
+
+- **High ****CapEx****:** Elevating solar panels onto steel canopies over active vehicle traffic makes these installations roughly **two times more expensive** to build than standard ground-mounted systems.
+
+**Rooftop Solar Output**
+
+Broad mapping datasets (such as Google's Project Sunroof) estimate that all viable rooftops across the entire Commonwealth of Virginia have a combined potential capacity of approximately **68,400 MW DC (68.4 GW)**. Scenario 3 assumes approximately 1/12th of that value, roughly 1 solar array per 12 buildings. 
+
+# Appendix D
+
+## Approaches by other utilities
+
+**NYISO **
+
+**Solving Real grid-engineering constraints**
+
+- **Upgrading Transformers:** Utilities actively replace older substation transformers with bi-directional transformers that handle two-way power without overheating. [[1](https://repository.najah.edu/items/5e75a5b6-cc8d-4d4f-a197-843a3c1da328),[ 2](https://cdn.prod.website-files.com/5dc3329c429c1a9866f49d34/61b96a8dda152ac8ed72cc67_Virginia%20Transformer%20%20Reverse%20Power%20Flow.pdf)]
+
+- **Voltage Regulation:** Substations use equipment like **LTCs** (Load Tap Changers) and **capacitor banks** to automatically adjust voltage levels and safely absorb excess distributed energy. [[1](https://repository.najah.edu/items/5e75a5b6-cc8d-4d4f-a197-843a3c1da328),[ ](https://www.youtube.com/watch?v=7Q-aVBv7PWM)[2](https://www.youtube.com/watch?v=7Q-aVBv7PWM),[ ](https://ieeexplore.ieee.org/iel7/10137513/10137514/10137725.pdf)[3](https://ieeexplore.ieee.org/iel7/10137513/10137514/10137725.pdf),[ ](https://www.renewableenergyworld.com/solar/balancing-a-renewable-grid-what-are-the-options/)[4](https://www.renewableenergyworld.com/solar/balancing-a-renewable-grid-what-are-the-options/)]
+
+- **Advanced Protective Relaying:** Utilities install specialized relays (such as directional overcurrent protection) that can detect which direction power is traveling and safely isolate solar systems during grid faults. [[1](https://www.epri.com/research/products/000000003002015503),[ ](https://documents.dps.ny.gov/public/Common/ViewDoc.aspx?DocRefId=%7B7B958736-980E-4909-91A6-EA4660CE499D%7D)[2](https://documents.dps.ny.gov/public/Common/ViewDoc.aspx?DocRefId=%7B7B958736-980E-4909-91A6-EA4660CE499D%7D),[ ](https://electricityforum.com/td/overhead-td/reliability-and-protection-in-utility-distribution)[3](https://electricityforum.com/td/overhead-td/reliability-and-protection-in-utility-distribution),[ ](https://www.thinkpowersolutions.com/grid-protection-and-modernization/)[4](https://www.thinkpowersolutions.com/grid-protection-and-modernization/)]
+
+- **Smart Inverters:** Modern solar panels use "smart inverters" programmed to automatically disconnect or reduce power (curtailment) if grid voltage or frequency goes too high. [[1](https://www.mdpi.com/1996-1073/19/4/1069),[ ](https://www.mdpi.com/1996-1073/18/2/440)[2](https://www.mdpi.com/1996-1073/18/2/440),[ ](https://www.anernstore.com/blogs/costs-incentives-policy/case-microgrid-safety-layers-prevent-islanding?srsltid=AfmBOop5ZOIDDBjYUzdsj91QOdeCQcVDQvMofLtS-8if084o-UY2G4Y3)[3](https://www.anernstore.com/blogs/costs-incentives-policy/case-microgrid-safety-layers-prevent-islanding?srsltid=AfmBOop5ZOIDDBjYUzdsj91QOdeCQcVDQvMofLtS-8if084o-UY2G4Y3),[ ](https://www.energetskiportal.com/collapse-of-energy-grids-and-their-resilience-in-the-21st-century/)[4](https://www.energetskiportal.com/collapse-of-energy-grids-and-their-resilience-in-the-21st-century/)]
+
+- **Battery Energy Storage:** Adding **BESS** (Battery Energy Storage Systems) at or near substations allows the grid to absorb and store the excess reverse energy rather than rejecting it or forcing solar shutdowns. [[1](https://www.mdpi.com/1996-1073/19/4/1069),[ ](https://clouglobal.com/handling-transformer-load-stress-as-renewable-energy-sources-grow/)[2](https://clouglobal.com/handling-transformer-load-stress-as-renewable-energy-sources-grow/),[ ](https://www.linkedin.com/pulse/solar-power-penetration-national-grid-opportunities-pradeep-fernando-novtc)[3](https://www.linkedin.com/pulse/solar-power-penetration-national-grid-opportunities-pradeep-fernando-novtc)]
+
+- **The DER Aggregation Model:** NYISO allows distributed energy resources to act as virtual power plants. By using the[ ](https://www.nyiso.com/der-aggregations)[DER participation model](https://www.nyiso.com/der-aggregations), the grid operator can actually dispatch or store excess energy exactly when it threatens to overwhelm a local substation. [[1](https://www.nyiso.com/der-aggregations),[ ](https://rodanenergy.com/new-york-der-aggregation-participation-model/)[2](https://rodanenergy.com/new-york-der-aggregation-participation-model/),[ ](https://www.nyiso.com/documents/20142/4020230/DER+Overall+Energy+Market+Design+Review+121818.pdf/10ce2e53-02ff-7157-68ae-2d9e9fbe50fa?version=1.1&download=true)[3](https://www.nyiso.com/documents/20142/4020230/DER+Overall+Energy+Market+Design+Review+121818.pdf/10ce2e53-02ff-7157-68ae-2d9e9fbe50fa?version=1.1&download=true),[ ](https://www.sysotechnologies.com/nyiso/)[4](https://www.sysotechnologies.com/nyiso/),[ ](https://www.epri.com/research/products/000000003002015503)[5](https://www.epri.com/research/products/000000003002015503)]
+
+**DER Aggregator Participation in Wholesale Markets -FERC Order 2222**
+
+**CAISO **Most mature — had a pre-existing DER aggregation program before Order 2222. FERC approved its compliance filing in June 2022, which included lowering the DER aggregation minimum capacity requirement from 500 kW to 100 kW, providing an opt-out for small utilities, and creating a heterogeneous DER aggregation model that can include demand response.[ ](https://ferc.gov/caiso-compliance-filing-order-no-2222-der-aggregations)[Federal Energy Regulatory Commission](https://ferc.gov/caiso-compliance-filing-order-no-2222-der-aggregations) Operational today.
+
+**NYISO **Also had a pre-existing DER program; FERC approved its compliance filing alongside CAISO's in June 2022, later amended to allow heterogeneous aggregations. Full implementation of Order 2222 is slated to occur by the end of 2026.[ ](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy)[Federal Energy Regulatory Commission](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy)
+
+**ISO-NE **Made its primary compliance filing on February 2, 2022, with subsequent compliance filings in 2023 and 2024, and has enabled thousands of megawatts of DERs to participate in its markets through multiple participation options.[ ](https://www.iso-ne.com/committees/key-projects/order-no-2222-key-project)[ISO New England](https://www.iso-ne.com/committees/key-projects/order-no-2222-key-project) For the capacity market, implementation is slated to occur in time to include DER aggregations in Forward Capacity Auction 19, scheduled for February 2026.[ ](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy)[Federal Energy Regulatory Commission](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy) Energy/ancillary services changes follow in Q4 2026.
+
+**MISO **Compliance filings ongoing; FERC denied MISO's request for rehearing on its compliance filing, so implementation work continues without a firm public date in these results.
+
+**SPP **Furthest out. Compliance filings are in Docket No. ER22-1697, with a proposed implementation date of Q2 2030.[ ](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy)[Federal Energy Regulatory Commission](https://www.ferc.gov/ferc-order-no-2222-explainer-facilitating-participation-electricity-markets-distributed-energy)
+
+# **Appendix E**
+
+## DER Circuit Analysis Tools
+
+Software tools calculate a distribution circuit's **Hosting Capacity**. This is the maximum amount of **Distributed Energy Resources (DERs)**, like solar panels, the circuit can handle safely before needing upgrades. [[1](https://irecusa.org/our-work/hosting-capacity-analysis/),[ 2](https://www.epri.com/pages/sa/drive)]
+
+These primary tools analyze how much energy a local grid can accept: [[1](https://irecusa.org/our-work/hosting-capacity-analysis/)]
+
+- **OpenDSS****:** An open-source electric power simulation engine. It is the industry standard for modeling advanced DERs and time-varying loads. [[1](https://www.epri.com/pages/sa/opendss)]
+
+- **EPRI DRIVE:** This tool estimates DER hosting capacity without requiring costly grid upgrades. It is built directly upon the OpenDSS engine. [[1](https://www.epri.com/pages/sa/drive),[ ](https://www.epri.com/pages/sa/opendss)[2](https://www.epri.com/pages/sa/opendss)]
+
+- **Eaton CYME:** A commercial software that provides highly detailed network analysis and hosting capacity modeling. [[1](https://www.eaton.com/us/en-us/digital/brightlayer/brightlayer-utilities-suite/distributed-energy-resources-software-applications.html)]
+
+- **ETAP DERMS:** A management system that includes built-in hosting capacity planning and smart inverter simulations. [[1](https://etap.com/solutions/distributed-energy-resource-management-system)]
+
+- **DIgSILENT**** ****PowerFactory****:** A commercial package that computes maximum DER and spare load capacity while checking for voltage and thermal limits. [[1](https://www.digsilent.de/en/distribution-network-tools.html)]
+
+# **Appendix F**
+
+## DER Background and Reverse Flow Challenges
+
+In Virginia, the **6% cap on Distributed Energy Resources (DER)**—such as rooftop solar—refers to a statutory limit on the total amount of customer-owned renewable energy that can participate in the local power grid. Under state law, investor-owned utilities like **Dominion Energy** must offer net metering until the aggregate capacity reaches 6% of the utility's previous year’s peak load. [[1](https://solarunitedneighbors.org/resources/net-metering-in-virginia/),[ ](https://www.reddit.com/r/solar/comments/183atxw/net_metering_caps/)[3](https://www.dominionenergy.com/-/media/content/about/energy-grid-transformation/voltage-optimization/pdfs/grid-transformation-plan-phase-2.pdf),[ ](https://solarunitedneighbors.org/resources/net-metering-in-virginia/)[4](https://solarunitedneighbors.org/resources/net-metering-in-virginia/)]
+
+The 6% cap is structured and governed by the following key details:
+
+**Breakdown of the 6% Cap**
+
+- **The Legislative Mandate:** The 6% cap was expanded from 1% to 6% under the[ ](https://www.dominionenergy.com/-/media/content/about/energy-grid-transformation/voltage-optimization/pdfs/grid-transformation-plan-phase-2.pdf)[Virginia Clean Economy Act (VCEA)](https://www.dominionenergy.com/-/media/content/about/energy-grid-transformation/voltage-optimization/pdfs/grid-transformation-plan-phase-2.pdf).
+
+- **Low-Income Carve-Out:** Out of the total 6% allowed capacity, **1% is reserved specifically for low-income utility customers**.
+
+- **Where It Stands Today:** Dominion Energy is currently well below the 6% limit (the utility is estimated to be hovering below 3%). [[1](https://advancedenergyunited.org/press-releases/virginia-regulators-defend-net-metering/),[ ](https://www.youtube.com/watch?v=Nl9WzJmrrGk&t=455)[2](https://www.youtube.com/watch?v=Nl9WzJmrrGk&t=455),[ ](https://www.dominionenergy.com/-/media/content/about/energy-grid-transformation/voltage-optimization/pdfs/grid-transformation-plan-phase-2.pdf)[3](https://www.dominionenergy.com/-/media/content/about/energy-grid-transformation/voltage-optimization/pdfs/grid-transformation-plan-phase-2.pdf),[ ](https://advancedenergyunited.org/press-releases/virginia-regulators-defend-net-metering/)[5](https://advancedenergyunited.org/press-releases/virginia-regulators-defend-net-metering/)]
+
+**System Size Limits (DER to Grid)**
+
+To qualify under this cap and participate in the[ ](https://www.dominionenergy.com/virginia/renewable-energy-programs/net-metering)[Net Metering Program](https://www.dominionenergy.com/virginia/renewable-energy-programs/net-metering), there are specific generator size limits in place: [[1](https://law.lis.virginia.gov/vacode/title56/chapter23/section56-594/)]
+
+- **Residential:** Maximum of 20 kW or 25 kW, depending on specific tariffs.
+
+- **Non-Residential (Commercial/Industrial):** Maximum of 100 kW up to 3,000 kW (3 MW).
+
+- **Agricultural:** Up to 500 kW aggregated capacity. [[1](https://www.energysage.com/local-data/net-metering/dominion-energy/),[ ](https://solarunitedneighbors.org/resources/net-metering-in-virginia/)[2](https://solarunitedneighbors.org/resources/net-metering-in-virginia/)]
+
+**Net Metering Protections**
+
+- Regulators recently solidified the net metering rules, rejecting Dominion’s attempts to dramatically cut compensation rates or add heavy administrative and application fees. [[1](https://solarunitedneighbors.org/news/net-metering-win-in-virginia/),[ ](https://advancedenergyunited.org/press-releases/virginia-regulators-defend-net-metering/)[2](https://advancedenergyunited.org/press-releases/virginia-regulators-defend-net-metering/)]
+
+- Customers can store energy credits generated in peak sunny months for up to 12 months, which offsets power usage in darker, colder months. [[1](https://seia.org/news/statement-virginia-regulators-reject-dominion-request-to-slash-compensation-for-solar-customers-sending-energy-to-grid/),[ ](https://www.bayjournal.com/news/energy/rooftop-solar-benefits-remain-mostly-intact-in-virginia/article_58db53b2-7491-450c-b92b-70cf51c3dffb.html)[2](https://www.bayjournal.com/news/energy/rooftop-solar-benefits-remain-mostly-intact-in-virginia/article_58db53b2-7491-450c-b92b-70cf51c3dffb.html)]
+
+- A small **$1/month** administrative fee is applied to new solar net metering (NEM 2.0) participants, but low-income customers are exempt. [[1](https://pv-magazine-usa.com/2026/05/04/virginia-corporation-commission-approves-dominion-energy-nem-2-0-that-looks-very-similar-to-nem-1-0/),[ ](https://www.bayjournal.com/news/energy/rooftop-solar-benefits-remain-mostly-intact-in-virginia/article_58db53b2-7491-450c-b92b-70cf51c3dffb.html)[2](https://www.bayjournal.com/news/energy/rooftop-solar-benefits-remain-mostly-intact-in-virginia/article_58db53b2-7491-450c-b92b-70cf51c3dffb.html)]
+
+**What the cap is ****actually doing**
+
+It helps to separate two different aspects Dominion and the SCC have concerns about DERs:
+
+- *Real grid-engineering constraints…*  
+
+- **reverse power flow at substations:** The distribution system is traditionally designed as a one-way street, pushing power from the Dominion Energy substation to the home. When many homes produce power, it flows backward toward the substation. This can overload wires and requires different safety switches. [[1](https://www.dominionenergy.com/-/media/content/renewable-energy-programs/pdfs/virginia/blue-book.pdf)]
+
+- **voltage regulation on feeders:** When many solar panels turn on and off rapidly (like when a cloud passes), the local voltage spikes and drops. This can cause blinking lights or damage to household appliances.
+
+- **protection/relay coordination: **When a neighborhood has solar, traditional safety equipment (relays that clear faults) can be "blinded." The grid requires highly advanced communication systems to ensure the safety of repair crews. [[1](https://advancedenergyunited.org/press-releases/virginia-regulators-defend-net-metering/)] 
+
+- **unintentional islanding: **Islanding is a condition that occurs when a distributed energy resource (DER) such as a grid-tied inverter continues to supply power to a section of the grid that has been disconnected from the main grid. There are two types of islanding: unintentional and intentional. Unintentional islanding occurs when a distributed energy resource (DER) such as a grid-tied inverter shall detect the island, disconnected from the main grid, cease to energize the power system, and trip within 2s. Intentional islanding refers to a situation where a distributed energy resource (DER) such as a grid-tied inverter is intentionally programmed to continue supplying power to an intentional local island in case of grid outage, either scheduled or unscheduled.
+
+- **thermal limits **at distribution substations** **dictate how much electricity can flow through a transformer before it overheats and degrades its physical components 
+
+…are handled project-by-project and feeder-by-feeder through the interconnection review process, using IEEE 1547/UL 1741 screens, hosting-capacity analysis, and sometimes hardware requirements like direct transfer trip (DTT) communications or DG panels for larger net-metered systems. Dominion Energy reviews the proposed interconnection for compatibility with the electric distribution system, based on UL 1741/IEEE 1547 standards. This is the layer where actual engineering thresholds live, and they vary feeder-to-feeder — a single statewide percentage can't capture that heterogeneity.
+
+- *The 6% aggregate cap* operates at the whole-utility level, measured against Dominion's total prior-year peak load — a scale far too coarse to correspond to any specific feeder or substation limit. It functions more as a **cost-recovery / rate-design guardrail** than a grid-capability limit. The VCEA itself frames it that way: it directs the SCC to make all reasonable efforts to ensure that the net energy metering program does not result in unreasonable cost-shifting to nonparticipating electric utility customers. That's the real animating concern — that net-metered customers pay retail rates for the grid services they still use (backup capacity, voltage support, distribution infrastructure) while their exported energy is credited at that same retail rate, so a growing share of self-generation can shift fixed costs onto non-solar ratepayers. The percentage cap is a blunt policy lever to pace that exposure while regulators sort out **fairer compensation mechanisms** (which is exactly what the recent NEM 2.0 proceeding was about).
+
+**15% Rule-of-Thumb Cap**
+
+A common electrical utility rule-of-thumb 15% DER Cap limits the amount of DER power capacity like rooftop solar, on a local power line (circuit). If DER power capacity addition would exceed 15% of the line's peak electric demand, the system usually requires a complex study before adding more. [[1](https://www.renewableenergyworld.com/solar/california-der-interconnection-simplified-by-groundbreaking-new-rule/),[ ](https://grist.org/article/overturning-the-15-rule-can-expand-distributed-generation/)[2](https://grist.org/article/overturning-the-15-rule-can-expand-distributed-generation/)]
+
+The 15% cap exists for five main grid engineering-constraint reasons listed above in the 6% Cap. 
+
+Additionally, the absence of a cap (especially with a large percentage of non-firmed, non-storage solar sites) may result in a “Duck Curve” effect that California has had to struggle to manage due to the large amount of installed solar capacity without sufficient storage to shift portions of peak solar generation energy to times of peak demand..
+
+Historically, planners used the 15% figure as a safe shortcut. They assumed minimum daytime power use was 30% of the peak, so they set the solar limit to 15% to guarantee a safe buffer. [[1](https://www.dret-ca.com/wp-content/uploads/2021/03/Grid-Impacts-from-Distributed-Energy-Resources.pdf),[ ](https://niteshbidarkar.wordpress.com/2019/12/29/dilemma-of-solar-pv-penetration-limit-on-distribution-transformer/)[2](https://niteshbidarkar.wordpress.com/2019/12/29/dilemma-of-solar-pv-penetration-limit-on-distribution-transformer/)]
+
+Today, states are updating this rule. Tools like **smart inverters** (which can regulate voltage automatically) allow grids to handle much more DER without needing expensive hardware upgrades. [[1](https://www.energy.gov/documents/distribution-grid-orchestration),[ ](https://www.renewableenergyworld.com/solar/california-der-interconnection-simplified-by-groundbreaking-new-rule/)[2](https://www.renewableenergyworld.com/solar/california-der-interconnection-simplified-by-groundbreaking-new-rule/)]
+
+**RPS DER Requirement for 4.5% - 5%**
+
+2026 legislation upgraded the Distributed Energy RPS requirement from 1% to 4.5% by 2023, and 5% thereafter in § 56-585.5 ( C )
+
+# Appendix G
+
+[2]

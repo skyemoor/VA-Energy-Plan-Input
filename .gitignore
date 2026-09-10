@@ -2,6 +2,7 @@
 # See docs/DATA_SOURCES.md for provenance and retrieval.
 *.csv
 !registers/*.csv
+!results/hourly_dispatch/*.csv
 insolation_data/
 __pycache__/
 *.pyc
