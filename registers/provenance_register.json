@@ -1,0 +1,246 @@
+{
+  "results": [
+    {
+      "record_id": "R-NOVA-TOTAL-V1",
+      "description": "Four-county NoVA distributed solar potential (original)",
+      "created_date": "2026-09-10",
+      "value": 6159.0,
+      "units": "MW",
+      "scenario": null,
+      "year": null,
+      "status": "superseded",
+      "generating_script": null,
+      "input_files": [],
+      "depends_on_assumption_ids": [],
+      "superseded_by": "R-NOVA-TOTAL-V2",
+      "notes": "PWC parking population-anchored; inflated by Loudoun data-center density"
+    },
+    {
+      "record_id": "R-NOVA-TOTAL-V2",
+      "description": "Four-county NoVA distributed solar potential, PWC re-based",
+      "created_date": "2026-09-10",
+      "value": 4638.6,
+      "units": "MW",
+      "scenario": null,
+      "year": null,
+      "status": "current",
+      "generating_script": null,
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-PWC-PARKING-V2"
+      ],
+      "superseded_by": null,
+      "notes": null
+    },
+    {
+      "record_id": "R-FIRMING-PCT",
+      "description": "Six-day lookahead firming percentage, NoVA fleet",
+      "created_date": "2026-09-10",
+      "value": 4.3,
+      "units": "percent",
+      "scenario": null,
+      "year": null,
+      "status": "superseded",
+      "generating_script": null,
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "R-NOVA-TOTAL-V1"
+      ],
+      "superseded_by": "TBD",
+      "notes": "STALE: computed on the 6,159 MW fleet basis, now revised to 4,638.6 MW. Needs recomputation."
+    },
+    {
+      "record_id": "R-SLCOE-S1-2030",
+      "description": "Scenario 1 SLCOE 2030, Python pipeline with reserve margin",
+      "created_date": "2026-09-10",
+      "value": 42.45,
+      "units": "$/MWh",
+      "scenario": "S1",
+      "year": 2030,
+      "status": "current",
+      "generating_script": null,
+      "input_files": [],
+      "depends_on_assumption_ids": [],
+      "superseded_by": null,
+      "notes": null
+    },
+    {
+      "record_id": "R-BUILD-2045-SOLAR",
+      "description": "Total solar, 2045 checkpoint (166,340.7 utility + 7,440 distributed)",
+      "created_date": "2026-09-10",
+      "value": 173780.7,
+      "units": "MW",
+      "scenario": "S1",
+      "year": 2045,
+      "status": "provisional",
+      "generating_script": "solve_2045_v3.py",
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-SITING-CAP-DOM",
+        "A-DEMAND-2045"
+      ],
+      "superseded_by": null,
+      "notes": "Single design weather year 2016-17; distributed solar pinned at siting cap"
+    },
+    {
+      "record_id": "R-BUILD-2045-FE-LP",
+      "description": "Iron-air energy, 2045 LP solve",
+      "created_date": "2026-09-10",
+      "value": 3635866.8,
+      "units": "MWh",
+      "scenario": "S1",
+      "year": 2045,
+      "status": "superseded",
+      "generating_script": null,
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-FE-DURATION",
+        "A-FE-CAPEX"
+      ],
+      "superseded_by": "R-BUILD-2045-FE-UPLIFT",
+      "notes": "Failed 8-year cross-test in design year 2016-17 (470,502 MWh unserved)"
+    },
+    {
+      "record_id": "R-BUILD-2045-FE-UPLIFT",
+      "description": "Iron-air energy, 2045, +20% uplift after 8-year cross-test",
+      "created_date": "2026-09-10",
+      "value": 4363040.2,
+      "units": "MWh",
+      "scenario": "S1",
+      "year": 2045,
+      "status": "provisional",
+      "generating_script": "sim_2045_uplift.py",
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-FE-DURATION",
+        "A-FE-CAPEX"
+      ],
+      "superseded_by": null,
+      "notes": "Manual sweep, not optimization -- cheapest technology to close the gap was never tested. Sized partly against heuristic-dispatch shortfall, not purely physical."
+    },
+    {
+      "record_id": "R-SLCOE-S1-2045",
+      "description": "Scenario 1 SLCOE 2045 at +20% iron-air uplift",
+      "created_date": "2026-09-10",
+      "value": 133.5,
+      "units": "$/MWh",
+      "scenario": "S1",
+      "year": 2045,
+      "status": "provisional",
+      "generating_script": null,
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "R-BUILD-2045-SOLAR",
+        "R-BUILD-2045-FE-UPLIFT"
+      ],
+      "superseded_by": null,
+      "notes": "No technology cost-decline curve applied; likely conservative"
+    },
+    {
+      "record_id": "R-UNSERVED-2030-8YR",
+      "description": "8-year continuous dispatch unserved energy, 2030 build",
+      "created_date": "2026-09-10",
+      "value": 6444435.4,
+      "units": "MWh",
+      "scenario": "S1",
+      "year": 2030,
+      "status": "current",
+      "generating_script": "simulate_8yr_dispatch.py",
+      "input_files": [],
+      "depends_on_assumption_ids": [],
+      "superseded_by": null,
+      "notes": "Storage charge-starved: already captures 75.4% of all available surplus"
+    },
+    {
+      "record_id": "R-DOMINION-IRP-NPV",
+      "description": "Dominion 2025 IRP Company Preferred Plan, Total Plan NPV",
+      "created_date": "2026-09-10",
+      "value": 148.7,
+      "units": "$B",
+      "scenario": null,
+      "year": 2045,
+      "status": "current",
+      "generating_script": null,
+      "input_files": [],
+      "depends_on_assumption_ids": [
+        "A-STORAGE-MANDATE-2045"
+      ],
+      "superseded_by": null,
+      "notes": "Case PUR-2025-00184, 2026-2045, 6.62% discount rate. Includes only 2,000 MW storage -- predates HB895/SB448 requiring 19,480 MW."
+    }
+  ],
+  "assumptions": [
+    {
+      "record_id": "A-PWC-PARKING-V2",
+      "description": "PWC parking-lot solar, re-anchored to C&I building footprint (population anchor imported Loudoun data-center distortion)",
+      "created_date": "2026-09-10",
+      "value": 335.6,
+      "units": "MW",
+      "citation_key": null,
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-SITING-CAP-DOM",
+      "description": "Distributed solar siting cap, DOM zone, extrapolated from re-based four-county NoVA at 0.93 kW/capita excluding Loudoun",
+      "created_date": "2026-09-10",
+      "value": 7440.0,
+      "units": "MW",
+      "citation_key": null,
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-DIST-STORAGE-PAIR",
+      "description": "Distributed storage pairing: 1:1 MW with distributed solar, 4-hour duration",
+      "created_date": "2026-09-10",
+      "value": 4.0,
+      "units": "hours",
+      "citation_key": null,
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-FE-DURATION",
+      "description": "Iron-air duration (power = energy/100)",
+      "created_date": "2026-09-10",
+      "value": 100.0,
+      "units": "hours",
+      "citation_key": "C122",
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-FE-CAPEX",
+      "description": "Iron-air energy capex",
+      "created_date": "2026-09-10",
+      "value": 18.03,
+      "units": "$/kWh",
+      "citation_key": null,
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-NA-CAPEX-ENERGY",
+      "description": "Sodium-ion energy capex",
+      "created_date": "2026-09-10",
+      "value": 65.16,
+      "units": "$/kWh",
+      "citation_key": null,
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-DEMAND-2045",
+      "description": "DOM zone 2045 annual demand, April-March fiscal year",
+      "created_date": "2026-09-10",
+      "value": 206.3,
+      "units": "TWh",
+      "citation_key": null,
+      "dependent_result_ids": []
+    },
+    {
+      "record_id": "A-STORAGE-MANDATE-2045",
+      "description": "Dominion storage mandate under HB895/SB448: 16,000 MW short-duration + 3,480 MW LDES by 2045",
+      "created_date": "2026-09-10",
+      "value": 19480.0,
+      "units": "MW",
+      "citation_key": null,
+      "dependent_result_ids": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Large public source data -- re-downloadable, not stored here.
+# See docs/DATA_SOURCES.md for provenance and retrieval.
+*.csv
+!registers/*.csv
+insolation_data/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Credentials -- never commit
+.ghtoken
+*.token
