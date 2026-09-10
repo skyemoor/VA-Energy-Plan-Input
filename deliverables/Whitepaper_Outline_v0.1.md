@@ -279,6 +279,71 @@ modeling consequences; the 2030 charge-starvation finding.
 **[TO WRITE]** NSPM framing; measure-level analysis; what was scoped in and out and why.
 *Addresses § 45.2-1710(B)(5).*
 
+## 7A. Pricing demand-side incentives so customers capture the savings
+
+*A substantive section in its own right, not a subsection of §7.*
+
+**The argument.** A demand-side program's incentive should reflect the value it delivers to the
+system. Where it does not, the customer bears the inconvenience while the utility and its other
+ratepayers capture the surplus — and participation stays low, so the resource never scales to the
+level the reliability analysis in §4 shows is needed. This is NSPM Principle 2 applied directly:
+if DERs are to be treated as a utility system resource, they must be *valued* like one.
+
+**Two independent lines of evidence, deliberately kept separate.**
+
+**(a) Peer utility comparison** — the stronger of the two, because it is utility-to-utility rather
+than model-derived, and needs no methodology to be accepted.
+
+Non-residential curtailment, $/kW-yr *(Cross_State_Commercial_Curtailment_Incentive_Comparison)*:
+
+| Utility | $/kW-yr | Multiple of Dominion |
+|---|---:|---:|
+| **Dominion (VA)** | **$36** | **1.00×** |
+| Hawaiian Electric | $60 | 1.67× |
+| NYSEG (capacity component) | $49–52 | 1.37–1.45× |
+| Puget Sound Energy | up to $130 | 3.61× |
+| PG&E BIP / CBP | $50–200 | 1.39–5.56× |
+| **Con Edison Smart Usage Rewards** | **$216–300** | **6.00–8.33×** |
+
+Residential battery/VPP *(Cross_Utility_VPP_Compensation_Comparison)*: Dominion pays a flat
+**$294/year, size-independent** — meaning a larger battery earns no more than a small one, which
+removes any incentive to size for grid value. Green Mountain Power pays ~$850/year plus
+$850–1,050/kW upfront; Massachusetts ConnectedSolutions works out to roughly $1,375/year on a 5 kW
+example. Third-party benchmarks *(ThirdParty_VPP_DERA_Compensation_Benchmarks)* show Tesla-operated
+programs at $80–275/kW seasonal across seven utilities.
+
+**(b) Avoided-cost benchmark** — what the incentive *should* be if it reflected system value.
+
+Current EV Charger Rewards compensation sits roughly **12–20× below** a properly-priced benchmark
+built from avoided capacity plus avoided energy. **[FIGURE PENDING RE-DERIVATION]** — see the
+correction note below; do not use the 70–115× figure that appears in earlier working material.
+
+**Structural observations that matter more than the levels.**
+
+1. **Flat, size-independent payments** (Dominion residential, $294/yr) sever the link between
+   incentive and delivered value entirely. Every peer program that scales — $/kW, $/kWh, or
+   per-event — preserves it.
+2. **Backup reserve is unconfirmed.** Peer programs increasingly publish an explicit reserve
+   state-of-charge the customer always retains (PG&E/Sunrun: 20%, published; APS: 20–50% implied;
+   PG&E/Tesla: customer-set in-app). Dominion's is unconfirmed after two direct searches — a
+   participation barrier independent of price.
+3. **Energy performance contracting is available and underused.** § 45.2-1702 lets public bodies
+   implement measures with no net budget impact, contractor-guaranteed. Requires no new
+   legislation. Connects to § 56-585.5(C)(2)'s school-sited distributed carve-out.
+
+**Recommendations to develop** *(addresses § 45.2-1710(B)(12))*: whether incentive levels should
+be tied to a published avoided-cost methodology rather than set administratively; whether flat
+payments should be replaced with value-scaled ones; whether backup reserve should be a published
+program term.
+
+**Correction note for drafting.** Working material computed the avoided-cost benchmark using
+installed capital cost ($/kW, one-time) as though it were annual avoided capacity cost ($/kW-yr).
+Properly annualized, the F-Class benchmark is ~$51/kW-yr rather than $713, and the aeroderivative
+~$88/kW-yr rather than $1,175. Cross-check: PJM capacity has never cleared near $713/kW-yr — the
+2025/26 record BRA was ~$98.5/kW-yr and the 2026/27 cap is $118.6/kW-yr, while the corrected
+figures land inside that historical range. The qualitative finding survives comfortably; the
+multiple does not. Full detail in `docs/methodology/`.
+
 ## 8. Distributed generation and siting
 **[TO WRITE]** The four-county assessment; extrapolation and its limits; the statutory preference
 for previously developed project sites. *Addresses § 45.2-1710(B)(3).*
