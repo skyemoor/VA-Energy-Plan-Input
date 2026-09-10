@@ -50,7 +50,13 @@ from arlington_parking_lot_sqft import (
 # ROOFTOP -- merged from test_arlington_ci_rooftop_solar_estimate.py
 # ==========================================================================
 
-PROJECT_CSV_PATH = "/mnt/project/Arlington_Buildings.csv"
+# RENAMED 2026-09-10 during the county merge. Both source files defined ROOFTOP_PROJECT_CSV_PATH, and
+# the parking definition -- appearing later in the merged file -- silently overrode this one, so
+# every rooftop test read the parking CSV and failed with KeyError: 'CM_Type'.
+#
+# The merge checked for CLASS name collisions and found one, but not module-level CONSTANT
+# collisions. Section-scoped names now make the shadowing impossible rather than merely fixed.
+ROOFTOP_PROJECT_CSV_PATH = "/mnt/project/Arlington_Buildings.csv"
 
 
 class TestBuildCiEligiblePopulation(unittest.TestCase):
@@ -157,7 +163,7 @@ class TestRooftopRealDataCrossCheck(unittest.TestCase):
     eligible set (no dedup needed)."""
 
     def test_real_data_population_matches_hand_verified_figures(self):
-        df = pd.read_csv(PROJECT_CSV_PATH)
+        df = pd.read_csv(ROOFTOP_PROJECT_CSV_PATH)
         eligible = build_ci_eligible_population(df)
 
         commercial_count = len(df[df["CM_Type"] == "Commercial / Retail"])
@@ -177,7 +183,7 @@ class TestRooftopRealDataCrossCheck(unittest.TestCase):
         self.assertLess(len(eligible), commercial_count + medical_count + hotel_count + len(resi_over_threshold))
 
     def test_real_data_no_duplicated_gis_id_within_eligible_set(self):
-        df = pd.read_csv(PROJECT_CSV_PATH)
+        df = pd.read_csv(ROOFTOP_PROJECT_CSV_PATH)
         eligible = build_ci_eligible_population(df)
         # GIS_ID isn't used by build_ci_eligible_population itself, but confirming this
         # property holds on the real, current data locks in why no dedup step was added.
@@ -185,7 +191,7 @@ class TestRooftopRealDataCrossCheck(unittest.TestCase):
         self.assertEqual((gis_id_counts > 1).sum(), 0)
 
     def test_real_data_full_estimate_runs_and_is_sensible(self):
-        df = pd.read_csv(PROJECT_CSV_PATH)
+        df = pd.read_csv(ROOFTOP_PROJECT_CSV_PATH)
         result = estimate_arlington_ci_rooftop_solar(df)
         self.assertGreater(result.n_buildings, 0)
         self.assertGreater(result.total_mw_mean_based, 0)
@@ -246,12 +252,12 @@ class TestRealDataSchoolCrossCheck(unittest.TestCase):
     explored when the HS/MS/ES breakdown was computed the prior turn)."""
 
     def test_real_data_school_population_count(self):
-        df = pd.read_csv(PROJECT_CSV_PATH)
+        df = pd.read_csv(ROOFTOP_PROJECT_CSV_PATH)
         eligible = build_school_education_population(df)
         self.assertEqual(len(eligible), 44)
 
     def test_real_data_school_estimate_runs_and_is_sensible(self):
-        df = pd.read_csv(PROJECT_CSV_PATH)
+        df = pd.read_csv(ROOFTOP_PROJECT_CSV_PATH)
         result = estimate_arlington_school_rooftop_solar(df)
         self.assertEqual(result.n_buildings, 44)
         self.assertGreater(result.total_mw_mean_based, 0)
@@ -266,7 +272,7 @@ if __name__ == "__main__":
 # PARKING -- merged from test_arlington_parking_lot_sqft.py
 # ==========================================================================
 
-PROJECT_CSV_PATH = "/mnt/project/Arlington_Pave_Parking_Lot_Polygons.csv"
+PARKING_PROJECT_CSV_PATH = "/mnt/project/Arlington_Pave_Parking_Lot_Polygons.csv"
 
 
 class TestValidateExpectedColumns(unittest.TestCase):
@@ -317,7 +323,7 @@ class TestParkingRealDataCrossCheck(unittest.TestCase):
 
     def test_real_data_matches_established_figures(self):
         from arlington_parking_lot_sqft import load_arlington_parking_lots
-        df = load_arlington_parking_lots(PROJECT_CSV_PATH)
+        df = load_arlington_parking_lots(PARKING_PROJECT_CSV_PATH)
         totals = compute_totals(df)
         self.assertEqual(totals.total_rows, 2_783)
         self.assertEqual(totals.min_size_filtered_rows, 1_428)
@@ -329,7 +335,7 @@ class TestParkingRealDataCrossCheck(unittest.TestCase):
         since it doesn't depend on OBJECTID uniqueness, but any future
         dedup logic added to this loader would need to know."""
         from arlington_parking_lot_sqft import load_arlington_parking_lots
-        df = load_arlington_parking_lots(PROJECT_CSV_PATH)
+        df = load_arlington_parking_lots(PARKING_PROJECT_CSV_PATH)
         self.assertTrue(df["OBJECTID"].is_unique)
 
 

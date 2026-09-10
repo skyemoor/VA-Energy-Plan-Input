@@ -161,3 +161,29 @@ not exist. What genuinely is shared stays tested once in `test_rooftop_solar_est
 **Not consolidated:** the NSRDB / solar-profile / streak-finder suites. They form a real dependency
 chain and could be merged, but all their tests currently skip for want of source data, so merging
 them would be unverifiable churn.
+
+---
+
+## County siting modules restored (2026-09-10)
+
+All nine restored: `rooftop_solar_estimation_base` plus the eight county modules (rooftop and
+parking for Arlington, Fairfax, Loudoun and Prince William). The base class was the single
+blocker -- four county modules subclass it, so its absence kept all of them uncollectable.
+
+**Test count went from 212 passing to 301.** The four-county NoVA siting assessment is now
+reproducible from the repository rather than quoted from a document.
+
+### A defect the restoration exposed
+
+With the modules present, the merged Arlington suite failed five tests with `KeyError: 'CM_Type'`.
+Cause: both source files defined `PROJECT_CSV_PATH`, and the parking definition -- appearing later
+in the merged file -- silently overrode the rooftop one, so every rooftop test was reading the
+parking CSV.
+
+The merge had checked for CLASS name collisions and found one (`TestRealDataCrossCheck`, since
+renamed), but not module-level CONSTANT collisions. Python shadows silently, so nothing warned,
+and the merged files could not be run at the time to catch it.
+
+Fixed by section-scoping (`ROOFTOP_PROJECT_CSV_PATH` / `PARKING_PROJECT_CSV_PATH`) rather than by
+renaming just the one that broke, and `test_run_all_stages.py` now asserts that no merged suite
+defines any top-level name twice.

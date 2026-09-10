@@ -99,3 +99,44 @@ class TestDeclaredGraphIsConsistent:
         forever and could never satisfy a downstream prerequisite."""
         for stage in STAGES:
             assert stage.outputs, f"stage '{stage.name}' declares no outputs"
+
+
+class TestMergedSuitesHaveNoShadowedNames:
+    """Guards a defect introduced by the 2026-09-10 county test merge.
+
+    Both Arlington source files defined PROJECT_CSV_PATH. The parking definition appeared later in
+    the merged file and silently overrode the rooftop one, so every rooftop test read the parking
+    CSV and failed with KeyError: 'CM_Type'.
+
+    The merge had checked for CLASS name collisions -- and found one, TestRealDataCrossCheck --
+    but not module-level CONSTANT collisions. Python shadows silently, so nothing warned. This
+    checks every merged suite for any top-level name assigned more than once.
+    """
+
+    MERGED_SUITES = ['test_arlington_siting.py', 'test_fairfax_siting.py',
+                     'test_loudoun_siting.py', 'test_prince_william_siting.py']
+
+    def _duplicate_top_level_assignments(self, path):
+        import ast
+        from collections import Counter
+        tree = ast.parse(open(path).read())
+        names = []
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                names += [t.id for t in node.targets if isinstance(t, ast.Name)]
+            elif isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+                names.append(node.name)
+        return [n for n, c in Counter(names).items() if c > 1]
+
+    def test_no_top_level_name_is_defined_twice(self):
+        import os
+        here = os.path.dirname(os.path.abspath(__file__))
+        for suite in self.MERGED_SUITES:
+            path = os.path.join(here, suite)
+            if not os.path.exists(path):
+                continue
+            dupes = self._duplicate_top_level_assignments(path)
+            assert not dupes, (
+                f"{suite} defines these top-level names more than once: {dupes}. "
+                f"The later definition silently shadows the earlier one -- prefix them by section "
+                f"(ROOFTOP_/PARKING_) rather than leaving which one wins to file order.")
