@@ -1,0 +1,231 @@
+# Demand Basis and RPS Compliance Base — Working Notes
+
+*Drafted 2026-09-10. Intended to become a standalone appendix. Retained as working notes so the
+findings are captured while still being revised. Everything below was verified directly against
+primary sources this session; where a claim is inferred rather than verified, it says so.*
+
+---
+
+## 1. Summary of findings
+
+Four distinct issues surfaced while tracing the demand basis. Two are settled, one is a
+correction to existing documentation, one is an open modeling decision.
+
+| # | Finding | Status |
+|---|---|---|
+| 1 | The hourly file is **load** (losses included); Appendix 2B tables are **sales** (losses excluded). No gross-up needed if the hourly file is used directly. | Settled |
+| 2 | The annual totals in `demand_shape_interpolation.py` are from **Appendix 2B-1 (Total DOM LSE, VA+NC)**, not 2B-2 (Virginia-only) as the module's own comment states. | Correction needed |
+| 3 | The LP's RPS constraint is a **generation-share ratio**, structurally different from the statutory **REC obligation against a defined sales base**. | Open decision |
+| 4 | § 56-585.5(A) excludes existing in-Commonwealth nuclear and certified ACEB load from the compliance base. Neither is reflected. | Open decision |
+
+---
+
+## 2. The two demand bases are different quantities
+
+This was the source of the confusion, and the resolution is that the model needs **both**.
+
+**Dispatch / adequacy basis** — what must be physically served. Full hourly load including
+T&D losses and station service, regardless of who procures the clean energy. Reliability does
+not depend on REC accounting: if a data center is connected, the grid serves it.
+
+**Compliance basis** — what counts toward the RPS percentage. Per § 56-585.5(A), retail sales
+in the Commonwealth, less in-Commonwealth nuclear operating by July 1 2020, less certified
+accelerated clean energy buyer (ACEB) load, less § H legacy competitive-service customers.
+
+These are not competing candidates for one number. They serve different constraints and the
+compliance basis is materially smaller.
+
+---
+
+## 3. Finding 1 — losses are already in the hourly file
+
+Verified 2030 figures:
+
+| Source | 2030 GWh | Basis |
+|---|---:|---|
+| `DOMLSEHourlyLoadProjections2024through2048.csv` | 121,115 | Load (losses included) |
+| 2025 IRP Update, Appendix 2B-1 | 110,864 | Sales (losses excluded) |
+| Ratio | **1.0925** | ≈9.25% losses + station service |
+
+Both figures are VA+NC combined, so the 9.25% gap is **not** a scope difference — it is losses.
+The IRP itself distinguishes the two, noting values "at the utility generator and adjusted for
+line losses" (Figures 2.1.11/2.1.12).
+
+**Consequence:** using the hourly file directly for dispatch is correct and needs no gross-up.
+Scaling that hourly shape to a *sales*-basis annual total would strip the losses back out and
+understate generation need by ~9%.
+
+---
+
+## 4. Finding 2 — the annual totals are Total DOM LSE, not Virginia-only
+
+`demand_shape_interpolation.py` documents a correction claiming its values were moved from
+Appendix 2B-1 to 2B-2, "verified directly against the raw filing text" with "an independent
+row-sum cross-check against 2B-1's own real total column."
+
+Read directly from the filing, Appendix 2B-1 (Total DOM LSE Sales), 2030 row:
+
+```
+2030   28,681   65,542   4,101   10,857   235   1,449   110,864
+```
+
+The module's entry is `2030: (65542, 110864)` — commercial and total. That is 2B-1 exactly.
+The cross-check described could not have distinguished the two tables because it compared
+2B-1 against itself.
+
+**Scope reconciliation.** The 2B appendix region in the extracted filing text contains four
+data blocks for five headers; one table did not survive extraction. Identifying them by
+magnitude:
+
+| Block | 2030 value | Identification |
+|---|---:|---|
+| 1 | 110,864 GWh | Total DOM LSE sales (2B-1) |
+| 2 | 3,870 GWh | North Carolina sales (2B-3) |
+| 3 | 2,942,122 | Total DOM LSE customer count (2B-4) |
+| 4 | 2,808,041 | Virginia customer count (2B-5) |
+
+Customer counts confirm the reading: NC = 2,942,122 − 2,808,041 = **134,081 customers, 4.6%
+of total**, against NC sales of 3,870 ÷ 110,864 = **3.5% of sales**. Consistent with a
+residential-heavy NC territory carrying no data-center load.
+
+**Therefore Virginia-only 2030 sales ≈ 110,864 − 3,870 = 106,994 GWh**, and the 2B-2 table
+itself was not captured in the extraction. This should be confirmed against the original PDF
+before being relied on.
+
+**Consequence:** demand is currently ~3.5% above true Virginia-only. Note this runs *opposite*
+to the losses issue, so the two partially offset.
+
+---
+
+## 5. Finding 3 — the RPS constraint uses a different formulation than the statute
+
+`lp_model.build_problem()` constructs:
+
+```
+gascum[T-1] ≤ k × clean_generation,   k = gas_allowed_frac / (1 − gas_allowed_frac)
+clean_sum_const = nuclear + exist_solar + CVOW_MW·wind_cf   (+ solar as decision variables)
+```
+
+This enforces `gas ≤ frac × (gas + clean)` — gas as a share of **total generation**. No
+denominator is derived from retail sales.
+
+The statute instead sets the RPS requirement as "a percentage of the total electric energy sold
+in the previous calendar year" (§ 56-585.5(C)(1)(a)), satisfied by **procuring and retiring
+RECs** — which may originate anywhere in the PJM region, with at least 75% from Virginia-located
+resources beginning in the 2027 compliance year (§ C.3).
+
+Worked comparison at 2045 (100% requirement):
+
+- **Model**: `frac = 0` → `k = 0` → gas ≤ 0. Nuclear counts on the clean side. New clean build
+  must cover roughly **121,000 GWh**.
+- **Statute**: nuclear is excluded from the base entirely, so the obligation covers roughly
+  **75,000 GWh**.
+
+Same headline percentage, materially different requirement. **At 2045 the model is the stricter
+of the two** — it requires new clean generation to cover load that existing nuclear already
+serves.
+
+For intermediate years the sign can invert: nuclear on the clean side *loosens* the ratio, while
+the statutory exclusion *tightens* the base. Which effect dominates is year-dependent and has
+not been worked through.
+
+**Assessment:** this is a modeling-convention divergence, not a coding error. The generation-share
+formulation is internally consistent and is arguably the right frame for a *physical*
+decarbonization question. It is not what § 56-585.5 requires, and the deliverables describe the
+scenarios as modeling statutory compliance.
+
+---
+
+## 6. Finding 4 — statutory exclusions from the compliance base
+
+§ 56-585.5(A) defines "total electric energy" as sales to retail customers in the Commonwealth
+service territory, **excluding**:
+
+**(a) In-Commonwealth nuclear** operating by July 1, 2020 — Surry and North Anna qualify.
+Roughly 3,691 MW producing on the order of 32,000 GWh/year, against ~107,000 GWh of Virginia
+sales: approximately a **30% reduction in the compliance denominator**. Magnitude is
+approximate and should be computed from actual generation rather than nameplate.
+
+**(b) Certified accelerated clean energy buyers.** Commercial/industrial customers with
+**aggregate load over 25 MW** in the prior calendar year who enter subsection G arrangements
+and are certified by the Commission. § G is explicit: "the calculation of the utility's RPS
+Program requirements shall not include the electric load covered by customers certified as
+accelerated clean energy buyers," and contracted nameplate "shall be offset from the utility's
+procurement requirements pursuant to subsection D."
+
+Three properties matter for modeling:
+
+1. **Opt-in, not automatic.** Exceeding 25 MW is insufficient; the customer must contract and
+   be certified. This is a behavioral variable, not a fixed deduction.
+2. **Aggregation crosses sites and affiliates** ("aggregate load," § 56-585.5(A)) — multiple
+   campuses under common control combine toward the threshold.
+3. **Expanded July 1, 2026** to permit contracting for zero-carbon (not only solar/wind)
+   resources in PJM placed in service after January 1, 2015, including nuclear uprates and
+   agreements preventing announced retirements.
+
+**(c) § H legacy competitive-service customers** — Phase II customers with >100 MW peak demand
+in 2019 who elected competitive service before April 1, 2019.
+
+ACEB participation is properly a **scenario variable** and is plausibly the single largest lever
+on the compliance question. Directly relevant to Scenario 5.
+
+---
+
+## 7. Related statutory features not currently modeled
+
+**$45/MWh deficiency payment ceiling** (§ 56-585.5(D)(5)). A utility unable to meet the
+obligation — *or facing REC costs above $45/MWh* — pays $45 per MWh of shortfall, escalating
+1%/year after 2021. Higher rates apply to specific carve-outs: $75/MWh for shortfalls in
+sub-1 MW Virginia solar/wind/anaerobic digestion, $100/MWh for geothermal.
+
+This is an economic ceiling on compliance cost already in law. Against a modeled 2045 SLCOE
+of roughly $129/MWh, a rational utility would pay the deficiency rather than build. **The
+statute effectively prices the answer to "how close can we come."** This deserves its own
+treatment in the deliverables.
+
+**Distributed carve-out** (§ C.2): 4.5% of RPS requirements for compliance years 2026–2030 and
+5% for 2031–2045 must come from solar, wind, or anaerobic digestion resources **≤1 MW located
+in Virginia**, with ≥25% low-income qualifying projects, remainder on or adjacent to public
+elementary or secondary schools. Maximum 3,000 kW at any single or contiguous location.
+
+**Geothermal carve-out** (§ C.1.b): 0.5% (2027), 0.75% (2028), 1% (2029 onward) of RECs used
+for compliance.
+
+**Previously developed project sites** (§ 56-585.5(A) definition) explicitly include "(ii) as a
+parking lot; (iii) as the site of a parking lot canopy or structure." At least 1,000 MW of the
+16,100 MW must be sited on such land — statutory support for the Scenario 3 canopy approach.
+
+---
+
+## 8. Open items
+
+1. **Confirm Virginia-only totals** against the original IRP PDF; the 2B-2 table was lost in
+   text extraction and 106,994 GWh (2030) is currently derived by subtraction.
+2. **Decide the RPS formulation.** Recommendation: implement the statutory basis *alongside*
+   the current generation-share basis and report both, rather than replacing one with the
+   other. The gap between "physical 100% clean" and "statutory RPS compliance" is itself a
+   substantive finding.
+3. **Compute actual nuclear generation** (not nameplate) for the exclusion.
+4. **Add ACEB participation as a scenario variable**, with the § D procurement offset.
+5. **Add the deficiency-payment ceiling** as a cost cap.
+6. **Resolve the leap-year discrepancy.** `demand_shape_interpolation.py` as available shows no
+   trim; `BASE_SHAPE_YEAR = 2024` has 8,784 hours (verified). Internal Debugging Log #24 states
+   the fix was applied at source and propagates to Scenarios 1 and 2. Either the available copy
+   predates the fix or the trim lives elsewhere. A silent 24-hour misalignment against
+   8,760-hour weather arrays would corrupt every subsequent hour.
+7. **Decide dispatch scope** (VA-only vs VA+NC). VCEA governs Virginia generation; Dominion
+   dispatches one system. Recommendation: VA-only for consistency with the compliance basis,
+   stated explicitly.
+
+---
+
+## 9. Effect on existing results
+
+Every scenario result currently in the repository rests on the generation-share formulation and
+the Total DOM LSE annual totals. The 2045 figures produced in the 2026-09-09/10 sessions
+additionally used the **raw hourly file directly** (121,115 GWh for 2030; 205,902 GWh for 2045),
+which is Total DOM LSE **load** — a third basis, distinct from both of the above.
+
+None of these are wrong on their own terms, but they are not the same quantity, and the
+deliverables do not currently distinguish them. All affected figures should carry
+`provisional` status in the provenance register pending a decision on item 2 above.
