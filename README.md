@@ -16,12 +16,29 @@ using methods and data anyone can check.
 
 ## Scenarios
 
-| | Description |
-|---|---|
-| **S1** | Full VCEA/RPS compliance; firmed solar co-located with storage, no standalone storage |
-| **S1B** | S1 with a 5% gas allowance from 2045 |
-| **S2** | Minimum statutory build only (RPS D.2, E.2, E.4) |
-| **S3** | S1 plus distributed solar: 10% rooftop, 10% parking canopy, agrivoltaics, FERC 2222 participation |
+Presentation names describe what each scenario does; the short codes are stable internal
+identifiers used throughout the code, filenames, and test baselines. **Both refer to the same
+scenario** — the codes are retained unchanged so that renaming does not break baseline-locked
+tests or stale the cross-references in `docs/Internal_Debugging_Log.md`.
+
+| Presentation name | Code | Description |
+|---|---|---|
+| **Build to Zero** | `S1` | Physical 100% clean generation by 2045; firmed solar co-located with storage, no new gas |
+| **Build to Zero, 2045 Gas Exception** | `S1B` | Identical through 2044; up to 5% gas generation from 2045 |
+| **Statutory Floor** | `S2` | Builds exactly the § 56-585.5 minimums (16,100 MW solar per D.2; 16,000 MW short-duration and 4,000 MW long-duration storage per E.2/E.4); gas serves the remainder |
+| **Distributed Build** | `S3` | Build to Zero weighted toward rooftop, parking-canopy, and agrivoltaic siting, with FERC Order 2222 market participation |
+| **Moderated Demand** | `S5` | Lower data-center growth trajectory |
+| **Utility Preferred Plan** | — | Dominion's filed 2025 IRP portfolio evaluated on this method. Not yet built. |
+
+Two cautions when reading results:
+
+- **"Statutory Floor" is not a small portfolio.** After HB 895 / SB 448 it contains 20,000 MW of
+  storage — roughly ten times what the utility's current plan contemplates. The name describes
+  what the law compels, not the size of the build.
+- **Compliance is not binary.** Build to Zero achieves physical 100% clean generation; Statutory
+  Floor may satisfy the § 56-585.5 obligation through certificate retirement while still burning
+  gas, or by paying the § 56-585.5(D)(5) deficiency. Both can be lawful. Physical and statutory
+  measures are reported separately throughout (see `lp_package/rps_compliance.py`).
 
 ## Layout
 

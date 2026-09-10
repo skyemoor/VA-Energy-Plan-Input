@@ -232,8 +232,36 @@ on what basis. Draws on `docs/methodology/Demand_Basis_and_RPS_Compliance_Workin
 *Addresses § 45.2-1710(B)(1).*
 
 ## 3. Scenarios
-**[TO WRITE]** S1 (full compliance), S1B (5 percent gas from 2045), S2 (statutory minimum),
-S3 (distributed-heavy), S5 (demand sensitivity).
+
+Scenarios are named for what they do, not numbered by preference. Internal code identifiers
+(`S1`, `S2`, and so on) are retained unchanged in the model, filenames, and test baselines; the
+mapping is in the table below and in the repository README.
+
+| Presentation name | Code | Definition |
+|---|---|---|
+| **Build to Zero** | S1 | Physical 100 percent clean generation by 2045. Solar and storage only; no new gas. |
+| **Build to Zero, 2045 Gas Exception** | S1B | Identical to Build to Zero through 2044; permits up to 5 percent gas generation from 2045. |
+| **Statutory Floor** | S2 | Builds exactly the minimums § 56-585.5 names — 16,100 MW solar (D.2), 16,000 MW short-duration and 4,000 MW long-duration storage (E.2, E.4) — and serves remaining demand with the existing and expanded gas fleet. |
+| **Distributed Build** | S3 | Build to Zero, weighted toward rooftop, parking-canopy, and agrivoltaic siting, with distributed owners participating in PJM markets under FERC Order 2222. |
+| **Moderated Demand** | S5 | Lower data-center growth trajectory. |
+| **Utility Preferred Plan** | — | Dominion's filed 2025 IRP portfolio, evaluated on this paper's own method for comparability. **Not yet built.** |
+
+Two points about these definitions matter for reading the results.
+
+**"Statutory Floor" is not a small portfolio.** Following HB 895 / SB 448 it includes 20,000 MW of
+storage — roughly ten times what the utility's current plan contemplates. The name describes what
+the law compels, not the size of the build.
+
+**Compliance is not binary.** Build to Zero achieves physical 100 percent clean generation.
+Statutory Floor may satisfy the § 56-585.5 obligation through certificate retirement while still
+burning gas, or by paying the § 56-585.5(D)(5) deficiency. Both can be lawful. This paper reports
+the physical and statutory measures separately throughout rather than labelling one scenario
+"compliant" and another not.
+
+**The Utility Preferred Plan is included because the current comparison lacks it.** Dominion's
+filed plan carries 2,000 MW of storage against a 19,480 MW statutory requirement — placing it
+*below* the Statutory Floor. Without this scenario the paper compares against a counterfactual no
+party is actually proposing.
 
 ## 4. Resource adequacy under real weather
 **[TO WRITE]** The eight-year continuous test; the seasonal storage finding; the capacity-versus-
