@@ -108,8 +108,8 @@ class TestDomainAssumptionModulesSourceFromCore:
         rather than a literal band, so adjusting a cost in assumptions.py moves the value without
         breaking the test.
 
-        Cross-check anchoring the upper bound: PJM capacity has never cleared near \$300/kW-yr --
-        the 2025/26 record BRA was ~\$98.5/kW-yr and the 2026/27 cap is \$118.6/kW-yr. An
+        Cross-check anchoring the upper bound: PJM capacity has never cleared near $300/kW-yr --
+        the 2025/26 record BRA was ~$98.5/kW-yr and the 2026/27 cap is $118.6/kW-yr. An
         'avoided capacity cost' far above that range is a units error, not a market signal.
         """
         import assumptions, peaker_capex
