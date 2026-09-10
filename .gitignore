@@ -4,6 +4,10 @@
 !registers/*.csv
 !results/hourly_dispatch/*.csv
 insolation_data/
+# Derived intermediates -- rebuildable by run_all.py, not committed
+data/intermediates/
+# Large public source data -- see docs/DATA_SOURCES.md
+data/source/
 __pycache__/
 *.pyc
 .pytest_cache/

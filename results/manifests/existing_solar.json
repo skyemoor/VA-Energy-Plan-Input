@@ -1,0 +1,31 @@
+{
+  "record_id": "stage-existing_solar",
+  "description": "Existing solar profiles per checkpoint",
+  "created_date": "2026-09-10",
+  "parameters": {
+    "stage": "existing_solar",
+    "outputs": [
+      "data/intermediates/exist_solar_2030.npy",
+      "data/intermediates/exist_solar_2035.npy",
+      "data/intermediates/exist_solar_2040.npy",
+      "data/intermediates/exist_solar_2045.npy"
+    ]
+  },
+  "input_file_hashes": {
+    "/home/claude/repo/data/intermediates/exist_solar_2030.npy": "4cff6e830f663fcbebc875acd2bee9655d6f374bb22cb73442d4a50fa4792dc7",
+    "/home/claude/repo/data/intermediates/exist_solar_2035.npy": "71bf711d497035e34da7971f64d58e15bce2fa633debbedb37d4d4aa2de80b8d",
+    "/home/claude/repo/data/intermediates/exist_solar_2040.npy": "f319870e69a1287e7865e012ad3bf1fa9f0e525fcc4cd9e076aaaf7394473679",
+    "/home/claude/repo/data/intermediates/exist_solar_2045.npy": "f5344abcde6baf2bb08974c0fc9b97a1a869a1a4edc77ca3b9158052100bdb7a"
+  },
+  "build_results": {
+    "years": [
+      2030,
+      2035,
+      2040,
+      2045
+    ]
+  },
+  "solver": null,
+  "runtime_seconds": 0.0,
+  "created_timestamp": "2026-09-10T20:50:21"
+}

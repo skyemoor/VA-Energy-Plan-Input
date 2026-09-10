@@ -1,0 +1,21 @@
+{
+  "record_id": "stage-chained_weather",
+  "description": "Eight weather years chained continuously (70,080 h)",
+  "created_date": "2026-09-10",
+  "parameters": {
+    "stage": "chained_weather",
+    "outputs": [
+      "data/intermediates/chained_8yr_weather.npz"
+    ]
+  },
+  "input_file_hashes": {
+    "/home/claude/repo/data/intermediates/chained_8yr_weather.npz": "0d3e2e57f133be697b8417a9214083dd40019405c521a590cae2210c494c57c3"
+  },
+  "build_results": {
+    "years_chained": 8,
+    "hours": 70080
+  },
+  "solver": null,
+  "runtime_seconds": 0.0,
+  "created_timestamp": "2026-09-10T20:50:21"
+}

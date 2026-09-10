@@ -1,0 +1,43 @@
+{
+  "record_id": "stage-demand",
+  "description": "Virginia-only hourly demand per checkpoint",
+  "created_date": "2026-09-10",
+  "parameters": {
+    "stage": "demand",
+    "outputs": [
+      "data/intermediates/demand_2030fy_va_only.npy",
+      "data/intermediates/demand_2035fy_va_only.npy",
+      "data/intermediates/demand_2040fy_va_only.npy",
+      "data/intermediates/demand_2045fy_va_only.npy"
+    ]
+  },
+  "input_file_hashes": {
+    "/home/claude/repo/data/intermediates/demand_2030fy_va_only.npy": "cb0aa2e11122e6347d32348764fb8cb9a9387f3bd1979bf284f605a30bf736e0",
+    "/home/claude/repo/data/intermediates/demand_2035fy_va_only.npy": "fe80c0ee0c1c845f99d96b29ccca8ecd56d270abe3b0fe7cb4cc0e70177bfb4e",
+    "/home/claude/repo/data/intermediates/demand_2040fy_va_only.npy": "61e9de0cb91a5d3f0ceeee87a3144d45e19b6d0786b9fd20d0f00a4e964f3867",
+    "/home/claude/repo/data/intermediates/demand_2045fy_va_only.npy": "71b0bae87e0cce93406f034b21ade32b22d4c7e87b509bab6d983377471e0847"
+  },
+  "build_results": {
+    "years": [
+      2030,
+      2035,
+      2040,
+      2045
+    ],
+    "annual_twh": [
+      117.9,
+      148.8,
+      188.5,
+      202.2
+    ],
+    "peak_mw": [
+      18937,
+      22682,
+      27381,
+      28997
+    ]
+  },
+  "solver": null,
+  "runtime_seconds": 0.1,
+  "created_timestamp": "2026-09-10T20:50:21"
+}

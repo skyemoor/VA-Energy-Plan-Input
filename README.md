@@ -40,6 +40,20 @@ Two cautions when reading results:
   gas, or by paying the § 56-585.5(D)(5) deficiency. Both can be lawful. Physical and statutory
   measures are reported separately throughout (see `lp_package/rps_compliance.py`).
 
+## Running it
+
+```
+pip install numpy scipy pandas openpyxl
+git clone https://github.com/skyemoor/VA-Energy-Plan-Input.git
+cd VA-Energy-Plan-Input
+python3 run_all.py
+```
+
+`run_all.py` is the single entry point. It checks the environment first, runs stages in dependency
+order, skips work already done, and writes a manifest per stage recording parameters and input
+file hashes. See [SETUP.md](SETUP.md) for detail and `python3 run_all.py --graph` for the stage
+graph.
+
 ## Layout
 
 - `lp_package/` — model classes: LP formulation, solver drivers, scenario classes, provenance tracking
