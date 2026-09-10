@@ -314,9 +314,18 @@ programs at $80–275/kW seasonal across seven utilities.
 
 **(b) Avoided-cost benchmark** — what the incentive *should* be if it reflected system value.
 
-Current EV Charger Rewards compensation sits roughly **12–20× below** a properly-priced benchmark
-built from avoided capacity plus avoided energy. **[FIGURE PENDING RE-DERIVATION]** — see the
-correction note below; do not use the 70–115× figure that appears in earlier working material.
+Dominion's Non-Residential Curtailment Program pays **$36/kW-yr**, which captures **40.7–70.9%
+of avoided generation-capacity cost alone** — and that is an *upper* bound, since avoided
+transmission and distribution are deliberately excluded from the comparison.
+
+| Benchmark peaker | Annualized avoided cost | $36/kW-yr captures |
+|---|---:|---:|
+| Aeroderivative (105 MW) | $88.44/kW-yr | **40.7%** |
+| F-Class (237 MW) | $50.77/kW-yr | **70.9%** |
+
+This is a real but moderate gap, not a dramatic one — and it should be presented that way. Note
+also that the underlying peaker costs predate the 2025–2026 price surge; using current figures
+would raise the benchmark and lower these percentages, strengthening the finding.
 
 **Structural observations that matter more than the levels.**
 
@@ -336,13 +345,21 @@ be tied to a published avoided-cost methodology rather than set administratively
 payments should be replaced with value-scaled ones; whether backup reserve should be a published
 program term.
 
-**Correction note for drafting.** Working material computed the avoided-cost benchmark using
-installed capital cost ($/kW, one-time) as though it were annual avoided capacity cost ($/kW-yr).
-Properly annualized, the F-Class benchmark is ~$51/kW-yr rather than $713, and the aeroderivative
-~$88/kW-yr rather than $1,175. Cross-check: PJM capacity has never cleared near $713/kW-yr — the
-2025/26 record BRA was ~$98.5/kW-yr and the 2026/27 cap is $118.6/kW-yr, while the corrected
-figures land inside that historical range. The qualitative finding survives comfortably; the
-multiple does not. Full detail in `docs/methodology/`.
+**Correction note for drafting — do not use the 70–115× figure.** Two of this project's own
+modules computed the same benchmark and disagreed by two orders of magnitude.
+`dlc_assumptions.py` used installed capital cost ($/kW, one-time) as though it were annual avoided
+capacity cost ($/kW-yr), copying the raw capex constant from a sibling module rather than that
+module's annualized value — the right module, the wrong variable, as its own comment records.
+`large_ci_curtailment_assumptions.py` annualizes correctly and is authoritative.
+
+Independent cross-check: PJM capacity has never cleared near $713/kW-yr — the 2025/26 record BRA
+was ~$98.5/kW-yr and the 2026/27 cap is $118.6/kW-yr. The correct figures ($50.77–$88.44/kW-yr)
+sit inside that historical range; the incorrect ones sit ~6× above the highest price ever cleared.
+
+**Consequence for this section:** the avoided-cost line is materially weaker than an early draft
+suggested, so the **peer utility comparison in (a) is the load-bearing argument**, not one of two.
+That is the stronger line regardless — it is utility-to-utility rather than model-derived, and
+needs no annualization methodology to be accepted.
 
 ## 8. Distributed generation and siting
 **[TO WRITE]** The four-county assessment; extrapolation and its limits; the statutory preference
