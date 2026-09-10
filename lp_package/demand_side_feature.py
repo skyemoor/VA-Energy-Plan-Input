@@ -113,7 +113,7 @@ class EEMeasure(DemandSideFeature):
 
 # TRUE GLOBAL, single source of truth for every module that needs this value -- direct user
 # request, 2026-08-27: previously duplicated (this file's own default parameter value, PLUS
-# dlc_analysis/dlc_assumptions.py's own separate module-level constant), requiring manual,
+# dlc_analysis/dlc_derived_assumptions.py's own separate module-level constant), requiring manual,
 # error-prone synchronization whenever it changed (entry #112 had to update both together by hand).
 # Now a single definition; every other location imports this rather than defining its own copy.
 # Value (0.0) and full rationale: see avoided_cost_comparison()'s own docstring below.

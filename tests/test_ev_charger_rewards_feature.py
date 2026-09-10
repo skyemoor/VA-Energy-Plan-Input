@@ -17,7 +17,7 @@ import pytest
 
 from ev_charger_rewards_feature import EVChargerRewards
 from demand_side_feature import DLCProgram
-import dlc_assumptions as dlc
+import dlc_derived_assumptions as dlc
 
 
 class TestImplementsSharedInterface:

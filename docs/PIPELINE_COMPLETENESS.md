@@ -17,7 +17,7 @@ Imported by code in the repository but not present:
 | `compute_scenario2_gas_replacement` | `checkpoint_solver.py` | `Scenario2Solver.get_existing_new_mw()` cannot run — blocks the social-cost/RGGI mixin for the Statutory Floor. |
 | `compute_tier123_final` | `checkpoint_solver.py` | Blocks Tier 1/2/3 social cost calculation for every scenario. |
 | `compute_scenario2_costs` | (not imported in-repo; referenced in docs) | The Statutory Floor capital cost pipeline. Calls `lp_model.ccgt_capex_kw()`, which nothing else in the repository calls. |
-| `dlc_assumptions` | `scenario3_build.py` | Direct load control assumptions for Distributed Build. |
+| ~~`dlc_assumptions`~~ | `scenario3_build.py` | **RESTORED 2026-09-10**, then renamed `dlc_derived_assumptions` once its primitive inputs moved to `assumptions.py` and only the derivation chain remained. |
 | `VA_SLCOE_Model` | `loudoun_battery_dispatch.py` | Referenced in a docstring rather than a live import; low priority. |
 
 **Net effect: no scenario's cost side can be run from a clean clone.** Dispatch runs; costing

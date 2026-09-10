@@ -9,7 +9,7 @@ self-consistency.
 import numpy as np
 import pytest
 import scenario3_build as s3b
-import dlc_assumptions as dlc
+import dlc_derived_assumptions as dlc
 
 
 class TestUtilityScaleOwnershipSplit:
@@ -70,7 +70,7 @@ class TestUtilityScaleLandUseSplit:
 
 class TestDemandAdjustment:
     """A.2/A.3/A.4 demand-side adjustment, cross-checked against the underlying
-    dlc_assumptions.py ceiling figure directly (SES Rule 4 -- an independent source,
+    dlc_derived_assumptions.py ceiling figure directly (SES Rule 4 -- an independent source,
     not this module's own re-derivation)."""
 
     def test_invalid_year_raises(self):
@@ -78,9 +78,9 @@ class TestDemandAdjustment:
         with pytest.raises(ValueError, match="checkpoint years"):
             s3b.apply_scenario3_demand_adjustment(demand, 2033)
 
-    def test_ev_dlc_ceiling_matches_dlc_assumptions_directly(self):
+    def test_ev_dlc_ceiling_matches_dlc_derived_assumptions_directly(self):
         # Cross-check: the 2035+ (flat 90% adoption) EV DLC reduction should equal
-        # dlc_assumptions.py's own ceiling figure directly, not a re-derived copy.
+        # dlc_derived_assumptions.py's own ceiling figure directly, not a re-derived copy.
         expected_ceiling = dlc.territory_wide_ceiling_estimate_50_50_split_mw()['ceiling_mw']
         computed = s3b.ev_charger_dlc_reduction_mw(2035)
         assert abs(computed - expected_ceiling * 0.90) < 1e-6

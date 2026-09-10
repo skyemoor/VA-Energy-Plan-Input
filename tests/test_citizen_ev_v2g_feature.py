@@ -25,7 +25,7 @@ from citizen_ev_v2g_feature import (
     AVERAGE_US_BEV_BATTERY_CAPACITY_KWH,
 )
 from demand_side_feature import WMAPathway
-import dlc_assumptions as dlc
+import dlc_derived_assumptions as dlc
 
 
 class TestImplementsSharedInterface:
@@ -84,7 +84,7 @@ class TestMutualExclusivityDeclaredExplicitly:
 
 
 class TestAvailableCapacityReusesExistingSourcedConstants:
-    """Confirms the headroom calculation reuses dlc_assumptions.py's own already-sourced,
+    """Confirms the headroom calculation reuses dlc_derived_assumptions.py's own already-sourced,
     already-tested VMT/efficiency chain (Rule 6) rather than re-deriving or hardcoding a separate
     daily-energy-need figure."""
 
@@ -93,8 +93,8 @@ class TestAvailableCapacityReusesExistingSourcedConstants:
         result = available_kwh_per_vehicle_for_discharge()
         assert result == pytest.approx(79.46, abs=0.1)
 
-    def test_daily_reserve_is_read_live_from_dlc_assumptions_not_restated(self):
-        # If dlc_assumptions.py's own VMT or efficiency figure is ever revised, this must reflect
+    def test_daily_reserve_is_read_live_from_dlc_derived_assumptions_not_restated(self):
+        # If dlc_derived_assumptions.py's own VMT or efficiency figure is ever revised, this must reflect
         # that automatically -- confirmed by computing independently from the SAME source module's
         # own constants, not by checking this module's own (potentially stale) copy.
         independently_computed = (
@@ -114,7 +114,7 @@ class TestAvailableCapacityReusesExistingSourcedConstants:
 class TestReturnHomeTimingSharedWithDLC:
     """Direct user instruction, 2026-08-27: base the citizen EV's own return-home timing on the
     same assumption already established for DLC. These tests confirm the sharing is genuine
-    (reused live from dlc_assumptions.py) rather than a separately-hardcoded value that merely
+    (reused live from dlc_derived_assumptions.py) rather than a separately-hardcoded value that merely
     happens to currently match."""
 
     def test_return_home_window_matches_dlc_event_window_exactly(self):
@@ -122,7 +122,7 @@ class TestReturnHomeTimingSharedWithDLC:
         assert RETURN_HOME_EVENT_WINDOW_HOURS == dlc.EVENT_WINDOW_HOURS
 
     def test_return_home_window_is_read_live_not_a_separate_literal(self):
-        # If dlc_assumptions.py's own EVENT_WINDOW_HOURS is ever revised, this must reflect that
+        # If dlc_derived_assumptions.py's own EVENT_WINDOW_HOURS is ever revised, this must reflect that
         # automatically -- confirmed the same way as the energy-figure reuse test above.
         import citizen_ev_v2g_feature
         assert citizen_ev_v2g_feature.RETURN_HOME_EVENT_WINDOW_HOURS is dlc.EVENT_WINDOW_HOURS or (
@@ -221,7 +221,7 @@ class TestFiftyFiftySplitCeilingEstimate:
         assert result["evs_choosing_this_program_estimate"] == dlc_side["evs_choosing_this_program_estimate"]
 
     def test_split_pct_reused_from_dlc_module_not_a_separate_literal(self):
-        # Rule 6 -- confirms this reads dlc_assumptions.py's own DLC_VS_V2G_POPULATION_SPLIT_PCT
+        # Rule 6 -- confirms this reads dlc_derived_assumptions.py's own DLC_VS_V2G_POPULATION_SPLIT_PCT
         # (the single source of truth for the split itself) rather than restating 50 separately.
         result = territory_wide_ceiling_estimate_50_50_split_mw()
         assert result["population_split_pct"] == dlc.DLC_VS_V2G_POPULATION_SPLIT_PCT

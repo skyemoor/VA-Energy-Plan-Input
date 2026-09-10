@@ -7,7 +7,7 @@ Run with: python3 -m pytest test_dlc_assumptions.py -v
 """
 import pytest
 
-import dlc_assumptions as da
+import dlc_derived_assumptions as da
 
 
 class TestChainMatchesHandCalculation:

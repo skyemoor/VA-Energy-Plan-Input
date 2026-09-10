@@ -194,7 +194,7 @@ class TestDLCProgramSharedAvoidedCostComparison:
 
     def test_utility_margin_is_a_parameter_not_hardcoded(self, known_rate_feature):
         # Rule 8 -- confirms the margin can be overridden, matching the same parameterization
-        # already established in dlc_assumptions.py's own standalone function (entry #109)
+        # already established in dlc_derived_assumptions.py's own standalone function (entry #109)
         default_result = known_rate_feature.avoided_cost_comparison(
             avoided_capacity_usd_per_kw_yr=1000
         )
@@ -206,7 +206,7 @@ class TestDLCProgramSharedAvoidedCostComparison:
 
     def test_default_resolves_from_the_true_global_constant(self, known_rate_feature):
         # Consolidation, entry #116, direct user request: DEFAULT_UTILITY_MARGIN_PCT is now the
-        # single source of truth (previously duplicated across this file and dlc_assumptions.py
+        # single source of truth (previously duplicated across this file and dlc_derived_assumptions.py
         # independently). Confirms the method's own None-sentinel default genuinely resolves to
         # THIS module-level constant specifically, not a separately-hardcoded literal that happens
         # to currently match it.

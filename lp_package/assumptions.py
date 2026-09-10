@@ -546,7 +546,7 @@ DLC_VS_V2G_POPULATION_SPLIT_PCT = 50               # working assumption, not a s
 # ============================================================================
 # Primitive inputs only. Values DERIVED from these (daily charging energy need, active session
 # hours, probability of charging during an event window, expected kW reduction per participant)
-# stay in dlc_assumptions.py and recompute from these -- moving a derived value here would create
+# stay in dlc_derived_assumptions.py and recompute from these -- moving a derived value here would create
 # something that looks adjustable but silently disagrees with its own inputs.
 VIRGINIA_ANNUAL_VMT_PER_DRIVER_MILES = 10_255
 EV_EFFICIENCY_KWH_PER_MILE = 0.375                 # Recurrent, 2026 model-year average

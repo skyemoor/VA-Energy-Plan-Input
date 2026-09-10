@@ -81,7 +81,7 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass
 import lp_model as lp
-import dlc_assumptions as dlc  # SES Rule 6: EV Charger DLC constants are owned there,
+import dlc_derived_assumptions as dlc  # SES Rule 6: EV Charger DLC constants are owned there,
                                  # imported here rather than re-defined locally.
 
 DISTRIBUTED_CF_RATIO_STALE_PRE_WINTER_TILT_DECISION = 0.81  # SEE WARNING BELOW -- DO NOT
@@ -297,7 +297,7 @@ def residential_nem_contribution(residential_nem_mw, distributed_solar_cf):
 #     quantified per-participant/per-kW magnitudes, but neither has a sourced aggregate
 #     territory-wide scale figure (same "scale-up gap" pattern as A.6/A.7, which were
 #     excluded for the identical reason). Only EV Charger Rewards has a real, sourced
-#     territory-wide ceiling (dlc_assumptions.territory_wide_ceiling_estimate_50_50_split_mw)
+#     territory-wide ceiling (dlc_derived_assumptions.territory_wide_ceiling_estimate_50_50_split_mw)
 #     to apply here.
 #   - A.2's participant-override discount -- evidence too thin/inconsistent (California-
 #     only, one study contradicted directionally by a second) to anchor a discount on;
@@ -358,9 +358,9 @@ def a3_a4_total_reduction_pct_of_total_demand(year):
 _RAMP_START_YEAR, _RAMP_START_PCT = 2026, 0.02
 _RAMP_END_YEAR, _RAMP_END_PCT = 2035, 0.90
 
-# EV Charger Rewards event window: 3:00pm-6:00pm, same convention as dlc_assumptions.py's
+# EV Charger Rewards event window: 3:00pm-6:00pm, same convention as dlc_derived_assumptions.py's
 # own EVENT_WINDOW_HOURS (imported for the duration; the specific clock hours are this
-# module's own scheduling detail, since dlc_assumptions.py deliberately stays agnostic to
+# module's own scheduling detail, since dlc_derived_assumptions.py deliberately stays agnostic to
 # which hours the window covers -- see that module's own docstring).
 EV_EVENT_START_HOUR = 15
 EV_EVENT_END_HOUR = 18
@@ -377,7 +377,7 @@ def residential_ev_dlc_adoption_rate(year):
 
 def ev_charger_dlc_reduction_mw(year):
     """MW reduction during the 3-6pm event window, for a given checkpoint year. Ceiling
-    MW is imported directly from dlc_assumptions.py (SES Rule 6) -- not re-derived or
+    MW is imported directly from dlc_derived_assumptions.py (SES Rule 6) -- not re-derived or
     duplicated here."""
     ceiling = dlc.territory_wide_ceiling_estimate_50_50_split_mw()['ceiling_mw']
     return ceiling * residential_ev_dlc_adoption_rate(year)

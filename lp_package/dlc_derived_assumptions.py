@@ -1,5 +1,22 @@
 """
-dlc_assumptions.py
+dlc_derived_assumptions.py
+
+RENAMED 2026-09-10 from `dlc_assumptions.py`, because the old name no longer described what this
+module holds. Its primitive inputs -- EV efficiency, charger power, event window length, the flat
+incentive, Dominion's own fleet projections -- moved to `assumptions.py`, the project-wide
+policy-adjustable surface. What remains here is the DERIVATION CHAIN built on top of them:
+
+    daily charging energy need   = daily VMT x EV efficiency
+    active session hours         = daily energy need / charger power
+    P(charging during an event)  = session hours / event window hours
+    expected kW reduction        = ... etc.
+
+Those stay here deliberately rather than moving. A derived value sitting in `assumptions.py` would
+look adjustable while silently disagreeing with the inputs it was computed from -- worse than
+duplication, because the disagreement would be invisible. To change any input, edit
+`assumptions.py`; everything below recomputes.
+
+dlc_derived_assumptions.py
 
 SINGLE SOURCE OF TRUTH for every input to the EV Charger DLC per-participant magnitude estimate.
 Same design principle as this project's existing assumptions.py / efficiency_assumptions.py:
@@ -185,7 +202,7 @@ ANNUAL_INCENTIVE_USD_PER_PARTICIPANT = assumptions.EV_CHARGER_REWARDS_ANNUAL_INC
 # Now IMPORTED rather than restated (Rule 6). The prior comment justified restatement on the
 # grounds that "this project has no shared package structure across analysis modules (confirmed
 # directly, 2026-08-26 -- no __init__.py, no cross-module imports anywhere in lp_package/)". That
-# was true then and is not now: scenario3_build imports dlc_assumptions, checkpoint_solver imports
+# was true then and is not now: scenario3_build imports dlc_derived_assumptions, checkpoint_solver imports
 # assumptions, and lp_model imports assumptions. The convention that justified copying no longer
 # describes the codebase -- and copying is what produced this error.
 import large_ci_curtailment_assumptions as _large_ci

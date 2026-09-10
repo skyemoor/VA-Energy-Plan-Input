@@ -40,7 +40,7 @@ uses ($1,175/kW aeroderivative, $713/kW F-Class) are INSTALLED CAPITAL COSTS -- 
 Converting requires annualizing over the asset life and adding fixed O&M, which is what this
 module does and what produces the 40.7%/70.9% finding.
 
-`dlc_assumptions.py` copied the raw capex constants instead, naming them
+`dlc_derived_assumptions.py` copied the raw capex constants instead, naming them
 `AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR = 1175` and `F_CLASS_AVOIDED_COST_USD_PER_KW_YEAR = 713`
 -- the right module, the wrong variable. Its own comment says so: "matches
 AERODERIVATIVE_CAPEX_USD_PER_KW there." That produces a properly-priced benchmark roughly 14x too
@@ -92,7 +92,7 @@ AERODERIVATIVE_FOM_USD_PER_KW_YR = 16.30
 F_CLASS_CAPEX_USD_PER_KW_ENTRY82_BASELINE = 713.0           # 237 MW single genset, 38.2% efficiency
 F_CLASS_FOM_USD_PER_KW_YR = 7.00
 
-# Back-compatible aliases -- the adapter and dlc_assumptions reference the original names.
+# Back-compatible aliases -- the adapter and dlc_derived_assumptions reference the original names.
 AERODERIVATIVE_CAPEX_USD_PER_KW = AERODERIVATIVE_CAPEX_USD_PER_KW_ENTRY82_BASELINE
 F_CLASS_CAPEX_USD_PER_KW = F_CLASS_CAPEX_USD_PER_KW_ENTRY82_BASELINE
 
