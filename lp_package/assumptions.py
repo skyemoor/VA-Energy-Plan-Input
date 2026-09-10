@@ -514,6 +514,13 @@ PEAKER_CAPEX_KW_BY_TIER = {
     'medium': {'low': 1116.0, 'central': 1425.0, 'high': 1900.0},   # 50-250 MW
     'large':  {'low':  950.0, 'central': 1250.0, 'high': 1700.0},   # > 250 MW
 }
+# Fixed O&M by unit type, Gas Turbine World. Varies by TYPE rather than size tier -- an
+# aeroderivative carries materially higher fixed O&M than a frame machine of similar output.
+PEAKER_FOM_USD_PER_KW_YR = {
+    'aeroderivative': 16.30,   # 105 MW twin genset, 41.5% efficiency
+    'f_class': 7.00,           # 237 MW single genset, 38.2% efficiency
+}
+
 PEAKER_DUAL_FUEL_ADDER_KW = 200.0            # USP&E: $150-250/kW, midpoint
 PEAKER_FAST_TRACK_PREMIUM_FRACTION = 0.15    # USP&E: 10-20% for delivery under 18 months
 

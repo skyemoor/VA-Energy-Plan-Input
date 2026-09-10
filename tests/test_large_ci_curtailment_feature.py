@@ -16,7 +16,7 @@ import pytest
 
 from large_ci_curtailment_feature import LargeCICurtailment
 from demand_side_feature import DLCProgram
-import large_ci_curtailment_assumptions as lci
+import large_ci_curtailment_derived as lci
 
 
 class TestImplementsSharedInterface:
@@ -84,14 +84,42 @@ class TestMigrationFidelityTheCriticalRegressionGuard:
             original["fclass_incentive_as_pct_of_avoided_cost"], abs=0.01
         )
 
-    def test_the_already_established_headline_figures_still_hold(self):
-        # A direct, human-readable regression guard on the actual numbers this project has cited
-        # repeatedly (~41% Aero, ~71% F-Class) -- if a future change to either module ever moved
-        # these substantially, this test failing is the signal, not a silent drift.
-        feature = LargeCICurtailment()
-        original = feature.original_avoided_cost_finding()
-        assert 38 <= original["aeroderivative_incentive_as_pct_of_avoided_cost"] <= 43
-        assert 68 <= original["fclass_incentive_as_pct_of_avoided_cost"] <= 73
+    def test_derivation_reproduces_entry_82_from_its_own_original_inputs(self):
+        """REPLACED 2026-09-10. This previously asserted fixed bands (38-43% and 68-73%) on the
+        live figures. Those bands were a function of hardcoded historical peaker costs, which
+        violated Rule 8 -- and once the cost chain was made live, a test asserting fixed
+        percentages would break every time someone adjusted a cost in assumptions.py, which is
+        precisely what that surface exists for.
+
+        What is genuinely worth locking is the DERIVATION, not the output. This passes entry #82's
+        own original inputs explicitly and confirms the logic still reproduces its published
+        figures -- which also preserves the guarantee that validated this module's reconstruction
+        from its tests, without those inputs living in the module as constants.
+
+        The 40.7%/70.9% result itself is recorded in registers/Provenance_Register.xlsx as a
+        superseded result, which is where a historical figure belongs.
+        """
+        import large_ci_curtailment_derived as derived
+        rate = 36.0
+        for capex, fom, expected_pct in [(1175.0, 16.30, 40.7), (713.0, 7.00, 70.9)]:
+            avoided = derived.annualized_avoided_capacity_cost_usd_per_kw_yr(capex, fom)
+            assert round(rate / avoided * 100, 1) == pytest.approx(expected_pct, abs=0.1)
+
+    def test_live_figures_move_with_assumptions_rather_than_being_frozen(self):
+        """The point of making the chain live: changing a cost input must change the result."""
+        import large_ci_curtailment_derived as derived
+        low = derived.avoided_generation_capacity_cost_comparison('low')
+        high = derived.avoided_generation_capacity_cost_comparison('high')
+        assert (high['fclass_incentive_as_pct_of_avoided_cost']
+                < low['fclass_incentive_as_pct_of_avoided_cost'])
+
+    def test_current_costs_give_a_tighter_lower_range_than_entry_82(self):
+        """On current costs the finding is ~35-38% at central case, against 41-71% on the older
+        Gas Turbine World figures -- tighter, lower, and a stronger result."""
+        import large_ci_curtailment_derived as derived
+        r = derived.avoided_generation_capacity_cost_comparison('central')
+        assert 30 <= r['aeroderivative_incentive_as_pct_of_avoided_cost'] <= 40
+        assert 33 <= r['fclass_incentive_as_pct_of_avoided_cost'] <= 43
 
     def test_default_margin_now_matches_the_original_directly(self):
         # UPDATED 2026-08-26: the shared method's own default margin changed from 5% to 0%

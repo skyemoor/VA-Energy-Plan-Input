@@ -186,12 +186,12 @@ ANNUAL_INCENTIVE_USD_PER_PARTICIPANT = assumptions.EV_CHARGER_REWARDS_ANNUAL_INC
 #     F_CLASS_AVOIDED_COST_USD_PER_KW_YR        = 713
 # with the comment "matches AERODERIVATIVE_CAPEX_USD_PER_KW there" -- which is exactly the defect.
 # Those figures ARE the installed CAPITAL cost ($/kW, one-time) from
-# large_ci_curtailment_assumptions.py. They were copied into a variable named _PER_KW_YR and used
+# large_ci_curtailment_derived.py. They were copied into a variable named _PER_KW_YR and used
 # as an ANNUAL avoided capacity cost. The right module, the wrong variable.
 #
 # Consequence: the properly-priced benchmark came out roughly 14x too high, producing a headline
 # finding that Dominion's current rate is "70-115x below properly priced" -- against
-# large_ci_curtailment_assumptions.py's own ~41-71%, computed from the same source figures
+# large_ci_curtailment_derived.py's own ~41-71%, computed from the same source figures
 # correctly annualized. Two modules, same benchmark, two orders of magnitude apart.
 #
 # Independent cross-check that settles which is right: PJM capacity has never cleared near
@@ -205,12 +205,11 @@ ANNUAL_INCENTIVE_USD_PER_PARTICIPANT = assumptions.EV_CHARGER_REWARDS_ANNUAL_INC
 # was true then and is not now: scenario3_build imports dlc_derived_assumptions, checkpoint_solver imports
 # assumptions, and lp_model imports assumptions. The convention that justified copying no longer
 # describes the codebase -- and copying is what produced this error.
-import large_ci_curtailment_assumptions as _large_ci
+import large_ci_curtailment_derived as _large_ci
 
-AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR = _large_ci.annualized_avoided_capacity_cost_usd_per_kw_yr(
-    _large_ci.AERODERIVATIVE_CAPEX_USD_PER_KW, _large_ci.AERODERIVATIVE_FOM_USD_PER_KW_YR)
-F_CLASS_AVOIDED_COST_USD_PER_KW_YR = _large_ci.annualized_avoided_capacity_cost_usd_per_kw_yr(
-    _large_ci.F_CLASS_CAPEX_USD_PER_KW, _large_ci.F_CLASS_FOM_USD_PER_KW_YR)
+_LARGE_CI_COMPARISON = _large_ci.avoided_generation_capacity_cost_comparison()
+AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR = _LARGE_CI_COMPARISON['aeroderivative_avoided_cost_usd_per_kw_yr']
+F_CLASS_AVOIDED_COST_USD_PER_KW_YR = _LARGE_CI_COMPARISON['fclass_avoided_cost_usd_per_kw_yr']
 
 # SOURCED, but with a real, disclosed gap: these are the real-time LMP-derived avoided-energy/WMA
 # figures already computed and reported in Dominion_Zone_Load_Shape_and_LMP_Analysis.md (N=97,

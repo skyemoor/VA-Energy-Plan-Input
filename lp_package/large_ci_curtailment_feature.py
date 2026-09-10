@@ -1,11 +1,11 @@
 """
 large_ci_curtailment_feature.py
 
-Thin adapter migrating the existing, already-tested `large_ci_curtailment_assumptions.py` onto the
+Thin adapter migrating the existing, already-tested `large_ci_curtailment_derived.py` onto the
 shared `DLCProgram` base class (`shared_base_classes/demand_side_feature.py`), per direct user
 request 2026-08-26.
 
-DELIBERATE DESIGN: `large_ci_curtailment_assumptions.py` itself is NOT modified -- it remains the
+DELIBERATE DESIGN: `large_ci_curtailment_derived.py` itself is NOT modified -- it remains the
 single source of truth for every constant and its own `avoided_generation_capacity_cost_comparison()`
 function remains callable exactly as before. This file only ADDS a class that wraps those existing,
 untouched values to conform to the shared interface -- a low-risk migration pattern that leaves
@@ -37,12 +37,12 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'shared_base_classes'))
 from demand_side_feature import DLCProgram  # noqa: E402
 
-import large_ci_curtailment_assumptions as lci  # noqa: E402  (same-directory, untouched module)
+import large_ci_curtailment_derived as lci  # noqa: E402  (same-directory, untouched module)
 
 
 class LargeCICurtailment(DLCProgram):
     """Adapter for Dominion's real, currently-active Non-Residential Curtailment Program (A.2
-    extended). All underlying values are read live from `large_ci_curtailment_assumptions.py` --
+    extended). All underlying values are read live from `large_ci_curtailment_derived.py` --
     this class adds no new numbers, only the shared interface.
     """
 

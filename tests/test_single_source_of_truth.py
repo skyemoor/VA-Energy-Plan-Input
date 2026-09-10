@@ -18,7 +18,7 @@ import charging_adequacy
 import gas_outage_stress
 import rps_compliance
 import dlc_derived_assumptions
-import large_ci_curtailment_assumptions
+import large_ci_curtailment_derived
 
 
 class TestModulesSourceFromAssumptions:
@@ -79,8 +79,8 @@ class TestDomainAssumptionModulesSourceFromCore:
 
     def test_large_ci_program_terms(self):
         import assumptions
-        assert large_ci_curtailment_assumptions.COMPENSATION_USD_PER_KW_YEAR == assumptions.LARGE_CI_COMPENSATION_USD_PER_KW_YEAR
-        assert large_ci_curtailment_assumptions.ELIGIBILITY_THRESHOLD_KW == assumptions.LARGE_CI_ELIGIBILITY_THRESHOLD_KW
+        assert large_ci_curtailment_derived.COMPENSATION_USD_PER_KW_YEAR == assumptions.LARGE_CI_COMPENSATION_USD_PER_KW_YEAR
+        assert large_ci_curtailment_derived.ELIGIBILITY_THRESHOLD_KW == assumptions.LARGE_CI_ELIGIBILITY_THRESHOLD_KW
 
     def test_dlc_primitive_inputs(self):
         import assumptions
@@ -98,14 +98,42 @@ class TestDomainAssumptionModulesSourceFromCore:
         assert dlc_derived_assumptions.ACTIVE_CHARGING_SESSION_HOURS == expected
 
     def test_dlc_avoided_cost_is_annualized_not_raw_capex(self):
-        """Guards the units defect found 2026-09-10: raw capex ($1,175/$713 per kW) was used as
-        annual avoided capacity cost. PJM capacity has never cleared near $713/kW-yr."""
-        assert 80 < dlc_derived_assumptions.AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR < 95
-        assert 45 < dlc_derived_assumptions.F_CLASS_AVOIDED_COST_USD_PER_KW_YR < 55
+        """Guards the units defect found 2026-09-10: raw capex was used as annual avoided capacity
+        cost, inflating the benchmark ~14x.
 
-    def test_entry_82_baseline_capex_is_named_as_historical(self):
-        """The entry #82 peaker figures are a historical baseline, not current cost. The name must
-        say so, so a future reader cannot swap in current figures without noticing they would
-        change an established, cited result."""
-        assert hasattr(large_ci_curtailment_assumptions, 'AERODERIVATIVE_CAPEX_USD_PER_KW_ENTRY82_BASELINE')
-        assert hasattr(large_ci_curtailment_assumptions, 'F_CLASS_CAPEX_USD_PER_KW_ENTRY82_BASELINE')
+        UPDATED 2026-09-10 (Rule 3.3): this previously asserted 80-95 and 45-55, pinning the
+        then-current annualized values. Those were correct at the time but became a frozen
+        expectation once the cost chain went live -- the same defect the ENTRY82 constants had, one
+        layer up. It now asserts the PROPERTY being guarded (these are annualized, not capex)
+        rather than a literal band, so adjusting a cost in assumptions.py moves the value without
+        breaking the test.
+
+        Cross-check anchoring the upper bound: PJM capacity has never cleared near \$300/kW-yr --
+        the 2025/26 record BRA was ~\$98.5/kW-yr and the 2026/27 cap is \$118.6/kW-yr. An
+        'avoided capacity cost' far above that range is a units error, not a market signal.
+        """
+        import assumptions, peaker_capex
+        for value, unit_mw in [
+                (dlc_derived_assumptions.AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR, 105.0),
+                (dlc_derived_assumptions.F_CLASS_AVOIDED_COST_USD_PER_KW_YR, 237.0)]:
+            capex = peaker_capex.peaker_capex_kw(unit_mw)
+            assert value < capex / 5, "value looks like capex, not an annualized cost"
+            assert value > capex * assumptions.CCGT_CRF, "value is below bare capital recovery"
+            assert value < 300, "far above any PJM capacity price ever cleared -- likely a units error"
+
+    def test_no_hardcoded_historical_capex_remains(self):
+        """Rule 8: a historical value hardcoded in code is prohibited regardless of its name. The
+        _ENTRY82_BASELINE constants were removed 2026-09-10; the derivation now reads current
+        costs from assumptions.py, and entry #82's own inputs live only in the regression test
+        that verifies the derivation logic."""
+        for name in ('AERODERIVATIVE_CAPEX_USD_PER_KW_ENTRY82_BASELINE',
+                     'F_CLASS_CAPEX_USD_PER_KW_ENTRY82_BASELINE',
+                     'AERODERIVATIVE_CAPEX_USD_PER_KW',
+                     'F_CLASS_CAPEX_USD_PER_KW'):
+            assert not hasattr(large_ci_curtailment_derived, name), (
+                f"{name} is back -- peaker capex belongs in assumptions.PEAKER_CAPEX_KW_BY_TIER")
+
+    def test_peaker_fom_sourced_from_assumptions(self):
+        import assumptions
+        assert 'aeroderivative' in assumptions.PEAKER_FOM_USD_PER_KW_YR
+        assert 'f_class' in assumptions.PEAKER_FOM_USD_PER_KW_YR

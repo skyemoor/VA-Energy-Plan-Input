@@ -320,16 +320,23 @@ transmission and distribution are deliberately excluded from the comparison.
 
 | Benchmark peaker | Annualized avoided cost | $36/kW-yr captures |
 |---|---:|---:|
-| Aeroderivative (105 MW) | $88.44/kW-yr | **40.7%** |
-| F-Class (237 MW) | $50.77/kW-yr | **70.9%** |
+| Aeroderivative (105 MW) | $103.78/kW-yr | **34.7%** |
+| F-Class (237 MW) | $94.48/kW-yr | **38.1%** |
 
-This is a real but moderate gap, not a dramatic one — and it should be presented that way. Note
-also that the underlying peaker costs predate the 2025–2026 price surge; using current figures
-would raise the benchmark and lower these percentages, strengthening the finding.
+*Central cost case; the range across low/high sourced costs is 27–48%. Both units fall in the
+same size tier under current cost data, so the remaining spread between them is fixed O&M rather
+than capital cost.*
+
+**Dominion's rate captures roughly a third of avoided generation-capacity cost** — and that is an
+upper bound, since avoided transmission and distribution are excluded from the comparison.
+
+*(An earlier draft reported 41–71%, computed on peaker costs predating the 2025–2026 price surge.
+Recomputing on current costs tightens and lowers the range. Superseded figures are recorded in
+`registers/Provenance_Register.xlsx`.)*
 
 **Residential EV Charger Rewards** is the sharper case. Against a properly-priced benchmark of
 **$141.75–$224.73/kW-yr** (annualized avoided capacity plus the LMP-derived energy component),
-the current rate sits **12.4× to 19.7× below**. Note the energy component is a perfect-foresight
+the current rate sits **16.3× to 21.1× below**. Note the energy component is a perfect-foresight
 upper bound rather than a realistic capture rate, so the lower end of that range is the safer
 figure to cite.
 
