@@ -327,6 +327,12 @@ This is a real but moderate gap, not a dramatic one — and it should be present
 also that the underlying peaker costs predate the 2025–2026 price surge; using current figures
 would raise the benchmark and lower these percentages, strengthening the finding.
 
+**Residential EV Charger Rewards** is the sharper case. Against a properly-priced benchmark of
+**$141.75–$224.73/kW-yr** (annualized avoided capacity plus the LMP-derived energy component),
+the current rate sits **12.4× to 19.7× below**. Note the energy component is a perfect-foresight
+upper bound rather than a realistic capture rate, so the lower end of that range is the safer
+figure to cite.
+
 **Structural observations that matter more than the levels.**
 
 1. **Flat, size-independent payments** (Dominion residential, $294/yr) sever the link between

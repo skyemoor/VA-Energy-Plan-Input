@@ -519,43 +519,18 @@ PEAKER_FAST_TRACK_PREMIUM_FRACTION = 0.15    # USP&E: 10-20% for delivery under 
 
 
 # ---------------------------------------------------------------------------
-# Rule 6.2 cross-check: this module and lp_model.py legitimately both define these values --
-# lp_model.py needs them at import time for its own objective construction, and this module is the
-# project-wide source of truth. Rather than trusting them to stay in sync by convention, assert it.
+# NOTE on the former Rule 6.2 cross-check (removed 2026-09-10)
 #
-# Added 2026-09-10 after finding RESILIENCE_TILT_PCT had silently diverged (0.0 here, 0.03 there)
-# for six days. Internal Debugging Log #49 documents the same class of defect costing a full
-# Scenario 2 re-run across three gas cases with and without RGGI.
+# This module previously ended with _assert_consistent_with_lp_model(), comparing its own values
+# against lp_model.py's duplicate copies. That assertion existed only to police a duplication that
+# no longer exists: lp_model.py now IMPORTS these values from here rather than defining its own.
 #
-# Deliberately raises at import rather than warning: a divergence here means some caller is
-# already receiving a wrong number, and which caller is not knowable from this module.
+# It was removed rather than kept, for a concrete reason beyond redundancy. Once lp_model.py
+# imports this module at its top, the assertion becomes circular -- Python would reach this point
+# while lp_model is still partially initialized, hasattr() would return False for every name, and
+# every check would silently pass without comparing anything. An assertion that looks like it is
+# protecting something while checking nothing is worse than no assertion.
+#
+# Rule 6 is now enforced structurally (single definition, imported) rather than by runtime
+# comparison, and tests/test_single_source_of_truth.py asserts the import linkage holds.
 # ---------------------------------------------------------------------------
-def _assert_consistent_with_lp_model():
-    try:
-        import lp_model
-    except ImportError:
-        return  # lp_model not importable in this context; nothing to check against
-    shared_scalars = [
-        'WACC', 'CRF', 'CCGT_CRF', 'CCGT_LIFE_YEARS', 'BUILD_YEAR', 'CVOW_MW',
-        'BATH_MW', 'BATH_MWH', 'BATH_RTE_CHARGE', 'NA_RTE_CHARGE', 'NA_CYCLE_LIFE',
-        'NA_DOD_FLOOR', 'FE_CYCLE_LIFE', 'FE_DOD', 'FE_DURATION', 'RESILIENCE_TILT_PCT',
-        'SOLAR_OM', 'STOR_FOM_PCT', 'SOLAR_DEGRADATION_RATE_ANNUAL', 'EXIST_SOLAR_MW_2026',
-        'SIMPLE_CYCLE_HEAT_RATE', 'CCGT_HEAT_RATE', 'CCGT_FOM_KW_YR',
-        'EXPORT_AVG_PRICE', 'EXPORT_CAP_MW',
-    ]
-    divergent = []
-    for name in shared_scalars:
-        if not hasattr(lp_model, name):
-            continue
-        here, there = globals()[name], getattr(lp_model, name)
-        if abs(float(here) - float(there)) > 1e-9:
-            divergent.append(f"{name}: assumptions.py={here!r} lp_model.py={there!r}")
-    if divergent:
-        raise AssertionError(
-            "assumptions.py and lp_model.py have diverged on shared constants -- some caller is "
-            "already receiving a wrong value:\n  " + "\n  ".join(divergent) +
-            "\nResolve by determining which is current (check each module's own change note) and "
-            "synchronizing, rather than deleting this assertion.")
-
-
-_assert_consistent_with_lp_model()

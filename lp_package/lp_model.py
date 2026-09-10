@@ -1,18 +1,56 @@
 import numpy as np
+
+# ---------------------------------------------------------------------------
+# Rule 6: single source of truth. These values are DEFINED in assumptions.py -- the
+# policy-adjustable parameter surface -- and imported here rather than redefined. This module
+# previously held its own copies, which is how RESILIENCE_TILT_PCT silently diverged (0.0 there,
+# 0.03 here) for six days, and how Internal Debugging Log #49's stale $1,775/kW CCGT constant
+# survived alongside the correct $3,000/kW function.
+#
+# To change any of these, edit assumptions.py. The comments explaining each value's sourcing
+# live there too, beside the value rather than beside a copy of it.
+#
+# NA_CYCLE_LIFE is deliberately NOT imported: driver.set_year_capex() rebinds it per checkpoint
+# year (10,000 before 2035, 15,000 after). That is a year-specific override, not a policy change,
+# and must land in this module's own namespace without altering the project-wide default.
+# ---------------------------------------------------------------------------
+from assumptions import (  # noqa: E402
+    BATH_MW,
+    BATH_MWH,
+    BATH_RTE_CHARGE,
+    BUILD_YEAR,
+    CCGT_CRF,
+    CCGT_FOM_KW_YR,
+    CCGT_HEAT_RATE,
+    CCGT_LIFE_YEARS,
+    CRF,
+    CVOW_MW,
+    EXIST_SOLAR_MW_2026,
+    EXPORT_AVG_PRICE,
+    EXPORT_CAP_MW,
+    FE_CYCLE_LIFE,
+    FE_DOD,
+    FE_DURATION,
+    NA_DOD_FLOOR,
+    NA_RTE_CHARGE,
+    RESILIENCE_TILT_PCT,
+    SIMPLE_CYCLE_HEAT_RATE,
+    SOLAR_DEGRADATION_RATE_ANNUAL,
+    SOLAR_OM,
+    STOR_FOM_PCT,
+    WACC,
+)
+
 import pandas as pd
 from scipy import sparse
 from scipy.optimize import linprog
 
 # ---------------- Financial / technology parameters ----------------
-WACC = 0.045
-CRF = WACC*(1+WACC)**25 / ((1+WACC)**25 - 1)
 
 # NEW (Scenario 2 capex build-out): CCGT-specific CRF, distinct from the 25-year CRF above used for
 # solar/storage. Lazard's LCOE+ v19.0 (already in this project's knowledge base) sources CCGT's own
 # facility life directly at 30 years -- using the same 25-year figure for CCGT would misrepresent an
 # asset this project has actual sourced data for. Same WACC (4.5%), different amortization horizon.
-CCGT_LIFE_YEARS = 30
-CCGT_CRF = WACC*(1+WACC)**CCGT_LIFE_YEARS / ((1+WACC)**CCGT_LIFE_YEARS - 1)
 
 # NEW (Scenario 2 capex build-out): CCGT capital and fixed O&M cost, sourced directly from Lazard's
 # LCOE+ v19.0 "Gas Combined Cycle" line (already in this project's knowledge base, not independently
@@ -32,9 +70,7 @@ CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED = (1450.0 + 2100.0) / 2.0   # = $1,775/kW
 # Retained rather than deleted only because deletion would break any out-of-repo caller silently;
 # the name now makes misuse self-evident.
 CCGT_CAPEX_KW = CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED
-CCGT_FOM_KW_YR = (10.00 + 25.50) / 2.0    # = $17.75/kW-yr
 
-BUILD_YEAR = 2044.5  # midpoint of the 2-year build window, used for cost-curve lookup
 
 def solar_capex(y):
     return 1474 * (1-0.015)**(y-2026)
@@ -116,19 +152,12 @@ NA_REF_KWH = na_capex_kwh_6hr_ref(BUILD_YEAR)  # $/kWh at 6-hr reference (correc
 NA_POWER_CAPEX, NA_ENERGY_CAPEX = na_power_energy_split(BUILD_YEAR)
 FE_ENERGY_CAPEX = fe_capex_kwh(BUILD_YEAR)     # $/kWh (source already quotes at 100-hr duration)
 
-SOLAR_OM = 24.0       # $/kW-yr -- NREL ATB 2022 base year, comprehensive scope (land lease, property tax, insurance, asset mgmt, security included per NREL's own 2021 ATB documentation); see Assumptions tab for full Lazard/LBNL/NREL reconciliation
-STOR_FOM_PCT = 0.025  # %/yr of capex. Applies uniformly to Na-ion and iron-air (see c[ENA_]/c[EFE_]
                         # in build_problem()). For iron-air specifically, this is a STATED, DISCLOSED
                         # ASSUMPTION, not an independently-verified figure -- see the full rationale
                         # and citations at FE_CYCLE_LIFE below.
 
-BATH_MW = 3000.0
-BATH_MWH = 24000.0
-BATH_RTE_CHARGE = 0.80
-NA_RTE_CHARGE = 0.90
 NA_CYCLE_LIFE = 15000  # default/fallback; driver.set_year_capex() overrides per checkpoint year
                         # (10,000 pre-2035, 15,000 2035+, per project direction 2026-08-16)
-FE_CYCLE_LIFE = 1000   # Form Energy-specific published figure ("maintained over 80% capacity after
                         # more than 1,000 cycles"), held constant across all years -- no established
                         # improvement trajectory the way Na-ion has one. VERIFIED (2026-09-09,
                         # Master_Citations.xlsx C122): independently confirmed via a third-party
@@ -166,15 +195,12 @@ FE_CYCLE_LIFE = 1000   # Form Energy-specific published figure ("maintained over
                         # If Form Energy's own serviceability model is ever found (an investor
                         # presentation, a utility RFP response, an actual teardown/service document),
                         # this assumption should be re-checked against it, not assumed settled.
-FE_DOD = 1.0            # iron-air gets no DoD restriction -- see na_cycling_cost/fe_cycling_cost note
                         # in build_problem() for the sourcing behind this asymmetry
-NA_DOD_FLOOR = 0.20     # sodium-ion: standard industry convention -- "80% DoD" means discharging FROM
                         # 100% down to a 20% floor, not to 0%. PROMOTED to module level (this session):
                         # previously defined only locally inside build_problem(), which meant
                         # build_dispatch_problem()'s own cycling-cost fix (added this session, Internal
                         # Debugging Log #30) had no access to it -- NameError caught directly when first
                         # tested, not silently worked around.
-RESILIENCE_TILT_PCT = 0.03  # REINSTATED (2026-09-04): RBD trial (Internal Debugging Log #20.6)
                         # concluded, removing the reason this was held at 0.0. A deliberate, disclosed
                         # policy preference for long-duration storage (iron-air) within the near-cost-flat region
                         # confirmed this session between Na-ion and iron-air build sizes (forcing +5,000 MW
@@ -203,12 +229,9 @@ def iron_air_rte(year):
 FE_RTE_CHARGE = iron_air_rte(2044.5)  # = 0.80: both 2044 and 2045 fall past the 2033 ramp
                                         # completion, so this dispatch window uses the flat
                                         # terminal 80% value, not an in-progress ramp value.
-FE_DURATION = 100.0
 
-SIMPLE_CYCLE_HEAT_RATE = 9.5  # MMBtu/MWh HHV, GE 7F.05 simple-cycle spec (8,580-8,610 Btu/kWh LHV,
                                # x1.108 LHV->HHV) -- Scenario 1/3/1B/3B/3C fleet, per standing
                                # simple-cycle-only convention
-CCGT_HEAT_RATE = 6.4          # MMBtu/MWh HHV, GE 7F.05 combined-cycle spec (5,660 Btu/kWh LHV,
                                # x1.108) -- confirms the pre-existing constant is correct for
                                # Scenario 2, which is genuinely CCGT-based
 
@@ -372,7 +395,6 @@ GAS_COST_MWH = gas_cost_mwh(2044.5, heat_rate=CCGT_HEAT_RATE)  # RETAINED for ba
                                        # uses CCGT_HEAT_RATE since this constant's original consumer
                                        # (pre-parameterization) was Scenario 2. New code should call
                                        # gas_cost_mwh(year, heat_rate=...) explicitly instead.
-EXPORT_AVG_PRICE = 37.80  # CORRECTED (2026-08-16): code still had the intermediate $63.0 value, since
                            # rejected on review -- the Assumptions tab's own documented, final figure is
                            # $37.80/MWh ($45/MWh EIA avg LMP x 1.40 DOM-zone premium x 0.60 midday discount,
                            # retained after reconsideration). Code and Assumptions tab had drifted out of sync.
@@ -443,10 +465,7 @@ def export_price_profile(T, start_hour_of_day=0, year_start=2044):
     mult = np.array([_seasonal_shapes[_month_to_season(m)][h] for m, h in zip(dates.month, dates.hour)])
     return EXPORT_AVG_PRICE * mult
 
-EXPORT_CAP_MW = 5000.0  # finite transmission/interconnection export limit (assumption; see notes to user)
 
-EXIST_SOLAR_MW_2026 = 5300.0
-SOLAR_DEGRADATION_RATE_ANNUAL = 0.005  # standard c-Si industry figure (~0.5%/yr), already in use for
                         # exist_solar_mw() below; refactored into a named constant (2026-08-19) so the
                         # same rate can be reused for carrying prior-checkpoint new-build solar forward
                         # across multi-checkpoint solves (see solar_degradation_factor() and the
@@ -461,7 +480,6 @@ def solar_degradation_factor(years_elapsed):
 def exist_solar_mw(year):
     return EXIST_SOLAR_MW_2026 * solar_degradation_factor(year-2026)
 
-CVOW_MW = 2587.2  # CORRECTED (2026-08-16): was 2535.0 (SAM proxy-turbine-count figure, 169 x 15MW NREL
                    # ATB 2020 Reference turbines) -- real nameplate is 176 x 14.7 MW Siemens Gamesa SG
                    # 14-222 DD (Power Boost) turbines = 2,587.2 MW. This correction had previously only
                    # been applied to a separate, narrowly-scoped CVOW_MW_CORRECTED constant used just in

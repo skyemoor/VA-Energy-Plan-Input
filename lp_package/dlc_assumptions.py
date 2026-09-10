@@ -160,14 +160,38 @@ EXPECTED_KW_REDUCTION_PER_PARTICIPANT = (
 # are self-documenting.
 ANNUAL_INCENTIVE_USD_PER_PARTICIPANT = 40  # $/yr flat, EV Charger Rewards
 
-# REUSED, not re-derived: the same peaker-cost benchmarks already established and tested in
-# large_ci_curtailment_analysis/large_ci_curtailment_assumptions.py. This project has no shared
-# package structure across analysis modules (confirmed directly, 2026-08-26 -- no __init__.py,
-# no cross-module imports anywhere in lp_package/), so per this project's own established
-# convention, the values are restated here rather than imported -- if either copy is ever revised,
-# the other must be updated to match; this comment is the pointer connecting them.
-AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR = 1175  # matches AERODERIVATIVE_CAPEX_USD_PER_KW there
-F_CLASS_AVOIDED_COST_USD_PER_KW_YR = 713  # matches large_ci's own F-Class figure
+# CORRECTED 2026-09-10 -- a real units error, not a staleness issue.
+#
+# These previously read:
+#     AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR = 1175
+#     F_CLASS_AVOIDED_COST_USD_PER_KW_YR        = 713
+# with the comment "matches AERODERIVATIVE_CAPEX_USD_PER_KW there" -- which is exactly the defect.
+# Those figures ARE the installed CAPITAL cost ($/kW, one-time) from
+# large_ci_curtailment_assumptions.py. They were copied into a variable named _PER_KW_YR and used
+# as an ANNUAL avoided capacity cost. The right module, the wrong variable.
+#
+# Consequence: the properly-priced benchmark came out roughly 14x too high, producing a headline
+# finding that Dominion's current rate is "70-115x below properly priced" -- against
+# large_ci_curtailment_assumptions.py's own ~41-71%, computed from the same source figures
+# correctly annualized. Two modules, same benchmark, two orders of magnitude apart.
+#
+# Independent cross-check that settles which is right: PJM capacity has never cleared near
+# $713/kW-yr. The 2025/26 record BRA was ~$270/MW-day = $98.5/kW-yr; the 2026/27 cap is
+# $325/MW-day = $118.6/kW-yr. The annualized figures ($50.77-$88.44/kW-yr) sit inside that
+# historical range; the capex figures sit ~6x above the highest price ever cleared.
+#
+# Now IMPORTED rather than restated (Rule 6). The prior comment justified restatement on the
+# grounds that "this project has no shared package structure across analysis modules (confirmed
+# directly, 2026-08-26 -- no __init__.py, no cross-module imports anywhere in lp_package/)". That
+# was true then and is not now: scenario3_build imports dlc_assumptions, checkpoint_solver imports
+# assumptions, and lp_model imports assumptions. The convention that justified copying no longer
+# describes the codebase -- and copying is what produced this error.
+import large_ci_curtailment_assumptions as _large_ci
+
+AERODERIVATIVE_AVOIDED_COST_USD_PER_KW_YR = _large_ci.annualized_avoided_capacity_cost_usd_per_kw_yr(
+    _large_ci.AERODERIVATIVE_CAPEX_USD_PER_KW, _large_ci.AERODERIVATIVE_FOM_USD_PER_KW_YR)
+F_CLASS_AVOIDED_COST_USD_PER_KW_YR = _large_ci.annualized_avoided_capacity_cost_usd_per_kw_yr(
+    _large_ci.F_CLASS_CAPEX_USD_PER_KW, _large_ci.F_CLASS_FOM_USD_PER_KW_YR)
 
 # SOURCED, but with a real, disclosed gap: these are the real-time LMP-derived avoided-energy/WMA
 # figures already computed and reported in Dominion_Zone_Load_Shape_and_LMP_Analysis.md (N=97,
