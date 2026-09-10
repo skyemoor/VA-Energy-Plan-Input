@@ -1,5 +1,31 @@
-import unittest
+"""
+test_fairfax_siting.py
 
+Rooftop and parking-lot solar siting tests for Fairfax County, bundled into one file (2026-09-10).
+
+WHY BUNDLED BY COUNTY RATHER THAN PARAMETERIZED ACROSS COUNTIES
+
+The first consolidation proposed was a single suite parameterized over all four counties.
+Inspecting them showed that would have been wrong: they do not test the same logic with different
+data. Arlington tests building-type eligibility against GIS footprints; Loudoun tests address
+parsing and unique-building counting from business-account records; the others differ again --
+because each county publishes different source data. A parameterized suite would assert a
+commonality that does not exist, which this project's own standards warn against directly
+("forcing a single unit across genuinely different feature types would be a false consistency, not
+a real one").
+
+What IS genuinely shared -- descriptive statistics, compute_totals(), the abstract-base contract --
+is tested once in test_rooftop_solar_estimation_base.py and deliberately not repeated here.
+
+Bundling by county removes the one-file-per-measure split, which was an artifact of how the work
+was written rather than a property of the analysis, while keeping each county's real
+county-specific logic intact.
+
+COLLECTED ONLY WHEN THIS COUNTY'S MODULES ARE PRESENT. They are recorded as not-yet-restored in
+docs/PIPELINE_COMPLETENESS.md, so conftest.py ignores this file until they return -- determined by
+attempting the import, so it un-ignores itself automatically rather than needing a list updated.
+"""
+import unittest
 from fairfax_ci_rooftop_solar_estimate import (
     HOURS_PER_YEAR,
     NEM_DISTRIBUTED_SOLAR_CAPACITY_FACTOR,
@@ -9,7 +35,19 @@ from fairfax_ci_rooftop_solar_estimate import (
     compute_kw_per_sqft_density_stats,
     estimate_fairfax_ci_rooftop_solar,
 )
+import pandas as pd
+from fairfax_parking_lot_sqft import (
+    MIN_QUALIFYING_LOT_SQFT,
+    PAVED_PARKING_LOT_TYPE,
+    FairfaxParkingLotTotals,
+    _validate_all_paved_parking_lot,
+    compute_totals,
+)
 
+
+# ==========================================================================
+# ROOFTOP -- merged from test_fairfax_ci_rooftop_solar_estimate.py
+# ==========================================================================
 
 class TestReusedSharedConstants(unittest.TestCase):
     """Rule 2: every shared calculation needs a test that locks it to a
@@ -129,6 +167,73 @@ class TestEstimateFairfaxCiRooftopSolar(unittest.TestCase):
         result = estimate_fairfax_ci_rooftop_solar(total_footprint_sqft=0.0, n_buildings=0)
         self.assertEqual(result.total_mw_mean_based, 0.0)
         self.assertEqual(result.total_mwh_per_year_mean_based, 0.0)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
+
+
+# ==========================================================================
+# PARKING -- merged from test_fairfax_parking_lot_sqft.py
+# ==========================================================================
+
+PROJECT_CSV_PATH = "/mnt/project/FairfaxCounty_Driveways_and_Parking_Lots_387463314629760591.csv"
+
+
+class TestValidateAllPavedParkingLot(unittest.TestCase):
+
+    def test_all_paved_parking_lot_passes(self):
+        df = pd.DataFrame({"Type": ["PAVED PARKING LOT", "PAVED PARKING LOT"], "Shape__Area": [100.0, 200.0]})
+        _validate_all_paved_parking_lot(df)  # should not raise
+
+    def test_unexpected_type_raises(self):
+        df = pd.DataFrame({"Type": ["PAVED PARKING LOT", "DRIVEWAY"], "Shape__Area": [100.0, 200.0]})
+        with self.assertRaises(ValueError):
+            _validate_all_paved_parking_lot(df)
+
+
+class TestComputeTotals(unittest.TestCase):
+
+    def test_hand_computed_case(self):
+        df = pd.DataFrame({
+            "Type": [PAVED_PARKING_LOT_TYPE] * 4,
+            "Shape__Area": [1_000.0, 5_999.0, 6_000.0, 10_000.0],
+        })
+        totals = compute_totals(df)
+        self.assertEqual(totals.total_rows, 4)
+        self.assertAlmostEqual(totals.unfiltered_sqft, 22_999.0, places=2)
+        # Only the two rows >= 6,000 sqft (exactly 6,000 counts, per >=)
+        self.assertAlmostEqual(totals.min_size_filtered_sqft, 16_000.0, places=2)
+        self.assertEqual(totals.min_size_filtered_rows, 2)
+
+    def test_custom_threshold(self):
+        df = pd.DataFrame({"Type": [PAVED_PARKING_LOT_TYPE] * 3, "Shape__Area": [100.0, 500.0, 1_000.0]})
+        totals = compute_totals(df, min_qualifying_sqft=500.0)
+        self.assertEqual(totals.min_size_filtered_rows, 2)
+        self.assertAlmostEqual(totals.min_size_filtered_sqft, 1_500.0, places=2)
+
+    def test_as_acres_conversion(self):
+        df = pd.DataFrame({"Type": [PAVED_PARKING_LOT_TYPE], "Shape__Area": [43_560.0]})
+        totals = compute_totals(df)
+        self.assertAlmostEqual(totals.as_acres(43_560.0), 1.0, places=6)
+
+    def test_returns_correct_type(self):
+        df = pd.DataFrame({"Type": [PAVED_PARKING_LOT_TYPE], "Shape__Area": [100.0]})
+        self.assertIsInstance(compute_totals(df), FairfaxParkingLotTotals)
+
+
+class TestParkingRealDataCrossCheck(unittest.TestCase):
+    """Cross-checks against the already-established, hand-verified real
+    figures from earlier in this conversation: 23,651 total rows, 2,810
+    rows / 56,551,120 sqft at the established 6,000 sqft threshold."""
+
+    def test_real_data_matches_established_figures(self):
+        from fairfax_parking_lot_sqft import load_fairfax_parking_lots
+        df = load_fairfax_parking_lots(PROJECT_CSV_PATH)
+        totals = compute_totals(df)
+        self.assertEqual(totals.total_rows, 23_651)
+        self.assertEqual(totals.min_size_filtered_rows, 2_810)
+        self.assertAlmostEqual(totals.min_size_filtered_sqft, 56_551_120, delta=10)
 
 
 if __name__ == "__main__":

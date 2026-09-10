@@ -132,3 +132,32 @@ inserts were working only for the files that remembered them.
 
 The six test suites written this session (95 tests) now pass together. The pre-existing suites
 still cannot be collected: they need the feature modules listed above, which remain absent.
+
+---
+
+## Test organization (2026-09-10)
+
+Test files were consolidated from 36 to 29. The reduction was the smaller outcome; the larger one
+was that the suite had never been run whole, and on a clean checkout reported 20 collection errors
+and 21 failures of which exactly **two** meant anything was actually wrong.
+
+**By class hierarchy**, where a hierarchy genuinely exists:
+
+| Suite | Replaced |
+|---|---|
+| `test_capacity_accreditation.py` | `test_storage_accreditation`, `test_scenario2_reserve_margin` |
+| `test_cost_derivation.py` | `test_peaker_capex`, and the cost half of the large C&I suite |
+| `test_demand_basis.py` | `test_virginia_only_demand` |
+
+**By county**, where one does not:
+
+`test_{arlington,fairfax,loudoun,prince_william}_siting.py` each merge that county's rooftop and
+parking suites. They were NOT parameterized into one shared suite, which was the first proposal.
+The counties publish different source data and therefore test different logic -- Arlington checks
+building-type eligibility against GIS footprints, Loudoun checks address parsing and unique-building
+counting from business-account records. A parameterized suite would assert a commonality that does
+not exist. What genuinely is shared stays tested once in `test_rooftop_solar_estimation_base.py`.
+
+**Not consolidated:** the NSRDB / solar-profile / streak-finder suites. They form a real dependency
+chain and could be merged, but all their tests currently skip for want of source data, so merging
+them would be unverifiable churn.
