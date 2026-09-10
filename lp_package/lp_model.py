@@ -20,7 +20,18 @@ CCGT_CRF = WACC*(1+WACC)**CCGT_LIFE_YEARS / ((1+WACC)**CCGT_LIFE_YEARS - 1)
 # point estimate, consistent with how this project has generally handled other Lazard-sourced ranges.
 # Lazard also flags a separate "illustrative high case" of $2,400-$2,600/kW for post-2028-COD CCGT
 # projects reflecting current market tightness -- noted for context, not adopted as the base figure.
-CCGT_CAPEX_KW = (1450.0 + 2100.0) / 2.0   # = $1,775/kW
+CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED = (1450.0 + 2100.0) / 2.0   # = $1,775/kW
+# RENAMED 2026-09-10 (Rule 12.3: the caveat belongs in the name, so a future reader cannot use it
+# incorrectly without having read a comment). SUPERSEDED by ccgt_capex_kw() below -- use that.
+# This stale Lazard-midpoint constant is what Internal Debugging Log #49 found being used by
+# compute_scenario2_costs.py's own ccgt_capex_rate() while the correct, cross-validated
+# $3,000/kW function sat unused beside it. The callers were migrated, but the definition was left
+# in place, which is precisely the condition that produced the original bug: two definitions
+# coexisting, one correct, one waiting for a future caller who greps for a constant name and
+# finds the wrong one first. A 2026-09-10 audit confirmed nothing references it.
+# Retained rather than deleted only because deletion would break any out-of-repo caller silently;
+# the name now makes misuse self-evident.
+CCGT_CAPEX_KW = CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED
 CCGT_FOM_KW_YR = (10.00 + 25.50) / 2.0    # = $17.75/kW-yr
 
 BUILD_YEAR = 2044.5  # midpoint of the 2-year build window, used for cost-curve lookup
