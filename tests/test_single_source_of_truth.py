@@ -11,8 +11,8 @@ equal today can diverge tomorrow; two names bound to the same object cannot.
 """
 import assumptions
 import peaker_capex
-import storage_accreditation
-import scenario2_reserve_margin
+import storage_accreditation          # shim, see capacity_accreditation
+import scenario2_reserve_margin       # shim, see capacity_accreditation
 import distributed_physical_bounds
 import charging_adequacy
 import gas_outage_stress
