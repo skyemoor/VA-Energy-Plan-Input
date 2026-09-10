@@ -61,5 +61,11 @@ those that worked.
 
 ## License
 
-**Not yet licensed.** Intended for free public use; a permissive license will be added.
-Until then, contact the repository owner regarding reuse.
+Licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE).
+
+You may use, modify, and redistribute this work, including commercially, provided you
+retain attribution and the license notice. The license includes an express patent grant
+and requires that modified files be marked as changed.
+
+This work is offered freely as public input to Virginia energy planning. Independent
+reproduction, extension, and critique are all explicitly welcomed.
