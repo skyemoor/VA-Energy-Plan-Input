@@ -301,3 +301,78 @@ capital cost, narrowing rather than widening the gap the Executive Summary curre
 **Note on leap years:** building these fiscal years by hour offset failed on 2040 (8,784 hours).
 The script selects by calendar date and excludes February 29 explicitly. This is open item 6
 below, encountered in practice rather than in theory.
+
+---
+
+## 11. Storage capacity accreditation — the foresight artifact (2026-09-10)
+
+§ 10 left an 18 GW question resting entirely on how storage is credited at the peak hour. The
+approach adopted was Appendix A.13's own-data method: rank hours by net demand, take the top ten,
+measure what storage could actually have delivered. **Applying it surfaced a methodological
+problem serious enough to change the recommendation.**
+
+### The result depends almost entirely on which dispatch is measured
+
+Same 2045 fleet, same weather, same peak-hour definition:
+
+| Basis | Na-ion capacity credit |
+|---|---:|
+| LP dispatch (perfect foresight) | **100.0%** |
+| Heuristic dispatch (no foresight) | **31.8%** |
+
+The LP series across checkpoints also moves the wrong way:
+
+| Year | Storage penetration | LP-derived credit |
+|---|---:|---:|
+| 2030 | 27% | 40.3% |
+| 2035 | 60% | 60.0% |
+| 2040 | 127% | 70.0% |
+| 2045 | 228% | 100.0% |
+
+Capacity credit should **fall** as penetration rises — PJM's own fixed-tilt solar rating fell from
+33% to 7–8% for precisely that reason. A rising series is the signature of an artifact, not a
+finding.
+
+### Cause
+
+Perfect foresight. The LP knows exactly which hours are the peak net-demand hours and
+pre-positions storage to be full for them. Measuring "availability at the peak hours" against a
+dispatch optimized *knowing which hours those are* measures the optimizer's foresight, not the
+fleet's capability — and the larger the fleet, the more completely it can be pre-positioned,
+which is why credit rises with penetration rather than falling.
+
+**This means own-data accreditation computed from LP dispatch is the LEAST conservative option
+available, not the most.** That is the opposite of the reason it was selected. Appendix A.13's
+cross-validation rule (take the lower of own-data and published) is what prevents the 100% figure
+from being adopted; without that rule the method would have produced a materially wrong answer
+that looked rigorous.
+
+### Adopted approach
+
+Accreditation must be computed from a **no-foresight dispatch** — this project's eight-year
+heuristic simulation (`scripts/sim_2045_8yr.py`) or an equivalent rolling-horizon dispatch. An
+LP-derived figure may be reported only as an optimistic bound, and only with this artifact
+stated.
+
+The 31.8% figure is adopted for 2045. It sits below PJM's published 50% for four-hour storage, so
+the cross-validation rule takes it, and it is consistent with the mechanism the eight-year test
+independently established: storage empty 85% of hours, 6.44 million MWh unserved while reserve
+margin was never violated on a nameplate-credited basis.
+
+### Effect on the § 10 range
+
+At 2045 with 23,000 MW of storage:
+
+| Credit basis | Accredited MW | Statutory Floor gas requirement |
+|---|---:|---:|
+| Nameplate (100%) | 23,000 | 4,485 MW |
+| **No-foresight own-data (31.8%)** | **7,314** | **~20,200 MW** |
+| Zero credit (Appendix C.2) | 0 | 22,446 MW |
+
+The conservative end of the range is now derived rather than assumed, and sits close to — but
+below — the zero-credit bound.
+
+### Open
+
+Credits for 2030, 2035 and 2040 still require no-foresight dispatch runs for their own fleets;
+only 2045 has one. The LP-derived figures in the table above must **not** be used for those years.
