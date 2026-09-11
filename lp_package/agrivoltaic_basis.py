@@ -274,3 +274,111 @@ def revenue_share(year: int, solar_mw: float, storage_mw: float = 0.0) -> Revenu
         year=year, rate_per_mw=rate, solar_mw=solar_mw, storage_mw=storage_mw,
         solar_revenue=solar_rev, storage_revenue=storage_rev,
         total_revenue=solar_rev + storage_rev, caveat=caveat)
+
+
+# ============================================================================
+# CROP NET RETURNS -- Virginia Tech / SLEAC, the statutory basis
+# ============================================================================
+# Source: "Methods and Procedures: Determining the Use Value of Agricultural and Horticultural
+# Land in Virginia", VCE publication 446-011 (AAEC-215P), Friedel and Kayser, Virginia Tech, last
+# reviewed August 2025. These are the figures the State Land Evaluation Advisory Council uses to
+# set agricultural use-value assessments under Va. Code § 58.1-3239 -- the numbers Virginia's own
+# tax system runs on, not advocacy estimates. That provenance is the point: a farm-income
+# comparison built on them is very hard to dispute.
+#
+# Figures below are the Prince Edward County composite farm for tax year 2020, the publication's
+# own worked example. Net returns are seven-year OLYMPIC averages (highest and lowest dropped)
+# over variable AND fixed costs, with federal program payments added where applicable.
+#
+# THE COMPARISON THIS ENABLES
+#
+# The composite farm's weighted average net return is $17.69/acre/year. Virginia solar lease
+# rates run $1,200-2,500/acre/year. The lease is therefore 68x to 141x the return from farming
+# the same ground -- and 6x to 13x even against soybeans, the composite farm's best performer.
+#
+# This reframes the agrivoltaic argument substantially. The question is not whether panel shading
+# costs a farmer some fraction of yield; at these ratios, a farmer could lose the ENTIRE crop and
+# still be far ahead. What agrivoltaics adds on top of that is the option to keep farming at all,
+# and the food-production and land-preservation benefits that follow.
+#
+# THE VARIANCE ARGUMENT, IN THE SOURCE'S OWN DATA
+#
+# The publication's corn table for Prince Edward shows net returns by year:
+#     2012  +$156.45     2013  -$52.39     2014  -$65.55     2015  +$27.09
+#     2016   +$38.28     2017 -$112.44     2018  -$65.47
+# FOUR OF SEVEN YEARS NEGATIVE. The methodology floors negatives at zero before averaging, so the
+# published $76.27 corn figure is itself generous relative to what a farmer actually experienced.
+#
+# That is the income-variance case in Virginia's own official data, and it is why a contracted
+# lease payment is a hedge rather than merely a supplement.
+#
+# CAVEATS, stated
+#   - Prince Edward is the publication's worked EXAMPLE, not a Virginia average. Backing net
+#     returns out of published use-values (net return = use-value x capitalization rate) across
+#     other jurisdictions gives roughly $20/acre (Prince Edward) to $88/acre (Dinwiddie Piedmont).
+#     Even at the high end the lease is 14-28x.
+#   - Use-value is NOT annual net return. Use-value = net return / capitalization rate, so the
+#     published per-acre use-values (e.g. $350-$1,530 for average cropland) are LAND VALUES and
+#     must not be compared directly against an annual lease rate.
+#   - Livestock is excluded from use-value entirely: the statute assesses "what is produced on the
+#     land and not ... livestock, buildings, or other improvements". Grazing operations are
+#     therefore not represented by these figures.
+#   - TY2020 vintage; enterprise budgets lag the tax year by two years, so the underlying data is
+#     DY2012-DY2018.
+SLEAC_NET_RETURN_PER_ACRE = {
+    'soybeans': 197.83,
+    'alfalfa': 98.73,
+    'corn': 76.27,
+    'pasture': 3.69,
+    'hay': 0.32,
+}
+SLEAC_COMPOSITE_FARM_NET_RETURN_PER_ACRE = 17.69
+SLEAC_SOURCE = ('Virginia Tech / SLEAC, VCE 446-011 (AAEC-215P), Prince Edward County composite '
+                'farm, tax year 2020 -- the statutory basis for agricultural use-value assessment '
+                'under Va. Code § 58.1-3239')
+
+#: Cross-jurisdiction range, derived as use-value x capitalization rate from the publication's own
+#: Table B-1a. Wider than the Prince Edward example alone and used for the conservative comparison.
+SLEAC_NET_RETURN_RANGE_ACROSS_JURISDICTIONS = (20.0, 88.0)
+
+
+@dataclass(frozen=True)
+class LeaseVersusFarmIncome:
+    crop: str
+    farm_net_return_per_acre: float
+    lease_rate_low: float
+    lease_rate_high: float
+    multiple_low: float
+    multiple_high: float
+    source: str
+    interpretation: str
+
+
+def lease_versus_farm_income(crop: str = 'composite') -> LeaseVersusFarmIncome:
+    """Solar lease income against the SLEAC net return for a given crop.
+
+    'composite' is the default and the most representative single figure -- the weighted average
+    across the composite farm, which is what the use-value assessment itself capitalizes.
+    """
+    if crop == 'composite':
+        net = SLEAC_COMPOSITE_FARM_NET_RETURN_PER_ACRE
+    elif crop in SLEAC_NET_RETURN_PER_ACRE:
+        net = SLEAC_NET_RETURN_PER_ACRE[crop]
+    else:
+        raise ValueError(
+            f"no SLEAC net return for {crop!r}; available: 'composite' plus "
+            f"{sorted(SLEAC_NET_RETURN_PER_ACRE)}. Do not substitute a figure from another state "
+            "-- the value of this comparison is that it rests on Virginia's own statutory "
+            "assessment methodology.")
+    return LeaseVersusFarmIncome(
+        crop=crop, farm_net_return_per_acre=net,
+        lease_rate_low=VA_LEASE_RATE_LOW, lease_rate_high=VA_LEASE_RATE_HIGH,
+        multiple_low=VA_LEASE_RATE_LOW / net, multiple_high=VA_LEASE_RATE_HIGH / net,
+        source=SLEAC_SOURCE,
+        interpretation=(
+            'At these ratios the yield question is secondary: a farmer could lose the entire crop '
+            'and remain far ahead on lease income alone. What agrivoltaics adds is the option to '
+            'keep farming at all, with the food-production and land-preservation benefits that '
+            'follow. Note also that SLEAC floors negative annual net returns at zero before '
+            'averaging, so published figures are generous relative to what farmers experienced -- '
+            'Prince Edward corn was NEGATIVE in four of the seven years averaged.'))

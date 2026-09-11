@@ -129,6 +129,61 @@ the distributed scenario. Both should be stated.
 
 ---
 
+## 5A. The comparison that reframes the whole argument
+
+Virginia Tech's **SLEAC** methodology — the statutory basis for agricultural use-value assessment
+under **Va. Code § 58.1-3239** — publishes per-acre net returns. These are the figures Virginia's
+own tax system runs on, not advocacy estimates, and that provenance is what makes the comparison
+difficult to dispute.
+
+Prince Edward County composite farm, tax year 2020 (VCE 446-011, the publication's worked example):
+
+| crop | net return $/acre/yr | solar lease is |
+|---|---:|---:|
+| Soybeans | $197.83 | **6–13×** |
+| Alfalfa | $98.73 | 12–25× |
+| Corn | $76.27 | 16–33× |
+| Pasture | $3.69 | 325–678× |
+| Hay | $0.32 | 3,750–7,812× |
+| **composite farm weighted avg** | **$17.69** | **68–141×** |
+
+### What this changes
+
+**The yield question is secondary.** A farmer could lose the *entire* crop and remain far ahead on
+lease income alone. The agrivoltaic argument therefore does not need the contested crop-yield
+evidence to carry the economic case — what agrivoltaics adds on top is the option to keep farming
+at all, with the food-production and land-preservation benefits that follow.
+
+That is a materially stronger position than "agrivoltaic yields are roughly neutral," which is
+where the literature is genuinely mixed and where no Virginia field trial exists.
+
+### The variance case, in the source's own data
+
+SLEAC's corn table for Prince Edward, by year:
+
+| 2012 | 2013 | 2014 | 2015 | 2016 | 2017 | 2018 |
+|---:|---:|---:|---:|---:|---:|---:|
+| +$156.45 | **−$52.39** | **−$65.55** | +$27.09 | +$38.28 | **−$112.44** | **−$65.47** |
+
+**Four of seven years negative.** The methodology floors negatives at zero before averaging, so the
+published $76.27 is *generous* relative to what the farmer actually experienced.
+
+This is the income-variance argument in Virginia's own official data, and it is why a contracted
+lease payment functions as a hedge rather than merely a supplement.
+
+### Caveats, stated
+
+- **Prince Edward is the worked example, not a Virginia average.** Backing net returns out of
+  published use-values across jurisdictions (net return = use-value × capitalization rate) gives
+  roughly **$20/acre** (Prince Edward) to **$88/acre** (Dinwiddie Piedmont). Even at the most
+  favourable county the lease is **14–28×**.
+- **Use-value is not annual net return.** Published per-acre use-values ($350–$1,530 for average
+  cropland) are LAND VALUES and must not be compared directly against an annual lease rate.
+- **Livestock is excluded entirely** — the statute assesses "what is produced on the land and not
+  … livestock, buildings, or other improvements." Grazing operations are not represented here,
+  which matters because sheep grazing is the most mature form of agrivoltaics.
+- **TY2020 vintage**; enterprise budgets lag two years, so underlying data is DY2012–DY2018.
+
 ## 6. The land-use figure that will be challenged
 
 The agrivoltaic portion of the 2045 build is **605,626 – 921,733 acres**, which is **7.9 – 12.0% of

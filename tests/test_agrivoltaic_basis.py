@@ -128,3 +128,53 @@ class TestRevenueShareStatute:
     def test_2045_headline_figure(self):
         r = ag.revenue_share(2045, 173_780.7, 50_546.5 + 36_359.0)
         assert r.total_revenue / 1e6 == pytest.approx(534.3, abs=1.0)
+
+
+class TestSLEACFarmIncomeComparison:
+    """Virginia Tech / SLEAC net returns -- the statutory basis for agricultural use-value
+    assessment under Va. Code § 58.1-3239. These are the numbers Virginia's own tax system runs
+    on, which is what makes the comparison hard to dispute."""
+
+    def test_composite_farm_net_return_matches_the_publication(self):
+        assert ag.SLEAC_COMPOSITE_FARM_NET_RETURN_PER_ACRE == 17.69
+
+    def test_per_crop_net_returns_match_the_publication(self):
+        assert ag.SLEAC_NET_RETURN_PER_ACRE['soybeans'] == 197.83
+        assert ag.SLEAC_NET_RETURN_PER_ACRE['corn'] == 76.27
+        assert ag.SLEAC_NET_RETURN_PER_ACRE['hay'] == 0.32
+
+    def test_lease_exceeds_composite_farm_return_by_two_orders_of_magnitude(self):
+        r = ag.lease_versus_farm_income()
+        assert r.multiple_low == pytest.approx(68, abs=1)
+        assert r.multiple_high == pytest.approx(141, abs=1)
+
+    def test_lease_exceeds_even_the_best_crop_severalfold(self):
+        """Soybeans is the composite farm's best performer at $197.83/acre. The lease still
+        exceeds it 6-13x, so the comparison does not depend on picking a weak crop."""
+        r = ag.lease_versus_farm_income('soybeans')
+        assert r.multiple_low > 6.0
+
+    def test_unknown_crop_raises_rather_than_substituting(self):
+        """Rule 5. The comparison's value is that it rests on Virginia's own statutory
+        methodology; an out-of-state figure would silently destroy that."""
+        with pytest.raises(ValueError, match='statutory'):
+            ag.lease_versus_farm_income('cotton')
+
+    def test_interpretation_states_yield_is_secondary_at_these_ratios(self):
+        i = ag.lease_versus_farm_income().interpretation
+        assert 'lose the entire crop' in i
+
+    def test_interpretation_records_the_negative_years(self):
+        """Four of seven years negative for Prince Edward corn, floored at zero before averaging.
+        That is the income-variance case in Virginia's own official data."""
+        assert 'NEGATIVE in four of the seven years' in ag.lease_versus_farm_income().interpretation
+
+    def test_cross_jurisdiction_range_is_carried_for_the_conservative_case(self):
+        """Prince Edward is the publication's worked example, not a Virginia average. Backing net
+        returns out of published use-values across jurisdictions gives ~$20-88/acre."""
+        lo, hi = ag.SLEAC_NET_RETURN_RANGE_ACROSS_JURISDICTIONS
+        assert (lo, hi) == (20.0, 88.0)
+        assert ag.VA_LEASE_RATE_LOW / hi > 13.0, 'even the most favourable county is far behind'
+
+    def test_source_is_cited_on_every_result(self):
+        assert '58.1-3239' in ag.lease_versus_farm_income().source
