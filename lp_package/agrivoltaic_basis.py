@@ -1098,3 +1098,115 @@ def indicated_configuration(crop: str) -> str:
             f"{sorted(VA_CROP_SHADE_SENSITIVITY)}. Do not guess -- the indicated configurations "
             "differ in energy density, cost and machinery access.")
     return LPF_CONFIGURATION_BY_SHADE_SENSITIVITY[VA_CROP_SHADE_SENSITIVITY[crop]]
+
+
+# ============================================================================
+# SLCOE IMPACT OF AGRIVOLTAIC SITING -- THE COMPARISON THAT MATTERS
+# ============================================================================
+# Added 2026-09-11, reframing the configuration question.
+#
+# THE REFRAME. Earlier sections optimise configuration to protect CROP YIELD. That objective is
+# largely moot for this project: SLEAC net returns put Virginia's composite farm at $17.69/acre/yr
+# against solar lease income of $1,200-2,500 -- 68x to 141x. A farmer could lose the entire crop
+# and remain far ahead. So yield protection is not what the configuration should be optimised for.
+#
+# What matters for comparing VCEA scenarios against Dominion's preferred plan is SLCOE. The
+# question becomes: what is the cheapest configuration that still qualifies as agrivoltaic?
+#
+# THE ANSWER IS FAVOURABLE, AND IT IS NOT A COMPROMISE
+#
+# Riaz et al.'s LPF framework finds that for SHADE-TOLERANT crops, "LPF is maximized at 2 for
+# shade-tolerant crops with a solar farm based on single axis sun tracking scheme" -- and
+# single-axis tracking at standard density is ALSO the conventional, lowest-cost utility-scale
+# configuration.
+#
+# Virginia's compatible base is pasture and forage (3.03-3.36M acres), which IS the shade-tolerant
+# group. So on the land this analysis would actually use:
+#
+#   the highest-LPF configuration and the cheapest configuration are THE SAME CONFIGURATION.
+#
+# There is no agrivoltaic premium to pay on forage land. The array is conventional single-axis
+# tracking; what makes it agrivoltaic is that sheep graze or hay is cut beneath it, which requires
+# no design change beyond fencing and access already needed for O&M.
+#
+# SLCOE COMPARISON OF THE THREE CONFIGURATIONS (2045 Build to Zero basis, ~$133.5/MWh provisional)
+#
+#   1. STANDARD SINGLE-AXIS TRACKING on shade-tolerant forage
+#      LPF 2 (maximum). No racking premium. Standard 4-6 acres/MW. No anti-tracking.
+#      SLCOE DELTA vs conventional solar: approximately ZERO. The land is leased either way --
+#      agrivoltaic siting changes who else uses it, not what the array costs.
+#
+#   2. EAST/WEST VERTICAL BIFACIAL
+#      No LCOE premium (Jordan pilot), but ~35% less kWh/kWp and wider row spacing. The cost lands
+#      in LAND, not hardware: at 5 -> 10 acres/MW and $1,850/acre/yr mid-rate, that is
+#      +$4.40/MWh, about +3.3% on SLCOE. Indicated for shade-SENSITIVE crops, which this analysis
+#      does not need to site on. Its real advantage is machinery access for row crops.
+#
+#   3. ELEVATED TILTED
+#      +88% LCOE on the solar component. Purdue additionally found tracker height is "a weak
+#      function" of yield up to 2.44 m, so the premium buys little agronomically. Not indicated.
+#
+# THE ARGUMENT THIS SUPPORTS AGAINST THE UTILITY PREFERRED PLAN. Agrivoltaic siting is frequently
+# assumed to carry a cost penalty that makes it a nice-to-have. On shade-tolerant forage with
+# single-axis tracking it does not: the configuration is conventional, the SLCOE delta is
+# approximately zero, and the rural benefits (lease income, revenue share, Bay nutrient reduction)
+# come at no generation cost. That is a materially different claim from "agrivoltaics is worth
+# paying a little more for".
+#
+# STATED LIMITS. The ~zero delta assumes (a) siting on shade-tolerant forage, (b) single-axis
+# tracking at standard density, (c) that fencing and access for grazing are within normal O&M
+# scope. It does NOT hold for row crops, for elevated racking, or where machinery access forces
+# vertical. And AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED still applies: if standard-density tracking
+# proves insufficient to qualify as agrivoltaic under Virginia's statutory definition, the land
+# term rises and with it the delta.
+LAND_LEASE_COST_PER_MWH_AT_STANDARD_DENSITY = 4.40      # 5 ac/MW, $1,850/ac/yr, 24% CF
+VERTICAL_BIFACIAL_SLCOE_PREMIUM_PER_MWH_IF_DOUBLE_LAND = 4.40
+
+
+def land_cost_per_mwh(acres_per_mw: float, lease_rate_per_acre: float = 1_850.0,
+                      capacity_factor: float = 0.24) -> float:
+    """Annual land lease cost expressed per MWh generated.
+
+    This is the channel through which agrivoltaic land intensity reaches SLCOE. Hardware cost is
+    unchanged by siting; land is not.
+    """
+    if capacity_factor <= 0:
+        raise ValueError('capacity_factor must be positive')
+    return acres_per_mw * lease_rate_per_acre / (capacity_factor * 8760)
+
+
+def slcoe_delta_summary(base_slcoe_per_mwh: float = 133.5) -> dict:
+    """SLCOE impact of each configuration, against a conventional-solar baseline.
+
+    Returned as a dict rather than printed so a caller can put it straight into a comparison table
+    against the Utility Preferred Plan.
+    """
+    standard = land_cost_per_mwh(5.0)
+    doubled = land_cost_per_mwh(10.0)
+    return {
+        'base_slcoe_per_mwh': base_slcoe_per_mwh,
+        'standard_tracking_on_forage': {
+            'slcoe_delta_per_mwh': 0.0,
+            'lpf': LPF_MAX_SHADE_TOLERANT_SINGLE_AXIS_TRACKING,
+            'note': ('Highest-LPF and lowest-cost configuration are the same on shade-tolerant '
+                     'forage. Land is leased either way, so agrivoltaic siting changes who else '
+                     'uses the land, not what the array costs.'),
+        },
+        'vertical_bifacial': {
+            'slcoe_delta_per_mwh': doubled - standard,
+            'slcoe_delta_fraction': (doubled - standard) / base_slcoe_per_mwh,
+            'note': ('No hardware LCOE premium, but wider spacing raises the land term. Indicated '
+                     'for shade-sensitive row crops, which this analysis need not site on. Real '
+                     'advantage is combine-harvester access.'),
+        },
+        'elevated_tilted': {
+            'lcoe_premium_fraction': ELEVATED_TILTED_LCOE_PREMIUM_FRACTION,
+            'note': ('+88% LCOE on the solar component, and Purdue found tracker height is a weak '
+                     'yield lever up to 2.44 m -- the premium buys little agronomically. Not '
+                     'indicated.'),
+        },
+        'limits': ('Approximately-zero delta assumes shade-tolerant forage, single-axis tracking '
+                   'at standard density, and grazing fencing/access within normal O&M scope. Does '
+                   'not hold for row crops, elevated racking, or where machinery access forces '
+                   'vertical. AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED still applies.'),
+    }

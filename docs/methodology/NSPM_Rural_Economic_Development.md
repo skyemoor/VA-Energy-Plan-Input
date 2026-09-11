@@ -538,6 +538,59 @@ repeated unqualified.
 rows, which shade a plant in the morning *or* the afternoon rather than through midday. It does
 **not** transfer to conventional tilted arrays.
 
+## 6D. SLCOE impact — the comparison that matters
+
+**The reframe.** Earlier sections optimise configuration to protect crop yield. That objective is
+largely moot here: SLEAC puts Virginia's composite farm at **$17.69/acre/yr** against lease income
+of **$1,200–2,500** — 68× to 141×. A farmer could lose the entire crop and remain far ahead.
+
+So configuration should be optimised for **SLCOE**, not yield. The question becomes: *what is the
+cheapest configuration that still qualifies as agrivoltaic?*
+
+### The answer is favourable, and it is not a compromise
+
+Riaz et al. find LPF is **maximised at 2 for shade-tolerant crops under single-axis tracking** —
+and single-axis tracking at standard density is **also the conventional, lowest-cost utility-scale
+configuration**.
+
+Virginia's compatible base is pasture and forage, which **is** the shade-tolerant group. So on the
+land this analysis would actually use:
+
+> **The highest-LPF configuration and the cheapest configuration are the same configuration.**
+
+There is no agrivoltaic premium to pay on forage land. The array is conventional single-axis
+tracking; what makes it agrivoltaic is that sheep graze or hay is cut beneath it — which needs no
+design change beyond fencing and access already required for O&M.
+
+### The three configurations against a ~$133.5/MWh baseline
+
+| configuration | SLCOE delta | note |
+|---|---:|---|
+| **Standard tracking on forage** | **~$0.00/MWh** | LPF 2. Land is leased either way — siting changes who *else* uses it, not what the array costs |
+| East/west vertical bifacial | **+$4.40/MWh (+3.3%)** | No hardware premium; cost lands in *land*, not equipment. Indicated for shade-sensitive row crops we needn't use. Real advantage is combine access |
+| Elevated tilted | **+88% LCOE** on solar | Purdue found tracker height a weak yield lever to 2.44 m — the premium buys little agronomically. Not indicated |
+
+**Land is the only channel** through which agrivoltaic intensity reaches SLCOE. Hardware cost is
+unchanged by siting. At 5 acres/MW and $1,850/acre/yr, land is $4.40/MWh; doubling land intensity
+doubles that term and nothing else.
+
+### What this lets the paper claim against the Utility Preferred Plan
+
+Agrivoltaic siting is usually assumed to carry a cost penalty that makes it a nice-to-have. **On
+shade-tolerant forage with single-axis tracking, it does not.** The configuration is conventional,
+the SLCOE delta is approximately zero, and the rural benefits — $0.86–2.71B/yr lease income,
+$534.3M/yr revenue share, Bay nutrient reduction — come at **no generation cost**.
+
+That is a materially different claim from *"agrivoltaics is worth paying a little more for."*
+
+### Stated limits
+
+The ~zero delta assumes **(a)** siting on shade-tolerant forage, **(b)** single-axis tracking at
+standard density, **(c)** grazing fencing and access within normal O&M scope. It does **not** hold
+for row crops, elevated racking, or where machinery access forces vertical. And §6C's unresolved
+acres/MW question still applies: if standard-density tracking proves insufficient to qualify as
+agrivoltaic under Virginia's statutory definition, the land term rises and the delta with it.
+
 ### The configuration question is crop-specific, not one-best-answer
 
 **Riaz et al., *IEEE J. Photovoltaics* 12(2):572–580 (2022)** introduce the **Light Productivity

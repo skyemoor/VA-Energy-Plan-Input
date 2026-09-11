@@ -636,3 +636,49 @@ class TestLightProductivityFactorFramework:
     def test_unknown_crop_raises_rather_than_defaulting(self):
         with pytest.raises(ValueError, match='Do not guess'):
             ag.indicated_configuration('tobacco')
+
+
+class TestSLCOEImpactOfAgrivoltaicSiting:
+    """The comparison that matters for VCEA scenarios against the Utility Preferred Plan.
+
+    Crop yield protection is largely moot here -- lease income is 68-141x the composite farm's net
+    return -- so configuration should be optimised for SLCOE, not yield. The finding is that the
+    highest-LPF and lowest-cost configurations coincide on the land Virginia actually has.
+    """
+
+    def test_highest_lpf_and_cheapest_configuration_coincide_on_forage(self):
+        """Riaz et al. put LPF at its maximum of 2 for shade-tolerant crops under single-axis
+        tracking -- which is also the conventional lowest-cost utility configuration. On pasture
+        and forage there is no agrivoltaic premium to pay."""
+        r = ag.slcoe_delta_summary()
+        assert r['standard_tracking_on_forage']['slcoe_delta_per_mwh'] == 0.0
+        assert r['standard_tracking_on_forage']['lpf'] == 2.0
+
+    def test_land_cost_scales_linearly_and_is_the_only_channel(self):
+        """Hardware cost is unchanged by siting; land is not. Land is therefore how agrivoltaic
+        intensity reaches SLCOE."""
+        assert ag.land_cost_per_mwh(10.0) == pytest.approx(2 * ag.land_cost_per_mwh(5.0))
+        assert ag.land_cost_per_mwh(5.0) == pytest.approx(4.40, abs=0.05)
+
+    def test_vertical_premium_is_small_but_real(self):
+        r = ag.slcoe_delta_summary()
+        assert r['vertical_bifacial']['slcoe_delta_fraction'] == pytest.approx(0.033, abs=0.005)
+
+    def test_elevated_tilted_is_not_indicated(self):
+        """+88% LCOE, and Purdue found tracker height a weak yield lever -- the premium buys
+        little agronomically."""
+        r = ag.slcoe_delta_summary()
+        assert r['elevated_tilted']['lcoe_premium_fraction'] == 0.88
+        assert 'Not\n' in r['elevated_tilted']['note'] or 'Not indicated' in r['elevated_tilted']['note']
+
+    def test_the_limits_travel_with_the_result(self):
+        """The zero delta is conditional on three things, and the conditions are part of the
+        finding rather than a footnote to it."""
+        limits = ag.slcoe_delta_summary()['limits']
+        assert 'shade-tolerant forage' in limits
+        assert 'Does not hold for row crops' in limits
+        assert 'ACRES_PER_MW_IS_UNRESOLVED' in limits
+
+    def test_zero_capacity_factor_raises(self):
+        with pytest.raises(ValueError, match='must be positive'):
+            ag.land_cost_per_mwh(5.0, capacity_factor=0.0)
