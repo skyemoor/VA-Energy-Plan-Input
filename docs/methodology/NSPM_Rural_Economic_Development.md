@@ -204,13 +204,79 @@ or presented at its low end as a design target.
 
 ---
 
+## 6A. Where the acreage actually lands — and why the denominator is the argument
+
+**2022 Census of Agriculture, Virginia land in farms by use** (38,995 farms, 7,309,687 acres):
+
+| use | acres | share |
+|---|---:|---:|
+| Cropland | 2,884,293 | 39.5% |
+| Pastureland | 1,915,266 | 26.2% |
+| Woodland | 2,053,786 | 28.1% |
+| Other | 456,342 | 6.2% |
+
+The agrivoltaic requirement of **605,626–921,733 acres** reads very differently depending on the
+base chosen:
+
+| denominator | share |
+|---|---:|
+| all land in farms | 8.3 – 12.6% |
+| **cropland alone** | **21.0 – 32.0%** |
+| pasture + hay (forage) | 21.7 – 33.1% |
+
+**The cropland figure is the one an opponent reaches for**, and it must be computed and stated
+rather than omitted in favour of the flattering denominator. A third of Virginia's cropland is a
+serious claim.
+
+### The compatibility evidence runs opposite to the acreage pressure
+
+Agrivoltaic suitability is not uniform, and the gradient is favourable:
+
+- **Pastureland — the most mature practice in the field.** The American Solar Grazing Association's
+  2024 census counted ~113,000 sheep across 500+ US solar sites. Cattle compatibility is
+  peer-reviewed: a University of Minnesota research dairy has grazed under an elevated array since
+  2020, finding shade improved comfort during heat events with an associated milk-production
+  benefit.
+- **Hay and forage — well supported.** The University of Illinois research plot grows switchgrass
+  and orchardgrass successfully alongside solar.
+- **Corn and soybeans — the weakest evidence**, and Virginia's two largest row crops. Current
+  varieties are bred for full sun, and the peer-reviewed literature describes real-world
+  agrivoltaic field data on these crops as *"almost nonexistent."*
+
+Pasture (1,915,266) plus hay (~870,000, **derived — see caveat**) gives roughly **2.79M acres of
+forage land**. The entire requirement is **22–33% of that**, so **it fits within forage land alone,
+without touching corn, soybeans, cotton, peanuts or tobacco.**
+
+### Three things align, and that alignment is the case
+
+| | pasture | hay | corn | soybeans |
+|---|---:|---:|---:|---:|
+| SLEAC net return $/acre | **$3.69** | **$0.32** | $76.27 | $197.83 |
+| lease multiple | 325–678× | 3,750×+ | 16–33× | 6–13× |
+| agrivoltaic evidence | **strongest** | **strong** | weakest | weakest |
+
+Pasture and hay carry the **lowest** net returns of any use *and* the **strongest** compatibility
+evidence. Solar lease income is therefore most transformative precisely where agrivoltaics works
+best and where the opportunity cost of hosting is lowest.
+
+That is the core of the rural economic case, and it should be stated directly rather than left for
+a reader to assemble.
+
+### Caveat on the hay figure
+
+`VA_HAY_ACRES_APPROX` (870,000) is **derived** from NASS production tonnage at an assumed ~2.5
+tons/acre, **not read from the Census harvested-acres tables**. The forage finding depends on it,
+so it must be replaced with the Census figure before publication. A test asserts the flag is
+present.
+
 ## 7. What is owed before this is publishable
 
 1. **The cost side (NSPM Principle 3).** Land conversion, viewshed, decommissioning, construction-
    period service burden. Counting rural benefits without rural costs fails symmetry and invites
    the obvious rebuttal.
-2. **Verify Virginia farmland acreage** against the USDA Census of Agriculture. The ~7.7M figure is
-   recalled, not sourced, and a percentage-of-farmland claim cannot rest on it.
+2. ~~Verify Virginia farmland acreage~~ — **DONE**: 7,309,687 acres, 2022 Census of Agriculture.
+   The earlier ~7.7M recollection was 5% high. **Still owed**: the Census's own hay harvested-acres
+   figure, to replace the derived 870,000 the forage finding rests on.
 3. **AC versus DC.** § 58.1-2636 measures nameplate in AC. If the modeled build is DC, revenue
    share figures are correspondingly high.
 4. **Revenue share adoption rate.** The statute is a ceiling adopted by ordinance. The Weldon

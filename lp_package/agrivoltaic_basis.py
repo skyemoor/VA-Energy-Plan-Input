@@ -382,3 +382,108 @@ def lease_versus_farm_income(crop: str = 'composite') -> LeaseVersusFarmIncome:
             'follow. Note also that SLEAC floors negative annual net returns at zero before '
             'averaging, so published figures are generous relative to what farmers experienced -- '
             'Prince Edward corn was NEGATIVE in four of the seven years averaged.'))
+
+
+# ============================================================================
+# VIRGINIA LAND IN FARMS BY USE -- 2022 Census of Agriculture
+# ============================================================================
+# Source: USDA NASS, 2022 Census of Agriculture, Virginia state profile (cp99051). 38,995 farms,
+# average 187 acres, $5.49B market value of products sold.
+#
+# THE FINDING THIS ENABLES, and it reframes the land-use objection
+#
+# Against ALL land in farms the agrivoltaic requirement is 8.3-12.6%. Against CROPLAND ALONE it is
+# 21-32% -- a far harder number, and the one an opponent would reach for.
+#
+# But agrivoltaic compatibility is not uniform across uses, and the evidence runs in exactly the
+# opposite direction to the acreage pressure:
+#
+#   PASTURELAND is the most mature agrivoltaic practice there is. The American Solar Grazing
+#   Association's 2024 census counted ~113,000 sheep across 500+ US solar sites, and cattle
+#   compatibility is peer-reviewed (University of Minnesota research dairy, AIP Conference
+#   Proceedings 2022, finding shade improved cattle comfort during heat events with an associated
+#   milk-production benefit).
+#
+#   HAY AND FORAGE are well-supported -- the University of Illinois research plot grows switchgrass
+#   and orchardgrass successfully alongside solar.
+#
+#   CORN AND SOYBEANS, Virginia's two largest row crops, carry the WEAKEST evidence: current
+#   varieties are bred for full sun, and the peer-reviewed literature describes real-world
+#   agrivoltaic field data on these specific crops as "almost nonexistent".
+#
+# Pasture (1,915,266 acres) plus hay (~870,000) gives roughly 2.79M acres of forage land. The
+# entire agrivoltaic requirement of 605,626-921,733 acres is 22-33% of that -- so it fits within
+# forage land alone, WITHOUT TOUCHING corn, soybeans, cotton, peanuts or tobacco.
+#
+# AND THE ECONOMICS ALIGN WITH THE COMPATIBILITY. SLEAC net returns are $3.69/acre for pasture and
+# $0.32/acre for hay -- the two lowest of any use. Solar lease income is therefore most
+# transformative precisely where agrivoltaic compatibility is strongest and where the opportunity
+# cost of hosting is lowest. That is not a coincidence to gloss over; it is the core of the case.
+#
+# CAVEAT: the hay figure is DERIVED, not read from the Census. It is inferred from NASS production
+# (~2.07M tons other hay plus ~90,000 tons alfalfa) at roughly 2.5 tons/acre. It must be replaced
+# with the Census's own harvested-acres figure before publication -- see HAY_ACRES_IS_DERIVED.
+VA_LAND_IN_FARMS_BY_USE_ACRES = {
+    'cropland': 2_884_293,
+    'pastureland': 1_915_266,
+    'woodland': 2_053_786,
+    'other': 456_342,
+}
+VA_TOTAL_LAND_IN_FARMS_ACRES = sum(VA_LAND_IN_FARMS_BY_USE_ACRES.values())   # 7,309,687
+VA_FARMS_COUNT = 38_995
+VA_AG_PRODUCTS_SOLD_USD = 5_491_996_000
+
+#: DERIVED, not from the Census. See the caveat above. Replace before publication.
+VA_HAY_ACRES_APPROX = 870_000
+HAY_ACRES_IS_DERIVED = (
+    'VA_HAY_ACRES_APPROX is inferred from NASS production tonnage at an assumed ~2.5 tons/acre, '
+    'NOT read from the Census of Agriculture harvested-acres tables. Replace with the Census '
+    'figure before any published use.')
+
+#: Uses where agrivoltaic compatibility evidence is strongest. Deliberately excludes cropland as a
+#: whole: within cropland, hay and winter wheat are well-supported while corn and soybeans are not,
+#: and treating cropland as uniformly compatible would overstate the case.
+FORAGE_COMPATIBLE_USES = ('pastureland', 'hay')
+
+
+@dataclass(frozen=True)
+class LandUseFit:
+    agrivoltaic_acres_low: float
+    agrivoltaic_acres_high: float
+    share_of_all_farmland: tuple
+    share_of_cropland: tuple
+    share_of_forage_land: tuple
+    forage_acres: float
+    fits_within_forage: bool
+    finding: str
+    caveat: str
+
+
+def land_use_fit(footprint_result: AgrivoltaicFootprint) -> LandUseFit:
+    """Where the agrivoltaic acreage would have to land, against Virginia's actual land in farms.
+
+    Reports the share against THREE bases rather than one, because the choice of denominator is
+    the whole argument: all farmland flatters the case, cropland alone damns it, and forage land
+    is the one that matches where the compatibility evidence actually is.
+    """
+    lo, hi = footprint_result.agrivoltaic_acres_low, footprint_result.agrivoltaic_acres_high
+    total = VA_TOTAL_LAND_IN_FARMS_ACRES
+    crop = VA_LAND_IN_FARMS_BY_USE_ACRES['cropland']
+    forage = VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland'] + VA_HAY_ACRES_APPROX
+    return LandUseFit(
+        agrivoltaic_acres_low=lo, agrivoltaic_acres_high=hi,
+        share_of_all_farmland=(lo / total, hi / total),
+        share_of_cropland=(lo / crop, hi / crop),
+        share_of_forage_land=(lo / forage, hi / forage),
+        forage_acres=forage,
+        fits_within_forage=hi <= forage,
+        finding=(
+            'The requirement fits within pasture and hay land alone -- 22-33% of it -- without '
+            'touching corn, soybeans, cotton, peanuts or tobacco. That matters because agrivoltaic '
+            'compatibility is strongest on exactly those forage uses (sheep grazing is the most '
+            'mature practice in the field) and weakest on the row crops, where the literature '
+            'describes real-world data as almost nonexistent. The economics align the same way: '
+            'pasture and hay carry the LOWEST SLEAC net returns of any use ($3.69 and $0.32/acre), '
+            'so lease income is most transformative precisely where compatibility is best and the '
+            'opportunity cost of hosting is lowest.'),
+        caveat=HAY_ACRES_IS_DERIVED)
