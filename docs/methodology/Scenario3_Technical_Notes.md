@@ -1050,3 +1050,60 @@ Option 3 is the current position by default. **Option 4 is the recommended one**
 regulatory precedent, requires no unsourced parameter choice, and converts an unquantified bias
 into a measured range. Option 1 remains the one to avoid — it is the only option that introduces a
 parameter an opponent can name.
+
+---
+
+## DECISION, 2026-09-11: option 4 adopted for Scenario 3 arbitrage value
+
+**Scope of the decision.** Option 4 (foresight bracketing) is adopted for **distributed arbitrage
+value in Scenario 3 only**. It is **not** adopted for capacity accreditation, where Shen et al.
+show perfect foresight may not be an upper bound at all — a precautionary operator can deliver more
+reliability than one spending storage optimally against known outcomes.
+
+**Capacity accreditation is deferred**, not resolved. The 100.0% (LP) and 31.8% (no-foresight
+heuristic) figures may both sit *below* a realistic precautionary operator's contribution, which
+would mean this project has been conservative in a direction it did not intend. That deserves its
+own treatment and is recorded as future work.
+
+### What option 4 requires
+
+| | |
+|---|---|
+| **Lower bound** | distributed segment dispatched against the price series as-is — flat scarcity term, no multi-day lookahead |
+| **Upper bound** | same fleet, same price series, **perfect foresight** over the year |
+| **Reported** | the range, with the note that real fleets are heterogeneous and sit between |
+
+**No new parameter is introduced.** That is the property that makes this defensible: there is no
+capacity reference to choose, no price-response curve to shape, and therefore nothing for a
+reviewer to name as arbitrary.
+
+### What must accompany every figure produced this way
+
+1. **The upper bound is theoretical**, in Brattle's own words *"not intended to represent an
+   estimate of the most likely value"*.
+2. **The lower bound is probably conservative** — arXiv 2505.12538 finds fixed-price heuristic
+   rules *"likely to underestimate"*, and our flat scarcity term is close to one.
+3. **Real fleets are heterogeneous.** The range is not an error bar on a single operator; it spans
+   a population with differing lookahead sophistication.
+4. **The width is itself the finding** — it measures what longer-horizon market signals would
+   unlock, which is the policy argument.
+5. **This bounds arbitrage value only.** No claim about reliability contribution follows from it.
+
+### Precedent, for the methods section
+
+| source | what it did | gap found |
+|---|---|---|
+| **Brattle**, *Stacked Benefits* (California) | Limited vs Perfect Foresight cases, regulatory valuation | **16%**, upper bound $328/kW-yr |
+| **Hornek et al.**, arXiv 2501.07121 | forecast-driven vs perfect foresight, German intraday | **11%** |
+| **arXiv 2505.12538** | Limited vs Perfect Foresight capacity expansion, LDES | qualitative; names fixed-price heuristics as underestimating |
+| **arXiv 2407.21409** | perfect vs myopic, 96-hour rolling horizon | supports 4–5 day horizons as within forecast skill |
+| **Nature Comms** (Switch, Western Interconnect) | analogous foresight bias | *"less than 10% for nearly all technologies"* |
+
+Published gaps cluster at **10–16%**. Ours may be wider: all of the above are day-ahead or intraday
+problems, while Scenario 3's distributed storage faces **multi-day rationing at high renewable
+penetration**, which is where foresight should matter most.
+
+### Implementation
+
+Both bounds reuse existing machinery — the LP already dispatches with perfect foresight, and the
+lower bound is the run the pipeline is already set up to produce. One extra solve per checkpoint.

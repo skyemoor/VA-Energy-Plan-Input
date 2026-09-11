@@ -236,3 +236,23 @@ Substituting the corrected figure would collapse the rate spread from 10.7x to r
 **Not done** -- it changes a published figure, and the direction matters: it makes the distributed
 resource SMALLER, cutting against this paper's own argument. That is a reason for care in how it
 is presented, not a reason to leave it wrong.
+
+---
+
+## Deferred: capacity accreditation under precautionary operation (2026-09-11)
+
+`capacity_accreditation.py` currently carries two figures for 2045 storage: **100.0%** from LP
+dispatch (perfect foresight) and **31.8%** from a no-foresight heuristic. The project treats the
+second as the conservative, usable figure.
+
+**Shen, Ilic & Parsons (arXiv 2607.27021)** complicate that. Demand uncertainty induces a
+**precautionary** storage policy — hedging against scarcity that may not arrive — which is
+qualitatively different from, not a degraded version of, perfect-foresight operation.
+
+A precautionary operator may hold **more** charge into peak hours than either the LP or a naive
+heuristic. If so, **both existing figures sit below a realistic operator's contribution**, and this
+project has been conservative in a direction it did not intend.
+
+**Not resolved, and not assumed either way.** Recorded so the 31.8% is not treated as a floor
+without qualification. Would require implementing a precautionary dispatch policy and comparing
+against both existing bases.
