@@ -225,17 +225,26 @@ should be checked rather than assumed away.
 
 1. **An agrivoltaic-specific acres/MW figure.** 4–6 acres/MW is standard single-axis tracking.
    Every acreage figure here is a **lower bound** until this is resolved. *Second-highest priority.*
-2. **Does standard-density tracking satisfy § 10.1-1197.5 clause (i)?** The statute requires a
-   design that *"prioritize[s] and sustain[s] agricultural productivity"*; standard-density
-   single-axis tracking is designed to prioritize energy yield. Clause (v), *"does not
-   significantly displace farming activity"*, is the second test. A conventional array with sheep
-   beneath it plausibly satisfies (ii), (iii), (iv) and (vi). **Most consequential single
-   question** — if the answer is no, the land term rises and the ~zero SLCOE delta with it.
+2. **Does standard-density tracking satisfy § 10.1-1197.5?** **Risk downgraded 2026-09-11.** An
+   earlier draft argued clause (i) — *"designed to prioritize and sustain agricultural
+   productivity"* — might exclude conventional arrays. That reading is weaker than the
+   alternative: the relevant counterfactual is not an idealised agrivoltaic design but
+   **conventional solar development, which removes the land from agriculture entirely**. Against
+   that, a configuration keeping land in production *does* prioritize agricultural productivity.
 
-   Two qualifiers found 2026-09-11: the definition is **article-limited** ("As used in this
-   article" — DEQ permit by rule), so it may not bind outside that context; and a "small renewable
-   energy project" is capped at **150 MW**, so whether it applies depends on individual project
-   sizing rather than programme total.
+   **§ 15.2-2288.8 supports the permissive reading in two places.** (A)(3) uses the definition as
+   an **enabling** provision — agrivoltaics is grounds for a height *variance* above the 25 ft cap,
+   not a design standard imposed on projects that don't need one. (A)(9) lists *"animal grazing,
+   co-located crop production"* as ordinary alternatives to pollinator or meadow plantings, with no
+   additional design condition — and requires up to 75% vegetative cover regardless, so vegetation
+   management is mandatory whether or not anything grazes.
+
+   (A)(3) also shows the definition is **not article-limited in practice**: Title 15.2 zoning
+   imports it by reference, covering any ground-mounted project ≥1 MW.
+
+   Still unresolved, but no longer the most consequential question. Full notes:
+   `docs/statutes/15.2-2288.8.md`.
+
 3. **Vegetable and speciality crop acreage** — Census Table 36.
 4. **Tobacco lease multiple** — the one crop where the economics may invert.
 5. **Humid-subtropical transfer.** All corn evidence is from Indiana (humid continental) and
