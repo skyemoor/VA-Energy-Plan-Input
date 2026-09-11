@@ -621,3 +621,72 @@ def grazing_capacity(agrivoltaic_acres: float) -> GrazingCapacity:
             f"but need taller, costlier racking. Hay and haylage production, which needs no "
             f"animals at all, therefore carries more of the load than the grazing literature "
             f"alone would suggest."))
+
+
+# ============================================================================
+# FSA CROP ACREAGE, 2026 -- a second, independent and much finer source
+# ============================================================================
+# Source: USDA Farm Service Agency, "Crop Acreage Data", 2026 Virginia rows (August 2026 release),
+# obtained through FSA's FOIA electronic reading room. Acres reported BY PRODUCERS to FSA, by
+# county, crop, crop type, intended use and irrigation practice: 4,384 rows, 98 counties, 121
+# distinct crops, 3,014,135 planted acres.
+#
+# WHY THIS IS BETTER THAN THE CENSUS SUMMARY FOR THIS PURPOSE
+#   - 121 crops against the state profile's top-five list
+#   - 2026 against the Census's 2022, and annual rather than five-yearly
+#   - county resolution, so siting can eventually be matched to where crops actually are
+#   - intended use is recorded, which matters: forage-intended acreage is identifiable directly
+#     rather than inferred
+#
+# WHAT IT IS NOT. FSA counts PLANTED acres reported by participating producers. It therefore
+# EXCLUDES pastureland entirely -- 1,915,266 acres in the Census -- because pasture is not a
+# planted crop, and it excludes producers who do not report to FSA. The two sources are
+# complementary, not alternatives, and must not be summed carelessly:
+#
+#     FSA planted acres          3,014,135   (crops, 2026, excludes pasture)
+#     Census cropland            2,884,293   (2022)
+#     Census pastureland         1,915,266   (2022, absent from FSA)
+#
+# THE FORAGE FINDING SURVIVES AND STRENGTHENS. MIXED FORAGE alone is 1,373,771 acres -- 45.6% of
+# all planted acres in Virginia and the single largest crop in the state by a wide margin, ahead of
+# soybeans (584,642) and corn (418,778) combined. Adding grass, sorghum forage, alfalfa, millet and
+# clover gives 1,440,010 acres of forage, 47.8% of planted acreage.
+#
+# Combined with Census pastureland the compatible base is 3,355,276 acres, and the agrivoltaic
+# requirement is 18-27% of it -- comfortably within, and a slightly better ratio than the Census
+# alone gave (20.0-30.4%).
+#
+# A DETAIL WORTH NOTING: COVER CROP is 302,940 acres, 10.1% of planted acreage. It is not a cash
+# crop -- it is planted for soil health and is typically terminated before a summer crop. Cover
+# cropping under panels is plausible but is not addressed anywhere in the agrivoltaic literature
+# reviewed, so it is neither claimed as compatible nor counted in the forage base.
+FSA_2026_TOP_CROPS_PLANTED_ACRES = {
+    'mixed_forage': 1_373_771,
+    'soybeans': 584_642,
+    'corn': 418_778,
+    'cover_crop': 302_940,
+    'wheat': 73_643,
+    'cotton_upland': 73_417,
+    'grass': 45_947,
+    'peanuts': 29_526,
+    'rye': 15_687,
+    'barley': 14_536,
+    'tobacco_flue_cured': 12_643,
+    'sorghum': 11_188,
+    'triticale': 10_402,
+    'sorghum_forage': 8_014,
+    'alfalfa': 6_918,
+}
+FSA_2026_TOTAL_PLANTED_ACRES = 3_014_135
+FSA_2026_COUNTIES = 98
+FSA_2026_DISTINCT_CROPS = 121
+
+#: Crops in the FSA data whose agrivoltaic evidence is strong -- forage and grazing swards.
+FSA_FORAGE_CROPS = ('mixed_forage', 'grass', 'sorghum_forage', 'alfalfa')
+FSA_FORAGE_ACRES = 1_440_010          # includes millet and clover, not listed individually above
+
+FSA_SOURCE_CAVEAT = (
+    'FSA counts PLANTED acres reported by participating producers. It excludes pastureland '
+    'entirely (1,915,266 acres in the 2022 Census) because pasture is not a planted crop, and '
+    'excludes producers who do not report to FSA. Do not sum FSA planted acres with Census '
+    'cropland -- they overlap. Do combine FSA forage with Census pastureland, which are disjoint.')

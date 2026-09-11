@@ -291,6 +291,52 @@ independent studies, lettuce well with one trial finding shading reduced bittern
 Eastern Shore tomato industry sits squarely in that category. But at $134.6M of sales they are a
 small share of crop value and cannot carry the buildout.
 
+### Second source: FSA 2026 crop acreage, and it strengthens the finding
+
+USDA **Farm Service Agency** crop acreage data — acres reported by producers, 2026 Virginia rows.
+**4,384 records, 98 counties, 121 crops, 3,014,135 planted acres.** Far finer than the Census
+state profile's top-five list, annual rather than five-yearly, and with intended use recorded.
+
+| rank | crop | planted acres | % |
+|---:|---|---:|---:|
+| 1 | **MIXED FORAGE** | **1,373,771** | **45.6%** |
+| 2 | Soybeans | 584,642 | 19.4% |
+| 3 | Corn | 418,778 | 13.9% |
+| 4 | Cover crop | 302,940 | 10.1% |
+| 5 | Wheat | 73,643 | 2.4% |
+| 6 | Cotton, upland | 73,417 | 2.4% |
+| 7 | Grass | 45,947 | 1.5% |
+| 8 | Peanuts | 29,526 | 1.0% |
+| 9 | Rye | 15,687 | 0.5% |
+| 10 | Barley | 14,536 | 0.5% |
+| 11 | Tobacco, flue-cured | 12,643 | 0.4% |
+| 12 | Sorghum | 11,188 | 0.4% |
+| 13 | Triticale | 10,402 | 0.3% |
+| 14 | Sorghum forage | 8,014 | 0.3% |
+| 15 | Alfalfa | 6,918 | 0.2% |
+
+**Mixed forage alone is the largest crop in Virginia — larger than soybeans and corn combined.**
+With grass, sorghum forage, alfalfa, millet and clover the forage group is **1,440,010 acres,
+47.8% of all planted acreage**.
+
+**Two independent sources, same conclusion:**
+
+| route | compatible base | agrivoltaic share |
+|---|---:|---:|
+| Census (pasture + hay/haylage) | 3,032,992 | 20.0 – 30.4% |
+| FSA (pasture + FSA forage) | 3,355,276 | **18 – 27%** |
+
+That agreement is worth more than either figure alone.
+
+**Important: the two sources are complementary, not alternatives.** FSA counts *planted* acres, so
+it **excludes pastureland entirely** (1,915,266 Census acres) and excludes non-reporting producers.
+FSA planted acres must not be summed with Census cropland — they overlap. FSA forage *can* be
+combined with Census pasture, which are disjoint.
+
+**Cover crop (302,940 acres, 10.1%)** is noted but not counted: it is not a cash crop, and cover
+cropping under panels is plausible but unaddressed in the agrivoltaic literature reviewed. Neither
+claimed nor included.
+
 ### The constraint the compatibility argument conceals
 
 Sheep grazing is correctly described as the most mature agrivoltaic practice. It is **not a

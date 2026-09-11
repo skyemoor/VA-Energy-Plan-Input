@@ -322,3 +322,50 @@ class TestGrazingCapacityConstraint:
     def test_stocking_rate_is_a_range_not_a_point(self):
         lo, hi = ag.SOLAR_GRAZING_SHEEP_PER_ACRE
         assert lo < hi
+
+
+class TestFSACropAcreage:
+    """USDA FSA 2026 Virginia crop acreage -- a second, independent and much finer source than the
+    Census state profile: 121 crops against a top-five list, 2026 against 2022, county resolution,
+    and intended use recorded."""
+
+    def test_mixed_forage_is_the_largest_crop_in_virginia(self):
+        """1,373,771 acres, 45.6% of all planted acreage -- larger than soybeans and corn
+        combined. The forage finding does not rest on a marginal category."""
+        f = ag.FSA_2026_TOP_CROPS_PLANTED_ACRES
+        assert f['mixed_forage'] == max(f.values())
+        assert f['mixed_forage'] > f['soybeans'] + f['corn']
+
+    def test_forage_is_nearly_half_of_planted_acreage(self):
+        assert ag.FSA_FORAGE_ACRES / ag.FSA_2026_TOTAL_PLANTED_ACRES == pytest.approx(0.478, abs=0.01)
+
+    def test_fsa_excludes_pasture_and_says_so(self):
+        """FSA counts PLANTED acres. Pasture is not planted, so 1.9M Census acres are absent.
+        Summing the two sources carelessly is the error this caveat prevents."""
+        assert 'excludes pastureland' in ag.FSA_SOURCE_CAVEAT
+        assert 'Do not sum FSA planted acres with Census cropland' in ag.FSA_SOURCE_CAVEAT
+
+    def test_fsa_forage_and_census_pasture_are_disjoint_and_combinable(self):
+        """The one combination that IS valid, and it gives the compatible base."""
+        base = ag.FSA_FORAGE_ACRES + ag.VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland']
+        assert base == 3_355_276
+        assert 605_626 / base < 0.20
+        assert 921_733 / base < 0.28
+
+    def test_two_sources_agree_on_the_forage_conclusion(self):
+        """Census route gave 20.0-30.4%; FSA route gives 18-27%. Independent data, same finding --
+        which is worth more than either alone."""
+        census_base = (ag.VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland']
+                       + ag.VA_TOP_CROPS_ACRES['forage_hay_haylage'])
+        fsa_base = ag.FSA_FORAGE_ACRES + ag.VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland']
+        assert abs(921_733 / census_base - 921_733 / fsa_base) < 0.05
+
+    def test_cover_crop_is_present_but_not_counted_as_compatible(self):
+        """302,940 acres, 10.1% of planted acreage, but not a cash crop and not addressed in the
+        agrivoltaic literature reviewed. Neither claimed nor counted."""
+        assert ag.FSA_2026_TOP_CROPS_PLANTED_ACRES['cover_crop'] == 302_940
+        assert 'cover_crop' not in ag.FSA_FORAGE_CROPS
+
+    def test_coverage_is_statewide_and_fine_grained(self):
+        assert ag.FSA_2026_COUNTIES == 98
+        assert ag.FSA_2026_DISTINCT_CROPS == 121
