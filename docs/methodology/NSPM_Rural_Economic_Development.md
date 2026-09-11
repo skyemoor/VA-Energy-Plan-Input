@@ -43,6 +43,7 @@ benefit would be the easiest thing to attack.
 | 7 | Grazing co-location (reduced mowing) | operator/grazier | no — not yet estimated |
 | 8 | Farmland retained against development conversion | region | no — counterfactual required |
 | 9 | Pollinator habitat spillover | adjacent growers | no — highly site-specific |
+| 10 | **Chesapeake Bay nutrient reduction** | **Commonwealth** | **no — see §6B, highest priority to add** |
 
 **Only 1, 2 and 3 are carried as quantified.** The others are named so the estimate is understood
 as conservative, not so they can be implied into the total.
@@ -369,6 +370,43 @@ Three reasons the fit is better than for a cash crop:
 already counted. It is recorded because it strengthens the qualitative case without changing any
 quantity: 302,940 acres of Virginia cropland are already managed for soil health rather than yield
 in a given year, on species that graze well.
+
+### 6B. Virginia policy already attaches to cover cropping
+
+Virginia DCR, *"Cover crops: a win for farmers and the environment"* (Sept 2024, via VSU's Small
+Farm Outreach Program). Two **existing** state mechanisms attach — neither needs new legislation.
+
+**1. VACS already funds the practice.** The Virginia Agricultural Best Management Practices
+Cost-Share Program, administered by DCR through local Soil and Water Conservation Districts,
+*"can decrease the cost of planting cover crops"* and covers *"over 70 other conservation
+practices."*
+
+This is the same shape as the § 45.2-1702 energy performance contracting finding in §7A: **a
+funding mechanism that already exists**, needing no new appropriation. Cover cropping under an
+array is the same practice VACS already cost-shares.
+
+**2. Chesapeake Bay nutrient reduction — the most policy-relevant non-energy impact identified.**
+DCR states cover crops reduce *"nonpoint source pollution by slowing runoff and absorbing excess
+nitrogen,"* and can *"potentially reduce the need for synthetic fertilizer."*
+
+Virginia carries **binding nutrient-reduction obligations under the Chesapeake Bay TMDL**, and
+cover crops are an established BMP against them. An agrivoltaic array whose vegetation management
+is a cover crop delivers nutrient reduction **on land that would otherwise need a separate BMP to
+achieve it**.
+
+That makes it different in kind from the other unquantified channels: it is a **quantified
+obligation the Commonwealth is already required to meet at cost**. Quantifying it needs
+Bay-model nutrient-reduction efficiencies per acre — out of scope here, but it is the highest-value
+addition remaining to this case and is now channel 10 in the table above.
+
+**3. Third independent confirmation of the double-count.** DCR: cover crops are *"non-cash crops
+planted between primary crops."* Now attested by SLEAC, UGA and Virginia's own conservation
+agency. FSA planted acres are not a unique-area figure.
+
+**4. Equity dimension, recorded and undeveloped.** The piece ran through VSU's Small Farm Outreach
+Program, serving *"small, limited-resource, socially disadvantaged and veteran farmers."* The farms
+for which a contracted lease payment most changes the survival calculus are those least able to
+absorb a bad year — the same population. Relevant to NSPM treatment of distributional impacts.
 
 ### The constraint the compatibility argument conceals
 

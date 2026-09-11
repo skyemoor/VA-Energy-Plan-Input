@@ -718,6 +718,43 @@ def grazing_capacity(agrivoltaic_acres: float) -> GrazingCapacity:
 # this list and the FSA forage group used above, so the two categories overlap in the data as well
 # as in agronomy.
 #
+# VIRGINIA-SPECIFIC: TWO EXISTING POLICY MECHANISMS ALREADY ATTACH TO THIS
+# Source: Virginia Department of Conservation and Recreation, "Cover crops: a win for farmers and
+# the environment" (September 2024), originally published in the Small Farm Outreach Program
+# quarterly of Cooperative Extension at Virginia State University.
+#
+# 1. VACS COST-SHARE ALREADY FUNDS IT. The Virginia Agricultural Best Management Practices
+#    Cost-Share Program, administered by DCR and delivered through local Soil and Water
+#    Conservation Districts, "can decrease the cost of planting cover crops on your farm" and
+#    covers "over 70 other conservation practices". This is the same shape of finding as
+#    § 45.2-1702 energy performance contracting elsewhere in this analysis: a funding mechanism
+#    that ALREADY EXISTS, requiring no new legislation and no new appropriation. Cover cropping
+#    under an array is the same practice VACS already cost-shares.
+#
+# 2. CHESAPEAKE BAY NUTRIENT REDUCTION. DCR states cover crops reduce "nonpoint source pollution by
+#    slowing runoff and absorbing excess nitrogen that otherwise would leach into the water table",
+#    and can "potentially reduce the need for synthetic fertilizer". Virginia carries binding
+#    nutrient-reduction obligations under the Chesapeake Bay TMDL, and cover crops are an
+#    established BMP against them.
+#
+#    This is the most POLICY-RELEVANT non-energy impact identified for the rural case, because it
+#    is a quantified obligation Virginia is already required to meet at cost. An agrivoltaic array
+#    whose vegetation management is a cover crop delivers nutrient reduction on land that would
+#    otherwise need a separate BMP to achieve it. NOT quantified here -- doing so needs
+#    Bay-model nutrient-reduction efficiencies per acre and is out of scope -- but it is named in
+#    the NSPM channel table as identified-and-unquantified rather than omitted.
+#
+# 3. THIRD INDEPENDENT CONFIRMATION OF THE DOUBLE-COUNT. DCR: cover crops are "non-cash crops
+#    planted between primary crops". That is now attested by SLEAC (winter annuals always followed
+#    by a summer crop), UGA (selection depends on the window between cash crops) and Virginia's own
+#    conservation agency. The FSA planted-acres figure is not a unique-area figure.
+#
+# 4. EQUITY DIMENSION. The DCR piece was published through Virginia State University's Small Farm
+#    Outreach Program, which serves "small, limited-resource, socially disadvantaged and veteran
+#    farmers and ranchers". The farms for which a contracted lease payment most changes the
+#    survival calculus are the ones with the least capacity to absorb a bad year -- the same
+#    population. Relevant to NSPM treatment of distributional impacts, and not developed here.
+#
 # NOT ADDED TO THE COMPATIBLE BASE, deliberately. Because of Correction 1 the acreage largely
 # overlaps land already counted, so adding it would double-count. It is recorded here because it
 # strengthens the QUALITATIVE case -- 302,940 acres of Virginia cropland are already being managed

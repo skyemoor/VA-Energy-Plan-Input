@@ -435,3 +435,47 @@ class TestCoverCropPurposesAgrivoltaicsServes:
         s = self.source()
         assert 'sorghum-sudangrass' in s.lower()
         assert 'overlap in the data as well' in s
+
+
+class TestVirginiaCoverCropPolicyHooks:
+    """Virginia DCR. Two EXISTING state mechanisms already attach to cover cropping, which is a
+    stronger position than a generic agronomic benefit: neither needs new legislation."""
+
+    def source(self):
+        import re, agrivoltaic_basis
+        return re.sub(r'\s*\n#\s*', ' ', open(agrivoltaic_basis.__file__).read())
+
+    def test_vacs_cost_share_already_funds_the_practice(self):
+        """Same shape as the § 45.2-1702 energy performance contracting finding: a funding
+        mechanism that exists now, needing no new appropriation."""
+        s = self.source()
+        assert 'VACS' in s and 'ALREADY EXISTS' in s
+        assert 'over 70 other conservation practices' in s
+
+    def test_chesapeake_bay_tmdl_is_named_as_the_policy_relevant_impact(self):
+        """Virginia carries binding nutrient-reduction obligations it must meet at cost. An array
+        whose vegetation management is a cover crop delivers reduction on land that would
+        otherwise need a separate BMP."""
+        s = self.source()
+        assert 'Chesapeake Bay TMDL' in s
+        assert 'established BMP' in s
+
+    def test_bay_benefit_is_named_but_not_quantified(self):
+        """Quantifying needs Bay-model nutrient-reduction efficiencies per acre, which is out of
+        scope. Named rather than omitted, and explicitly not counted."""
+        s = self.source()
+        assert 'NOT quantified here' in s
+
+    def test_third_independent_confirmation_of_the_double_count(self):
+        """SLEAC, UGA and now Virginia's own conservation agency all describe cover crops as
+        planted between cash crops on the same ground."""
+        s = self.source()
+        assert 'non-cash crops planted between primary crops' in s
+        assert 'THIRD INDEPENDENT CONFIRMATION' in s
+
+    def test_equity_dimension_recorded_and_marked_undeveloped(self):
+        """The farms a contracted lease most helps are those least able to absorb a bad year --
+        the same population VSU's Small Farm Outreach Program serves."""
+        s = self.source()
+        assert 'limited-resource, socially disadvantaged and veteran' in s
+        assert 'not developed here' in s
