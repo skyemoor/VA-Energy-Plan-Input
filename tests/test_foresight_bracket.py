@@ -163,3 +163,35 @@ class TestNoTunableParameterWasIntroduced:
         src = open(fb.__file__).read()
         assert 'DELIBERATE and appropriate' in src
         assert 'It is an upper envelope.' in src
+
+
+class TestPriceTakingLimitIsRecorded:
+    """No bid stack is modelled. The distributed segment responds to a fixed price array it cannot
+    influence. That compounds the foresight asymmetry and must not be lost."""
+
+    def test_price_taking_is_documented(self):
+        src = open(fb.__file__).read()
+        assert 'PRICE TAKER' in src
+        assert 'No bid stack is modelled' in src
+
+    def test_both_directions_are_stated_not_just_the_favourable_one(self):
+        """Price-taking OVERSTATES distributed arbitrage value; no-lookahead UNDERSTATES it.
+        Recording only one would bias the reader."""
+        src = open(fb.__file__).read()
+        assert 'ARBITRAGE VALUE IS OVERSTATED' in src
+        assert 'These do not cancel' in src
+
+    def test_the_widened_asymmetry_with_utility_storage_is_named(self):
+        """Utility storage dispatches inside the LP where shadow prices are endogenous;
+        distributed storage cannot move the series it faces. A second structural difference,
+        pointing the same way as the foresight gap."""
+        src = open(fb.__file__).read()
+        assert 'endogenous' in src
+        assert 'operates in a world that responds to it' in src
+
+    def test_the_bracket_does_not_claim_to_resolve_it(self):
+        """The bracket isolates foresight while holding the price series fixed. That is what makes
+        its gap interpretable, and also what leaves it inside an unvalidated assumption."""
+        src = open(fb.__file__).read()
+        assert 'the bracket does not resolve it' in src
+        assert 'itself unvalidated' in src

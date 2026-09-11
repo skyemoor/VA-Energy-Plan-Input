@@ -45,6 +45,39 @@ Published gaps cluster at 10-16%. Ours may be wider: those are day-ahead or intr
 while this is multi-day rationing at high renewable penetration -- where foresight should matter
 most.
 
+THE PRICE IS EXOGENOUS AND THE DISTRIBUTED SEGMENT IS A PRICE TAKER -- a second simplification,
+which compounds the first
+
+No bid stack is modelled. `distributed_exogenous_price_mwh` is a fixed per-hour array the
+distributed segment responds to and cannot influence. Offers are not simulated, price formation is
+not endogenous, and the distributed fleet's own dispatch has no effect on the prices it faces.
+
+TWO CONSEQUENCES, in opposite directions:
+
+  ARBITRAGE VALUE IS OVERSTATED, especially at the upper bound. A distributed fleet of the size
+  Scenario 3 contemplates is not a price taker. If all of it discharges into the single dearest
+  hour, that hour's price falls -- the cannibalisation a real market imposes. The perfect-foresight
+  envelope here sorts prices and pairs the cheapest hours against the dearest, which is exactly the
+  behaviour that would flatten the peak it is exploiting. So the upper bound is looser than the
+  "ignores chronology" caveat alone conveys: it also ignores price impact.
+
+  THE ASYMMETRY WITH UTILITY STORAGE WIDENS. Utility-scale storage is dispatched INSIDE the LP,
+  where its actions change the system dispatch and the shadow prices are endogenous. Distributed
+  storage responds to a fixed series it cannot move. That is a second structural difference between
+  the two segments, distinct from the foresight gap and pointing the same way -- the LP's own
+  storage operates in a world that responds to it, and the distributed segment does not.
+
+  These do not cancel. Price-taking OVERSTATES distributed arbitrage value; no-lookahead
+  UNDERSTATES it. Which dominates is not determined here, and the bracket does not resolve it --
+  the bracket isolates foresight while holding the price series fixed, which is what makes its gap
+  interpretable, but it means the whole bracket sits inside a price-taking assumption that is
+  itself unvalidated.
+
+WHY NOT MODEL PRICE FORMATION. Endogenous price formation for the distributed segment would need a
+supply curve for every competing resource in the hour, which is a market-simulation problem rather
+than a capacity-expansion one, and it would introduce exactly the kind of parameter set this
+bracketing approach was chosen to avoid. Recorded as a stated limitation rather than attempted.
+
 SCOPE -- READ BEFORE USING THIS FOR ANYTHING ELSE
 
 This bounds ARBITRAGE VALUE ONLY. Perfect foresight is a genuine ceiling there: nobody beats an

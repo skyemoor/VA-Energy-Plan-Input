@@ -1107,3 +1107,45 @@ penetration**, which is where foresight should matter most.
 
 Both bounds reuse existing machinery — the LP already dispatches with perfect foresight, and the
 lower bound is the run the pipeline is already set up to produce. One extra solve per checkpoint.
+
+---
+
+## A second simplification: the distributed segment is a price taker (2026-09-11)
+
+**No bid stack is modelled.** `distributed_exogenous_price_mwh` is a fixed per-hour array. Offers
+are not simulated, price formation is not endogenous, and the distributed fleet's dispatch has no
+effect on the prices it faces.
+
+### Two consequences, pointing in opposite directions
+
+**Arbitrage value is overstated, especially at the upper bound.** A distributed fleet of the size
+Scenario 3 contemplates is not a price taker. If all of it discharges into the dearest hour, that
+hour's price falls. The perfect-foresight envelope pairs the cheapest hours against the dearest —
+precisely the behaviour that would flatten the peak it exploits. So the upper bound is **looser
+than the "ignores chronology" caveat alone conveys**: it ignores price impact too.
+
+**The asymmetry with utility storage widens.** Utility-scale storage is dispatched *inside* the LP,
+where its actions change the system dispatch and shadow prices are endogenous. Distributed storage
+responds to a series it cannot move. That is a **second structural difference** between the
+segments, distinct from the foresight gap and pointing the same way.
+
+### These do not cancel
+
+| effect | direction on distributed arbitrage value |
+|---|---|
+| Price-taking (no cannibalisation) | **overstates** |
+| No lookahead (flat scarcity term) | **understates** |
+
+Which dominates is not determined here. **The bracket does not resolve it** — bracketing isolates
+foresight while holding the price series fixed, which is what makes its gap interpretable, but it
+means the entire bracket sits inside a price-taking assumption that is itself unvalidated.
+
+### Why not model price formation
+
+Endogenous price formation for the distributed segment would require a supply curve for every
+competing resource in each hour — a market-simulation problem rather than a capacity-expansion one.
+It would also introduce exactly the kind of parameter set bracketing was chosen to avoid.
+
+**Recorded as a stated limitation rather than attempted.** Worth flagging in the whitepaper
+wherever distributed arbitrage value appears: the figure assumes the distributed fleet takes prices
+it would in reality help set.
