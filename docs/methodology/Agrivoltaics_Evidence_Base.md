@@ -225,9 +225,17 @@ should be checked rather than assumed away.
 
 1. **An agrivoltaic-specific acres/MW figure.** 4–6 acres/MW is standard single-axis tracking.
    Every acreage figure here is a **lower bound** until this is resolved. *Second-highest priority.*
-2. **Does standard-density tracking qualify as agrivoltaic** under Virginia's statutory definition?
-   If not, the land term rises and the ~zero SLCOE delta with it. **Most consequential single
-   question.**
+2. **Does standard-density tracking satisfy § 10.1-1197.5 clause (i)?** The statute requires a
+   design that *"prioritize[s] and sustain[s] agricultural productivity"*; standard-density
+   single-axis tracking is designed to prioritize energy yield. Clause (v), *"does not
+   significantly displace farming activity"*, is the second test. A conventional array with sheep
+   beneath it plausibly satisfies (ii), (iii), (iv) and (vi). **Most consequential single
+   question** — if the answer is no, the land term rises and the ~zero SLCOE delta with it.
+
+   Two qualifiers found 2026-09-11: the definition is **article-limited** ("As used in this
+   article" — DEQ permit by rule), so it may not bind outside that context; and a "small renewable
+   energy project" is capped at **150 MW**, so whether it applies depends on individual project
+   sizing rather than programme total.
 3. **Vegetable and speciality crop acreage** — Census Table 36.
 4. **Tobacco lease multiple** — the one crop where the economics may invert.
 5. **Humid-subtropical transfer.** All corn evidence is from Indiana (humid continental) and
@@ -302,7 +310,12 @@ electronic reading room.
 
 **Va. Code § 58.1-3239** — State Land Evaluation Advisory Council; use-value assessment.
 
-**Va. Code § 45.2-1706.1** — agrivoltaic definition (see `docs/appendices/Appendix_Agrivoltaics.md`).
+**Va. Code § 10.1-1197.5** — Definitions, Article 5 (Small Renewable Energy Projects).
+→ The agrivoltaics definition, six clauses. Amended 2026, cc. 156, 157, 901 — recent. Full text in
+`docs/statutes/10.1-1197.5.md`.
+
+**Va. Code § 45.2-1706.1** — Commonwealth Clean Energy Policy. **Contains NO agrivoltaic
+definition**; earlier drafts of this analysis cited it for one in error.
 
 ### Grazing and livestock
 
