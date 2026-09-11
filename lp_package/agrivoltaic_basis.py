@@ -1159,8 +1159,16 @@ def indicated_configuration(crop: str) -> str:
 # tracking at standard density, (c) that fencing and access for grazing are within normal O&M
 # scope. It does NOT hold for row crops, for elevated racking, or where machinery access forces
 # vertical. And AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED still applies: if standard-density tracking
-# proves insufficient to qualify as agrivoltaic under Virginia's statutory definition, the land
-# term rises and with it the delta.
+# proves insufficient to qualify as agrivoltaic under Va. Code § 10.1-1197.5, the land term rises
+# and with it the delta. RISK DOWNGRADED 2026-09-11: an earlier draft argued clause (i), 'designed
+# to prioritize and sustain agricultural productivity', might exclude conventional arrays. The
+# better reading is that the counterfactual is conventional solar development, which removes the
+# land from agriculture entirely -- against which any configuration keeping land in production does
+# prioritize agricultural productivity. § 15.2-2288.8 supports this: (A)(3) uses the definition as
+# an ENABLING provision, grounds for a height variance rather than a design standard, and (A)(9)
+# lists 'animal grazing, co-located crop production' as ordinary alternatives to pollinator
+# plantings while requiring up to 75% vegetative cover regardless. See
+# docs/statutes/15.2-2288.8.md and 10.1-1197.5.md.
 LAND_LEASE_COST_PER_MWH_AT_STANDARD_DENSITY = 4.40      # 5 ac/MW, $1,850/ac/yr, 24% CF
 VERTICAL_BIFACIAL_SLCOE_PREMIUM_PER_MWH_IF_DOUBLE_LAND = 4.40
 
