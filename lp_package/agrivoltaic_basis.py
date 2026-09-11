@@ -449,6 +449,28 @@ VA_TOP_CROPS_ACRES = {
     'soybeans': 610_605,
     'corn_for_grain': 384_337,
     'wheat_for_grain': 165_415,
+    'cotton': 91_073,
+}
+# These five are the COMPLETE 'Top Crops in Acres' list the state profile publishes -- there is no
+# top ten. They total 2,369,156 acres, 82% of the 2,884,293-acre cropland base, so the unlisted
+# remainder is about 515,000 acres.
+
+#: Crop SALES by category ($1,000). Acreage is NOT published for these groupings, so they cannot be
+#: added to the acreage table above. Carried because the compatibility gradient does not track
+#: acreage: vegetables have the STRONGEST evidence in the entire agrivoltaics literature (tomatoes
+#: and peppers good-to-improved across four independent studies; lettuce well, with one trial
+#: finding shading reduced bitterness), and Virginia's Eastern Shore tomato industry sits squarely
+#: in that category -- but at $134.6M of sales it is a small share of crop value and an unknown,
+#: probably small, share of acreage.
+VA_CROP_SALES_BY_CATEGORY_THOUSANDS = {
+    'grains_oilseeds_dry_beans_peas': 843_372,
+    'nursery_greenhouse_floriculture_sod': 398_562,
+    'other_crops_and_hay': 184_958,
+    'fruits_tree_nuts_berries': 144_372,
+    'vegetables_melons_potatoes': 134_618,
+    'cotton_and_cottonseed': 81_153,
+    'tobacco': 69_566,
+    'christmas_trees_woody_crops': 25_583,
 }
 
 #: Cotton, peanuts, tobacco, vegetables and orchards are not captured in the state profile's
@@ -512,3 +534,90 @@ def land_use_fit(footprint_result: AgrivoltaicFootprint) -> LandUseFit:
             'so lease income is most transformative precisely where compatibility is best and the '
             'opportunity cost of hosting is lowest.'),
         caveat=VA_TOP_CROPS_IS_PARTIAL)
+
+
+# ============================================================================
+# LIVESTOCK INVENTORY AND THE GRAZING CAPACITY CONSTRAINT
+# ============================================================================
+# 2022 Census of Agriculture, Virginia, inventory at 31 December 2022.
+#
+# THE CONSTRAINT THE COMPATIBILITY ARGUMENT CONCEALS
+#
+# Sheep grazing is repeatedly described -- correctly -- as the most mature agrivoltaic practice.
+# But Virginia's ENTIRE sheep flock is 82,208 head, and the American Solar Grazing Association's
+# 2024 census counted roughly 113,000 sheep across 500+ US solar sites. The national solar-grazing
+# flock is already larger than every sheep in Virginia.
+#
+# At conventional solar-grazing stocking rates of 2-6 head per acre, covering even the LOW end of
+# the agrivoltaic requirement (605,626 acres) would need 1.2M to 3.6M sheep -- 15x to 44x the
+# state's whole flock. Sheep grazing therefore CANNOT manage this acreage, however well suited it
+# is per-acre.
+#
+# Cattle are the more plausible route at scale. Virginia has 1,273,665 head, and at roughly 1-2
+# acres per animal unit the agrivoltaic acreage could carry a substantial fraction of the existing
+# herd. Cattle agrivoltaics is less mature than sheep but no longer speculative -- the University
+# of Minnesota research dairy has grazed under an elevated array since 2020 (AIP Conference
+# Proceedings, 2022), finding shade improved comfort during heat events with an associated
+# milk-production benefit, and Cornell and The Nature Conservancy are running a 2026 study on
+# barriers to scaling it. It does require taller, more expensive racking than sheep.
+#
+# WHY THIS MATTERS FOR THE CASE: 'sheep graze under panels' is true and is the strongest per-acre
+# evidence available, but it is not a scalable answer at Virginia's buildout. Presenting it as one
+# invites a straightforward rebuttal from anyone who looks up the state's flock size. The honest
+# framing is that forage LAND is abundant (3.03M acres) while grazing LIVESTOCK to use it is not,
+# so hay and haylage production -- which needs no animals at all -- carries more of the load than
+# the grazing literature alone would suggest.
+VA_LIVESTOCK_INVENTORY = {
+    'cattle_and_calves': 1_273_665,
+    'sheep_and_lambs': 82_208,
+    'goats': 40_952,
+    'horses_and_ponies': 55_258,
+}
+
+#: Conventional solar-grazing stocking, head per acre. A range, not a point: it varies with forage
+#: productivity, rotation and panel spacing.
+SOLAR_GRAZING_SHEEP_PER_ACRE = (2.0, 6.0)
+
+#: American Solar Grazing Association 2024 census -- the national solar-grazing flock.
+NATIONAL_SOLAR_GRAZING_SHEEP = 113_000
+
+
+@dataclass(frozen=True)
+class GrazingCapacity:
+    agrivoltaic_acres: float
+    sheep_needed_low: float
+    sheep_needed_high: float
+    va_sheep_inventory: int
+    multiple_of_state_flock_low: float
+    multiple_of_state_flock_high: float
+    sheep_can_cover: bool
+    finding: str
+
+
+def grazing_capacity(agrivoltaic_acres: float) -> GrazingCapacity:
+    """Whether Virginia's sheep flock could actually graze the agrivoltaic acreage.
+
+    Exists because the answer is no, by more than an order of magnitude, and the agrivoltaic
+    literature's emphasis on sheep makes that easy to miss.
+    """
+    lo_rate, hi_rate = SOLAR_GRAZING_SHEEP_PER_ACRE
+    flock = VA_LIVESTOCK_INVENTORY['sheep_and_lambs']
+    need_lo, need_hi = agrivoltaic_acres * lo_rate, agrivoltaic_acres * hi_rate
+    return GrazingCapacity(
+        agrivoltaic_acres=agrivoltaic_acres,
+        sheep_needed_low=need_lo, sheep_needed_high=need_hi,
+        va_sheep_inventory=flock,
+        multiple_of_state_flock_low=need_lo / flock,
+        multiple_of_state_flock_high=need_hi / flock,
+        sheep_can_cover=need_lo <= flock,
+        finding=(
+            f"Virginia's entire sheep flock is {flock:,} head -- fewer than the ~"
+            f"{NATIONAL_SOLAR_GRAZING_SHEEP:,} already grazing US solar sites nationally. Covering "
+            f"{agrivoltaic_acres:,.0f} acres at {lo_rate:g}-{hi_rate:g} head/acre needs "
+            f"{need_lo/1e6:.1f}M-{need_hi/1e6:.1f}M sheep, {need_lo/flock:.0f}x-{need_hi/flock:.0f}x "
+            f"the state flock. Sheep grazing is the strongest PER-ACRE evidence available and is "
+            f"not a scalable answer at this buildout. Cattle "
+            f"({VA_LIVESTOCK_INVENTORY['cattle_and_calves']:,} head) are more plausible at scale "
+            f"but need taller, costlier racking. Hay and haylage production, which needs no "
+            f"animals at all, therefore carries more of the load than the grazing literature "
+            f"alone would suggest."))

@@ -259,6 +259,64 @@ Pasture plus forage gives **3,032,992 acres**. The entire requirement is **20.0�
 Forage land exceeds the weak-evidence row crops (soybeans + corn + wheat = 1,160,357 acres) by
 **2.6×** — so the compatible base is not merely sufficient but has margin.
 
+### The complete crop acreage picture
+
+The state profile publishes a **top five**, not a top ten — this is the whole list:
+
+| crop | acres | agrivoltaic evidence |
+|---|---:|---|
+| **Forage (hay/haylage), all** | **1,117,726** | **strong** |
+| Soybeans for beans | 610,605 | weakest |
+| Corn for grain | 384,337 | weakest |
+| Wheat for grain, all | 165,415 | strongest field-crop |
+| Cotton, all | 91,073 | untested |
+| **subtotal** | **2,369,156** | *82% of cropland* |
+
+The remaining ~515,000 cropland acres — tobacco, peanuts, vegetables, orchards, nursery — are not
+broken out by acreage. Only by **sales**:
+
+| category | sales ($000) |
+|---|---:|
+| Grains, oilseeds, dry beans/peas | 843,372 |
+| Nursery, greenhouse, floriculture, sod | 398,562 |
+| Other crops and hay | 184,958 |
+| Fruits, tree nuts, berries | 144,372 |
+| **Vegetables, melons, potatoes** | **134,618** |
+| Cotton and cottonseed | 81,153 |
+| Tobacco | 69,566 |
+
+**The compatibility gradient does not track acreage or value.** Vegetables have the *strongest*
+evidence in the entire agrivoltaics literature — tomatoes and peppers good-to-improved across four
+independent studies, lettuce well with one trial finding shading reduced bitterness, and Virginia's
+Eastern Shore tomato industry sits squarely in that category. But at $134.6M of sales they are a
+small share of crop value and cannot carry the buildout.
+
+### The constraint the compatibility argument conceals
+
+Sheep grazing is correctly described as the most mature agrivoltaic practice. It is **not a
+scalable answer at Virginia's buildout**, and this is a rebuttal available to anyone who looks up
+the state's flock.
+
+| | head |
+|---|---:|
+| Virginia sheep and lambs, total | **82,208** |
+| US sheep already grazing solar sites (ASGA 2024) | **~113,000** |
+
+**The national solar-grazing flock is already larger than every sheep in Virginia.**
+
+At conventional stocking of 2–6 head/acre, covering even the *low* end of the requirement (605,626
+acres) needs **1.2M–3.6M sheep — 15× to 44× the entire state flock**.
+
+**Cattle are the plausible route at scale**: 1,273,665 head, and at roughly 1–2 acres per animal
+unit the acreage could carry a substantial fraction of the existing herd. Cattle agrivoltaics is
+less mature than sheep but no longer speculative — the University of Minnesota research dairy has
+grazed under an elevated array since 2020, and Cornell and TNC are running a 2026 scaling study. It
+requires taller, costlier racking.
+
+**The honest framing:** forage *land* is abundant (3.03M acres) while grazing *livestock* to use it
+is not. Hay and haylage production — which needs no animals at all — therefore carries more of the
+load than the grazing literature alone would suggest.
+
 ### Three things align, and that alignment is the case
 
 | | pasture | hay | corn | soybeans |

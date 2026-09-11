@@ -261,3 +261,64 @@ class TestVirginiaLandUseFit:
         """Within cropland, hay and winter wheat are supported while corn and soybeans are not.
         Treating cropland as uniformly compatible would overstate the case."""
         assert 'cropland' not in ag.FORAGE_COMPATIBLE_USES
+
+
+class TestCropAcreageAndSales:
+    def test_top_crops_is_five_not_ten(self):
+        """The state profile publishes a top-FIVE list; there is no top ten. Recorded so a reader
+        expecting ten does not assume five are missing."""
+        assert len(ag.VA_TOP_CROPS_ACRES) == 5
+        assert ag.VA_TOP_CROPS_ACRES['cotton'] == 91_073
+
+    def test_top_five_cover_most_but_not_all_cropland(self):
+        listed = sum(ag.VA_TOP_CROPS_ACRES.values())
+        cropland = ag.VA_LAND_IN_FARMS_BY_USE_ACRES['cropland']
+        assert listed / cropland == pytest.approx(0.82, abs=0.01)
+        assert cropland - listed == pytest.approx(515_000, abs=5_000)
+
+    def test_sales_categories_are_separate_from_acreage(self):
+        """Acreage is not published for the sales groupings, so the two must not be mixed."""
+        assert 'vegetables_melons_potatoes' in ag.VA_CROP_SALES_BY_CATEGORY_THOUSANDS
+        assert 'vegetables_melons_potatoes' not in ag.VA_TOP_CROPS_ACRES
+
+    def test_vegetables_are_small_in_value_despite_strongest_evidence(self):
+        """The compatibility gradient does not track acreage or value: vegetables have the
+        strongest evidence in the agrivoltaics literature but are a small share of Virginia crop
+        sales, so they cannot carry the buildout."""
+        sales = ag.VA_CROP_SALES_BY_CATEGORY_THOUSANDS
+        assert sales['vegetables_melons_potatoes'] < sales['grains_oilseeds_dry_beans_peas'] / 5
+
+
+class TestGrazingCapacityConstraint:
+    """The constraint the compatibility argument conceals. Sheep grazing is the strongest per-acre
+    evidence in agrivoltaics and is NOT a scalable answer at Virginia's buildout -- a rebuttal
+    available to anyone who looks up the state's flock size."""
+
+    def test_virginia_flock_is_smaller_than_the_national_solar_grazing_flock(self):
+        assert ag.VA_LIVESTOCK_INVENTORY['sheep_and_lambs'] < ag.NATIONAL_SOLAR_GRAZING_SHEEP
+
+    def test_sheep_cannot_cover_the_acreage(self):
+        g = ag.grazing_capacity(605_626)
+        assert g.sheep_can_cover is False
+        assert g.multiple_of_state_flock_low > 14
+
+    def test_the_shortfall_is_more_than_an_order_of_magnitude(self):
+        """Not a margin question -- 15x to 44x. Any framing implying sheep could manage this
+        acreage is wrong by more than a factor of ten."""
+        g = ag.grazing_capacity(605_626)
+        assert g.multiple_of_state_flock_low > 10
+        assert g.multiple_of_state_flock_high > 40
+
+    def test_cattle_are_named_as_the_scalable_alternative_with_its_cost(self):
+        f = ag.grazing_capacity(605_626).finding
+        assert 'Cattle' in f and 'taller, costlier racking' in f
+
+    def test_finding_directs_load_to_hay_which_needs_no_animals(self):
+        """The honest resolution: forage LAND is abundant while grazing LIVESTOCK is not, so hay
+        and haylage carry more of the load than the grazing literature suggests."""
+        assert 'needs no\nanimals at all' in ag.grazing_capacity(605_626).finding.replace('  ', ' ') \
+            or 'needs no animals at all' in ag.grazing_capacity(605_626).finding
+
+    def test_stocking_rate_is_a_range_not_a_point(self):
+        lo, hi = ag.SOLAR_GRAZING_SHEEP_PER_ACRE
+        assert lo < hi
