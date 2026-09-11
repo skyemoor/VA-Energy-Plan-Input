@@ -1,5 +1,7 @@
 # NSPM Case: Rural Economic Development
 
+*Agrivoltaic evidence base and citations: `docs/methodology/Agrivoltaics_Evidence_Base.md`*
+
 **Working note, 2026-09-11.** Basis for the non-energy impacts of the agrivoltaic siting
 assumption, structured against the National Standard Practice Manual.
 

@@ -1,6 +1,8 @@
 """
 agrivoltaic_basis.py
 
+EVIDENCE BASE AND FULL CITATIONS: docs/methodology/Agrivoltaics_Evidence_Base.md
+
 Agrivoltaic siting share, land-use footprint, and farm lease income for the modeled solar buildout.
 
 BASIS ADOPTED 2026-09-11: **85% of TOTAL solar capacity** is sited in agrivoltaic arrangements
