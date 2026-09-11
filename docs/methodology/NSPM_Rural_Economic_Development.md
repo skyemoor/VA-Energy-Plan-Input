@@ -333,9 +333,42 @@ it **excludes pastureland entirely** (1,915,266 Census acres) and excludes non-r
 FSA planted acres must not be summed with Census cropland — they overlap. FSA forage *can* be
 combined with Census pasture, which are disjoint.
 
-**Cover crop (302,940 acres, 10.1%)** is noted but not counted: it is not a cash crop, and cover
-cropping under panels is plausible but unaddressed in the agrivoltaic literature reviewed. Neither
-claimed nor included.
+### Cover crop — two corrections
+
+An earlier draft excluded cover crop acreage as *"not a cash crop"* and *"unaddressed in the
+agrivoltaic literature."* Both were wrong.
+
+**1. It is not a separate land base.** Cover crops grow *between* cash crops on the *same* ground —
+fixing nitrogen, suppressing weeds, preventing erosion, or carrying a fallow year to prevent soil
+exhaustion. So FSA's 3,014,135 "planted acres" **double-counts** land carrying both in one year.
+
+The numbers show it: FSA planted acres (3,014,135) *exceed* Census cropland (2,884,293), and
+removing cover crop (302,940) puts the remainder at 2,711,195 — *below* it. Virginia's own SLEAC
+methodology makes the same correction, treating winter annuals as "always followed by a summer
+crop" and subtracting double-cropped acreage explicitly.
+
+*The compatible-base finding is unaffected*, because it rests on FSA forage plus **Census**
+pastureland, neither of which is a planted-acres percentage.
+
+**2. Cover crops are plausibly *more* agrivoltaic-compatible than cash crops, not less.** SARE's
+*Managing Cover Crops Profitably* states that *"many cover crops offer harvest possibilities as
+forage, grazing or seed,"* and notes winter wheat as a cover *"provides forage and protects soil
+over winter."* The species — rye, ryegrass, clover, hairy vetch, sorghum-sudangrass, winter wheat —
+are largely the same forage species already in the strong-evidence group.
+
+Three reasons the fit is better than for a cash crop:
+
+- the objective is **soil health and nitrogen fixation, not yield** — a shading penalty that would
+  disqualify corn is largely immaterial
+- solar sites need vegetation management regardless; a cover crop serves that purpose *and*
+  delivers its agronomic benefits
+- during a cover or fallow period the land earns **no cash-crop income anyway**, so the opportunity
+  cost of hosting an array in that window is near zero
+
+**Still not added to the compatible base** — because of correction 1, the acreage overlaps land
+already counted. It is recorded because it strengthens the qualitative case without changing any
+quantity: 302,940 acres of Virginia cropland are already managed for soil health rather than yield
+in a given year, on species that graze well.
 
 ### The constraint the compatibility argument conceals
 

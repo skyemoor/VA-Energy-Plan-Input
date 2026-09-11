@@ -656,10 +656,47 @@ def grazing_capacity(agrivoltaic_acres: float) -> GrazingCapacity:
 # requirement is 18-27% of it -- comfortably within, and a slightly better ratio than the Census
 # alone gave (20.0-30.4%).
 #
-# A DETAIL WORTH NOTING: COVER CROP is 302,940 acres, 10.1% of planted acreage. It is not a cash
-# crop -- it is planted for soil health and is typically terminated before a summer crop. Cover
-# cropping under panels is plausible but is not addressed anywhere in the agrivoltaic literature
-# reviewed, so it is neither claimed as compatible nor counted in the forage base.
+# COVER CROP -- TWO CORRECTIONS, 2026-09-11. An earlier version of this module excluded cover crop
+# acreage on the grounds that it is "not a cash crop" and "unaddressed in the agrivoltaic
+# literature reviewed". Both halves of that were wrong in ways that matter.
+#
+# CORRECTION 1: COVER CROP ACREAGE IS NOT A SEPARATE LAND BASE. Cover crops are grown BETWEEN cash
+# crops on the SAME ground -- to fix nitrogen, suppress weeds, prevent erosion and rebuild soil
+# after a growing season, or through a fallow year to prevent soil exhaustion. So FSA's 3,014,135
+# "planted acres" DOUBLE-COUNTS land carrying both a cover crop and a cash crop in the same year.
+# It is not a unique-area figure and must not be treated as one.
+#
+# That is visible in the numbers: FSA planted acres (3,014,135) exceed the Census cropland base
+# (2,884,293), and removing cover crop (302,940) puts the remainder BELOW it. Virginia's own
+# use-value methodology makes the same point from the other direction -- SLEAC treats winter
+# annuals as "always followed by a summer crop" and subtracts double-cropped acreage explicitly to
+# avoid exactly this error.
+#
+# Consequence: the "47.8% of planted acreage" forage share is computed against a double-counted
+# denominator. The compatible-base finding is unaffected, because that is computed against FSA
+# forage plus CENSUS pastureland, neither of which is a planted-acres percentage.
+#
+# CORRECTION 2: COVER CROPS ARE PLAUSIBLY MORE AGRIVOLTAIC-COMPATIBLE THAN CASH CROPS, NOT LESS.
+# SARE's "Managing Cover Crops Profitably" (3rd ed.) states directly that "many cover crops offer
+# harvest possibilities as forage, grazing or seed that work well in systems with multiple crop
+# enterprises and livestock", and its own illustration caption notes that winter wheat as a cover
+# "grows well in fall, then provides forage and protects soil over winter". The species involved --
+# rye, ryegrass, clover, hairy vetch, sorghum-sudangrass, winter wheat -- are largely the same
+# forage species already in the strong-evidence group.
+#
+# Three reasons the fit is better than for a cash crop:
+#   - the objective is soil health and nitrogen fixation, not yield maximization, so a shading
+#     penalty that would be disqualifying for corn is largely immaterial
+#   - solar sites require vegetation management regardless; a cover crop serves that purpose while
+#     also delivering its agronomic benefits
+#   - during a cover or fallow period the land is already earning no cash-crop income, so the
+#     opportunity cost of hosting an array in that window is close to zero
+#
+# NOT ADDED TO THE COMPATIBLE BASE, deliberately. Because of Correction 1 the acreage largely
+# overlaps land already counted, so adding it would double-count. It is recorded here because it
+# strengthens the QUALITATIVE case -- 302,940 acres of Virginia cropland are already being managed
+# for soil health rather than yield in any given year, on species that graze well -- without
+# changing any quantity.
 FSA_2026_TOP_CROPS_PLANTED_ACRES = {
     'mixed_forage': 1_373_771,
     'soybeans': 584_642,
@@ -681,11 +718,16 @@ FSA_2026_TOTAL_PLANTED_ACRES = 3_014_135
 FSA_2026_COUNTIES = 98
 FSA_2026_DISTINCT_CROPS = 121
 
-#: Crops in the FSA data whose agrivoltaic evidence is strong -- forage and grazing swards.
+#: Crops in the FSA data whose agrivoltaic evidence is strong -- forage and grazing swards. Cover
+#: crop is deliberately absent despite being plausibly MORE compatible than cash crops: its acreage
+#: overlaps land already counted, so including it would double-count. See the cover crop note above.
 FSA_FORAGE_CROPS = ('mixed_forage', 'grass', 'sorghum_forage', 'alfalfa')
 FSA_FORAGE_ACRES = 1_440_010          # includes millet and clover, not listed individually above
 
 FSA_SOURCE_CAVEAT = (
+    'FSA PLANTED ACRES DOUBLE-COUNT double-cropped land: cover crops (302,940 acres) are grown '
+    'between cash crops on the same ground, so 3,014,135 is not a unique-area figure. SLEAC makes '
+    'the same correction explicitly, treating winter annuals as always followed by a summer crop. '
     'FSA counts PLANTED acres reported by participating producers. It excludes pastureland '
     'entirely (1,915,266 acres in the 2022 Census) because pasture is not a planted crop, and '
     'excludes producers who do not report to FSA. Do not sum FSA planted acres with Census '

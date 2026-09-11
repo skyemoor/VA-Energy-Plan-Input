@@ -360,11 +360,32 @@ class TestFSACropAcreage:
         fsa_base = ag.FSA_FORAGE_ACRES + ag.VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland']
         assert abs(921_733 / census_base - 921_733 / fsa_base) < 0.05
 
-    def test_cover_crop_is_present_but_not_counted_as_compatible(self):
-        """302,940 acres, 10.1% of planted acreage, but not a cash crop and not addressed in the
-        agrivoltaic literature reviewed. Neither claimed nor counted."""
-        assert ag.FSA_2026_TOP_CROPS_PLANTED_ACRES['cover_crop'] == 302_940
+    def test_fsa_planted_acres_double_count_and_this_is_flagged(self):
+        """CORRECTION 2026-09-11. Cover crops are grown BETWEEN cash crops on the SAME ground, so
+        3,014,135 planted acres is not a unique-area figure. Visible in the numbers: FSA planted
+        exceeds Census cropland, and removing cover crop puts the remainder below it."""
+        assert 'DOUBLE-COUNT' in ag.FSA_SOURCE_CAVEAT
+        cropland = ag.VA_LAND_IN_FARMS_BY_USE_ACRES['cropland']
+        assert ag.FSA_2026_TOTAL_PLANTED_ACRES > cropland
+        assert ag.FSA_2026_TOTAL_PLANTED_ACRES - 302_940 < cropland
+
+    def test_cover_crop_excluded_to_avoid_double_counting_not_for_incompatibility(self):
+        """CORRECTION 2026-09-11. An earlier version excluded cover crop as 'not addressed in the
+        agrivoltaic literature'. That was wrong: SARE's Managing Cover Crops Profitably states
+        that many cover crops offer harvest possibilities as forage and grazing, and the species
+        involved -- rye, ryegrass, clover, hairy vetch, winter wheat -- are largely the same forage
+        species already in the strong-evidence group. It is excluded because its acreage OVERLAPS
+        land already counted, which is a different and correct reason."""
         assert 'cover_crop' not in ag.FSA_FORAGE_CROPS
+        src = open(ag.__file__).read()
+        assert 'MORE AGRIVOLTAIC-COMPATIBLE THAN CASH CROPS, NOT LESS' in src
+        assert 'would double-count' in src
+
+    def test_the_compatible_base_finding_is_unaffected_by_the_double_count(self):
+        """The base is FSA forage plus CENSUS pastureland, neither of which is a planted-acres
+        percentage, so the double-count does not propagate into it."""
+        base = ag.FSA_FORAGE_ACRES + ag.VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland']
+        assert base == 3_355_276
 
     def test_coverage_is_statewide_and_fine_grained(self):
         assert ag.FSA_2026_COUNTIES == 98
