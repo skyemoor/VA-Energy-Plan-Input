@@ -566,3 +566,31 @@ class TestPurdueCornFarmScaleTrial:
         """The paper does not state acres/MW, so the gap stands -- but 9.1 m is a better anchor."""
         src = open(ag.__file__).read()
         assert 'does not state acres/MW or MW/ha directly' in src
+
+
+class TestBifacialFundamentals:
+    """Mouhib et al., Energies 15(23):8777 (2022). The row-spacing synergy is the finding that
+    bears on the acres/MW gap."""
+
+    def test_row_spacing_synergy_is_recorded_without_overclaiming(self):
+        """Wide spacing costs energy density but raises bifacial gain. It makes the gap smaller,
+        not absent -- the distinction matters because the gap is an owed item."""
+        s = ag.BIFACIAL_GAIN_RISES_WITH_ROW_SPACING
+        assert 'LOWER bifacial gain' in s
+        assert 'Does not close the acres/MW gap' in s
+
+    def test_crop_albedo_named_as_an_unrepresented_variable(self):
+        src = open(ag.__file__).read()
+        assert 'CROP ALBEDO IS THEREFORE AN ENERGY VARIABLE' in src
+        assert 'does not currently represent' in src
+
+    def test_bifacial_is_mainstream_over_the_modelling_horizon(self):
+        """20% share in 2020 to a forecast 70% by 2030 -- so bifacial assumptions are not a
+        specialist choice for a 2045 buildout."""
+        f = ag.BIFACIAL_MARKET_SHARE_FORECAST
+        assert f[2030] > f[2020] * 3
+
+    def test_ray_tracing_caution_recorded_for_future_modelling(self):
+        """View factor assumes uniformly distributed vegetation, which crops are not."""
+        c = ag.AGRIVOLTAIC_ENERGY_MODELLING_CAUTION
+        assert 'Ray tracing is required' in c

@@ -956,3 +956,62 @@ AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED = (
     '4-6 acres/MW is therefore a LOWER BOUND for agrivoltaic siting, and the land-use fit and '
     'farmland-share percentages are correspondingly optimistic. An agrivoltaic-specific acres/MW '
     'figure is needed and is not yet held; a guess would be worse than carrying the gap.')
+
+
+# ============================================================================
+# BIFACIAL FUNDAMENTALS -- AND A SYNERGY THAT PARTLY OFFSETS THE LAND PENALTY
+# ============================================================================
+# Mouhib, Micheli, Almonacid & Fernandez, "Overview of the Fundamentals and Applications of
+# Bifacial Photovoltaic Technology: Agrivoltaics and Aquavoltaics", Energies 15(23):8777, 2022.
+# Open access review.
+#
+# THE SYNERGY, which matters for the acres/MW gap recorded above
+#
+# Bifacial gain -- the energy advantage of bifacial over monofacial in the same installation --
+# "depends mainly on the ground albedo and the distance between rows. THE SMALLER THE DISTANCE
+# BETWEEN THE MODULE ROWS, THE LOWER THE BG, and a high albedo will result in a higher BG."
+#
+# Agrivoltaics requires wide row spacing so light reaches the crop. Wide row spacing ALSO raises
+# bifacial gain, because more ground is unshaded and reflecting onto the rear face. So the spacing
+# penalty that costs an agrivoltaic layout its energy density is partly repaid in per-module yield.
+# The two effects work in opposite directions and the net is configuration-specific -- this does
+# NOT close the acres/MW gap, but it means the gap is smaller than a naive
+# "wider spacing = proportionally less MW per acre" calculation would give.
+#
+# CROP ALBEDO IS THEREFORE AN ENERGY VARIABLE, not just an agronomic one. Different crops and
+# ground covers reflect differently, and rear-side generation scales with that. The University of
+# Turku work cited earlier also examined "how crop type influences albedo". A light-coloured
+# stubble or a dense green sward are not equivalent inputs to a bifacial array. Not quantified
+# here, and it is a genuine modelling variable this analysis does not currently represent.
+#
+# GENERAL BIFACIAL PARAMETERS, for reference
+#   energy yield vs monofacial   up to +30%, at an initial cost increment of 5-6 cents/W
+#   bifaciality factor           HIT 85-95%, n-PERT 75-90%, P-PERC 65-80%
+#   first utility-scale plant    Hokuto, Japan, 1.25 MWp, 2013 -- 21.9% first-year gain over a
+#                                similarly sized monofacial plant
+#   dual-axis tracking bifacial  +14% over monofacial, and at least +35% over fixed tilt
+#   market share                 forecast 20% (2020) to 70% (2030), so this is the mainstream
+#                                module technology over the modelling horizon rather than a
+#                                specialist choice
+#
+# A MODELLING CAUTION WORTH CARRYING. The review states that for agrivoltaics specifically, the
+# view-factor method is inadequate: "agrivoltaic deals with complex geometries (crops or trees)
+# that cannot be simulated with VF assuming that the vegetation is uniformly distributed", and ray
+# tracing is needed. Any future attempt in this project to model agrivoltaic energy yield at the
+# array level should use ray tracing rather than the view-factor shortcuts adequate for
+# conventional arrays.
+BIFACIAL_GAIN_RISES_WITH_ROW_SPACING = (
+    'Bifacial gain depends mainly on ground albedo and row distance: smaller row spacing gives '
+    'LOWER bifacial gain. Agrivoltaics requires wide spacing for crop light, which also raises '
+    'bifacial gain -- so the spacing penalty to energy density is partly repaid in per-module '
+    'yield. Does not close the acres/MW gap, but makes it smaller than a naive proportional '
+    'calculation suggests. Source: Mouhib et al., Energies 15(23):8777, 2022.')
+
+BIFACIAL_MAX_GAIN_OVER_MONOFACIAL = 0.30
+BIFACIAL_COST_INCREMENT_CENTS_PER_W = (5, 6)
+BIFACIAL_MARKET_SHARE_FORECAST = {2020: 0.20, 2030: 0.70}
+
+AGRIVOLTAIC_ENERGY_MODELLING_CAUTION = (
+    'View-factor methods are inadequate for agrivoltaic energy modelling -- they assume uniformly '
+    'distributed vegetation, which crops and trees are not. Ray tracing is required. Applies to '
+    'any future array-level yield modelling in this project.')
