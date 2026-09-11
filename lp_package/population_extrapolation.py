@@ -35,6 +35,34 @@ structure before building this module, not assumed. Only counties and INDEPENDEN
 independent-city system) are included as extrapolation targets.
 
 Run tests with: python3 -m pytest test_population_extrapolation.py -v
+
+CAUTION -- THIS MODULE'S REFERENCE BASIS IS UNSOUND AS OF 2026-09-11. DO NOT CITE ITS OUTPUT.
+
+Full analysis: docs/methodology/Parking_Reference_Basis_Working_Notes.md. In summary, of the
+jurisdictions this module treats as measured references:
+
+  - Prince William's parking figure is DERIVED by extrapolating Loudoun's per-capita density, so
+    the Loudoun outlier this module deliberately excludes re-enters through it. The 10.7x parking
+    rate spread below is that circularity, not geographic variation.
+
+  - Fairfax's parking extract is COVERAGE-LIMITED. Its median polygon is 308 sqft -- one parking
+    space -- 88% of rows are driveway-scale, and only 40 polygons in the entire county exceed
+    100,000 sqft, in a jurisdiction containing Tysons, Reston Town Center, Fair Oaks and
+    Springfield. It reports 0.5% of land area as parking against Richmond's 7.2% and Arlington's
+    6.1%.
+
+  - Per-capita is additionally the wrong normalizer. Richmond City and Loudoun have nearly
+    identical parking per resident (0.01203 vs 0.01188 acres) despite 7.2% vs 1.6% of land area,
+    because a jurisdiction's commercial parking serves its economic catchment rather than its
+    residents. The error runs in both directions and cannot be corrected by a constant factor.
+
+The entity_type split below ("county" vs "independent_city") is also political rather than
+functional: Chesapeake is legally a city and functionally a suburb; Stafford is legally a county
+and functionally the same. The meaningful distinction is employment destination versus bedroom
+community.
+
+The C&I side is in better shape than the parking side -- four real measurements against one --
+but rests on the same per-capita normalizer.
 """
 from dataclasses import dataclass
 

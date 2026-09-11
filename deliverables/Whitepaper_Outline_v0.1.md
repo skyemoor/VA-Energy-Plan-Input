@@ -279,6 +279,12 @@ modeling consequences; the 2030 charge-starvation finding.
 **[TO WRITE]** NSPM framing; measure-level analysis; what was scoped in and out and why.
 *Addresses § 45.2-1710(B)(5).*
 
+> **DO NOT CITE the statewide extrapolated parking figure (1,533–16,344 MW).** Its low bound rests
+> on a coverage-limited Fairfax dataset and its high bound on a circular derivation from Loudoun.
+> See `docs/methodology/Parking_Reference_Basis_Working_Notes.md`. The four-county NoVA
+> distributed-solar figures are direct measurements and are NOT affected, though Fairfax's parking
+> component within them carries the same limitation and needs a footnote.
+
 ## 7A. Pricing demand-side incentives so customers capture the savings
 
 *A substantive section in its own right, not a subsection of §7.*
