@@ -336,6 +336,8 @@ combined with Census pasture, which are disjoint.
 
 ### Cover crop — two corrections
 
+*Full account: `docs/methodology/Cover_Crops_and_Agrivoltaics.md`. Summarised here.*
+
 An earlier draft excluded cover crop acreage as *"not a cash crop"* and *"unaddressed in the
 agrivoltaic literature."* Both were wrong.
 
@@ -372,6 +374,8 @@ quantity: 302,940 acres of Virginia cropland are already managed for soil health
 in a given year, on species that graze well.
 
 ### 6B. Virginia policy already attaches to cover cropping
+
+*Full account: `docs/methodology/Cover_Crops_and_Agrivoltaics.md`.*
 
 Virginia DCR, *"Cover crops: a win for farmers and the environment"* (Sept 2024, via VSU's Small
 Farm Outreach Program). Two **existing** state mechanisms attach — neither needs new legislation.

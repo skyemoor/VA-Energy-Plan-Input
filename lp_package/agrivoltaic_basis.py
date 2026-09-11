@@ -656,7 +656,8 @@ def grazing_capacity(agrivoltaic_acres: float) -> GrazingCapacity:
 # requirement is 18-27% of it -- comfortably within, and a slightly better ratio than the Census
 # alone gave (20.0-30.4%).
 #
-# COVER CROP -- TWO CORRECTIONS, 2026-09-11. An earlier version of this module excluded cover crop
+# COVER CROP -- TWO CORRECTIONS, 2026-09-11.
+# FULL ACCOUNT: docs/methodology/Cover_Crops_and_Agrivoltaics.md. Summarised below. An earlier version of this module excluded cover crop
 # acreage on the grounds that it is "not a cash crop" and "unaddressed in the agrivoltaic
 # literature reviewed". Both halves of that were wrong in ways that matter.
 #
