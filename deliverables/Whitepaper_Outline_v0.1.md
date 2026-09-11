@@ -279,6 +279,14 @@ modeling consequences; the 2030 charge-starvation finding.
 **[TO WRITE]** NSPM framing; measure-level analysis; what was scoped in and out and why.
 *Addresses § 45.2-1710(B)(5).*
 
+> **STANDING LIMITATION for every rooftop and canopy MW figure in this paper: no site survey was
+> performed.** No shading assessment was undertaken for any location. Rooftop figures inherit the
+> NVRC sample's own usable-area accounting for eight buildings in Sterling, Leesburg and Ashburn,
+> and assume other buildings are shaded comparably. Parking canopy figures apply a kW-per-space
+> density to measured lot area with **no shading deduction at all**, though mature parking-lot tree
+> canopy is common and frequently mandated by local ordinance. These are upper bounds on the
+> physical resource, not deliverable capacity. This must appear wherever such a figure is cited.
+
 > **DO NOT CITE the statewide extrapolated parking figure (1,533–16,344 MW).** Its low bound rests
 > on a coverage-limited Fairfax dataset and its high bound on a circular derivation from Loudoun.
 > See `docs/methodology/Parking_Reference_Basis_Working_Notes.md`. The four-county NoVA
