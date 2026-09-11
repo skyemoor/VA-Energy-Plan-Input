@@ -83,6 +83,21 @@ def main(path):
         print("no subtype column found; reporting whole-layer totals only")
         subtype_col = None
 
+    # --- 1b. Paved flag ----------------------------------------------------------------
+    # Richmond's extract carries a Paved yes/no field, like Loudoun's RD_SURFACE. Reported but
+    # NOT used as a filter: direct inspection of Loudoun's data found unpaved lots skew
+    # substantially LARGER than paved ones (median area over 5x, and 76.5% of unpaved lots met the
+    # qualifying size threshold against 27.0% of paved), consistent with engineered permeable-
+    # pavement facilities rather than informal gravel. Treating unpaved as noise would undercount
+    # real parking area. See loudoun_parking_lot_sqft.py's own docstring.
+    paved_col = next((c for c in ('Paved', 'PAVED', 'RD_SURFACE') if c in df.columns), None)
+    if paved_col:
+        print(f"=== 1b. PAVED FLAG ({paved_col}) ===")
+        for v, n in df[paved_col].value_counts(dropna=False).items():
+            print(f"    {str(v):>8}: {n:>8,} rows")
+        print("    Reported only -- not filtered on. Loudoun's unpaved lots were larger, not "
+              "smaller.\n")
+
     # --- 2. Which subtype is parking, by shape ---------------------------------------
     if subtype_col and len_col:
         df = df[df[area_col] > 0].copy()
@@ -96,7 +111,11 @@ def main(path):
             print(f"    {str(st):>10} {len(grp):>9,} {grp['compactness'].median():>12.1f} "
                   f"{grp[area_col].median():>11,.0f} {grp[len_col].median():>10,.0f} "
                   f"{grp[area_col].sum():>16,.0f}")
-        print("\n    likely parking = lowest median compactness with substantial total area")
+        print("\n    likely parking = lowest median compactness AND large median area.")
+        print("    Sanity anchor from a real sample of this layer: subtypes 3, 4 and 8 had median")
+        print("    areas of roughly 200-8,900 -- far too small for parking lots, and subtype 4 was")
+        print("    both largest and most elongated (compactness ~790 on one row), i.e. an alley or")
+        print("    median strip. Expect the parking subtype to be one NOT in that sample.")
 
     # --- 3. Units ---------------------------------------------------------------------
     largest = df[area_col].max()
@@ -114,6 +133,8 @@ def main(path):
     for st, grp in groups:
         q = grp[grp[area_col] >= MIN_QUALIFYING_LOT_SQFT]
         if len(q) == 0:
+            print(f"    subtype {str(st):>6}: none at or above the threshold "
+                  f"(max {grp[area_col].max():,.0f}) -- not a parking class")
             continue
         print(f"    subtype {str(st):>6}: {len(q):>7,} polygons, {q[area_col].sum():>15,.0f} sqft "
               f"({q[area_col].sum()/SQFT_PER_ACRE:>9,.1f} acres)")
