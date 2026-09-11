@@ -89,3 +89,36 @@ class TestForesightAsymmetryIsRecorded:
         src = open(s3b.__file__).read()
         assert 'RATION ACROSS DAYS' in src
         assert 'not merely a weakened version' in src
+
+
+class TestExogenousPriceIsAnAdderNotTheFullPrice:
+    """Corrects a 2026-09-11 misreading. Distributed storage appears in the LP's own energy
+    balance, so it receives system marginal value implicitly; the exogenous series is the
+    locational adder on top. Adding full LMP would double-count the energy component."""
+
+    def test_the_correction_is_documented(self):
+        src = open(s3b.__file__).read()
+        assert 'ADDER, NOT THE WHOLE ARBITRAGE PRICE' in src
+        assert 'would DOUBLE-COUNT the energy component' in src
+
+    def test_distributed_storage_is_in_the_lp_energy_balance(self):
+        """The structural fact the correction rests on -- verified against the source rather than
+        asserted, since the original error came from not checking."""
+        src = open(__import__('lp_model').__file__).read()
+        i = src.index("eq_cols += [DISTRIBUTED_SOLAR_MW")
+        block = src[i:i + 400]
+        for v in ('dist_na_discharge_mw', 'dist_na_charge_mw',
+                  'dist_fe_discharge_mw', 'dist_fe_charge_mw'):
+            assert v in block, f'{v} missing from the energy balance block'
+
+    def test_what_remains_true_is_still_recorded(self):
+        """The correction does not clear the locational adder: month-hour averaging still removes
+        94.5% of the real extreme and the top 1% of hours holding 29.4% of congestion value.
+
+        Matches against wrap-normalised source. An earlier version asserted contiguous phrases and
+        failed on a comment line break -- the third time that pattern bit today, so these checks
+        normalise rather than assume formatting."""
+        import re
+        src = re.sub(r'\s*\n#?\s+', ' ', open(s3b.__file__).read())
+        assert '94.5% of the real extreme' in src
+        assert '29.4% of all positive congestion value' in src

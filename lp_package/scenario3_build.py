@@ -573,6 +573,38 @@ def six_day_scarcity_value_proxy(demand, exist_solar, distributed_solar_cf, wind
     compete while blindfolded, and any finding that distributed storage underperforms utility-scale
     storage on arbitrage value inherits that bias.
 
+    THE EXOGENOUS PRICE IS AN ADDER, NOT THE WHOLE ARBITRAGE PRICE -- clarified 2026-09-11 after
+    an initial misreading.
+
+    A first reading of this compared the series (mean ~$0.48/MWh at 2045, daily spread ~$18) against
+    real PJM day-ahead LMP at Virginia nodes -- Ashburn 35 kV runs $28-354 with a July month-hour
+    spread of $316; a rural 115 kV node south of Petersburg runs $7-281 with a July spread of $211 --
+    and concluded the distributed segment was arbitraging a series an order of magnitude too small.
+
+    That conclusion was WRONG, and the reason matters. Distributed storage variables appear in the
+    LP's own hourly ENERGY BALANCE (lp_model.py, the eq_cols block adding dist_na_discharge_mw,
+    dist_na_charge_mw, dist_fe_discharge_mw, dist_fe_charge_mw to each hour's row). Discharging
+    distributed storage therefore serves load and displaces other generation, and the LP values that
+    displacement at the system's own marginal cost in that hour -- which IS the energy component.
+
+    So the distributed segment faces: system marginal value (implicit, via the energy balance)
+    PLUS this exogenous series (explicit, in the objective). The exogenous series is the LOCATIONAL
+    adder -- congestion and losses that a distributed resource sees differently from a utility-scale
+    one -- not the full LMP. Adding full LMP here would DOUBLE-COUNT the energy component.
+
+    WHAT REMAINS TRUE, AND STILL MATTERS:
+      - the scarcity component is flat and contributes no timing signal (the defect above);
+      - the congestion and loss components are month-hour AVERAGES, which removes 94.5% of the real
+        extreme ($335 hourly maximum -> $18.37 averaged) and with it the top 1% of hours that hold
+        29.4% of all positive congestion value;
+      - so the LOCATIONAL adder understates real locational value substantially, even though the
+        energy component is handled correctly elsewhere.
+
+    The uploaded node graphics use the SAME month-hour averaging this function does, and still show
+    $211-316 July spreads. That is the energy component doing the work, not the locational adder,
+    and it is the right comparison for judging whether the LP's own energy balance produces
+    realistic dispatch -- not for judging this series.
+
     NOT FIXED HERE, deliberately: correcting it means choosing a capacity reference, which is a
     modelling decision rather than a bug fix, and changing it would alter the distributed arbitrage
     result. Recorded so the Scenario 3 run is interpreted correctly -- and so the foresight
