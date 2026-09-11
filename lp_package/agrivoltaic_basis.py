@@ -856,6 +856,85 @@ FSA_SOURCE_CAVEAT = (
 # (7.9-12.0%) are correspondingly optimistic. Quantifying the correction needs an agrivoltaic-
 # specific acres/MW figure, which this analysis does not yet have -- see AGRIVOLTAIC_ACRES_PER_MW_
 # IS_UNRESOLVED. Substituting a guess would be worse than carrying the gap explicitly.
+# ============================================================================
+# THE STRONGEST CORN EVIDENCE: PURDUE FARM-SCALE TRIAL AND VALIDATED MODEL
+# ============================================================================
+# Gupta, Gruss, Cammarano, Tuinstra, Gitau, Agrawal et al., "Optimizing corn agrivoltaic farming
+# through farm-scale experimentation and modeling", Cell Reports Sustainability 1, 100148, 26 July
+# 2024. Open access.
+#
+# This supersedes the "almost nonexistent corn data" position entirely. It is farm-scale rather
+# than plot-scale, uses EAST-WEST SUN-TRACKING panels rather than fixed vertical, and pairs the
+# field trial with a crop model calibrated on the unshaded control and then validated against the
+# shaded region -- which is what makes the configuration exploration credible.
+#
+# MEASURED YIELDS
+#     without-PV (adjoining farm area)   10,955 kg/ha
+#     between PV panels                  10,182 kg/ha      = 93.0% of unshaded, a 7.1% reduction
+#
+# MODEL VALIDATION (the reason the rest is usable)
+#     APSIM calibrated on unshaded        10,856 kg/ha  vs 10,955 measured
+#     APSIM + shadow model, PV region     10,102 kg/ha  vs 10,182 measured
+# Both within ~1% of measurement. The model was calibrated ONLY on unshaded data, so agreement in
+# the shaded region is genuine validation rather than fitting.
+#
+# THE HEADLINE MECHANISM: yield is governed by SPATIOTEMPORAL SHADOW DISTRIBUTION, not total
+# radiation alone. Two configurations delivering identical total light to a plant produce different
+# yields depending on WHEN the shadow falls. That is what makes active optimisation possible, and
+# it is why results do not transfer between mounting configurations -- the CSU vertical-bifacial
+# null and this 7.1% tracking-panel reduction are not in conflict; they are different shadow
+# regimes.
+#
+# THREE DESIGN FINDINGS THAT BEAR DIRECTLY ON THIS PROJECT'S ACRES/MW GAP
+#
+#   1. TRACKER HEIGHT barely matters. "Average corn yield is a weak function of the tracker height
+#      up to 2.44 m", though row-to-row variability rises as height falls. So the expensive part of
+#      elevated racking buys little yield -- relevant against the ~88% LCOE premium recorded above
+#      for elevated tilted configurations.
+#
+#   2. WIDER ROW SPACING DOES NOT HELP beyond a point. "Increasing the distance between the
+#      adjacent PV rows beyond the 9.1 m, while keeping the total power over the entire land
+#      constant, does not lead to an increase in corn yield based on the total land area."
+#      This CONTRADICTS the intuition behind the University of Turku vertical-bifacial finding of
+#      11.3-13.7 m spacing, and the difference is again configuration: tracking panels redistribute
+#      shadow over the day in a way fixed vertical panels do not. 9.1 m is a materially tighter
+#      spacing and therefore a materially better acres/MW than the vertical route.
+#
+#   3. ANTI-TRACKING GIVES LITTLE. Anti-tracking from 2 PM to 6 PM produced the greatest yield
+#      gain, "however, this increase in corn yield of 5.6% is quite modest and should be weighed
+#      against a substantial decline in solar power." Sacrificing generation to recover yield is a
+#      poor trade at these magnitudes -- which matters for a scenario whose purpose is energy.
+#
+# WHAT IT DOES NOT RESOLVE. The paper does not state acres/MW or MW/ha directly, so the gap flagged
+# in AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED remains open -- but 9.1 m row spacing at constant total
+# power is a far more favourable anchor than the vertical route's 11.3-13.7 m, and suggests the
+# tracking configuration is the one to cost. Site is Indiana (Purdue), humid continental -- closer
+# to Virginia than northern Colorado's semi-arid climate, though still not a match.
+CORN_PURDUE_TRIAL = {
+    'unshaded_yield_kg_per_ha': 10_955,
+    'pv_region_yield_kg_per_ha': 10_182,
+    'apsim_unshaded_modelled_kg_per_ha': 10_856,
+    'apsim_pv_region_modelled_kg_per_ha': 10_102,
+    'configuration': 'east-west sun-tracking',
+    'row_spacing_beyond_which_no_yield_gain_m': 9.1,
+    'tracker_height_yield_insensitive_up_to_m': 2.44,
+    'anti_tracking_max_yield_gain_fraction': 0.056,
+    'citation': ('Gupta et al., "Optimizing corn agrivoltaic farming through farm-scale '
+                 'experimentation and modeling", Cell Reports Sustainability 1, 100148, 2024'),
+}
+
+
+def corn_yield_ratio_under_tracking_pv() -> float:
+    """Measured PV-region corn yield as a fraction of the adjoining unshaded farm area.
+
+    A single site-season, so not a general coefficient -- but it is farm-scale, measured rather
+    than modelled, and paired with an independently validated model, which makes it the best corn
+    figure this analysis holds.
+    """
+    t = CORN_PURDUE_TRIAL
+    return t['pv_region_yield_kg_per_ha'] / t['unshaded_yield_kg_per_ha']
+
+
 CORN_VERTICAL_BIFACIAL_EVIDENCE = (
     'Colorado State University, northern Colorado, 2024: vertical bifacial panels in north-south '
     'rows, field corn planted between. No significant differences in silage or grain yields across '

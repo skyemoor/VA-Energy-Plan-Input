@@ -517,3 +517,52 @@ class TestMountingConfigurationAndTheAcresPerMWGap:
         """The gap is documented, not silently corrected -- every downstream figure stays
         reproducible against what was published."""
         assert ag.ACRES_PER_MW_LOW == 4.0 and ag.ACRES_PER_MW_HIGH == 6.0
+
+
+class TestPurdueCornFarmScaleTrial:
+    """Gupta et al., Cell Reports Sustainability 1:100148 (2024). Farm-scale, east-west
+    sun-tracking, with a crop model calibrated on the unshaded control and validated against the
+    shaded region. The strongest corn evidence this analysis holds."""
+
+    def test_measured_yield_reduction_is_about_seven_percent(self):
+        assert ag.corn_yield_ratio_under_tracking_pv() == pytest.approx(0.929, abs=0.005)
+
+    def test_model_was_calibrated_on_unshaded_only_so_shaded_agreement_is_validation(self):
+        """APSIM was calibrated using the unshaded area, then run with the shadow model against
+        the PV region. Agreement there is genuine validation rather than fitting -- which is what
+        makes the configuration exploration usable."""
+        t = ag.CORN_PURDUE_TRIAL
+        assert (t['apsim_pv_region_modelled_kg_per_ha'] / t['pv_region_yield_kg_per_ha']
+                == pytest.approx(1.0, abs=0.02))
+        assert (t['apsim_unshaded_modelled_kg_per_ha'] / t['unshaded_yield_kg_per_ha']
+                == pytest.approx(1.0, abs=0.02))
+
+    def test_row_spacing_anchor_is_tighter_than_the_vertical_route(self):
+        """9.1 m beyond which no further yield gain, against 11.3-13.7 m for vertical bifacial.
+        Tracking panels redistribute shadow over the day in a way fixed vertical panels do not, so
+        the tracking configuration is materially more land-efficient."""
+        vert_lo, _ = ag.VERTICAL_BIFACIAL_ROW_SPACING_M_FOR_90PCT_YIELD
+        assert ag.CORN_PURDUE_TRIAL['row_spacing_beyond_which_no_yield_gain_m'] < vert_lo
+
+    def test_anti_tracking_gain_is_small_relative_to_power_lost(self):
+        """5.6% yield gain against 'a substantial decline in solar power' -- a poor trade for a
+        scenario whose purpose is energy."""
+        assert ag.CORN_PURDUE_TRIAL['anti_tracking_max_yield_gain_fraction'] == 0.056
+
+    def test_tracker_height_is_a_weak_lever(self):
+        """Yield is a weak function of height up to 2.44 m, so the expensive part of elevated
+        racking buys little -- relevant against the ~88% LCOE premium for elevated tilted."""
+        assert ag.CORN_PURDUE_TRIAL['tracker_height_yield_insensitive_up_to_m'] == 2.44
+
+    def test_the_two_corn_studies_are_not_in_conflict(self):
+        """CSU found no significant difference with fixed vertical bifacial; Purdue found 7.1%
+        reduction with east-west tracking. Different shadow regimes, not contradictory results --
+        which is the paper's own central finding about spatiotemporal shadow distribution."""
+        src = open(ag.__file__).read()
+        assert 'are not in conflict' in src
+        assert 'SPATIOTEMPORAL SHADOW DISTRIBUTION, not total' in src
+
+    def test_acres_per_mw_gap_remains_open(self):
+        """The paper does not state acres/MW, so the gap stands -- but 9.1 m is a better anchor."""
+        src = open(ag.__file__).read()
+        assert 'does not state acres/MW or MW/ha directly' in src

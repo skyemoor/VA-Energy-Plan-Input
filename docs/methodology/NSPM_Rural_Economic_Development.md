@@ -466,7 +466,53 @@ orchards. It must not be summed as total cropland — use the land-in-farms crop
 
 ## 6C. Mounting configuration — one revision, one problem
 
-### The corn evidence is no longer "almost nonexistent"
+### The corn evidence: Purdue farm-scale trial with a validated model
+
+**Gupta et al., *Cell Reports Sustainability* 1:100148 (2024)** — farm-scale, east–west
+sun-tracking panels, Indiana. This supersedes the "almost nonexistent corn data" position
+entirely.
+
+| | kg/ha |
+|---|---:|
+| Without-PV (adjoining farm area) | 10,955 |
+| **Between PV panels** | **10,182** — *92.9%, a 7.1% reduction* |
+| APSIM modelled, unshaded | 10,856 |
+| APSIM + shadow model, PV region | 10,102 |
+
+**The model validation is what makes the rest usable.** APSIM was calibrated on the *unshaded*
+control only, then run with a shadow model against the PV region — agreement within ~1% is genuine
+validation, not fitting.
+
+**The headline mechanism: yield is governed by *spatiotemporal shadow distribution*, not total
+radiation.** Two configurations delivering identical total light produce different yields depending
+on *when* the shadow falls. This is why results don't transfer between mounting types — and why
+the CSU vertical-bifacial null and this 7.1% tracking reduction **are not in conflict**. They are
+different shadow regimes.
+
+### Three design findings that bear on the acres/MW gap
+
+**1. Tracker height is a weak lever.** Yield is *"a weak function of the tracker height up to
+2.44 m."* So the expensive part of elevated racking buys little yield — telling, against the ~88%
+LCOE premium recorded for elevated tilted configurations.
+
+**2. Wider row spacing stops helping at 9.1 m.** *"Increasing the distance between adjacent PV rows
+beyond the 9.1 m, while keeping total power over the entire land constant, does not lead to an
+increase in corn yield based on the total land area."*
+
+This **contradicts** the intuition behind the vertical-bifacial 11.3–13.7 m finding — again because
+tracking panels redistribute shadow through the day in a way fixed vertical panels don't. **9.1 m
+is materially tighter, so the tracking configuration is the more land-efficient route.**
+
+**3. Anti-tracking is a poor trade.** Anti-tracking 2–6 PM gave the largest yield gain, but *"this
+increase in corn yield of 5.6% is quite modest and should be weighed against a substantial decline
+in solar power."* Sacrificing generation to recover yield doesn't pay at these magnitudes.
+
+**What it doesn't resolve:** the paper states no acres/MW figure, so the §6C gap stands. But 9.1 m
+at constant total power is a far better anchor than the vertical route, and suggests **tracking is
+the configuration to cost**. Site is Indiana — humid continental, closer to Virginia than northern
+Colorado's semi-arid climate, though still not a match.
+
+### Earlier corn evidence, now superseded
 
 **Colorado State University, northern Colorado, 2024.** Vertical bifacial panels in **north–south**
 rows, field corn planted between them. Treatments: centre, east, west, unshaded control, three
