@@ -525,3 +525,64 @@ resource**, and a project-level assessment would apply site-specific derates.
 This is a known and stated limitation, not a correctable one within this analysis — a shading
 assessment requires LiDAR-derived canopy models or site visits, neither of which is in scope. It
 should appear in the whitepaper wherever a rooftop or canopy MW figure is cited.
+
+---
+
+## 13. Resolution: `parking_ratio_basis.py` (2026-09-11)
+
+`population_extrapolation.py` is superseded for parking. The replacement estimates parking area
+from **measured C&I building footprint**, typed by development pattern.
+
+### The two anchors, and why there are only two
+
+| type | anchor | C&I footprint | parking | ratio |
+|---|---|---:|---:|---:|
+| surface-parked | **Fairfax County** | 19,493,424 | 77,426,918 | **3.97** |
+| structured | **Arlington County** | 55,038,330 | 47,300,701 | **0.86** |
+
+Every other jurisdiction is blocked structurally, not for want of effort:
+
+| | has parking | has C&I | blocked because |
+|---|---|---|---|
+| Loudoun | ✓ | ✗ | C&I source is business-licence records with no area field |
+| Richmond City | ✓ | ✗ | Structures layer carries no building-use field |
+| Chesapeake | ✗ | ✓ | publishes no parking layer |
+| Prince William | ✗ | ✓ | publishes no parking layer |
+
+**One anchor per type.** There is no within-type variance to estimate from, so the module offers
+no confidence interval, and a test asserts that no result field ever implies one. The two anchors
+differ by 4.6×, which makes **classification into the wrong type the dominant source of error** —
+larger than any measurement uncertainty in the anchors themselves.
+
+### Typing is by development pattern, not political category
+
+`SURFACE_PARKED` and `STRUCTURED` are named for the physical mechanism. Virginia's political
+geography does not track it: Chesapeake is legally an independent city and functionally a
+surface-parked suburb; Stafford is legally a county and functionally the same. The city/county
+split in the superseded module was the wrong cut.
+
+### Recommendation for the whitepaper
+
+**Report measured jurisdictions; state that Virginia's GIS coverage does not support statewide
+parking extrapolation.**
+
+Of eight jurisdictions checked, four publish parking geometry and **no suburban county outside
+Northern Virginia does**. That is a property of the data landscape. A defensible *"here is what
+four jurisdictions have, and the data does not permit more"* is stronger before the SCC than a wide
+extrapolated range that invites exactly the challenge it cannot survive.
+
+`parking_ratio_basis.py` exists so an estimate CAN be produced where one is genuinely needed, with
+its limitations attached programmatically via `basis_warning()`, rather than produced ad hoc
+without them.
+
+### Measured figures, corrected
+
+| jurisdiction | acres | canopy MW | status |
+|---|---:|---:|---|
+| Loudoun | 5,650 | — | data-centre outlier, usable with caveat |
+| Richmond City | 3,128 | — | sound, urban employment destination |
+| **Fairfax** | **1,777** | **516.2 – 645.2** | **sound, surface-parked suburban** |
+| Arlington | 1,086 | — | sound, structured/transit-served |
+
+All figures carry the §12 limitation: no site survey, no shading deduction, upper bounds on the
+physical resource rather than deliverable capacity.

@@ -36,7 +36,9 @@ independent-city system) are included as extrapolation targets.
 
 Run tests with: python3 -m pytest test_population_extrapolation.py -v
 
-CAUTION -- THIS MODULE'S REFERENCE BASIS IS UNSOUND AS OF 2026-09-11. DO NOT CITE ITS OUTPUT.
+SUPERSEDED 2026-09-11 BY parking_ratio_basis.py FOR PARKING. DO NOT CITE THIS MODULE'S PARKING
+OUTPUT. Its C&I output rests on the same per-capita normalizer and should be treated as
+provisional.
 
 Full analysis: docs/methodology/Parking_Reference_Basis_Working_Notes.md. In summary, of the
 jurisdictions this module treats as measured references:
