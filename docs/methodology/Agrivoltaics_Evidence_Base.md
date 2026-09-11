@@ -191,8 +191,8 @@ vertical.
 
 | crop / group | VA acres | evidence | verdict |
 |---|---:|---|---|
-| **Forage, hay, haylage** | 1,117,726–1,440,010 | Illinois research plot: switchgrass, orchardgrass | **strong** |
-| **Pasture / grazing** | 1,915,266 | ASGA 2024: ~113k sheep, 500+ US sites; UMinn dairy | **strongest practice** |
+| **Forage, hay, haylage** | 1,117,726–1,440,010 | **JDS 2026: biomass down under heavy shade, but CP, fiber digestibility and minerals maintained or improved**; Illinois plot | **strong — quality offsets tonnage** |
+| **Pasture / grazing** | 1,915,266 | **OSU: lamb growth 120 vs 119 g/hd/d (P=0.90) at +22% stocking**; ASGA 2024 ~113k sheep, 500+ sites; UMinn dairy | **strongest — measured animal performance** |
 | **Corn** | 384,337–418,778 | Purdue farm-scale; CSU vertical; Sekiyama 2019 | **configuration-dependent** |
 | **Winter wheat** | 73,643–165,415 | German trial: −19% to +3%, **+2.7% in a hot dry summer** | **strong for a field crop** |
 | Soybeans | 584,642–610,605 | thin | weak |
@@ -247,9 +247,15 @@ should be checked rather than assumed away.
 
 3. **Vegetable and speciality crop acreage** — Census Table 36.
 4. **Tobacco lease multiple** — the one crop where the economics may invert.
-5. **Humid-subtropical transfer.** All corn evidence is from Indiana (humid continental) and
-   northern Colorado (semi-arid). Virginia is humid subtropical — reduced airflow under panels may
-   raise disease pressure in ways neither site would show.
+5. **Humid-subtropical transfer — partly inverted 2026-09-11.** An earlier version of this item
+   assumed Virginia growing seasons are reliably humid, so moisture retention under panels might
+   raise disease pressure rather than help. **Virginia has had drought issues in each of the last
+   five years.** The established mechanism — arrays "decrease air and soil temperature and increase
+   soil moisture" (Marrou et al.), favourable "especially in drought years" (Amaducci et al.) — is
+   therefore a **benefit** in Virginia too, and lands hardest on pasture and forage, which have no
+   irrigation to fall back on. The disease-pressure concern remains real for wet seasons; the two
+   now cut in opposite directions depending on the year, which is itself an argument for a
+   resource whose value rises when conditions are worst.
 6. **Multi-year results.** CSU is establishment-year only; Purdue is a single season.
 7. **Crop albedo as an energy variable** — unrepresented.
 8. **Ray tracing required** for any array-level yield modelling; view-factor methods assume
@@ -260,6 +266,16 @@ should be checked rather than assumed away.
 ## 8. Citations
 
 ### Field trials and modelling
+
+**Andrew, A.C.** (2020). "Lamb growth and pasture production in agrivoltaic production system."
+Oregon State University Honors College thesis, advisor Serkan Ates. Corvallis, spring 2019–2020.
+→ Lamb growth 120 vs 119 g/head/day (P=0.90); stocking 36.6 vs 30 lambs/ha; liveweight 1.5 vs
+1.3 kg/ha/day (P=0.67); lower water consumption, better late-season stocking, higher July herbage.
+
+**Florentino, A. et al.** (2026). "Agrivoltaic arrays and effects on forage biomass."
+*JDS Communications* 7:112–118. DOI 10.3168/jdsc.2025-0973.
+→ Biomass lowest under the most-shaded (50 kW) array; crude protein, total-tract fiber
+digestibility and mineral content maintained or improved; quality may offset tonnage.
 
 **Gupta, V., Gruss, S.M., Cammarano, D., … Tuinstra, M.R., Gitau, M.W., Agrawal, R.** (2024).
 "Optimizing corn agrivoltaic farming through farm-scale experimentation and modeling."

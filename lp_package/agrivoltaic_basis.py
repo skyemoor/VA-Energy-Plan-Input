@@ -1220,3 +1220,89 @@ def slcoe_delta_summary(base_slcoe_per_mwh: float = 133.5) -> dict:
                    'not hold for row crops, elevated racking, or where machinery access forces '
                    'vertical. AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED still applies.'),
     }
+
+
+# ============================================================================
+# GRAZING AND FORAGE UNDER PANELS -- THE CATEGORY THAT ACTUALLY MATTERS HERE
+# ============================================================================
+# Added 2026-09-11. These two studies address pasture and forage directly, which is 3.03-3.36M
+# Virginia acres and the largest compatible category by a wide margin. Until now the grazing case
+# rested on an industry census (ASGA sheep counts) and a single dairy finding; this is measured
+# animal performance and measured forage quality.
+#
+# 1. LAMB GROWTH AND PASTURE PRODUCTION (Andrew, A.C., Oregon State University Honors College
+#    thesis, advisor Serkan Ates, August 2020). Corvallis, Oregon, spring 2019 and 2020.
+#
+#    Weaned Polypay lambs grew at 120 g/head/day under solar panels against 119 g/head/day in open
+#    pasture (P = 0.90) -- statistically indistinguishable.
+#
+#    More useful than the parity itself: the panelled pasture CARRIED MORE ANIMALS. Stocking
+#    density was 36.6 lambs/ha under panels against 30 lambs/ha open -- 22% higher -- and
+#    liveweight production was still comparable, 1.5 vs 1.3 kg/ha/day (P = 0.67). So the array did
+#    not merely fail to harm the animals; it supported a higher carrying capacity at equal
+#    per-animal performance.
+#
+#    THE DROUGHT-RELEVANT FINDINGS, which matter given Virginia's recent dry years: "some aspects
+#    were more favorable in the fully solar treatments, including water consumption in late spring
+#    2019, the ability to maintain a higher stocking rate towards summer, and increased herbage
+#    yields in July of 2019." Lower water consumption, better late-season carrying capacity, and
+#    higher mid-summer herbage -- all in the part of the season when unshaded pasture fails.
+#
+# 2. FORAGE BIOMASS AND NUTRITIVE VALUE (Florentino et al., "Agrivoltaic arrays and effects on
+#    forage biomass", JDS Communications 7:112-118, 2026, DOI 10.3168/jdsc.2025-0973). Grasses and
+#    legumes under 30 kW and 50 kW ground-mounted arrays against control pasture, for grazing dairy
+#    cattle.
+#
+#    "Forage biomass was lowest for grass species grown under the most shaded solar array (50 kW)"
+#    -- so heavier shading does cost biomass. But: "forages in AV systems had a higher crude
+#    protein content", "shaded forages showed higher total-tract fiber digestibility", and overall
+#    "forage nutritive value was maintained or improved, as indicated by similar or higher CP,
+#    fiber digestibility, and mineral content in the 30kW and 50kW treatments compared with the CON
+#    pasture".
+#
+#    The authors' own reading: shading "can produce high-quality forage that can be a suitable feed
+#    source for grazing livestock, POTENTIALLY OFFSETTING LOWER BIOMASS YIELDS THROUGH INCREASED
+#    NUTRITIONAL CONTENT."
+#
+# WHY THIS MATTERS MORE THAN A YIELD NUMBER. Every crop study reviewed so far measures BIOMASS or
+# GRAIN. For forage the relevant output is not tonnage but animal product -- meat, milk, liveweight
+# gain -- and a shaded sward with higher crude protein and higher fiber digestibility converts
+# better per kilogram. The Andrew thesis measures that conversion directly and finds parity in
+# per-animal growth with higher stocking. Reporting only the biomass decline would understate the
+# agricultural outcome.
+#
+# THE DROUGHT ARGUMENT, WHICH VIRGINIA'S RECENT YEARS MAKE LIVE. The mechanism is established in
+# the literature the Florentino paper cites: agrivoltaic systems "decrease air and soil temperature
+# and increase soil moisture below the solar panels" (Marrou et al.), producing conditions
+# "favorable for crops such as winter wheat and potatoes, ESPECIALLY IN DROUGHT YEARS" (Amaducci et
+# al.), with "mutual benefits across the food-energy-water nexus in drylands."
+#
+# This inverts a caution recorded earlier in this analysis. That caution -- that soil-moisture
+# retention helps in semi-arid climates and might raise disease pressure in humid ones -- assumed
+# Virginia's growing seasons are reliably humid. Virginia has had drought issues in each of the
+# last five years. In a drought year the moisture-retention mechanism is a BENEFIT in Virginia too,
+# and it lands hardest on pasture and forage, which have no irrigation to fall back on.
+#
+# STATED LIMITS. Corvallis is Mediterranean (dry summer, wet winter), not humid subtropical; the
+# Florentino arrays are small (30 and 50 kW) and their shading does not necessarily correspond to
+# utility-scale single-axis tracking geometry; the lamb study covers two spring seasons. The
+# direction of the findings is consistent across both and with the cited mechanism, but neither is
+# a Virginia trial.
+GRAZING_LAMB_GROWTH_G_PER_HEAD_DAY = {'under_panels': 120, 'open_pasture': 119, 'p_value': 0.90}
+GRAZING_STOCKING_LAMBS_PER_HA = {'under_panels': 36.6, 'open_pasture': 30.0}
+GRAZING_LIVEWEIGHT_KG_PER_HA_DAY = {'under_panels': 1.5, 'open_pasture': 1.3, 'p_value': 0.67}
+
+FORAGE_QUALITY_UNDER_SHADE = (
+    'Biomass declines under heavier shading, but crude protein, total-tract fiber digestibility '
+    'and mineral content are maintained or improved. The authors conclude shading can produce '
+    'high-quality forage "potentially offsetting lower biomass yields through increased '
+    'nutritional content". For forage the relevant output is animal product, not tonnage.')
+
+DROUGHT_MECHANISM_APPLIES_TO_VIRGINIA = (
+    'Agrivoltaic arrays decrease air and soil temperature and increase soil moisture beneath the '
+    'panels (Marrou et al.), producing conditions favourable to crops especially IN DROUGHT YEARS '
+    '(Amaducci et al.). An earlier caution in this analysis assumed Virginia growing seasons are '
+    'reliably humid and that moisture retention might therefore raise disease pressure rather than '
+    'help. Virginia has had drought issues in each of the last five years, so the retention '
+    'mechanism is a benefit here too -- and it lands hardest on pasture and forage, which have no '
+    'irrigation to fall back on.')

@@ -682,3 +682,49 @@ class TestSLCOEImpactOfAgrivoltaicSiting:
     def test_zero_capacity_factor_raises(self):
         with pytest.raises(ValueError, match='must be positive'):
             ag.land_cost_per_mwh(5.0, capacity_factor=0.0)
+
+
+class TestGrazingAndForageEvidence:
+    """Pasture and forage are 3.03-3.36M Virginia acres, the largest compatible category. These
+    two studies measure animal performance and forage quality directly, where prior evidence was
+    an industry census and a single dairy observation."""
+
+    def test_lamb_growth_is_statistically_indistinguishable(self):
+        g = ag.GRAZING_LAMB_GROWTH_G_PER_HEAD_DAY
+        assert abs(g['under_panels'] - g['open_pasture']) <= 2
+        assert g['p_value'] > 0.05
+
+    def test_panelled_pasture_carried_more_animals(self):
+        """The more useful finding than parity: 22% higher stocking density at equal per-animal
+        performance. The array did not merely fail to harm the animals -- it supported higher
+        carrying capacity."""
+        s = ag.GRAZING_STOCKING_LAMBS_PER_HA
+        assert s['under_panels'] / s['open_pasture'] == pytest.approx(1.22, abs=0.02)
+
+    def test_liveweight_production_comparable_despite_higher_stocking(self):
+        lw = ag.GRAZING_LIVEWEIGHT_KG_PER_HA_DAY
+        assert lw['under_panels'] >= lw['open_pasture']
+        assert lw['p_value'] > 0.05
+
+    def test_forage_quality_offsets_biomass_decline(self):
+        """Biomass falls under heavier shade but crude protein, fiber digestibility and minerals
+        are maintained or improved. For forage the output is animal product, not tonnage --
+        reporting only the biomass decline would understate the agricultural outcome."""
+        q = ag.FORAGE_QUALITY_UNDER_SHADE
+        assert 'crude protein' in q and 'digestibility' in q
+        assert 'animal product, not tonnage' in q
+
+    def test_drought_mechanism_is_recorded_as_applying_to_virginia(self):
+        """Inverts an earlier caution in this analysis. That caution assumed Virginia growing
+        seasons are reliably humid; Virginia has had drought in each of the last five years."""
+        d = ag.DROUGHT_MECHANISM_APPLIES_TO_VIRGINIA
+        assert 'IN DROUGHT YEARS' in d
+        assert 'last five years' in d
+        assert 'no\nirrigation' in d or 'no irrigation' in d
+
+    def test_limits_of_the_grazing_evidence_are_stated(self):
+        """Corvallis is Mediterranean, not humid subtropical; the forage arrays are 30-50 kW, not
+        utility-scale geometry; the lamb study is two spring seasons."""
+        src = open(ag.__file__).read()
+        assert 'Corvallis is Mediterranean' in src
+        assert 'neither is\n# a Virginia trial' in src
