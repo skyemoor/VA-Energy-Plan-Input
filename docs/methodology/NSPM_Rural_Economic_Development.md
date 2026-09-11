@@ -464,6 +464,52 @@ previously.
 orchards. It must not be summed as total cropland — use the land-in-farms cropland figure
 (2,884,293) for that.
 
+## 6C. Mounting configuration — one revision, one problem
+
+### The corn evidence is no longer "almost nonexistent"
+
+**Colorado State University, northern Colorado, 2024.** Vertical bifacial panels in **north–south**
+rows, field corn planted between them. Treatments: centre, east, west, unshaded control, three
+replicates.
+
+> *"No significant differences in silage or grain yields across treatments (p > 0.05), indicating
+> this vertical PV system did not negatively impact crop productivity."*
+
+Also: Sekiyama & Nagashima, *"Solar sharing... performance of agrivoltaic systems for corn, a
+typical shade-intolerant crop"*, **Environments** 6(6):65, 2019.
+
+**Stated limits:** one season, the *establishment* year, one semi-arid continental site unlike
+Virginia's humid subtropical climate. A null at p > 0.05 with three replicates is weak evidence of
+no effect, not strong evidence of equivalence. But "no significant difference from a field trial"
+is a different position from "almost nonexistent data," and the earlier phrasing should not be
+repeated unqualified.
+
+**The configuration matters more than the crop.** This is specific to *vertical* panels in N–S
+rows, which shade a plant in the morning *or* the afternoon rather than through midday. It does
+**not** transfer to conventional tilted arrays.
+
+### The problem: 4–6 acres/MW is the wrong basis
+
+`ACRES_PER_MW` (4–6) is a **standard single-axis tracking** figure. Both viable agrivoltaic
+configurations are less land-efficient, and they trade against each other:
+
+| | energy density | LCOE |
+|---|---|---|
+| **Vertical bifacial** | 1,288 kWh/kWp — **~35% less** than tilted; needs **11.3–13.7 m** row spacing to retain 90% crop yield | **no premium** |
+| **Elevated tilted** | preserved | **+88%** vs conventional ground-mount |
+
+*(Jordan pilot, Amman, first operational year; row spacing from University of Turku.)*
+
+**Consequence, stated rather than patched:** every acreage figure in this note is a **lower bound**
+for agrivoltaic siting. The forage fit (20–30%) and farmland share (7.9–12.0%) are correspondingly
+**optimistic**.
+
+Quantifying the correction needs an agrivoltaic-specific acres/MW figure this analysis does not
+hold. Substituting a guess would be worse than carrying the gap, so the constants are unchanged and
+a test asserts they stay that way until a real figure replaces them.
+
+**This is now the second-highest priority owed item**, after the rural cost side.
+
 ## 7. What is owed before this is publishable
 
 1. **The cost side (NSPM Principle 3).** Land conversion, viewshed, decommissioning, construction-
@@ -480,5 +526,7 @@ orchards. It must not be summed as total cropland — use the land-in-farms crop
    upper bound and the actual adoption pattern should replace it.
 5. **The 85% share is an assumption, not a result**, and every figure here inherits that. NREL
    counts 13 existing agrivoltaic projects in Virginia, so current practice is far below.
-6. **Employment channels (5 and 6)** are the largest unquantified gap and the most commonly cited
+6. **An agrivoltaic-specific acres/MW figure** (see §6C). Every acreage and land-share figure
+   here is a lower bound until it exists.
+7. **Employment channels (5 and 6)** are the largest unquantified gap and the most commonly cited
    in rural economic development arguments. Worth estimating if time permits.

@@ -795,3 +795,84 @@ FSA_SOURCE_CAVEAT = (
     'entirely (1,915,266 acres in the 2022 Census) because pasture is not a planted crop, and '
     'excludes producers who do not report to FSA. Do not sum FSA planted acres with Census '
     'cropland -- they overlap. Do combine FSA forage with Census pastureland, which are disjoint.')
+
+
+# ============================================================================
+# MOUNTING CONFIGURATION -- AND A PROBLEM WITH THE ACRES/MW ASSUMPTION
+# ============================================================================
+# Added 2026-09-11. Revises two things recorded earlier in this module.
+#
+# REVISION 1: THE CORN EVIDENCE IS NO LONGER "ALMOST NONEXISTENT"
+#
+# This module and the agrivoltaics appendix both state that real-world field data on corn and
+# soybeans is "almost nonexistent". For corn specifically that is now out of date:
+#
+#   Colorado State University, northern Colorado, 2024 season. Vertical bifacial panels in
+#   NORTH-SOUTH oriented rows, corn planted between them. Treatments: centre, east (morning
+#   light/afternoon shade), west (morning shade/afternoon light), and unshaded control, three
+#   replicates. "Results showed no significant differences in silage or grain yields across
+#   treatments (p > 0.05), indicating this vertical PV system did not negatively impact crop
+#   productivity." (AgriVoltaics Conference Proceedings, "Impacts of a Vertical Bifacial
+#   Agrivoltaics System on Field Corn in Northern Colorado, USA: Performance of Silage Corn in the
+#   Establishment Year".)
+#
+#   Also: Sekiyama & Nagashima, "Solar sharing for both food and clean energy production:
+#   Performance of agrivoltaic systems for corn, a typical shade-intolerant crop", Environments
+#   6(6):65, 2019.
+#
+# STATED LIMITS: ONE season, the ESTABLISHMENT year, ONE site in a semi-arid continental climate
+# unlike Virginia's humid subtropical. A null result at p > 0.05 with three replicates is weak
+# evidence of no effect rather than strong evidence of equivalence. But "no significant difference"
+# from a real field trial is a materially different position from "almost nonexistent data", and
+# the earlier characterisation should not be repeated unqualified.
+#
+# THE CONFIGURATION MATTERS MORE THAN THE CROP. The result is specific to VERTICAL BIFACIAL panels
+# in N-S rows, which shade a given plant only in the morning or only in the afternoon rather than
+# through the midday peak. It does not transfer to conventional tilted arrays.
+#
+# REVISION 2 -- AND THIS IS A PROBLEM: 4-6 ACRES/MW IS THE WRONG BASIS FOR AGRIVOLTAICS
+#
+# ACRES_PER_MW_LOW/HIGH above are for standard single-axis tracking. Agrivoltaic configurations are
+# materially less land-efficient, in both of the two viable designs:
+#
+#   VERTICAL BIFACIAL -- no LCOE penalty, but low energy density. A Jordan pilot comparing a
+#   10-degree tilted array against a vertical east-west "fence" found the vertical system produced
+#   1,288 kWh/kWp against the tilted system's 1,962 -- about 35% less per kWp -- and delivered
+#   "energy yield equivalent to about 33% of the land area at the tested configuration". Crucially
+#   it achieved this "without increasing the LCOE", whereas the elevated tilted configuration
+#   "increases the levelized cost of electricity by roughly 88% compared to a conventional
+#   ground-mounted system due to elevated structural costs".
+#
+#   ROW SPACING COMPOUNDS IT. A University of Turku study of vertical bifacial systems found row
+#   spacing must be 11.3-13.7 m to retain 90% of reference-field agricultural yield. Wide spacing
+#   is what makes the crop yield null results possible, and it directly reduces MW per acre.
+#
+# So the two designs trade against each other: elevated tilted keeps energy density but adds ~88%
+# to LCOE; vertical bifacial keeps LCOE but needs substantially more land per MW. NEITHER matches
+# the 4-6 acres/MW figure used for the footprint above, which is a standard-tracking number.
+#
+# CONSEQUENCE, stated rather than patched: the acreage figures in footprint() are a LOWER BOUND for
+# agrivoltaic siting. The land-use fit (20-30% of forage land) and the farmland-share figures
+# (7.9-12.0%) are correspondingly optimistic. Quantifying the correction needs an agrivoltaic-
+# specific acres/MW figure, which this analysis does not yet have -- see AGRIVOLTAIC_ACRES_PER_MW_
+# IS_UNRESOLVED. Substituting a guess would be worse than carrying the gap explicitly.
+CORN_VERTICAL_BIFACIAL_EVIDENCE = (
+    'Colorado State University, northern Colorado, 2024: vertical bifacial panels in north-south '
+    'rows, field corn planted between. No significant differences in silage or grain yields across '
+    'centre/east/west/control treatments (p > 0.05). One season, establishment year, one '
+    'semi-arid site. Revises but does not overturn the "almost nonexistent corn data" position, '
+    'and is specific to VERTICAL configurations -- it does not transfer to tilted arrays.')
+
+VERTICAL_BIFACIAL_SPECIFIC_YIELD_KWH_PER_KWP = 1_288      # Jordan pilot, vertical east-west
+TILTED_BIFACIAL_SPECIFIC_YIELD_KWH_PER_KWP = 1_962        # same pilot, 10-degree south-facing
+ELEVATED_TILTED_LCOE_PREMIUM_FRACTION = 0.88              # vs conventional ground-mount
+VERTICAL_BIFACIAL_ROW_SPACING_M_FOR_90PCT_YIELD = (11.3, 13.7)   # University of Turku
+
+AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED = (
+    'ACRES_PER_MW_LOW/HIGH (4-6) are STANDARD SINGLE-AXIS TRACKING figures. Both viable '
+    'agrivoltaic configurations are less land-efficient: vertical bifacial yields ~35% less per '
+    'kWp and needs 11.3-13.7 m row spacing to retain 90% of crop yield, while elevated tilted '
+    'racking preserves energy density but adds ~88% to LCOE. Every acreage figure derived from '
+    '4-6 acres/MW is therefore a LOWER BOUND for agrivoltaic siting, and the land-use fit and '
+    'farmland-share percentages are correspondingly optimistic. An agrivoltaic-specific acres/MW '
+    'figure is needed and is not yet held; a guess would be worse than carrying the gap.')

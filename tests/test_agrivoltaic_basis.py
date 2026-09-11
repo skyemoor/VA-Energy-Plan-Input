@@ -479,3 +479,41 @@ class TestVirginiaCoverCropPolicyHooks:
         s = self.source()
         assert 'limited-resource, socially disadvantaged and veteran' in s
         assert 'not developed here' in s
+
+
+class TestMountingConfigurationAndTheAcresPerMWGap:
+    """Two revisions from the mounting-configuration literature. The second is a problem with a
+    figure already in use, and is carried as an explicit gap rather than patched with a guess."""
+
+    def test_corn_evidence_is_revised_not_overturned(self):
+        """A real field trial found no significant yield difference, which is materially different
+        from 'almost nonexistent data'. But one season, establishment year, one semi-arid site,
+        and a null at p > 0.05 with three replicates is weak evidence of no effect."""
+        e = ag.CORN_VERTICAL_BIFACIAL_EVIDENCE
+        assert 'no significant differences' in e.lower()
+        assert 'One season, establishment year' in e
+        assert 'does not transfer to tilted arrays' in e
+
+    def test_vertical_yields_materially_less_per_kwp(self):
+        assert (ag.VERTICAL_BIFACIAL_SPECIFIC_YIELD_KWH_PER_KWP
+                / ag.TILTED_BIFACIAL_SPECIFIC_YIELD_KWH_PER_KWP) == pytest.approx(0.66, abs=0.02)
+
+    def test_the_two_configurations_trade_against_each_other(self):
+        """Elevated tilted keeps energy density but adds ~88% to LCOE; vertical keeps LCOE but
+        needs far more land. There is no configuration that is good at both."""
+        assert ag.ELEVATED_TILTED_LCOE_PREMIUM_FRACTION == 0.88
+        lo, hi = ag.VERTICAL_BIFACIAL_ROW_SPACING_M_FOR_90PCT_YIELD
+        assert lo > 11 and hi < 14
+
+    def test_acres_per_mw_gap_is_recorded_not_patched(self):
+        """4-6 acres/MW is a standard-tracking figure. Substituting a guess for agrivoltaic
+        configurations would be worse than carrying the gap explicitly."""
+        g = ag.AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED
+        assert 'STANDARD SINGLE-AXIS TRACKING' in g
+        assert 'LOWER BOUND' in g
+        assert 'a guess would be worse than carrying the gap' in g
+
+    def test_acres_per_mw_constants_are_unchanged_pending_a_real_figure(self):
+        """The gap is documented, not silently corrected -- every downstream figure stays
+        reproducible against what was published."""
+        assert ag.ACRES_PER_MW_LOW == 4.0 and ag.ACRES_PER_MW_HIGH == 6.0
