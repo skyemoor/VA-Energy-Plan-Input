@@ -973,6 +973,53 @@ foresight — the same bracket at a different granularity.
 bias as *"less than 10% for nearly all technologies"*, judged acceptable against 2050 cost
 uncertainty.
 
+### A qualification to option 4 — uncertainty is not a degraded perfect foresight
+
+**Shen, Ilic & Parsons (MIT), "Dynamic Storage Operation Under Uncertainty and the Reliability
+Externality: Implications for Capacity Investments", arXiv 2607.27021, July 2026, PowerUp 2026.**
+
+This is the first source found that pushes *against* part of option 4, and the point is worth
+taking seriously because it concerns the bracket's core assumption.
+
+> *"Demand uncertainty induces a **precautionary storage policy** which hedges against stochastic
+> scarcity, leading to **materially different post-storage demand distributions relative to
+> perfect-foresight benchmarks**."*
+
+Option 4 assumes reality sits **between** a no-foresight lower bound and a perfect-foresight upper
+bound — that limited foresight is a degraded version of perfect foresight. Shen et al. find it is
+not. Uncertainty induces a **qualitatively different policy**: precautionary hedging, holding
+charge against scarcity that *may not arrive*.
+
+**Consequence for the bracket, and it differs by metric:**
+
+| metric | is perfect foresight the upper bound? |
+|---|---|
+| **Arbitrage revenue** | **Yes.** A perfect-foresight operator captures every spread; nobody beats it. The bracket holds. |
+| **Reliability contribution** | **Not necessarily.** A precautionary operator holds charge against events that do not materialise, and may deliver *more* reliability than an operator who spends storage optimally against known outcomes. |
+
+This project uses storage dispatch for **both**: arbitrage value in Scenario 3, and capacity
+accreditation in `capacity_accreditation.py`. So the bracket is sound for the first and must not be
+assumed for the second.
+
+That also reframes the 100.0%-versus-31.8% accreditation finding. The 31.8% no-foresight heuristic
+is not necessarily a lower bound on what a *real* operator would accredit — a real operator hedging
+precautionarily might hold more charge into peak hours than either the LP or a naive heuristic.
+Both of our existing figures may sit below the realistic value.
+
+### The reliability externality, which bears on the policy argument
+
+> *"the **reliability externality** characteristic of electricity markets interacts with uncertainty
+> in a manner that **uniquely distorts both storage operation and investment**."*
+
+Storage owners do not capture the full reliability value they provide, so private operating and
+investment decisions diverge from the social optimum in a way that uncertainty *amplifies*.
+
+This strengthens the policy case beyond the market-design argument already recorded. Longer-horizon
+price signals are not only an efficiency improvement — without them, **the externality and the
+uncertainty compound**, and private DER investment under-provides reliability by more than either
+effect alone would produce. That is an argument for intervention rather than merely for better
+information.
+
 ### This widens the scope of the problem beyond Scenario 3
 
 The foresight asymmetry was framed above as a distributed-versus-utility issue inside Scenario 3.
