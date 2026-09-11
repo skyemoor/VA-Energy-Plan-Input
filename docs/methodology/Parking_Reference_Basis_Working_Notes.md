@@ -586,3 +586,78 @@ without them.
 
 All figures carry the §12 limitation: no site survey, no shading deduction, upper bounds on the
 physical resource rather than deliverable capacity.
+
+---
+
+## 14. Data vintage: a systematic understatement across every source (2026-09-11)
+
+The NREL rooftop workbook was obtained to provide an independent benchmark. It does, but examining
+it surfaced a limitation that applies to **every** figure in this assessment, not only to NREL's.
+
+### Virginia's NREL LiDAR coverage is 79% from 2007
+
+The workbook covers 79 Virginia ZIPs — Hampton Roads and Richmond metro. There is **no Northern
+Virginia coverage**, so it cannot check the four-county assessment at all.
+
+| jurisdiction | LiDAR year | medium+large MW |
+|---|---|---:|
+| Virginia Beach | 2007 | 859 |
+| Norfolk | 2007 | 544 |
+| **Chesapeake** | **2007** | 445 |
+| Newport News | 2007 | 386 |
+| Hampton | 2007 | 312 |
+| Richmond City | 2008 / 2013 | 274 |
+| Henrico | 2013 | 228 |
+| Chesterfield | 2013 | 219 |
+| Portsmouth | 2007 | 184 |
+| York, Prince George, Poquoson, Dinwiddie | mixed | 121 |
+
+**All of Hampton Roads is 2007 — nineteen years old.** Two effects, both understating:
+buildings constructed since are absent, and the shading screen (roof planes producing below 70% of
+unshaded output) was assessed against 2007 tree canopy, which nineteen years of growth has since
+made stricter.
+
+### The Chesapeake cross-check is weaker than it first appeared
+
+Our 412.2 MW rests on **current** building geometry; NREL's 445 MW rests on **2007** geometry.
+They are not contemporaneous. The gap attributed to methodology differences — NREL covering more
+building uses but applying shading, azimuth and tilt screens — is partly just nineteen years of
+construction, including an Amazon distribution centre that almost certainly postdates the survey.
+
+The comparison remains worth recording, but it **cannot distinguish "our method is sound" from
+"our method is wrong and the vintage gap masks it."**
+
+### The pattern across all sources
+
+| source | vintage |
+|---|---|
+| NREL Virginia LiDAR | **2007** (79%), 2013 |
+| NVRC rooftop sample (all county density rates) | ~2016 |
+| Fairfax parking | 2007 / 2009 / 2017 / 2023 mixed |
+| Arlington parking | single sync timestamp; real vintage undeterminable |
+| Loudoun parking | 96%+ updated 2022 or later |
+| Richmond surfaces | 2023–2026 |
+| Chesapeake buildings | undetermined |
+
+**Every figure understates by whatever was built after its own vintage, and the vintages span
+nineteen years.** Because the direction is consistent, the aggregate is a floor — which is the
+useful property. But **relative comparisons between jurisdictions carry a vintage artifact that
+could easily be mistaken for a real difference in development pattern.** Loudoun's 2022+ parking
+data and Chesapeake's 2007-based NREL benchmark are not on the same footing, and neither is
+Fairfax's four-vintage mixture.
+
+### Consequence for the whitepaper
+
+Distributed figures should be presented as **floors with stated vintages**, not as current
+capability, and cross-jurisdiction comparison should be avoided or explicitly caveated. This sits
+alongside the §12 shading limitation: both push the same direction, and together they mean the
+distributed resource is understated by an amount this analysis cannot quantify.
+
+### Decision, 2026-09-11
+
+Further per-jurisdiction data collection is **discontinued**. Eight jurisdictions were examined;
+four publish parking geometry; the vintage spread undermines cross-comparison even where data
+exists; and the effort was consuming disproportionate time for diminishing returns. The
+distributed resource is carried as a documented floor, and scenario weighting moves to a stated
+allocation assumption rather than a bottom-up siting build — see the agrivoltaic basis adopted for
+Scenario 3.
