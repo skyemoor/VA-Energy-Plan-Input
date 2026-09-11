@@ -411,18 +411,18 @@ def lease_versus_farm_income(crop: str = 'composite') -> LeaseVersusFarmIncome:
 #   varieties are bred for full sun, and the peer-reviewed literature describes real-world
 #   agrivoltaic field data on these specific crops as "almost nonexistent".
 #
-# Pasture (1,915,266 acres) plus hay (~870,000) gives roughly 2.79M acres of forage land. The
-# entire agrivoltaic requirement of 605,626-921,733 acres is 22-33% of that -- so it fits within
-# forage land alone, WITHOUT TOUCHING corn, soybeans, cotton, peanuts or tobacco.
+# Pasture (1,915,266 acres) plus forage hay/haylage (1,117,726) gives 3,032,992 acres. The entire
+# agrivoltaic requirement of 605,626-921,733 acres is 20.0-30.4% of that -- so it fits within forage
+# land alone, WITHOUT TOUCHING corn, soybeans, cotton, peanuts or tobacco.
+#
+# Forage land exceeds the weak-evidence row crops (soybeans 610,605 + corn 384,337 + wheat 165,415
+# = 1,160,357 acres) by 2.6x, so the compatible base is not merely sufficient but comfortably so.
 #
 # AND THE ECONOMICS ALIGN WITH THE COMPATIBILITY. SLEAC net returns are $3.69/acre for pasture and
 # $0.32/acre for hay -- the two lowest of any use. Solar lease income is therefore most
 # transformative precisely where agrivoltaic compatibility is strongest and where the opportunity
 # cost of hosting is lowest. That is not a coincidence to gloss over; it is the core of the case.
 #
-# CAVEAT: the hay figure is DERIVED, not read from the Census. It is inferred from NASS production
-# (~2.07M tons other hay plus ~90,000 tons alfalfa) at roughly 2.5 tons/acre. It must be replaced
-# with the Census's own harvested-acres figure before publication -- see HAY_ACRES_IS_DERIVED.
 VA_LAND_IN_FARMS_BY_USE_ACRES = {
     'cropland': 2_884_293,
     'pastureland': 1_915_266,
@@ -433,12 +433,36 @@ VA_TOTAL_LAND_IN_FARMS_ACRES = sum(VA_LAND_IN_FARMS_BY_USE_ACRES.values())   # 7
 VA_FARMS_COUNT = 38_995
 VA_AG_PRODUCTS_SOLD_USD = 5_491_996_000
 
-#: DERIVED, not from the Census. See the caveat above. Replace before publication.
-VA_HAY_ACRES_APPROX = 870_000
-HAY_ACRES_IS_DERIVED = (
-    'VA_HAY_ACRES_APPROX is inferred from NASS production tonnage at an assumed ~2.5 tons/acre, '
-    'NOT read from the Census of Agriculture harvested-acres tables. Replace with the Census '
-    'figure before any published use.')
+# Top crops in acres, 2022 Census of Agriculture, Virginia state profile. Pastureland is reported
+# separately under land-in-farms-by-use above and is NOT a crop, so it is not listed here.
+#
+# CORRECTED 2026-09-11: an earlier version carried VA_HAY_ACRES_APPROX = 870,000, DERIVED from
+# NASS production tonnage at an assumed ~2.5 tons/acre because the Census figure had not been
+# located. The Census reports 1,117,726 acres of forage (hay/haylage) -- the derivation was 22%
+# LOW. It has been replaced, and the derived constant removed rather than left available to be
+# picked up by mistake.
+#
+# The correction moves the forage finding in the favourable direction: the agrivoltaic requirement
+# is 20.0-30.4% of forage land rather than the 21.7-33.1% previously reported.
+VA_TOP_CROPS_ACRES = {
+    'forage_hay_haylage': 1_117_726,
+    'soybeans': 610_605,
+    'corn_for_grain': 384_337,
+    'wheat_for_grain': 165_415,
+}
+
+#: Cotton, peanuts, tobacco, vegetables and orchards are not captured in the state profile's
+#: truncated top-crops list. They are collectively small relative to the four above, but the list
+#: is INCOMPLETE and should not be summed as though it were total cropland.
+VA_TOP_CROPS_IS_PARTIAL = (
+    "VA_TOP_CROPS_ACRES is the state profile's top-crops list and does NOT include cotton, "
+    'peanuts, tobacco, vegetables or orchards. Do not sum it as total cropland -- use '
+    "VA_LAND_IN_FARMS_BY_USE_ACRES['cropland'] for that.")
+
+#: Row crops carrying the WEAKEST agrivoltaic evidence -- current varieties are bred for full sun,
+#: and the literature describes real-world field data on them as "almost nonexistent". Named so
+#: the contrast against forage is explicit rather than implied.
+WEAK_EVIDENCE_ROW_CROPS = ('soybeans', 'corn_for_grain')
 
 #: Uses where agrivoltaic compatibility evidence is strongest. Deliberately excludes cropland as a
 #: whole: within cropland, hay and winter wheat are well-supported while corn and soybeans are not,
@@ -469,7 +493,8 @@ def land_use_fit(footprint_result: AgrivoltaicFootprint) -> LandUseFit:
     lo, hi = footprint_result.agrivoltaic_acres_low, footprint_result.agrivoltaic_acres_high
     total = VA_TOTAL_LAND_IN_FARMS_ACRES
     crop = VA_LAND_IN_FARMS_BY_USE_ACRES['cropland']
-    forage = VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland'] + VA_HAY_ACRES_APPROX
+    forage = (VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland']
+              + VA_TOP_CROPS_ACRES['forage_hay_haylage'])
     return LandUseFit(
         agrivoltaic_acres_low=lo, agrivoltaic_acres_high=hi,
         share_of_all_farmland=(lo / total, hi / total),
@@ -478,7 +503,7 @@ def land_use_fit(footprint_result: AgrivoltaicFootprint) -> LandUseFit:
         forage_acres=forage,
         fits_within_forage=hi <= forage,
         finding=(
-            'The requirement fits within pasture and hay land alone -- 22-33% of it -- without '
+            'The requirement fits within pasture and hay land alone -- 20-30% of it -- without '
             'touching corn, soybeans, cotton, peanuts or tobacco. That matters because agrivoltaic '
             'compatibility is strongest on exactly those forage uses (sheep grazing is the most '
             'mature practice in the field) and weakest on the row crops, where the literature '
@@ -486,4 +511,4 @@ def land_use_fit(footprint_result: AgrivoltaicFootprint) -> LandUseFit:
             'pasture and hay carry the LOWEST SLEAC net returns of any use ($3.69 and $0.32/acre), '
             'so lease income is most transformative precisely where compatibility is best and the '
             'opportunity cost of hosting is lowest.'),
-        caveat=HAY_ACRES_IS_DERIVED)
+        caveat=VA_TOP_CROPS_IS_PARTIAL)

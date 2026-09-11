@@ -194,7 +194,7 @@ class TestVirginiaLandUseFit:
         r = ag.land_use_fit(ag.footprint(173_780.7))
         assert r.share_of_all_farmland[0] == pytest.approx(0.083, abs=0.005)
         assert r.share_of_cropland[0] == pytest.approx(0.210, abs=0.005)
-        assert r.share_of_forage_land[0] == pytest.approx(0.217, abs=0.005)
+        assert r.share_of_forage_land[0] == pytest.approx(0.200, abs=0.005)  # was 0.217 on the derived hay figure
 
     def test_cropland_share_is_the_hard_number_and_is_not_hidden(self):
         """21-32% of Virginia's cropland is what an opponent would reach for. It must be
@@ -221,12 +221,41 @@ class TestVirginiaLandUseFit:
         assert ag.SLEAC_NET_RETURN_PER_ACRE['pasture'] < ag.SLEAC_NET_RETURN_PER_ACRE['corn']
         assert ag.SLEAC_NET_RETURN_PER_ACRE['hay'] < ag.SLEAC_NET_RETURN_PER_ACRE['corn']
 
-    def test_derived_hay_figure_is_flagged_as_derived(self):
-        """It is inferred from production tonnage, not read from the Census harvested-acres
-        tables, and the forage finding depends on it."""
+    def test_derived_hay_constant_was_removed_not_merely_superseded(self):
+        """An earlier version carried VA_HAY_ACRES_APPROX = 870,000, derived from NASS tonnage
+        because the Census figure had not been located. The Census reports 1,117,726 -- the
+        derivation was 22% LOW. The constant was deleted rather than left available, so it cannot
+        be picked up by mistake."""
+        assert not hasattr(ag, 'VA_HAY_ACRES_APPROX')
+        assert not hasattr(ag, 'HAY_ACRES_IS_DERIVED')
+
+    def test_forage_now_uses_the_census_figure(self):
+        assert ag.VA_TOP_CROPS_ACRES['forage_hay_haylage'] == 1_117_726
         r = ag.land_use_fit(ag.footprint(173_780.7))
-        assert 'NOT read from the Census' in r.caveat
-        assert 'Replace' in r.caveat
+        assert r.forage_acres == 1_915_266 + 1_117_726
+
+    def test_correction_moved_the_finding_favourably(self):
+        """20.0-30.4% of forage land, against 21.7-33.1% under the understated derivation."""
+        r = ag.land_use_fit(ag.footprint(173_780.7))
+        assert r.share_of_forage_land[1] == pytest.approx(0.304, abs=0.005)
+
+    def test_top_crops_list_is_flagged_as_partial(self):
+        """It omits cotton, peanuts, tobacco, vegetables and orchards, so it must not be summed
+        as total cropland."""
+        r = ag.land_use_fit(ag.footprint(173_780.7))
+        assert 'does NOT include cotton' in r.caveat
+        assert sum(ag.VA_TOP_CROPS_ACRES.values()) < ag.VA_LAND_IN_FARMS_BY_USE_ACRES['cropland']
+
+    def test_forage_comfortably_exceeds_the_weak_evidence_row_crops(self):
+        """Forage land is 2.6x the soybean + corn + wheat acreage, so the compatible base is not
+        merely sufficient but has margin."""
+        forage = ag.VA_LAND_IN_FARMS_BY_USE_ACRES['pastureland'] + ag.VA_TOP_CROPS_ACRES['forage_hay_haylage']
+        row = sum(ag.VA_TOP_CROPS_ACRES[c] for c in ('soybeans', 'corn_for_grain', 'wheat_for_grain'))
+        assert forage / row > 2.5
+
+    def test_weak_evidence_crops_are_named_explicitly(self):
+        assert 'soybeans' in ag.WEAK_EVIDENCE_ROW_CROPS
+        assert 'corn_for_grain' in ag.WEAK_EVIDENCE_ROW_CROPS
 
     def test_forage_uses_deliberately_exclude_cropland_as_a_whole(self):
         """Within cropland, hay and winter wheat are supported while corn and soybeans are not.

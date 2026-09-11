@@ -222,7 +222,7 @@ base chosen:
 |---|---:|
 | all land in farms | 8.3 – 12.6% |
 | **cropland alone** | **21.0 – 32.0%** |
-| pasture + hay (forage) | 21.7 – 33.1% |
+| pasture + forage | 20.0 – 30.4% |
 
 **The cropland figure is the one an opponent reaches for**, and it must be computed and stated
 rather than omitted in favour of the flattering denominator. A third of Virginia's cropland is a
@@ -243,9 +243,21 @@ Agrivoltaic suitability is not uniform, and the gradient is favourable:
   varieties are bred for full sun, and the peer-reviewed literature describes real-world
   agrivoltaic field data on these crops as *"almost nonexistent."*
 
-Pasture (1,915,266) plus hay (~870,000, **derived — see caveat**) gives roughly **2.79M acres of
-forage land**. The entire requirement is **22–33% of that**, so **it fits within forage land alone,
-without touching corn, soybeans, cotton, peanuts or tobacco.**
+**Top crops in acres, 2022 Census of Agriculture:**
+
+| crop | acres | agrivoltaic evidence |
+|---|---:|---|
+| **Forage (hay/haylage), all** | **1,117,726** | **strong** |
+| Soybeans for beans | 610,605 | weakest |
+| Corn for grain | 384,337 | weakest |
+| Wheat for grain, all | 165,415 | strongest field-crop evidence |
+| *(Pastureland, reported separately)* | *1,915,266* | ***most mature practice*** |
+
+Pasture plus forage gives **3,032,992 acres**. The entire requirement is **20.0–30.4%** of that, so
+**it fits within forage land alone**, without touching corn, soybeans, cotton, peanuts or tobacco.
+
+Forage land exceeds the weak-evidence row crops (soybeans + corn + wheat = 1,160,357 acres) by
+**2.6×** — so the compatible base is not merely sufficient but has margin.
 
 ### Three things align, and that alignment is the case
 
@@ -262,12 +274,20 @@ best and where the opportunity cost of hosting is lowest.
 That is the core of the rural economic case, and it should be stated directly rather than left for
 a reader to assemble.
 
-### Caveat on the hay figure
+### Correction, 2026-09-11
 
-`VA_HAY_ACRES_APPROX` (870,000) is **derived** from NASS production tonnage at an assumed ~2.5
-tons/acre, **not read from the Census harvested-acres tables**. The forage finding depends on it,
-so it must be replaced with the Census figure before publication. A test asserts the flag is
-present.
+An earlier version of this note used a **derived** hay figure of 870,000 acres, inferred from NASS
+production tonnage at an assumed ~2.5 tons/acre because the Census figure had not been located.
+The Census reports **1,117,726** — the derivation was **22% low**. The constant has been deleted
+from the code rather than superseded in place, so it cannot be picked up by mistake, and a test
+asserts its absence.
+
+The correction moves the finding favourably: **20.0–30.4%** of forage land, against 21.7–33.1%
+previously.
+
+**Remaining limitation:** the top-crops list omits cotton, peanuts, tobacco, vegetables and
+orchards. It must not be summed as total cropland — use the land-in-farms cropland figure
+(2,884,293) for that.
 
 ## 7. What is owed before this is publishable
 
@@ -276,7 +296,8 @@ present.
    the obvious rebuttal.
 2. ~~Verify Virginia farmland acreage~~ — **DONE**: 7,309,687 acres, 2022 Census of Agriculture.
    The earlier ~7.7M recollection was 5% high. **Still owed**: the Census's own hay harvested-acres
-   figure, to replace the derived 870,000 the forage finding rests on.
+   figure — **DONE**: 1,117,726 acres forage (hay/haylage), replacing the derived 870,000,
+   which was 22% low.
 3. **AC versus DC.** § 58.1-2636 measures nameplate in AC. If the modeled build is DC, revenue
    share figures are correspondingly high.
 4. **Revenue share adoption rate.** The statute is a ceiling adopted by ordinance. The Weldon
