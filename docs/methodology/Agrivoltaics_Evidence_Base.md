@@ -221,6 +221,116 @@ should be checked rather than assumed away.
 
 ---
 
+## 6B. Statutory framing (added 2026-09-11)
+
+### The definition, and where it applies
+
+**Va. Code § 10.1-1197.5** — six clauses. Agrivoltaics means intentional co-location of
+agricultural production and solar generation on the same land that:
+
+| | |
+|---|---|
+| (i) | is designed to **prioritize and sustain agricultural productivity** while integrating renewable energy |
+| (ii) | allows ongoing production and sale of **marketable agricultural products throughout the array's life** |
+| (iii) | is part of a **farm business consistent with commercial agricultural production** |
+| (iv) | has **decommissioning provisions** protecting agricultural resources and productivity |
+| (v) | **does not significantly displace farming activity** |
+| (vi) | ensures **flexibility for farmers** to adapt to market conditions and support operational needs |
+
+Added 2026 (cc. 156 HB508, 157 SB340, 901 SB645) — **recent, with no interpretive practice yet**.
+
+**Correction:** earlier drafts of this analysis cited **§ 45.2-1706.1** for this definition. That
+section is the Commonwealth Clean Energy Policy and **contains no agrivoltaic definition at all**.
+
+**Scope:** the definition opens *"As used in this article"* (Article 5, Small Renewable Energy
+Projects, ≤150 MW solar, DEQ permit by rule) — **but it is not confined there in practice**.
+§ 15.2-2288.8(A)(3) imports it by reference into Title 15.2 zoning, which reaches **any
+ground-mounted solar project of 1 MW or more**.
+
+### § 15.2-2288.8 uses agrivoltaics permissively, in two places
+
+**(A)(3) — enabling, not restricting.** Panel height is capped at 25 ft at full tilt *"except in
+cases where a height variance is necessary to allow for agrivoltaics activity below or in proximity
+to the panels."* Agrivoltaics is grounds to **exceed** a limit. A standard-height array never
+invokes the clause.
+
+**(A)(9) — grazing is treated as ordinary.** An ordinance may require *up to 75% vegetative cover*
+maintained for the project's life. *"For projects or portions of projects **not used for animal
+grazing, co-located crop production**, native and naturalized pollinator plant species... shall be
+planted."* Grazing and crops sit in the same list as pollinator plantings, with **no additional
+design condition**.
+
+Two consequences: vegetation management is **mandatory regardless**, so grazing adds no burden that
+was not already required; and the statute plainly contemplates livestock or crops under an
+otherwise conventional array.
+
+### The clause (i) concern, downgraded
+
+An earlier draft argued standard-density single-axis tracking might fail clause (i) because such
+arrays are *designed to prioritize energy yield*.
+
+**That reading is weaker than the alternative.** The relevant counterfactual is not an idealised
+agrivoltaic design — it is **conventional solar development, which removes the land from
+agriculture entirely**. Against that, a configuration keeping land in production *does* prioritize
+and sustain agricultural productivity. Clause (v) reads the same way, and § 15.2-2288.8(A)(9)
+supports it.
+
+Neither reading is authoritative. The statute quantifies neither *"prioritize"* nor *"significantly
+displace"*, and there is no permitting practice yet. But the earlier framing **overstated the
+risk** and should not be repeated as settled.
+
+### Scale note
+
+At 4–6 acres/MW a project at the 150 MW ceiling occupies **600–900 acres** against Virginia's
+**187-acre average farm** (VDACS / 2022 Census) — roughly **3 to 5 farms**. Projects at that cap
+are typically **multi-landowner aggregations**, which bears on clause (iii) *"part of a farm
+business"* and clause (vi) *"flexibility for farmers"*: both read naturally for one farm, less
+obviously for four.
+
+Size distribution around the mean is not held; the Census reports 1,367 farms of 1,000+ acres out
+of 38,995 (≈3.5%).
+
+---
+
+## 6C. Grazing and forage — measured animal performance
+
+Added 2026-09-11. Pasture and forage are **3.03–3.36M Virginia acres**, the largest compatible
+category. Prior evidence was an industry census and one dairy observation; these are measurements.
+
+### Lamb growth and stocking (Andrew, OSU, 2020)
+
+| | under panels | open pasture | |
+|---|---:|---:|---|
+| Lamb growth | **120 g/hd/d** | 119 g/hd/d | P = 0.90 |
+| Stocking density | **36.6 lambs/ha** | 30 lambs/ha | **+22%** |
+| Liveweight production | 1.5 kg/ha/d | 1.3 kg/ha/d | P = 0.67 |
+
+**Parity is not the finding.** The panelled pasture **carried 22% more animals at equal per-animal
+performance** — it did not merely fail to harm the flock, it supported higher carrying capacity.
+
+Drought-relevant observations: *"some aspects were more favorable in the fully solar treatments,
+including water consumption in late spring 2019, the ability to maintain a higher stocking rate
+towards summer, and increased herbage yields in July of 2019."* Lower water use, better late-season
+carrying capacity, higher mid-summer herbage — precisely when unshaded pasture fails.
+
+### Forage quality (Florentino et al., *JDS Communications* 2026)
+
+Biomass **is** lowest under the most-shaded (50 kW) array. But crude protein is **higher**,
+total-tract fiber digestibility **higher**, mineral content maintained. Nutritive value *"maintained
+or improved"*. The authors conclude shading can produce high-quality forage *"potentially offsetting
+lower biomass yields through increased nutritional content."*
+
+**This is a methodological point, not just a result.** Every other crop study reviewed measures
+biomass or grain. For forage the relevant output is **animal product**, and a shaded sward with
+higher protein and digestibility converts better per kilogram. Reporting the biomass decline alone
+would understate the agricultural outcome.
+
+### Limits
+
+Corvallis is Mediterranean (dry summer, wet winter), not humid subtropical. The Florentino arrays
+are 30–50 kW, not utility-scale tracking geometry. The lamb study covers two spring seasons.
+**Neither is a Virginia trial.**
+
 ## 7. Open items
 
 1. **An agrivoltaic-specific acres/MW figure.** 4–6 acres/MW is standard single-axis tracking.
@@ -330,6 +440,9 @@ Use Value of Agricultural and Horticultural Land in Virginia." VCE publication *
 **USDA NASS.** 2022 Census of Agriculture, Virginia State Profile (cp99051).
 → Land in farms by use; top crops in acres; crop sales by category; livestock inventory.
 
+**VDACS.** Agriculture Facts and Figures. → Average Virginia farm 187 acres; 2022 Census
+derivatives.
+
 **USDA Farm Service Agency.** Crop Acreage Data, 2026 Virginia rows, August 2026 release, via FOIA
 electronic reading room.
 → 121 crops, 98 counties, county-level planted acres by crop, type, intended use, irrigation.
@@ -342,6 +455,12 @@ electronic reading room.
 
 **Va. Code § 58.1-3239** — State Land Evaluation Advisory Council; use-value assessment.
 
+**Va. Code § 15.2-2288.8** — Special exceptions for solar photovoltaic projects. Amended 2026,
+cc. 1005 (SB347), 1068 (HB711). Applies to ground-mounted solar ≥1 MW.
+→ (A)(3) imports the § 10.1-1197.5 definition and makes agrivoltaics grounds for a height variance;
+(A)(9) lists animal grazing and co-located crop production alongside pollinator plantings, and
+requires up to 75% vegetative cover. Full text in `docs/statutes/15.2-2288.8.md`.
+
 **Va. Code § 10.1-1197.5** — Definitions, Article 5 (Small Renewable Energy Projects).
 → The agrivoltaics definition, six clauses. Amended 2026, cc. 156, 157, 901 — recent. Full text in
 `docs/statutes/10.1-1197.5.md`.
@@ -349,7 +468,19 @@ electronic reading room.
 **Va. Code § 45.2-1706.1** — Commonwealth Clean Energy Policy. **Contains NO agrivoltaic
 definition**; earlier drafts of this analysis cited it for one in error.
 
+### Drought
+
+**US Drought Monitor** — National Drought Mitigation Center, University of Nebraska-Lincoln, with
+USDA, NOAA and NASA. droughtmonitor.unl.edu.
+→ **Not yet pulled.** The current-map page renders its statistics table via JavaScript. Virginia
+2021–2026 history is available via *Weeks in Drought*, the *DSCI time series*, or *Comprehensive
+Statistics* CSV. **The five-drought-year premise is asserted until this is sourced.**
+
 ### Grazing and livestock
+
+**Andrew, A.C.** (2020) — see Field trials above.
+
+**Florentino, A. et al.** (2026) — see Field trials above.
 
 **American Solar Grazing Association**, 2024 Census. ~113,000 sheep across 500+ US solar sites.
 
