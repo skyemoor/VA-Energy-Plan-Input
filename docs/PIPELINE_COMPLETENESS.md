@@ -187,3 +187,52 @@ and the merged files could not be run at the time to catch it.
 Fixed by section-scoping (`ROOFTOP_PROJECT_CSV_PATH` / `PARKING_PROJECT_CSV_PATH`) rather than by
 renaming just the one that broke, and `test_run_all_stages.py` now asserts that no merged suite
 defines any top-level name twice.
+
+---
+
+## Module restoration complete (2026-09-11)
+
+Test count: **212 passing this morning to 440**. Restored across two rounds:
+
+- `rooftop_solar_estimation_base` and all eight county siting modules (Arlington, Fairfax,
+  Loudoun, Prince William x rooftop and parking)
+- `population_extrapolation`, `loudoun_parking_canopy_and_storage`, `loudoun_solar_firming`,
+  `loudoun_battery_dispatch`, `loudoun_solar_hourly_profile`, `loudoun_streak_finder`,
+  `loudoun_load_shape_gap_analysis`
+
+The four-county NoVA siting assessment, the Loudoun solar/storage/gap analysis chain, and the
+statewide extrapolation are now all reproducible from the repository rather than quoted from
+documents.
+
+### Still absent (6 suites auto-ignored)
+
+`address_classifier`, `citizen_ev_v2g_feature`, `dominion_school_bus_v2g_assumptions`,
+`ev_charger_rewards_feature`, `school_bus_v2g_feature`, `school_rooftop_solar_assumptions`.
+
+These are the demand-side feature modules and the school-solar work. `address_classifier` also
+produces `loudoun_full_classified.csv`, which `loudoun_ci_rooftop_solar_estimate` consumes -- the
+CSV is present, so that analysis runs, but the classifier that generated it is not.
+
+### OPEN ISSUE: population_extrapolation rests on a superseded figure
+
+`population_extrapolation.REFERENCE_COUNTIES` uses Prince William parking at **1,734.7-2,168.4
+MW**. That figure was re-based on 2026-09-10 to **335.6 MW** (see
+`methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md` § 13) after its
+population-per-capita anchor was found to import Loudoun's data-center-driven parking density.
+
+This creates a circularity the module's own docstring is explicitly trying to avoid. It excludes
+Loudoun from the reference basis because *"Loudoun's own C&I MW/capita is a documented, known
+outlier (data-center-driven commercial boom)... Including either outlier in the reference basis
+would distort the rate applied to every other jurisdiction."* But Prince William's parking figure
+is itself derived by extrapolating Loudoun's per-capita density, so Loudoun re-enters through it.
+
+The effect is large rather than marginal. The parking rate range runs **0.3607 to 3.8448
+kW/capita, a 10.7x spread** -- which is precisely the Loudoun-vs-Fairfax gap that Prince William's
+own module documents. With only two reference counties, one carrying an imported Loudoun anchor,
+the statewide parking extrapolation spans **1,533 to 16,344 MW**: too wide to use, with an upper
+bound that is Loudoun's data-center density applied to the whole Commonwealth.
+
+Substituting the corrected figure would collapse the rate spread from 10.7x to roughly 1.2x.
+**Not done** -- it changes a published figure, and the direction matters: it makes the distributed
+resource SMALLER, cutting against this paper's own argument. That is a reason for care in how it
+is presented, not a reason to leave it wrong.
