@@ -399,8 +399,16 @@ class TestCoverCropPurposesAgrivoltaicsServes:
     panels reaches it with no additional land and no separate program."""
 
     def source(self):
+        """Returns the module source with comment-line wrapping collapsed.
+
+        An earlier version compared against the raw text and failed on a phrase that wrapped
+        across two comment lines. Normalising here makes these assertions test the CONTENT rather
+        than the line breaks, which is what they are actually about.
+        """
+        import re
         import agrivoltaic_basis
-        return open(agrivoltaic_basis.__file__).read()
+        raw = open(agrivoltaic_basis.__file__).read()
+        return re.sub(r'\s*\n#\s*', ' ', raw)
 
     def test_grazing_season_extension_is_recorded(self):
         s = self.source()
