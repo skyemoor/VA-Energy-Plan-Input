@@ -928,6 +928,63 @@ That supports the six-day framing as **realistic rather than aspirational**: a f
 operational horizon is already within forecast skill, so the gap is a market-design gap, not a
 meteorological one.
 
+### The LDES-specific literature, which matches our case far better
+
+A second, narrower search found the long-duration-storage foresight literature. It is closer to our
+situation than the battery-arbitrage papers above, and one finding applies directly to a result
+this project already holds.
+
+**arXiv 2505.12538, "On long-duration storage, weather uncertainty and limited foresight"**, builds
+a stochastic capacity expansion model comparing a **Limited Foresight** case against a **Perfect
+Foresight** case — option 4, in a capacity-expansion setting rather than a trading one. Its
+statement of the problem:
+
+> *"Assuming perfect foresight is particularly consequential for the operation of LDES. For
+> example, LDES injection decisions in summer would be taken under perfect knowledge of the looming
+> VRE scarcity events and necessary storage withdrawal in winter, which may lead to **very
+> unrealistic LDES dispatch patterns, LDES system value and consequently capacity decisions**."*
+
+**This describes our iron-air result.** The 8-year validation found iron-air drains seasonally over
+roughly 90 days, October into January, then refills by April, every year. That is precisely the
+summer-injection / winter-withdrawal pattern under perfect knowledge that this paper identifies as
+an artifact of perfect foresight rather than a physical finding.
+
+The same paper also bears on our lower bound:
+
+> *"Some studies have introduced heuristic decision rules to eliminate effectively foresight in
+> LDES operations... These rules impose to sell and buy energy at fixed prices or determine bids as
+> a function of the current storage level. **These approaches are likely to underestimate**..."*
+
+Our flat ~$1/MWh scarcity term is close to a fixed-price rule. So our no-lookahead endpoint is
+probably **conservative** — the true limited-foresight value sits above it.
+
+**arXiv 2407.21409 § 3.3** states the mechanism for why multi-day storage is the hard case:
+
+> *"While forecasts may be reliable 1-3 days ahead... the multi-week time scales on which wind power
+> vary are harder to anticipate. In particular this creates challenges for the dispatch of
+> long-duration storage so that it charges during days of excess in order to discharge during
+> periods of scarcity **outside the myopic foresight horizon**."*
+
+**"Towards robust and scalable dispatch modeling of long-duration energy storage"** benchmarks a
+traditional 24-hour window with 24-hour look-ahead against an ideal 8,760-hour window with perfect
+foresight — the same bracket at a different granularity.
+
+**Nature Communications** (Switch model, Western Interconnect, 39 scenarios) reports the analogous
+bias as *"less than 10% for nearly all technologies"*, judged acceptable against 2050 cost
+uncertainty.
+
+### This widens the scope of the problem beyond Scenario 3
+
+The foresight asymmetry was framed above as a distributed-versus-utility issue inside Scenario 3.
+The LDES literature shows it is **also a utility-scale issue in every scenario**: our iron-air
+dispatch pattern is the canonical example of what perfect foresight produces, and the capacity
+decision follows from the dispatch. That affects the iron-air sizing in Build to Zero, not only the
+distributed comparison.
+
+Not resolved here, and it does not invalidate the 8-year validation — which found the drawdown
+using a **no-foresight heuristic** dispatch, not the LP's own. But the LP-sized iron-air *build*
+was chosen under perfect foresight, and that is the decision the literature says is distorted.
+
 ### What the precedent implies for our expected result
 
 Brattle's 16% and Hornek's 11% suggest the bracket may be **narrower than the asymmetry concern
