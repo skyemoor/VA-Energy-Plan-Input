@@ -224,6 +224,47 @@ def stage_dsm_incentive_comparison():
             'central_fclass_pct': central['fclass_incentive_as_pct_of_avoided_cost']}
 
 
+def stage_scenario3_inputs():
+    """Builds the two arrays Scenario3Solver requires and cannot construct itself.
+
+    Scenario3Solver takes distributed_solar_cf and distributed_exogenous_price_mwh as REQUIRED
+    arguments with no defaults (Rule 5) -- a wrong CF or price array produces a real, wrong answer
+    rather than an obvious failure. Building them here means the heavy solve has its inputs on
+    disk and reproducible, rather than assembled ad hoc at run time.
+    """
+    import numpy as np, paths, lp_model as lp
+    import scenario3_build as s3b
+
+    w = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
+    # Design year only: the chained 8-year distributed CF is sliced to its first year, matching
+    # the weather year the checkpoint solves against.
+    dist_cf = np.load(paths.weather_year('dist_solar_cf_8yr_chained_REAL.npy'))[:8760]
+    np.save(paths.intermediate('dist_solar_cf_designyear.npy'), dist_cf)
+
+    month_of_hour, hour_of_day = s3b.build_month_hour_index() if hasattr(
+        s3b, 'build_month_hour_index') else (None, None)
+    if month_of_hour is None:
+        import pandas as pd
+        idx = pd.date_range('2016-04-01', periods=8760, freq='h')
+        month_of_hour = idx.month.values
+        hour_of_day = idx.hour.values
+
+    written = []
+    for year in (2030, 2035, 2040, 2045):
+        demand = np.load(paths.intermediate(f'demand_{year}fy_va_only.npy'))
+        exist = lp.exist_solar_mw(year) * w['solar']
+        price = s3b.build_distributed_exogenous_price_mwh(
+            demand, exist, dist_cf, w['wind'], w['nuclear'], lp.CVOW_MW,
+            month_of_hour, hour_of_day,
+            lmp_csv_path=paths.source_file('PJMMidAtlAPSrt_hrl_lmpsAug2025aug2026.csv'))
+        np.save(paths.intermediate(f'dist_exog_price_{year}.npy'), price)
+        written.append((year, float(np.mean(price)), float(np.max(price))))
+    return {'years': [int(w_[0]) for w_ in written],
+            'mean_price_per_mwh': [round(w_[1], 2) for w_ in written],
+            'max_price_per_mwh': [round(w_[2], 2) for w_ in written],
+            'distributed_cf_mean': round(float(dist_cf.mean()), 4)}
+
+
 STAGES = [
     Stage('demand', 'Virginia-only hourly demand per checkpoint',
           ['data/intermediates/demand_2030fy_va_only.npy',
@@ -249,6 +290,13 @@ STAGES = [
     Stage('dsm_incentives', 'DSM avoided-cost comparison on current peaker costs',
           ['results/dsm_avoided_cost_comparison.csv'],
           stage_dsm_incentive_comparison),
+
+    Stage('scenario3_inputs', 'Distributed CF and exogenous price arrays for Scenario 3',
+          ['data/intermediates/dist_solar_cf_designyear.npy']
+          + [f'data/intermediates/dist_exog_price_{y}.npy' for y in (2030, 2035, 2040, 2045)],
+          stage_scenario3_inputs,
+          source_files=['PJMMidAtlAPSrt_hrl_lmpsAug2025aug2026.csv'],
+          inputs=['demand']),
 ]
 
 

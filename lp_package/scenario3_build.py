@@ -499,6 +499,40 @@ def six_day_scarcity_value_proxy(demand, exist_solar, distributed_solar_cf, wind
     scarcity_price_per_mw_shortfall: $/MWh per MW of net-load-to-capacity tightness in the
     worst hour of the forward window -- an arbitrary, disclosed placeholder scale (not
     sourced), chosen only to put this proxy in a plausible $/MWh range for a first pass.
+
+    DEFECT FOUND 2026-09-11 -- THIS DOES NOT BEHAVE AS THE DOCSTRING ABOVE DESCRIBES.
+
+    The docstring claims the output is "higher when a real physical scarcity risk is close ahead,
+    near-zero when the upcoming week looks comfortable". Measured on the 2045 Virginia-only demand:
+
+        min $0.8633   max $1.1653   mean $1.0255   coefficient of variation 3.99%
+        hours below half the mean: 0 of 8760; the minimum is 84% of the mean
+
+    It never approaches zero and barely varies at all.
+
+    CAUSE: the formula has NO CAPACITY REFERENCE TERM. It computes
+
+        max(0, worst_net_load_in_window / 1000) * 50 / 1000
+
+    which is simply peak net load in GW x 0.05 -- an ABSOLUTE LEVEL, not a tightness ratio.
+    "Tightness" requires comparing net load against available capacity, and no capacity appears
+    anywhere in the calculation. Because the peak net load within any rolling 144-hour window is
+    similar year-round, the result is close to constant.
+
+    CONSEQUENCE FOR SCENARIO 3: this component contributes a near-flat ~$1/MWh OFFSET to
+    distributed_exogenous_price_mwh rather than a time-varying signal. Since the purpose of that
+    price series is to drive FERC 2222 wholesale arbitrage by the distributed segment, and
+    arbitrage responds to VARIATION rather than level, the scarcity term currently contributes
+    almost nothing to the arbitrage decision. The time-varying content of the price series comes
+    entirely from the congestion and marginal-loss shapes, which are real PJM data.
+
+    That is not necessarily wrong for a first pass -- congestion and loss are the better-sourced
+    components anyway -- but any Scenario 3 result must not be described as incorporating a
+    six-day-lookahead scarcity signal. It incorporates a constant.
+
+    NOT FIXED HERE, deliberately: correcting it means choosing a capacity reference, which is a
+    modelling decision rather than a bug fix, and changing it would alter the distributed
+    arbitrage result. Recorded so the Scenario 3 run is interpreted correctly.
     """
     T = len(demand)
     net_load = demand - exist_solar - cvow_mw * wind_cf - nuclear
