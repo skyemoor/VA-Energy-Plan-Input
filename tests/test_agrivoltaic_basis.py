@@ -728,3 +728,13 @@ class TestGrazingAndForageEvidence:
         src = open(ag.__file__).read()
         assert 'Corvallis is Mediterranean' in src
         assert 'neither is\n# a Virginia trial' in src
+
+
+class TestDroughtClaimIsFlaggedUnsourced:
+    def test_drought_history_is_marked_as_needing_sourcing(self):
+        """The drought finding inverts an earlier caution and strengthens the forage case, which
+        carries the buildout. An inverted caution resting on an unsourced premise is weaker than
+        the caution it replaced."""
+        d = ag.DROUGHT_CLAIM_NEEDS_SOURCING
+        assert 'asserted, not sourced' in d
+        assert 'droughtmonitor.unl.edu' in d

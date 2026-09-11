@@ -1306,3 +1306,19 @@ DROUGHT_MECHANISM_APPLIES_TO_VIRGINIA = (
     'help. Virginia has had drought issues in each of the last five years, so the retention '
     'mechanism is a benefit here too -- and it lands hardest on pasture and forage, which have no '
     'irrigation to fall back on.')
+
+#: The drought claim above is currently ASSERTED, not sourced. The US Drought Monitor (National
+#: Drought Mitigation Center, University of Nebraska-Lincoln, with USDA, NOAA and NASA) is the
+#: authoritative record and publishes Virginia-specific history. Three tools would make it citable:
+#: Weeks in Drought, the Drought Severity and Coverage Index time series (a single number combining
+#: extent and intensity -- probably cleanest for a whitepaper chart), and Comprehensive Statistics
+#: with CSV export. The current map page renders its statistics table via JavaScript and could not
+#: be read programmatically, so the figures have not been pulled.
+#:
+#: WHY IT MATTERS ENOUGH TO SOURCE: the drought finding inverts an earlier caution in this
+#: analysis and strengthens the forage case, which carries the agrivoltaic buildout. An inverted
+#: caution resting on an unsourced premise is weaker than the caution it replaced.
+DROUGHT_CLAIM_NEEDS_SOURCING = (
+    'Virginia drought history 2021-2026 is asserted, not sourced. Pull from US Drought Monitor '
+    '(droughtmonitor.unl.edu): Weeks in Drought, DSCI time series, or Comprehensive Statistics '
+    'CSV. Needed before the drought argument appears in the whitepaper.')

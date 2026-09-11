@@ -256,6 +256,13 @@ should be checked rather than assumed away.
    irrigation to fall back on. The disease-pressure concern remains real for wet seasons; the two
    now cut in opposite directions depending on the year, which is itself an argument for a
    resource whose value rises when conditions are worst.
+
+   **Owed:** the five-drought-year premise is currently **asserted, not sourced**. The US Drought
+   Monitor (NDMC / University of Nebraska-Lincoln, with USDA, NOAA, NASA) publishes Virginia
+   history — *Weeks in Drought*, the *DSCI time series*, or *Comprehensive Statistics* CSV. The
+   current-map page renders its table via JavaScript and could not be read programmatically. An
+   inverted caution resting on an unsourced premise is weaker than the caution it replaced, so this
+   should be pulled before the drought argument appears in the paper.
 6. **Multi-year results.** CSU is establishment-year only; Purdue is a single season.
 7. **Crop albedo as an energy variable** — unrepresented.
 8. **Ray tracing required** for any array-level yield modelling; view-factor methods assume
