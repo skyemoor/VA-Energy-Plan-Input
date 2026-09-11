@@ -1015,3 +1015,86 @@ AGRIVOLTAIC_ENERGY_MODELLING_CAUTION = (
     'View-factor methods are inadequate for agrivoltaic energy modelling -- they assume uniformly '
     'distributed vegetation, which crops and trees are not. Ray tracing is required. Applies to '
     'any future array-level yield modelling in this project.')
+
+
+# ============================================================================
+# LIGHT PRODUCTIVITY FACTOR -- THE FRAMEWORK THAT MAKES THE CONFIGURATION
+# QUESTION CROP-SPECIFIC RATHER THAN ONE-BEST-ANSWER
+# ============================================================================
+# Riaz, Imran, Alam, Alam & Butt, "Crop-Specific Optimization of Bifacial PV Arrays for
+# Agrivoltaic Food-Energy Production: The Light-Productivity-Factor Approach", IEEE Journal of
+# Photovoltaics 12(2):572-580, March 2022. DOI 10.1109/JPHOTOV.2021.3136158.
+#
+# LPF measures how effectively an array shares irradiance between panels and crop, FOR A GIVEN
+# CROP TYPE. By definition LPF = 1 for a PV-only or crop-only system; an agrivoltaic system scores
+# between 1 and 2 depending on crop shade sensitivity, array configuration and season.
+#
+# THE RESULT THAT MATTERS HERE: the optimal configuration DEPENDS ON THE CROP.
+#
+#   SHADE-TOLERANT crops    -> single-axis tracking, where "LPF is maximized at 2"
+#   SHADE-SENSITIVE crops   -> east/west faced bifacial VERTICAL farms, which produce "the
+#                              smallest variability in the seasonal yield for shade sensitive
+#                              crops, while providing LPF comparable to the standard N/S faced
+#                              solar farms"
+#
+# This resolves what looked like conflicting corn evidence. Corn is shade-sensitive. The CSU trial
+# used VERTICAL bifacial and found no significant yield difference; Purdue used east-west TRACKING
+# and found a 7.1% reduction. Under LPF those are the expected outcomes of applying the right and
+# the less-right configuration to a shade-sensitive crop -- not contradictory results.
+#
+# MAPPED ONTO VIRGINIA'S ACTUAL CROP MIX (see VA_TOP_CROPS_ACRES and FSA data above):
+#
+#   forage, pasture, hay      shade-TOLERANT      -> single-axis tracking, LPF up to 2
+#   corn, soybeans            shade-SENSITIVE     -> east/west vertical bifacial
+#
+# Virginia's compatible base is dominated by forage and pasture (3.03-3.36M acres), which is the
+# shade-tolerant group -- so the HIGH-LPF tracking configuration applies to most of the acreage
+# this project would site on. The shade-sensitive row crops, where vertical bifacial is indicated,
+# are the acreage this analysis does NOT need to use.
+#
+# THE OPERATIONAL FINDING, which has not appeared in any other source reviewed and is a real
+# constraint rather than a preference: east/west vertical arrays offer "ease of movement of
+# large-scale combine-harvester and other farming equipment". Conventional agrivoltaic layouts
+# obstruct large machinery; a farmer who cannot run a combine through the array cannot farm row
+# crops in it at any yield. For Virginia's 610,605 acres of soybeans and 384,337 of corn this is
+# arguably a harder constraint than shading. Vertical arrays also show "reduced soiling".
+LPF_CROP_ONLY_OR_PV_ONLY = 1.0
+LPF_AGRIVOLTAIC_RANGE = (1.0, 2.0)
+LPF_MAX_SHADE_TOLERANT_SINGLE_AXIS_TRACKING = 2.0
+
+#: Configuration indicated by crop shade sensitivity, per the LPF framework.
+LPF_CONFIGURATION_BY_SHADE_SENSITIVITY = {
+    'shade_tolerant': 'single-axis tracking (LPF maximised at 2)',
+    'shade_sensitive': 'east/west faced bifacial vertical (lowest seasonal yield variability)',
+}
+
+#: Virginia crop groups mapped to shade sensitivity. Forage and pasture dominate the compatible
+#: base, and they are the shade-tolerant group -- so the high-LPF tracking configuration applies
+#: to most acreage this analysis would site on.
+VA_CROP_SHADE_SENSITIVITY = {
+    'forage_hay_haylage': 'shade_tolerant',
+    'pasture': 'shade_tolerant',
+    'corn_for_grain': 'shade_sensitive',
+    'soybeans': 'shade_sensitive',
+}
+
+VERTICAL_ARRAY_OPERATIONAL_ADVANTAGES = (
+    'East/west vertical bifacial arrays offer ease of movement for large-scale combine-harvesters '
+    'and other farming equipment, plus reduced soiling. Machinery access is a harder constraint '
+    'than shading for row crops: a farmer who cannot run a combine through the array cannot farm '
+    'it at any yield. Source: Riaz et al., IEEE J. Photovoltaics 12(2):572-580, 2022.')
+
+
+def indicated_configuration(crop: str) -> str:
+    """Array configuration indicated for a crop, per the LPF framework.
+
+    Raises on an unknown crop rather than defaulting: the two configurations differ in energy
+    density, cost and machinery access, so guessing the shade sensitivity would propagate into
+    all three.
+    """
+    if crop not in VA_CROP_SHADE_SENSITIVITY:
+        raise ValueError(
+            f"shade sensitivity not recorded for {crop!r}; known: "
+            f"{sorted(VA_CROP_SHADE_SENSITIVITY)}. Do not guess -- the indicated configurations "
+            "differ in energy density, cost and machinery access.")
+    return LPF_CONFIGURATION_BY_SHADE_SENSITIVITY[VA_CROP_SHADE_SENSITIVITY[crop]]

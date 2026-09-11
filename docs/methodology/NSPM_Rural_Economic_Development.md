@@ -538,6 +538,43 @@ repeated unqualified.
 rows, which shade a plant in the morning *or* the afternoon rather than through midday. It does
 **not** transfer to conventional tilted arrays.
 
+### The configuration question is crop-specific, not one-best-answer
+
+**Riaz et al., *IEEE J. Photovoltaics* 12(2):572–580 (2022)** introduce the **Light Productivity
+Factor** — how effectively an array shares irradiance between panels and crop, *for a given crop
+type*. LPF = 1 for PV-only or crop-only; agrivoltaic systems score 1–2.
+
+| crop type | indicated configuration |
+|---|---|
+| **Shade-tolerant** | **single-axis tracking — LPF maximised at 2** |
+| **Shade-sensitive** | **east/west vertical bifacial** — smallest seasonal yield variability, LPF comparable to N/S |
+
+**This resolves the apparent corn conflict.** Corn is shade-sensitive. CSU used *vertical* and
+found no significant difference; Purdue used *tracking* and found 7.1% reduction. Those are the
+expected outcomes of the right and the less-right configuration — not contradictory results.
+
+**Mapped onto Virginia's crop mix:**
+
+| | acres | sensitivity | configuration |
+|---|---:|---|---|
+| Pasture | 1,915,266 | tolerant | tracking |
+| Forage/hay | 1,117,726 | tolerant | tracking |
+| Soybeans | 610,605 | sensitive | vertical |
+| Corn | 384,337 | sensitive | vertical |
+
+**Virginia's compatible base is the shade-tolerant group** — 3.03M acres of pasture and forage. So
+the **high-LPF tracking configuration applies to most acreage this analysis would site on**, and
+the shade-sensitive row crops where vertical is indicated are acreage we don't need to use.
+
+### The operational constraint nothing else mentioned
+
+East/west vertical arrays offer *"ease of movement of large-scale combine-harvester and other
+farming equipment"* — plus reduced soiling.
+
+**Machinery access is a harder constraint than shading for row crops.** A farmer who can't run a
+combine through the array can't farm it at any yield. For Virginia's 610,605 acres of soybeans and
+384,337 of corn, that likely binds before light does.
+
 ### The problem: 4–6 acres/MW is the wrong basis
 
 `ACRES_PER_MW` (4–6) is a **standard single-axis tracking** figure. Both viable agrivoltaic

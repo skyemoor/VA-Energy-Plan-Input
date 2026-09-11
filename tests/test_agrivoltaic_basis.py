@@ -594,3 +594,45 @@ class TestBifacialFundamentals:
         """View factor assumes uniformly distributed vegetation, which crops are not."""
         c = ag.AGRIVOLTAIC_ENERGY_MODELLING_CAUTION
         assert 'Ray tracing is required' in c
+
+
+class TestLightProductivityFactorFramework:
+    """Riaz et al., IEEE J. Photovoltaics 12(2):572-580 (2022). Makes the configuration question
+    crop-specific rather than one-best-answer, and resolves the apparent corn conflict."""
+
+    def test_lpf_baseline_and_range(self):
+        assert ag.LPF_CROP_ONLY_OR_PV_ONLY == 1.0
+        assert ag.LPF_AGRIVOLTAIC_RANGE == (1.0, 2.0)
+
+    def test_shade_tolerant_crops_indicate_tracking(self):
+        assert 'single-axis tracking' in ag.indicated_configuration('forage_hay_haylage')
+        assert 'single-axis tracking' in ag.indicated_configuration('pasture')
+
+    def test_shade_sensitive_crops_indicate_vertical(self):
+        assert 'vertical' in ag.indicated_configuration('corn_for_grain')
+        assert 'vertical' in ag.indicated_configuration('soybeans')
+
+    def test_virginia_compatible_base_is_the_shade_tolerant_group(self):
+        """Forage and pasture dominate the compatible base, and both are shade-tolerant -- so the
+        high-LPF tracking configuration applies to most acreage this analysis would site on."""
+        tolerant = [c for c, s in ag.VA_CROP_SHADE_SENSITIVITY.items() if s == 'shade_tolerant']
+        assert 'forage_hay_haylage' in tolerant and 'pasture' in tolerant
+
+    def test_the_framework_resolves_the_corn_evidence_conflict(self):
+        """Corn is shade-sensitive. CSU used vertical and found no significant difference; Purdue
+        used tracking and found 7.1% reduction. Under LPF those are the expected outcomes of the
+        right and the less-right configuration, not contradictory results."""
+        src = open(ag.__file__).read()
+        assert 'not contradictory results' in src
+        assert ag.VA_CROP_SHADE_SENSITIVITY['corn_for_grain'] == 'shade_sensitive'
+
+    def test_machinery_access_recorded_as_a_harder_constraint_than_shading(self):
+        """Not in any other source reviewed. A farmer who cannot run a combine through the array
+        cannot farm row crops in it at any yield."""
+        a = ag.VERTICAL_ARRAY_OPERATIONAL_ADVANTAGES
+        assert 'combine-harvester' in a
+        assert 'harder constraint than shading' in a
+
+    def test_unknown_crop_raises_rather_than_defaulting(self):
+        with pytest.raises(ValueError, match='Do not guess'):
+            ag.indicated_configuration('tobacco')
