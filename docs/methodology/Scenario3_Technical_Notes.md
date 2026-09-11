@@ -824,3 +824,69 @@ precisely: this is a perfect-foresight ceiling, not a real-world-achievable
 guarantee — the real-world figure, given actual forecast skill at a 6-day horizon,
 sits somewhere between this ceiling and the 1-day floor (0 MW), a gap this
 project's own methodology does not resolve.
+
+---
+
+## Foresight asymmetry between utility and distributed storage (2026-09-11)
+
+**This is a bias in the comparison Scenario 3 exists to make, and it must be stated wherever
+distributed storage performance is reported.**
+
+### The two halves of the model see different futures
+
+| | lookahead |
+|---|---|
+| Utility-scale storage, dispatched inside the LP | **perfect** — knows the entire year |
+| Distributed storage, responding to `distributed_exogenous_price_mwh` | **effectively none** |
+
+The first is established: own-data capacity accreditation measured on LP dispatch read **100.0%**
+against **31.8%** from a no-foresight heuristic on the same fleet and weather
+(`lp_package/capacity_accreditation.py`). The LP pre-positions storage for hours it knows are
+coming.
+
+The second follows from the scarcity-proxy defect: the six-day scarcity term is near-constant
+(CV 3.99%, minimum 84% of mean), so the price series carries **no multi-day lookahead content**.
+All its time-varying signal comes from congestion and marginal-loss shapes.
+
+### Why this is not a neutral modelling choice
+
+At high solar and battery penetration, a forecast dunkelflaute implies **steadily rising expected
+prices through its duration**. An operator who can see that meters stored energy out judiciously
+and may hold charge for days waiting for the best hour — switching from *cycle daily* to **ration
+across days**.
+
+The LP does exactly this for utility storage, because it has perfect foresight. The distributed
+segment cannot, because its price signal says the same thing every hour of the year.
+
+**So any finding that distributed storage underperforms utility-scale storage on arbitrage value
+inherits this asymmetry.** The distributed segment is competing blindfolded.
+
+### The rebound effect — a real failure mode worth modelling eventually
+
+If PJM remains day-ahead-only and DER fleets optimise on that horizon, every operator discharges
+into the same first-day peak, storage is exhausted early, and the later days of a multi-day event
+arrive with the fleet empty. The resulting spike is **worse than if nobody had discharged**.
+
+Short lookahead does not merely forgo value — it **manufactures the scarcity it failed to
+anticipate**.
+
+**Fleet heterogeneity is what makes this tractable.** Real DER fleets carry a wide range of
+lookahead sophistication. Longer-lookahead operators profit heavily from the day-four spike, and
+that profit is the signal driving adaptation. The rebound is self-correcting over time — but only
+where some operators have lookahead to begin with, and only after at least one expensive event has
+taught it.
+
+This also bears on the policy argument: **a market design that provides longer-horizon price
+signals reduces a physical reliability risk**, not merely a commercial inefficiency. That is a
+stronger claim than "DERs would earn more with better signals."
+
+### Options, none yet taken
+
+1. **Fix the proxy** — give it a capacity reference so it produces a genuine rising path. Changes
+   the distributed build; a modelling decision, not a bug fix.
+2. **Run a no-foresight utility dispatch** for comparison, so both halves are blindfolded equally.
+   Consistent, but discards the LP's optimisation.
+3. **Report the asymmetry alongside the result** and make no claim about relative storage
+   performance. Cheapest, and honest.
+
+Option 3 is the current position by default. Options 1 and 2 are both improvements on it.

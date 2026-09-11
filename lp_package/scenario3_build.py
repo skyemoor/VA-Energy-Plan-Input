@@ -530,9 +530,53 @@ def six_day_scarcity_value_proxy(demand, exist_solar, distributed_solar_cf, wind
     components anyway -- but any Scenario 3 result must not be described as incorporating a
     six-day-lookahead scarcity signal. It incorporates a constant.
 
+    WHAT A CORRECT SIGNAL WOULD DO, AND WHY THE DEFECT IS WORSE THAN A MISSING DAILY SPREAD
+
+    The first statement of this defect framed it as "adds no daily spread, so arbitrage timing is
+    unaffected". That understates it. A correct six-day signal does not primarily act on daily
+    spread at all -- it produces a RISING PRICE PATH ACROSS A MULTI-DAY EVENT, which switches the
+    operating mode from "cycle daily" to "RATION ACROSS DAYS".
+
+    At high solar and battery penetration, a forecast dunkelflaute implies steadily rising expected
+    prices through its duration. An operator seeing that meters stored energy out judiciously, and
+    may hold charge for days waiting for the best hour. A battery seeing a flat $1/MWh adder has no
+    reason to hold anything back into day four. The proxy produces none of this behaviour in any
+    form, not merely a weakened version of it.
+
+    THE REBOUND EFFECT -- A COORDINATION FAILURE, NOT JUST FORGONE VALUE
+
+    If PJM remains day-ahead-only and DER fleets optimise on that horizon, every operator
+    discharges into the same first-day peak, storage is exhausted early, and the later days of a
+    multi-day event arrive with the fleet empty. The resulting spike is WORSE than if nobody had
+    discharged. Short lookahead does not merely forgo value; it manufactures the scarcity it failed
+    to anticipate.
+
+    Fleet heterogeneity is what makes this tractable rather than catastrophic. Real DER fleets carry
+    a wide range of lookahead sophistication; longer-lookahead operators profit heavily from the
+    day-four spike, and that profit is the signal that drives adaptation. The rebound is therefore
+    self-correcting over time -- but only where some operators have the lookahead to begin with,
+    and only after at least one expensive event has taught it.
+
+    THE ASYMMETRY THIS CREATES INSIDE THIS PROJECT'S OWN MODEL -- the most consequential point here
+
+    This project has already established (see lp_package/capacity_accreditation.py) that the LP
+    dispatches storage with PERFECT FORESIGHT: own-data accreditation measured on LP dispatch read
+    100.0% against 31.8% from a no-foresight heuristic on the same fleet.
+
+    So within a single model:
+
+        utility-scale storage, dispatched inside the LP   -> PERFECT lookahead, knows the year
+        distributed storage, responding to this price     -> effectively NO lookahead
+
+    That is not a neutral modelling choice. It systematically favours utility-scale storage in
+    precisely the comparison Scenario 3 exists to make. The distributed segment is being asked to
+    compete while blindfolded, and any finding that distributed storage underperforms utility-scale
+    storage on arbitrage value inherits that bias.
+
     NOT FIXED HERE, deliberately: correcting it means choosing a capacity reference, which is a
-    modelling decision rather than a bug fix, and changing it would alter the distributed
-    arbitrage result. Recorded so the Scenario 3 run is interpreted correctly.
+    modelling decision rather than a bug fix, and changing it would alter the distributed arbitrage
+    result. Recorded so the Scenario 3 run is interpreted correctly -- and so the foresight
+    asymmetry is not mistaken for a finding about distributed storage.
     """
     T = len(demand)
     net_load = demand - exist_solar - cvow_mw * wind_cf - nuclear

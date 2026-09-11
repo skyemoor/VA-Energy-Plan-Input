@@ -56,3 +56,36 @@ class TestScarcityProxyIsNearlyConstant:
         signal -- it incorporates a constant."""
         src = open(s3b.__file__).read()
         assert 'It incorporates a constant.' in src
+
+
+class TestForesightAsymmetryIsRecorded:
+    """The most consequential consequence of the flat scarcity term: within one model, utility
+    storage dispatches with perfect foresight while distributed storage responds to a price signal
+    carrying no lookahead content. That biases the very comparison Scenario 3 exists to make."""
+
+    def test_the_asymmetry_is_documented(self):
+        src = open(s3b.__file__).read()
+        assert 'PERFECT lookahead, knows the year' in src
+        assert 'effectively NO lookahead' in src
+        assert 'compete while blindfolded' in src
+
+    def test_it_points_at_the_measured_foresight_finding(self):
+        """100.0% from LP dispatch against 31.8% no-foresight on the same fleet -- already
+        established in capacity_accreditation.py, and the same mechanism."""
+        src = open(s3b.__file__).read()
+        assert '100.0% against 31.8%' in src
+        assert 'capacity_accreditation' in src
+
+    def test_rebound_effect_is_recorded_as_a_coordination_failure(self):
+        """Short lookahead does not merely forgo value -- it manufactures the scarcity it failed
+        to anticipate."""
+        src = open(s3b.__file__).read()
+        assert 'manufactures the scarcity it failed' in src
+        assert 'self-correcting over time' in src
+
+    def test_multi_day_rationing_is_named_as_the_missing_behaviour(self):
+        """A correct signal switches the operating mode from 'cycle daily' to 'ration across
+        days'. The proxy produces none of that behaviour, not a weakened version."""
+        src = open(s3b.__file__).read()
+        assert 'RATION ACROSS DAYS' in src
+        assert 'not merely a weakened version' in src
