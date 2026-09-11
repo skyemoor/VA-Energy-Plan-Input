@@ -889,4 +889,60 @@ stronger claim than "DERs would earn more with better signals."
 3. **Report the asymmetry alongside the result** and make no claim about relative storage
    performance. Cheapest, and honest.
 
-Option 3 is the current position by default. Options 1 and 2 are both improvements on it.
+4. **Bound it** — run the distributed segment twice on the same price series, once with the flat
+   proxy as-is and once with perfect foresight over that series, and report the range.
+
+### Option 4 has established precedent, which options 1 and 2 do not
+
+Bracketing storage value between a limited-foresight lower bound and a perfect-foresight upper
+bound is **standard practice in regulatory storage valuation**, not a construction invented for
+this paper.
+
+**Brattle Group, "Stacked Benefits: Comprehensively Valuing Battery Storage in California"** runs
+exactly this pair. Its own framing:
+
+> *"The 'Perfect Foresight' case represents a theoretical upper-bound, with no limits on the
+> battery operator's ability to optimize the dispatch of the battery against prices... The Perfect
+> Foresight case is not intended to represent an estimate of the most likely value of battery
+> storage."*
+
+Brattle found a **16% difference** between its Limited Foresight and Perfect Foresight cases
+(the upper bound reaching $328/kW-year), and read the narrowness as informative in itself:
+*"much of the estimated value is coming from sources that are fairly predictable on a day-ahead
+basis."*
+
+**Hornek et al.** (arXiv 2501.07121, German continuous intraday market) benchmark a forecast-driven
+strategy against perfect foresight and land **11% below** it, explicitly identifying a published
+index as *"a reliable lower-bound estimate for earnings potential."*
+
+**arXiv 2407.21409** ("Price formation without fuel costs") applies perfect-versus-myopic
+comparison in a capacity-expansion dispatch context much closer to ours — and its choice of
+myopic horizon is directly relevant to the six-day question:
+
+> *"For cases with myopic foresight, we apply a rolling-horizon dispatch optimisation with a
+> 96-hour look-ahead horizon and a 48-hour overlap between windows. This approach aligns with the
+> horizon of current forecast skill... Since there are already good weather forecasts up to 5 days
+> ahead, this represents a conservative worst case for the system dispatcher."*
+
+That supports the six-day framing as **realistic rather than aspirational**: a four-to-five-day
+operational horizon is already within forecast skill, so the gap is a market-design gap, not a
+meteorological one.
+
+### What the precedent implies for our expected result
+
+Brattle's 16% and Hornek's 11% suggest the bracket may be **narrower than the asymmetry concern
+implies** — which would itself be a useful finding, bounding the bias as modest.
+
+**But both cases differ from ours in the direction that matters.** Brattle's California valuation
+draws heavily on capacity and frequency regulation, and on day-ahead-predictable energy arbitrage;
+Hornek's is intraday trading. Neither is a **multi-day dunkelflaute rationing problem at high
+renewable penetration**, which is precisely the case where foresight should matter most. Our
+bracket could be materially wider, and if it is, that width *is* the value of longer-horizon market
+signals.
+
+---
+
+Option 3 is the current position by default. **Option 4 is the recommended one**: it has direct
+regulatory precedent, requires no unsourced parameter choice, and converts an unquantified bias
+into a measured range. Option 1 remains the one to avoid — it is the only option that introduces a
+parameter an opponent can name.
