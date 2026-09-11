@@ -202,3 +202,58 @@ the coverage limitation and should be footnoted.
    sound measurements exist. Not before: a normalizer chosen on two points is asserted, not tested.
 6. **Re-derive the DOM zone distributed siting cap** (currently 7,440 MW in `assumptions.py`) once
    the basis is repaired, since it descends from this work.
+
+---
+
+## 9. Addendum: Chesapeake C&I, and a limit on coded domains (2026-09-11)
+
+Chesapeake City's building outlines were added as the fifth C&I measurement: **4,859 buildings,
+60,686,088 sqft (1,393.2 acres), 412.2 MW mean-based, 722,088 MWh/yr.**
+
+Its 14-value `BUILDINGCLASS` domain was read from the city's own ArcGIS REST endpoint rather than
+inferred, and it is the richest legend of the five counties. Two classes it has that Arlington
+lacked improve the classification:
+
+- **Industrial (12)** exists separately. Arlington had no industrial category; Prince William folds
+  industrial into Commercial. Including it makes Chesapeake consistent with Fairfax and Prince
+  William and more complete than Arlington.
+- **Apartment (14)** removes Arlington's weakest step — a size heuristic assuming
+  "General / Residential" over 2,000 sqft was commercial, applied to 9,956 buildings. Chesapeake
+  states the category, so the heuristic is unnecessary and General/Residential is excluded whole.
+
+Chesapeake and Arlington consequently use **different rules**. That is deliberate — use the best
+classification each dataset supports rather than degrading one to match the other's limitation —
+but the two are not strictly like-for-like and cross-county comparison should say so.
+
+### The finding: a sourced legend does not mean a consistently applied one
+
+Chesapeake is the only extract of the five carrying a **NAME** field, which made the classification
+checkable against reality. It failed that check.
+
+**A 636,190 sqft Amazon distribution centre — 14.6 acres — is classified `Commercial` (6), not
+`Industrial` (12)**, in a schema that has an Industrial class.
+
+| consequence | effect |
+|---|---|
+| C&I total | **unaffected** — both classes are included, 412.2 MW stands |
+| per-class breakdown | **indicative only** — the 32.0% Industrial share understates reality |
+| load-shape use | **not supported** — industrial and retail roofs sit above very different profiles |
+| other counties | **unknown and undetectable** — none of the other four carry a name field |
+
+This is a general caution, not a Chesapeake defect: a published coded domain states what the codes
+*mean*, never how consistently they were *applied*. Every county figure in this project rests on a
+classification that could carry the same inconsistency, and only Chesapeake gave any means of
+noticing.
+
+The per-class breakdown was worth computing regardless: **Industrial and Apartment together are
+45.9% of Chesapeake's footprint**, and both are included on this project's own judgment rather than
+established precedent. A decision of that size should be visible rather than sitting inside a
+total someone has to take on trust. A test asserts that share, so a change to it requires a
+documented decision rather than passing silently.
+
+### Still outstanding
+
+This is the **C&I** side, which already had four measurements. **Parking remains the broken side**,
+with Richmond as its only sound member. Chesapeake's paved-surfaces or parking layer, if it
+publishes one, is the higher-value acquisition — and Stafford alongside it would give the matched
+functional pair that tests the employment-destination classification.
