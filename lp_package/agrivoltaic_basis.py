@@ -692,6 +692,32 @@ def grazing_capacity(agrivoltaic_acres: float) -> GrazingCapacity:
 #   - during a cover or fallow period the land is already earning no cash-crop income, so the
 #     opportunity cost of hosting an array in that window is close to zero
 #
+# TWO COVER CROP PURPOSES THAT AGRIVOLTAICS DIRECTLY SERVES (University of Georgia Sustainable
+# Agriculture, Farm Management: Cover Crops). UGA's list of why farmers plant cover crops includes,
+# verbatim, "to extend the grazing season" and "to provide habitat and nectar for beneficial
+# insects". Both are things a solar array improves rather than impedes:
+#
+#   GRAZING SEASON EXTENSION -- panel shade reduces heat stress on both sward and livestock, which
+#   is the mechanism behind the University of Minnesota dairy finding. A cover crop planted for
+#   grazing extension under an array compounds two effects aimed at the same outcome.
+#
+#   POLLINATOR HABITAT -- listed in this analysis's own NSPM channel table as an identified but
+#   unquantified rural benefit. Cover cropping under panels is a route to it that requires no
+#   additional land and no separate program, since the planting is happening anyway.
+#
+# UGA also confirms the mechanics underlying Correction 1 directly: cover crop selection depends on
+# "your planting window (the time between cash crops)", and cover crops are "planted primarily for
+# their agro-ecosystem benefits rather than for harvest" -- between cash crops, on the same ground,
+# with yield not the objective.
+#
+# SPECIES OVERLAP WITH THE FORAGE GROUP IS SUBSTANTIAL, which is why the compatibility conclusion
+# transfers. UGA's regionally-appropriate list -- cereal rye, oats, annual ryegrass, triticale,
+# wheat, crimson/balansa clover, hairy and common vetch, Austrian winter peas for fall/winter;
+# sorghum, sorghum-sudangrass, pearl and browntop millet, cowpeas, sunn hemp for spring/summer --
+# is largely cool- and warm-season forage species. Sorghum-sudangrass and millet appear in BOTH
+# this list and the FSA forage group used above, so the two categories overlap in the data as well
+# as in agronomy.
+#
 # NOT ADDED TO THE COMPATIBLE BASE, deliberately. Because of Correction 1 the acreage largely
 # overlaps land already counted, so adding it would double-count. It is recorded here because it
 # strengthens the QUALITATIVE case -- 302,940 acres of Virginia cropland are already being managed

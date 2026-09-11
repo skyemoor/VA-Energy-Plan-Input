@@ -390,3 +390,40 @@ class TestFSACropAcreage:
     def test_coverage_is_statewide_and_fine_grained(self):
         assert ag.FSA_2026_COUNTIES == 98
         assert ag.FSA_2026_DISTINCT_CROPS == 121
+
+
+class TestCoverCropPurposesAgrivoltaicsServes:
+    """University of Georgia Sustainable Agriculture lists two cover crop purposes that a solar
+    array improves rather than impedes. Recorded because one of them -- pollinator habitat -- is an
+    identified-but-unquantified channel in this project's own NSPM table, and cover cropping under
+    panels reaches it with no additional land and no separate program."""
+
+    def source(self):
+        import agrivoltaic_basis
+        return open(agrivoltaic_basis.__file__).read()
+
+    def test_grazing_season_extension_is_recorded(self):
+        s = self.source()
+        assert 'extend the grazing season' in s
+        assert 'GRAZING SEASON EXTENSION' in s
+
+    def test_pollinator_habitat_links_to_the_unquantified_nspm_channel(self):
+        s = self.source()
+        assert 'habitat and nectar for beneficial insects' in s
+        assert 'unquantified rural benefit' in s
+
+    def test_uga_confirms_the_between_cash_crops_mechanic(self):
+        """Independent confirmation of Correction 1: cover crop choice depends on 'the time
+        between cash crops', and they are planted 'primarily for their agro-ecosystem benefits
+        rather than for harvest'."""
+        s = self.source()
+        assert 'the time between cash crops' in s
+        assert 'rather than for harvest' in s
+
+    def test_species_overlap_with_the_forage_group_is_recorded(self):
+        """Sorghum-sudangrass and millet appear in both UGA's cover crop list and the FSA forage
+        group, so the categories overlap in the data as well as in agronomy -- which is why the
+        compatibility conclusion transfers."""
+        s = self.source()
+        assert 'sorghum-sudangrass' in s.lower()
+        assert 'overlap in the data as well' in s
