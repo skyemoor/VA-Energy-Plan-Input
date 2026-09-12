@@ -180,6 +180,20 @@ prices would look very different from one with genuine scarcity tails.
 |---|---|
 | `duals_{scenario}_{year}_{merit\|flat}.npy` | 8,760 hourly shadow prices, $/MWh |
 | `solve_{scenario}_{year}_{merit\|flat}.json` | build MW, converged frac, dual summary |
+| `hourly_{scenario}_{year}_{merit\|flat}.csv` | **8,760-row dispatch stack** — the View 1 chart |
+
+**The hourly CSV matches the `View1_*` sheets in the tracker workbook**: demand, solar potential,
+wind, nuclear, curtailment (negative), unserved, and per-technology discharge / charging (negative)
+/ state of charge in MWh and %, plus gas and the hourly dual. Suppress with `--no-hourly` if the
+~1 MB file is unwanted.
+
+**It also prints a curtailment check**, which exists because the dual profile alone could not answer
+the obvious question it raised — *if a third of hours sit at the curtailment floor, what serves the
+evening?* Duals say what a marginal MWh is worth; they say nothing about what physically
+dispatched. The check reports how many hours curtail, what share of those are in daylight
+(anything curtailing at night is a defect), total curtailed TWh, and whether storage actually
+reaches full state of charge — curtailing while storage has headroom would be a real problem rather
+than an artifact of scale.
 
 The JSON's `dual_unique_values` is the headline number. **Before the merit order, 2030 gave 1
 unique value across all 8,760 hours.** With it, 40. If a run reports 1, the script warns — that

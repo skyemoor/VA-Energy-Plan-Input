@@ -78,6 +78,8 @@ def main():
                          'assumptions.GAS_SEASONAL_BASIS_NOTE -- net winter is 11.4%% higher and '
                          'the DOM zone now peaks in winter)')
     ap.add_argument('--out', default='results')
+    ap.add_argument('--no-hourly', action='store_true',
+                    help='skip the hourly dispatch CSV (it is ~1 MB and the default is to write it)')
     ap.add_argument('--verbose', action='store_true',
                     help='print problem size, per-iteration timing, and a dual profile at the end. '
                          'Useful on a long run to tell "still working" from "stuck".')
@@ -191,6 +193,81 @@ def main():
                   'happen -- see docs/MODEL_WIDE_FINDINGS.md section 1.')
     else:
         print('  no equality marginals returned; duals not saved')
+
+    # ------------------------------------------------------------------
+    # HOURLY DISPATCH -- the View 1 stack
+    # ------------------------------------------------------------------
+    # Added 2026-09-12 because the dual profile alone could not answer the obvious question it
+    # raised: if 32.5% of hours sit at the curtailment floor, what serves the evening? Duals say
+    # what a marginal MWh is worth; they say nothing about what physically dispatched. The columns
+    # below match the View 1 sheets in the tracker workbook so the same chart can be rebuilt.
+    if not args.no_hourly:
+        x, IDX, BS = res.x, raw['problem']['IDX'], raw['problem']['BUILD_SCALE']
+        T = raw['problem']['T']
+
+        # build_problem exposes its variable layout as hv_params = (NVAR_BUILD, NVAR_PER_HOUR).
+        # Variables are [build vars][T * NVAR_PER_HOUR], the k-th within hour t.
+        hv_params = raw['problem'].get('hv_params')
+        if hv_params is None:
+            print('  hourly dispatch skipped: problem dict does not expose hv_params')
+        else:
+            nvar_build, nvar_per_hour = hv_params
+            def col(t, key):
+                return nvar_build + t * nvar_per_hour + IDX[key]
+
+            def series(key, scale=1.0):
+                return np.array([x[col(t, key)] for t in range(T)]) * scale
+
+            solar_built = float(result.get('S_mw_total', result.get('S_mw', 0.0)))
+            rows = {
+                'Timestamp': np.arange(T),
+                'Demand (MW)': demand[:T],
+                'Solar potential (MW)': solar_built * w['solar'][:T] + exist_solar[:T],
+                'Wind (MW)': lp.CVOW_MW * w['wind'][:T],
+                'Nuclear (MW)': w['nuclear'][:T],
+                'Curtailment (MW, neg)': -series('curtailed_generation_mw', BS),
+                'Unserved (MW)': series('unserved_energy_mw', BS),
+            }
+            for label, key in (('Bath', 'bath'), ('NaIon', 'sodium_ion'), ('IronAir', 'iron_air')):
+                for suffix, sign in (('discharge_mw', 1.0), ('charge_mw', -1.0)):
+                    k = f'{key}_{suffix}'
+                    if k in IDX:
+                        nice = 'Discharge (MW)' if sign > 0 else 'Charging (MW, neg)'
+                        rows[f'{label} {nice}'] = series(k, BS) * sign
+                soc = f'{key}_state_of_charge_mwh'
+                if soc in IDX:
+                    v = series(soc, BS)
+                    rows[f'{label} SoC (MWh)'] = v
+                    if v.max() > 0:
+                        rows[f'{label} SoC (%)'] = 100.0 * v / v.max()
+            if 'gas_generation_mw' in IDX:
+                rows['Gas (MW)'] = series('gas_generation_mw', BS)
+            rows['Dual ($/MWh)'] = duals if 'duals' in locals() else np.zeros(T)
+
+            import csv
+            path = os.path.join(args.out, f'hourly_{tag}.csv')
+            with open(path, 'w', newline='') as f:
+                wtr = csv.writer(f)
+                wtr.writerow(rows.keys())
+                for t in range(T):
+                    wtr.writerow([f'{v[t]:.4f}' if isinstance(v[t], float) else v[t]
+                                  for v in rows.values()])
+            print(f'  hourly dispatch -> {path}')
+
+            # Answer the question the duals raised, in the run itself rather than by inference.
+            curt = -rows['Curtailment (MW, neg)']
+            sun = w['solar'][:T] > 0
+            print(f'\n  Curtailment check:')
+            print(f'    hours curtailing:            {int((curt > 1).sum()):>6,}')
+            print(f'    of those, in daylight:       {int(((curt > 1) & sun).sum()):>6,}  '
+                  f'({((curt > 1) & sun).sum() / max(1, (curt > 1).sum()):.1%})')
+            print(f'    curtailed energy:            {curt.sum()/1e6:>6.1f} TWh')
+            for label in ('NaIon', 'IronAir'):
+                k = f'{label} SoC (%)'
+                if k in rows:
+                    v = rows[k]
+                    print(f'    {label} SoC: min {v.min():.1f}%  max {v.max():.1f}%  '
+                          f'hours at >99%: {int((v > 99).sum()):,}')
 
     with open(os.path.join(args.out, f'solve_{tag}.json'), 'w') as f:
         json.dump(summary, f, indent=2)

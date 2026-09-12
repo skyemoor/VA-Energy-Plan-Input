@@ -1,0 +1,18 @@
+{
+  "scenario": "1",
+  "year": 2030,
+  "merit_order": false,
+  "capacity_basis": "net_summer",
+  "converged_frac": 0.44621345154707076,
+  "elapsed_seconds": 97.5,
+  "solar_mw": 8730.42545019259,
+  "solar_mw_total": 8730.42545019259,
+  "dist_S_mw": 0.0,
+  "PNA_mw": 4000.0,
+  "ENA_mwh": 24000.0,
+  "EFE_mwh": 0.0,
+  "dual_unique_values": 5,
+  "dual_min_mwh": -5.0,
+  "dual_max_mwh": 60.266190013072766,
+  "dual_std_mwh": 6.955544047282312
+}
