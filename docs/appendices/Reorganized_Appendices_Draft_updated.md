@@ -498,6 +498,49 @@ buildout (Na-ion, iron-air) would actually monetize reserve capability in
 PJM's real market, versus the energy-balance-only treatment used in this
 project's own LP.
 
+#### A.12.x CVOW as a potential Most Severe Single Contingency — noted and excluded
+
+**Coastal Virginia Offshore Wind delivers roughly 2,050 MW at the transmission interconnection.**
+Nameplate is 2,587.2 MW, but that figure never occurs: the modelled wind capacity factor peaks at
+0.8176, giving 2,115 MW, with wake losses already embedded. The 2,050 MW figure allows a further few
+percent for the collector system, offshore substation and approximately 25 miles of export cable.
+
+If a single point of failure exists anywhere in that chain, CVOW is a single contingency of:
+
+| against | ratio |
+|---|---:|
+| PJM RTO synchronized reserve requirement (1,300–1,500 MW) | **1.37–1.58×** |
+| A large nuclear unit (~950 MW) | **2.16×** |
+
+NERC **BAL-002** sizes contingency reserve to the **Most Severe Single Contingency**. A contingency
+of this size could therefore raise PJM's MSSC rather than merely consuming Virginia's share of an
+existing requirement — a distinction the reserve-sharing reasoning elsewhere in this appendix does
+not address, since that reasoning concerns *sharing* a requirement rather than *enlarging* one.
+
+**This analysis notes the question and does not pursue it, for three reasons.**
+
+**It does not differentiate the scenarios.** CVOW enters the model as a fixed input, not a build
+variable — identically in every scenario, including the utility comparison case. A term common to
+all scenarios cannot affect a comparison between them.
+
+**The magnitude is small.** An MSSC increase of roughly 550 MW, at typical synchronized reserve
+clearing prices, is on the order of tens of millions of dollars annually **across all of PJM**, of
+which the Dominion zone's ~22% share is single-digit millions. Against a buildout measured in tens
+of billions, and appearing equally in every scenario, it is not a differentiating cost.
+
+**It is not Virginia's to resolve.** PJM determines the MSSC and sets reserve requirements as
+Balancing Authority. How CVOW is treated is a matter between Dominion and PJM through the
+interconnection and reliability processes, not something a state energy plan decides.
+
+**One qualification, stated for completeness:** the effect is not purely external. Regional reserve
+procurement costs are allocated to load, so a higher MSSC would reach Virginia ratepayers as a small
+share. The pathway exists; the magnitude does not warrant modelling it.
+
+**Unverified and material to the above:** the export-system configuration. If CVOW lands via
+multiple independent circuits, a single-circuit failure would lose a fraction rather than the total,
+shrinking or removing the effect entirely. The single-point assumption used here is the conservative
+one.
+
 ### A.13 Adopted Capacity-Credit Methodology for This Project's Own Reserve-Margin Treatment (new, substantial session)
 Given the E3-documented critiques of PJM's own ELCC/RRS model (A.12) --
 multi-day persistence not captured, load/resource weather misalignment that
