@@ -70,3 +70,38 @@ class TestMeritOrderStructure:
     def test_the_truncated_irp_pdfs_are_recorded(self):
         """Confirmed unreadable with both pypdf and pdfplumber. Other work may depend on them."""
         assert 'truncated and unreadable' in a.GAS_MERIT_ORDER_CAPACITY_UNSOURCED
+
+
+class TestCapacityPerRung:
+    """Source: Dominion Energy Form ARS FY2023 (SEC), 'Virginia Power Utility Generation', net
+    summer capability -- the filed, audited figures. Capacity figures vary by source (Brunswick is
+    1,376 in the 10-K, 1,472 in a state inventory, '1,300' in press coverage); the 10-K column is
+    used consistently because it is internally consistent across plants."""
+
+    def test_rung_capacities_sum_to_the_filed_total(self):
+        assert sum(a.GAS_MERIT_ORDER_CAPACITY_MW.values()) == a.GAS_DOMINION_OWNED_TOTAL_MW == 8_195.0
+
+    def test_modern_ccgt_rung_is_the_three_confirmed_2014_plus_plants(self):
+        """Greensville 1,605 (2018) + Brunswick 1,376 (2016) + Warren County 1,349 (2014)."""
+        assert a.GAS_MERIT_ORDER_CAPACITY_MW['ccgt_modern'] == 1_605 + 1_376 + 1_349
+
+    def test_ct_capacity_is_explicitly_unallocated_not_assigned_to_a_tier(self):
+        """2,066 MW across a 14% marginal-cost difference, on the units that set peak prices.
+        Assigning it to either tier without sourcing would be a guess with real consequences."""
+        assert 'ct_unallocated' in a.GAS_MERIT_ORDER_CAPACITY_MW
+        assert 'ct_aeroderivative' not in a.GAS_MERIT_ORDER_CAPACITY_MW
+        assert 'ct_fleet' not in a.GAS_MERIT_ORDER_CAPACITY_MW
+        assert 'NOT split' in a.GAS_CT_SPLIT_UNRESOLVED
+
+    def test_the_capacity_basis_discrepancy_is_recorded(self):
+        """8,195 MW Dominion-owned against Schedule A's 9,362 MW. Probably IPPs, not documented,
+        and the two figures are used by different parts of this project."""
+        c = a.GAS_CAPACITY_BASIS_UNRECONCILED
+        assert '8,195' in c and '9,362' in c
+        assert 'Resolve before wiring the merit order into the LP' in c
+
+    def test_legacy_rung_vintages_are_flagged_provisional(self):
+        """Possum Point, Chesterfield and Gordonsville CODs are unconfirmed, so their assignment
+        to ccgt_legacy rests on inference rather than sourcing."""
+        src = open(a.__file__).read()
+        assert 'VINTAGES UNCONFIRMED' in src

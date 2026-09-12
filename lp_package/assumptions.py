@@ -258,13 +258,50 @@ GAS_MERIT_ORDER_HEAT_RATES = (
     ('ct_fleet', GAS_HEAT_RATE_CT_FLEET),
 )
 
+#: Capacity per rung, MW. Source: Dominion Energy Form ARS FY2023 (SEC), "Virginia
+#: Power Utility Generation", net summer capability. DOMINION-OWNED ONLY -- excludes
+#: IPPs in the DOM zone (Doswell, Tenaska Virginia, Panda Stonewall, Marsh Run, Louisa,
+#: Hopewell). See docs/methodology/Gas_Fleet_Working_Notes.md before using.
+GAS_MERIT_ORDER_CAPACITY_MW = {
+    'ccgt_modern': 4_330.0,    # Greensville 1,605 (2018) + Brunswick 1,376 (2016)
+                               # + Warren County 1,349 (2014). All CODs confirmed.
+    'ccgt_fleet': 622.0,       # Bear Garden (2011). COD confirmed.
+    'ccgt_legacy': 1_177.0,    # Possum Point 573 + Chesterfield 386 + Gordonsville 218.
+                               # VINTAGES UNCONFIRMED -- rung assignment is provisional.
+    'ct_unallocated': 2_066.0, # Ladysmith 782 + Remington 619 + Elizabeth River 327
+                               # + Gravel Neck 170 + Darbytown 168. NOT split between
+                               # aeroderivative (9.5) and frame (11.0) -- see below.
+}
+GAS_DOMINION_OWNED_TOTAL_MW = 8_195.0
+
+#: The largest remaining gap in the merit order. 2,066 MW of CT capacity has no basis
+#: for allocation between ct_aeroderivative (HR 9.5) and ct_fleet (HR 11.0) -- a 14%
+#: marginal-cost difference on precisely the units that set peak prices.
+GAS_CT_SPLIT_UNRESOLVED = (
+    'GAS_MERIT_ORDER_CAPACITY_MW["ct_unallocated"] (2,066 MW) is NOT split between '
+    'aeroderivative and frame CTs. Their heat rates differ 9.5 vs 11.0, a 14% '
+    'marginal-cost gap on the units that set peak prices. Do not assume either tier '
+    'for this capacity without sourcing the split.')
+
+#: Unreconciled: Dominion-owned gas totals 8,195 MW (10-K), while
+#: VA_gas_capacity_schedules.md Schedule A carries 9,362 MW for 2026-2040. IPP inclusion
+#: is the likely explanation but is not documented, and the two figures are used by
+#: different parts of this project.
+GAS_CAPACITY_BASIS_UNRECONCILED = (
+    'Dominion-owned gas is 8,195 MW (Form ARS FY2023). Schedule A in '
+    'VA_gas_capacity_schedules.md carries 9,362 MW for 2026-2040. The 1,167 MW '
+    'difference is probably IPP capacity in the DOM zone but is not documented. '
+    'Resolve before wiring the merit order into the LP.')
+
 GAS_MERIT_ORDER_CAPACITY_UNSOURCED = (
     'GAS_MERIT_ORDER_HEAT_RATES gives cost per rung but NOT capacity per rung. '
     'A merit order needs MW at each tier to bind. The Virginia fleet split by '
     'vintage and prime mover is not yet sourced -- the Dominion IRP PDFs in the '
     'project folder are truncated and unreadable (no /Root object, confirmed '
     'with both pypdf and pdfplumber), so EIA-860 generator-level data is the '
-    'likely source. Until then these tiers cannot be wired into the LP.')
+    'likely source. PARTLY RESOLVED 2026-09-11: see GAS_MERIT_ORDER_CAPACITY_MW, '
+    'sourced from the Dominion 10-K. Still blocked on the CT aero/frame split and the '
+    '8,195-vs-9,362 reconciliation.')
   # MMBtu/MWh HHV, GE 7F.05 simple-cycle spec (8,580-8,610 Btu/kWh LHV,
                                # x1.108 LHV->HHV) -- Scenario 1/3/1B/3B/3C fleet
 CCGT_HEAT_RATE = 6.4          # MMBtu/MWh HHV, GE 7F.05 combined-cycle spec (5,660 Btu/kWh LHV,
