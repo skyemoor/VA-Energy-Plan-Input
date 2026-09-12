@@ -35,6 +35,28 @@ identically in every hour of the year.**
 The node figures use the *same* month-hour averaging the model uses, so averaging is not the
 explanation.
 
+### RESOLVED 2026-09-12 — the merit order gives the dual structure
+
+Wiring the gas stack into `build_problem` changes the 2030 dual from **one unique value to 40**:
+
+| | before | after |
+|---|---|---|
+| unique values across 8,760 h | **1** | **40** |
+| range | $54.70 flat | **$37.56 – $3,690.71** |
+| std | 0 | 215.15 |
+
+The minimum is **exactly `ccgt_modern`'s marginal cost** ($37.56) — the cheapest hours now clear at
+the cheapest rung rather than at simple-cycle gas. Rungs dispatch in merit order: ccgt_modern runs
+8,648 hours, ccgt_fleet 7,921, ccgt_legacy 6,396, ct_fleet 4,804.
+
+**Design note:** the integration is additive. `IDX['g']` remains the hourly gas total, so the energy
+balance, `gascum` and the gas-share constraint are untouched; per-rung variables are appended and
+tied to the total by one equality per hour. Replacing `IDX['g']` outright would have meant editing
+four build functions, with far more surface for a silent error and no way to test the 2045 solve here.
+
+**Default is off.** `gas_merit_order=None` reproduces prior behaviour exactly, so existing baselines
+stay valid.
+
 ### CAUSATION CORRECTED 2026-09-11 — it is not storage arbitrage
 
 An earlier version of this finding attributed the flat dual to **unconstrained storage arbitraging

@@ -893,7 +893,8 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
                    distributed_share_of_total_solar=0.20, distributed_exogenous_price_mwh=None,
                    prior_distributed_solar_mw=0.0, prior_distributed_na_power_mw=0.0,
                    prior_distributed_na_energy_mwh=0.0, prior_distributed_ironair_energy_mwh=0.0,
-                   pin_build_mw=None, enforce_closing_soc=True):
+                   pin_build_mw=None, enforce_closing_soc=True,
+                  gas_merit_order=None, gas_merit_order_year=None):
     """
     solar_cf, wind_cf, nuclear, exist_solar, demand: arrays length T (already concatenated for both years if needed)
 
@@ -1466,7 +1467,10 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
     na_cycling_cost = (NA_ENERGY_CAPEX*1000) / (NA_CYCLE_LIFE * (1.0 - NA_DOD_FLOOR))
     fe_cycling_cost = (FE_ENERGY_CAPEX*1000) / (FE_CYCLE_LIFE * FE_DOD)
     for t in range(T):
-        c[hv(t,IDX['g'])] = _gas_price
+        # With a merit order supplied, per-rung variables carry the cost instead --
+        # see the MERIT ORDER block below. Zeroing here rather than skipping keeps the
+        # objective vector's shape identical in both modes.
+        c[hv(t,IDX['g'])] = _gas_price if gas_merit_order is None else 0.0
         c[hv(t,IDX['nd'])] = na_cycling_cost
         c[hv(t,IDX['fd'])] = fe_cycling_cost
         c[hv(t,IDX['unserved'])] = UNSERVED_PENALTY
@@ -1570,6 +1574,84 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
     # compatibility with every existing caller that unpacks it positionally -- 'distributed_builds' added
     # as a new, separate key rather than extending the existing tuple's length, which would silently
     # break any caller doing `S_mw, PNA_mw, ENA_mwh, EFE_mwh = problem['builds']`.
+
+    # ------------------------------------------------------------------
+    # MERIT ORDER (optional; default off -- gas_merit_order=None reproduces this
+    # function's prior behaviour exactly, with one flat gas price)
+    # ------------------------------------------------------------------
+    # ADDITIVE BY DESIGN. IDX['g'] remains the hourly gas TOTAL, so the energy balance,
+    # the gascum accumulation and the gas-share constraint all continue to operate on it
+    # untouched. Per-rung variables are appended and tied to that total by one equality
+    # per hour. Replacing IDX['g'] outright would have meant editing four build functions
+    # and every constraint that references gas -- far more surface area for a silent
+    # error, and untestable here because the 2045 solve exceeds the available execution
+    # window.
+    #
+    # WHY A STACK AT ALL: with one gas price and gas on the margin in every hour, the
+    # hourly energy-balance dual has zero variance -- gas OUTPUT varies across the day
+    # but gas MARGINAL COST does not, and the dual tracks the second. See
+    # docs/MODEL_WIDE_FINDINGS.md section 1.
+    if (gas_merit_order is None) != (gas_merit_order_year is None):
+        # Rule 5: a stack without a year cannot resolve retirements or fuel price, and a year
+        # without a stack silently does nothing. Neither should be guessed past.
+        raise ValueError(
+            'gas_merit_order and gas_merit_order_year must be supplied together; got '
+            f'gas_merit_order={"set" if gas_merit_order else "None"}, '
+            f'gas_merit_order_year={gas_merit_order_year!r}. The stack needs a year to resolve '
+            'retirements and the fuel-price trajectory.')
+    if gas_merit_order is not None:
+        year = gas_merit_order_year
+        rungs = gas_merit_order.rungs(year)
+        if not rungs:
+            raise ValueError(
+                f'gas_merit_order supplied but has no available rungs in {year}; the whole '
+                'fleet has retired. Pass gas_merit_order=None to run without a stack.')
+        n_rung = len(rungs)
+        base = len(c)
+        # widen every structure by n_rung * T columns
+        c = np.concatenate([c, np.zeros(n_rung * T)])
+        bounds = bounds + [(0.0, 0.0)] * (n_rung * T)
+
+        def rung_var(rung_i, t):
+            return base + rung_i * T + t
+
+        for ri, rung in enumerate(rungs):
+            cost = rung.marginal_cost_mwh(year)
+            cap = rung.nameplate_mw          # already net of retirements and availability
+            for t in range(T):
+                v = rung_var(ri, t)
+                c[v] = cost
+                bounds[v] = (0.0, cap)
+
+        # sum(rungs) - g = 0, one equality per hour: the stack must account for exactly the
+        # gas the rest of the model already dispatched.
+        #
+        # NOTE the row counter. `row` in this function is SHARED between equality and
+        # inequality constraints, so it is NOT the equality row count -- using it as one
+        # produced an A_eq with 175,566 rows against a b_eq of 61,325 and linprog refused
+        # the problem. len(eq_rhs) is the correct equality index.
+        eq_row = len(eq_rhs)
+        for t in range(T):
+            eq_rows += [eq_row] * (n_rung + 1)
+            eq_cols += [rung_var(ri, t) for ri in range(n_rung)] + [hv(t, IDX['g'])]
+            eq_data += [1.0] * n_rung + [-1.0]
+            eq_rhs.append(0.0)
+            eq_row += 1
+
+        A_eq = sparse.coo_matrix((eq_data, (eq_rows, eq_cols)),
+                                 shape=(len(eq_rhs), len(c))).tocsr()
+        A_ub = (sparse.coo_matrix((ub_data, (ub_rows, ub_cols)), shape=(len(ub_rhs), len(c))).tocsr()
+                if ub_rhs else None)
+        problem['c'] = c
+        problem['A_eq'] = A_eq
+        problem['b_eq'] = np.array(eq_rhs)
+        if A_ub is not None:
+            problem['A_ub'] = A_ub
+            problem['b_ub'] = np.array(ub_rhs)
+        problem['bounds'] = bounds
+        problem['gas_rung_base_index'] = base
+        problem['gas_rung_names'] = [r.name for r in rungs]
+
     return problem
 
 
