@@ -92,8 +92,12 @@ class TestConsolidationBacklogIsRecorded:
         s = read('docs', 'INDEX.md')
         assert 'Consolidation candidates' in s
 
-    def test_ct_split_lead_is_recorded_as_a_lead_not_a_resolution(self):
-        """Size-based inference from the capex tiers, not a sourced unit-type finding."""
+    def test_ct_split_was_resolved_not_left_as_a_lead(self):
+        """On 2026-09-11 this was a size-based LEAD from the capex tiers. On 2026-09-12 EIA-860
+        generator data settled it from per-unit nameplate: Dominion's simple-cycle fleet is 100%
+        frame. The lead pointed the right way, but the test now asserts the sourced finding rather
+        than the inference it replaced."""
         import assumptions as a
-        assert 'LEAD (not a resolution)' in a.GAS_CT_SPLIT_UNRESOLVED
-        assert 'inference from unit size' in a.GAS_CT_SPLIT_UNRESOLVED
+        assert '100% FRAME' in a.GAS_CT_SPLIT_RESOLVED
+        assert 'EIA-860' in a.GAS_CT_SPLIT_RESOLVED
+        assert not hasattr(a, 'GAS_CT_SPLIT_UNRESOLVED'), 'superseded constant should be removed'

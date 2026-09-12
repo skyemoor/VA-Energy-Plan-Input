@@ -258,55 +258,49 @@ GAS_MERIT_ORDER_HEAT_RATES = (
     ('ct_fleet', GAS_HEAT_RATE_CT_FLEET),
 )
 
-#: Capacity per rung, MW. Source: Dominion Energy Form ARS FY2023 (SEC), "Virginia
-#: Power Utility Generation", net summer capability. DOMINION-OWNED ONLY -- excludes
-#: IPPs in the DOM zone (Doswell, Tenaska Virginia, Panda Stonewall, Marsh Run, Louisa,
-#: Hopewell). See docs/methodology/Gas_Fleet_Working_Notes.md before using.
+#: Capacity per rung, MW NAMEPLATE. Source: EIA-860 2025, Schedule 3 (Generator Data),
+#: Virginia file, Operable sheet, filtered to Energy Source 1 = NG and Utility Name =
+#: Virginia Electric & Power Co. Rungs assigned by per-unit Operating Year.
+#:
+#: REBUILT 2026-09-12 on generator-level data, replacing a mapping derived from the
+#: Dominion 10-K. The 10-K gave NET SUMMER CAPABILITY (8,195 MW); this gives NAMEPLATE
+#: (9,359.5 MW). Same fleet, different rating basis -- 8,195/9,359.5 = 87.6%, a normal
+#: summer derate. Mixing the two bases created a phantom 1,167 MW discrepancy against
+#: VA_gas_capacity_schedules.md Schedule A (9,362 MW), now resolved: Schedule A is
+#: Dominion-owned gas at NAMEPLATE and agrees to within 2.5 MW (rounding).
 GAS_MERIT_ORDER_CAPACITY_MW = {
-    'ccgt_modern': 4_330.0,    # Greensville 1,605 (2018) + Brunswick 1,376 (2016)
-                               # + Warren County 1,349 (2014). All CODs confirmed.
-    'ccgt_fleet': 622.0,       # Bear Garden (2011). COD confirmed.
-    'ccgt_legacy': 1_177.0,    # Possum Point 573 + Chesterfield 386 + Gordonsville 218.
-                               # VINTAGES UNCONFIRMED -- rung assignment is provisional.
-    'ct_unallocated': 2_066.0, # Ladysmith 782 + Remington 619 + Elizabeth River 327
-                               # + Gravel Neck 170 + Darbytown 168. NOT split between
-                               # aeroderivative (9.5) and frame (11.0) -- see below.
+    'ccgt_modern': 4_717.7,    # 12 units, operating year >= 2014
+    'ccgt_fleet': 1_172.0,     # 6 units, 2000-2013
+    'ccgt_legacy': 747.0,      # 8 units, pre-2000
+    'ct_fleet': 2_722.8,       # 20 units, ALL FRAME -- see GAS_CT_SPLIT_RESOLVED
 }
-GAS_DOMINION_OWNED_TOTAL_MW = 8_195.0
+GAS_DOMINION_OWNED_NAMEPLATE_MW = 9_359.5
+GAS_DOMINION_OWNED_NET_SUMMER_MW = 8_195.0   # 10-K basis, retained for cross-reference
 
-#: The largest remaining gap in the merit order. 2,066 MW of CT capacity has no basis
-#: for allocation between ct_aeroderivative (HR 9.5) and ct_fleet (HR 11.0) -- a 14%
-#: marginal-cost difference on precisely the units that set peak prices.
-GAS_CT_SPLIT_UNRESOLVED = (
-    'GAS_MERIT_ORDER_CAPACITY_MW["ct_unallocated"] (2,066 MW) is NOT split between '
-    'aeroderivative and frame CTs. Their heat rates differ 9.5 vs 11.0, a 14% '
-    'marginal-cost gap on the units that set peak prices. Do not assume either tier '
-    'for this capacity without sourcing the split. LEAD (not a resolution): '
-    'docs/research/new_peaker_ccgt_costs_by_size.md describes the 20-50 MW tier as '
-    'fast-deployment aeroderivative, while Dominion CT units (Ladysmith 782, Remington '
-    '619, Elizabeth River 327, Gravel Neck 170, Darbytown 168) sit well above that band '
-    '-- suggesting the fleet is predominantly FRAME and closer to 11.0 than 9.5. That is '
-    'an inference from unit size, not a sourced unit-type finding.')
+#: RESOLVED 2026-09-12. The simple-cycle fleet is entirely frame-class, established from
+#: per-unit nameplate rather than inferred: Ladysmith 5 x 178.5 MW (2001, 2008-09),
+#: Remington 4 x 170-178.5 (2000), Elizabeth River 3 x 129.6 (1992), Gravel Neck
+#: 4 x 91.9 (1989), Darbytown 4 x 92.1 (1990). Aeroderivative machines are 36-54 MW
+#: (LM6000 is 44.5-53.8); not one Dominion unit is in that class. Statewide, 91.9% of
+#: Virginia simple-cycle capacity is frame (4,426 of 4,814 MW), with 388 MW in eight
+#: units under 60 MW -- none of it Dominion's.
+GAS_CT_SPLIT_RESOLVED = (
+    'Dominion simple-cycle capacity is 100% FRAME class, confirmed from EIA-860 '
+    'per-unit nameplate (92-178.5 MW units; aeroderivatives are 36-54 MW). Use '
+    'GAS_HEAT_RATE_CT_FLEET (10.999). GAS_HEAT_RATE_CT_AERODERIVATIVE (9.5) remains '
+    'defined for NEW-BUILD analysis where a specific machine is chosen, and must not be '
+    'applied to the existing fleet.')
 
-#: Unreconciled: Dominion-owned gas totals 8,195 MW (10-K), while
-#: VA_gas_capacity_schedules.md Schedule A carries 9,362 MW for 2026-2040. IPP inclusion
-#: is the likely explanation but is not documented, and the two figures are used by
-#: different parts of this project.
-GAS_CAPACITY_BASIS_UNRECONCILED = (
-    'Dominion-owned gas is 8,195 MW (Form ARS FY2023). Schedule A in '
-    'VA_gas_capacity_schedules.md carries 9,362 MW for 2026-2040. The 1,167 MW '
-    'difference is probably IPP capacity in the DOM zone but is not documented. '
-    'Resolve before wiring the merit order into the LP.')
-
-GAS_MERIT_ORDER_CAPACITY_UNSOURCED = (
+GAS_MERIT_ORDER_CAPACITY_SOURCING_NOTE = (
     'GAS_MERIT_ORDER_HEAT_RATES gives cost per rung but NOT capacity per rung. '
     'A merit order needs MW at each tier to bind. The Virginia fleet split by '
     'vintage and prime mover is not yet sourced -- the Dominion IRP PDFs in the '
     'project folder are truncated and unreadable (no /Root object, confirmed '
     'with both pypdf and pdfplumber), so EIA-860 generator-level data is the '
-    'likely source. PARTLY RESOLVED 2026-09-11: see GAS_MERIT_ORDER_CAPACITY_MW, '
-    'sourced from the Dominion 10-K. Still blocked on the CT aero/frame split and the '
-    '8,195-vs-9,362 reconciliation.')
+    'likely source. FULLY RESOLVED 2026-09-12 from EIA-860 Schedule 3 generator data: '
+    'capacity per rung is sourced at nameplate, the CT aero/frame split is settled (all '
+    'frame), and the 8,195-vs-9,362 discrepancy was a nameplate-versus-net-summer units '
+    'mismatch, not missing capacity. The merit order is no longer blocked on data.')
   # MMBtu/MWh HHV, GE 7F.05 simple-cycle spec (8,580-8,610 Btu/kWh LHV,
                                # x1.108 LHV->HHV) -- Scenario 1/3/1B/3B/3C fleet
 CCGT_HEAT_RATE = 6.4          # MMBtu/MWh HHV, GE 7F.05 combined-cycle spec (5,660 Btu/kWh LHV,

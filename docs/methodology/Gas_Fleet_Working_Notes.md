@@ -122,55 +122,68 @@ are kept as separate tiers because they describe genuinely different machines.
 
 ---
 
-## 2. Capacity per rung — Dominion-owned fleet
+## 2. Capacity per rung — resolved from EIA-860
 
-**Source: Dominion Energy Form ARS FY2023** (SEC filing), "Virginia Power Utility Generation," net
-summer capability. This gives plant, CC/CT designation, and MW directly.
+**Source: EIA-860 2025, Schedule 3 (Generator Data)**, Virginia file, Operable sheet, filtered to
+`Energy Source 1 = NG` and `Utility Name = Virginia Electric & Power Co`. Rungs assigned by
+per-unit **Operating Year**.
 
-| plant | type | MW | COD | rung |
-|---|---|---:|---|---|
-| Greensville County | CC | 1,605 | 2018 | `ccgt_modern` |
-| Brunswick County | CC | 1,376 | 2016 | `ccgt_modern` |
-| Warren County | CC | 1,349 | 2014 | `ccgt_modern` |
-| Ladysmith | CT | 782 | 2001 | `ct_*` — see caveat |
-| Bear Garden | CC | 622 | 2011 | `ccgt_fleet` |
-| Remington | CT | 619 | ~2000 | `ct_*` |
-| Possum Point | CC | 573 | *unconfirmed* | `ccgt_legacy`? |
-| Chesterfield | CC | 386 | *unconfirmed* | `ccgt_legacy`? |
-| Elizabeth River | CT | 327 | *unconfirmed* | `ct_*` |
-| Gordonsville Energy | CC | 218 | ~1990s | `ccgt_legacy` |
-| Gravel Neck | CT | 170 | *unconfirmed* | `ct_*` |
-| Darbytown | CT | 168 | *unconfirmed* | `ct_*` |
-| **Total Dominion gas** | | **8,195** | | 43% of Dominion capacity |
+| rung | nameplate MW | units | basis |
+|---|---:|---:|---|
+| `ccgt_modern` | **4,717.7** | 12 | operating year ≥ 2014 |
+| `ccgt_fleet` | **1,172.0** | 6 | 2000–2013 |
+| `ccgt_legacy` | **747.0** | 8 | pre-2000 |
+| `ct_fleet` | **2,722.8** | 20 | all frame — see below |
+| **total** | **9,359.5** | 46 | |
 
-### Rung totals, Dominion-owned
+### The CT aero/frame split — settled, entirely frame
 
-| rung | MW | confidence |
-|---|---:|---|
-| `ccgt_modern` | **4,330** | **high** — all three CODs confirmed, all 2014+ |
-| `ccgt_fleet` | **622** | **high** — Bear Garden COD 2011 confirmed |
-| `ccgt_legacy` | **1,177** | **low** — Possum Point, Chesterfield, Gordonsville vintages unconfirmed |
-| CT (all) | **2,066** | **medium** on total, **none** on aero/frame split |
+Established from per-unit nameplate rather than inferred:
 
-### Three caveats that matter
+| plant | units × MW | year |
+|---|---|---|
+| Ladysmith | 5 × 178.5 | 2001, 2008–09 |
+| Remington | 4 × 170–178.5 | 2000 |
+| Elizabeth River | 3 × 129.6 | 1992 |
+| Gravel Neck | 4 × 91.9 | 1989 |
+| Darbytown | 4 × 92.1 | 1990 |
 
-**The aeroderivative/frame split is entirely unresolved.** All 2,066 MW of CT capacity is assigned
-to "CT" with no basis for allocating between `ct_aeroderivative` (9.5) and `ct_fleet` (11.0) — a
-14% cost difference on the units that set peak prices. This is the single largest gap in the rung
-mapping.
+**Aeroderivative machines are 36–54 MW** (GE LM6000: 44.5–53.8). **Not one Dominion unit is in
+that class.** Statewide, 91.9% of Virginia simple-cycle capacity is frame — 4,426 of 4,814 MW —
+with only 388 MW across eight units under 60 MW, none of it Dominion's.
 
-**This is Dominion-owned only.** It excludes independent power producers in the DOM zone — Doswell
-(~1,313 MW), Tenaska Virginia (~975–1,011 MW), Panda Stonewall (~812 MW), Marsh Run (~709 MW),
-Louisa (~509 MW), Hopewell (~399 MW). `VA_gas_capacity_schedules.md` Schedule A carries **9,362
-MW** for 2026–2040, which is neither the 8,195 Dominion-owned figure nor the Dominion-plus-IPP
-total. **That discrepancy is unreconciled** and should be resolved before the rungs are wired in.
+**Use `GAS_HEAT_RATE_CT_FLEET` (10.999) for the existing fleet.** `GAS_HEAT_RATE_CT_AERODERIVATIVE`
+(9.5) stays defined for **new-build** analysis where a specific machine is chosen, and must not be
+applied to these units — doing so would understate their marginal cost by 14%.
 
-**Capacity figures vary by source.** Dominion's own 10-K gives Brunswick 1,376 MW; a state
-inventory gives 1,472 MW; press coverage says "1,300 MW." These are net summer capability, nameplate,
-and rounded announcement figures respectively. **Use the 10-K column consistently** — it is the
-filed, audited number and is internally consistent across plants.
+### The 1,167 MW "discrepancy" was a units mismatch, not missing capacity
 
----
+An earlier version of this note recorded an unreconciled gap between the Dominion 10-K's 8,195 MW
+and Schedule A's 9,362 MW, and offered two explanations — IPP capacity, then ODEC capacity. **Both
+were wrong.**
+
+| basis | MW |
+|---|---:|
+| 10-K, **net summer capability** | 8,195 |
+| EIA-860, **nameplate** | **9,359.5** |
+| Schedule A (`VA_gas_capacity_schedules.md`) | 9,362 |
+
+Schedule A agrees with nameplate to within **2.5 MW** — rounding. And 8,195 / 9,359.5 = **87.6%**,
+a normal summer derate on gas turbines.
+
+**Same fleet, two rating bases.** The lesson is procedural: the ratio was a plausible derate factor
+all along, and checking the units before hypothesising would have saved two wrong answers. Both
+figures are now retained as separately named constants so the mistake cannot repeat silently.
+
+### What EIA-860 does *not* resolve
+
+The **Schedule 2 (Plant Data)** file carries no capacity or prime mover, but it did correct two
+ownership assumptions: `Gordonsville Energy LP` and `Hopewell Power Station` are **Virginia Electric
+& Power Co** despite LP-style names, and `Marsh Run` and `Louisa` belong to **Old Dominion Electric
+Cooperative** — a separate DOM-zone utility (1,142.4 MW of gas), not IPPs and not in Schedule A.
+
+Genuine DOM-zone IPP gas: Doswell (1,313.0 MW), Tenaska Virginia (1,011.4), Potomac Energy Center
+(812.0), Luminant/Hopewell Cogeneration (399.0).
 
 ## 3. Cost structure
 
@@ -250,12 +263,21 @@ real time hit **$1,240** on 3 September 2026.
 
 ## 7. Open items
 
-1. **Aeroderivative/frame CT split** — 2,066 MW unallocated across a 14% cost difference, on the
-   units that set peak prices. Largest gap in the mapping.
-2. **Reconcile 8,195 (Dominion 10-K) against 9,362 (Schedule A)** — IPP inclusion is the likely
-   explanation but is not documented.
-3. **Vintages for Possum Point, Chesterfield, Elizabeth River, Gravel Neck, Darbytown.**
-4. **A CT-specific VOM constant** — using CCGT's 3.0 understates peaker marginal cost.
+1. ~~Aeroderivative/frame CT split~~ — **RESOLVED 2026-09-12** from EIA-860 per-unit nameplate.
+   Entirely frame.
+2. ~~Reconcile 8,195 against 9,362~~ — **RESOLVED 2026-09-12.** Not a gap: net summer capability
+   versus nameplate, same fleet.
+3. ~~Vintages for Possum Point, Chesterfield, Elizabeth River, Gravel Neck, Darbytown~~ —
+   **RESOLVED**; EIA-860 carries per-unit Operating Year, and rungs are now assigned from it.
+4. **A CT-specific VOM constant** — still open. `CCGT_VOM_MWH = 3.0` is used for peakers, which
+   understates their marginal cost on top of the heat-rate question.
 5. **The Dominion IRP PDFs in the project folder are truncated and unreadable** — no `/Root`
-   object, confirmed with both `pypdf` and `pdfplumber`. Other work may depend on them.
-6. **Imports and scarcity pricing** (§5), deferred as its own work set.
+   object, confirmed with `pypdf` and `pdfplumber`. **No longer blocking**, since EIA-860 supplied
+   what they would have, but other work may depend on them.
+6. **Imports and scarcity pricing** (§5) — deferred as its own work set. Note the simplification
+   established 2026-09-12: under LMP, an importer pays **its own node's price**, so modelling
+   imports needs a DOM-node price rather than PJM's whole supply stack. That makes the import
+   question and the scarcity-pricing question **the same question**, and a smaller one than first
+   scoped. The remaining independent constraint is the **transfer limit** into the zone.
+7. **Wire the merit order into the LP** — no longer blocked on data. This is now the next
+   substantive step.

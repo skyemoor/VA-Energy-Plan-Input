@@ -60,50 +60,62 @@ class TestMeritOrderStructure:
             assert hi / lo == pytest.approx(1.72, abs=0.02)
 
     def test_capacity_caveat_tracks_what_is_actually_still_blocking(self):
-        """Updated 2026-09-11 when capacity per rung was sourced from the Dominion 10-K. The
-        caveat now names what REMAINS blocking -- the CT aero/frame split and the 8,195-vs-9,362
-        reconciliation -- rather than claiming capacity is wholly unsourced, which is no longer
-        true. A caveat that overstates the gap erodes trust in the ones that don't."""
-        c = a.GAS_MERIT_ORDER_CAPACITY_UNSOURCED
-        assert 'NOT capacity per rung' in c
-        assert 'PARTLY RESOLVED' in c
-        assert 'CT aero/frame split' in c
+        """Revised twice as the situation changed: capacity wholly unsourced (2026-09-11 morning),
+        then partly sourced from the 10-K, then FULLY resolved from EIA-860 generator data
+        (2026-09-12). A caveat that overstates a gap erodes trust in the ones that don't, so it
+        tracks reality rather than being left at its most cautious version."""
+        c = a.GAS_MERIT_ORDER_CAPACITY_SOURCING_NOTE
+        assert 'FULLY RESOLVED' in c
+        assert 'nameplate-versus-net-summer units' in c
 
     def test_the_truncated_irp_pdfs_are_recorded(self):
-        """Confirmed unreadable with both pypdf and pdfplumber. Other work may depend on them."""
-        assert 'truncated and unreadable' in a.GAS_MERIT_ORDER_CAPACITY_UNSOURCED
+        """Confirmed unreadable with both pypdf and pdfplumber. Other work may depend on them.
+        No longer blocking the merit order -- EIA-860 supplied what the IRPs would have -- but
+        still worth knowing."""
+        assert 'truncated and unreadable' in a.GAS_MERIT_ORDER_CAPACITY_SOURCING_NOTE
 
 
 class TestCapacityPerRung:
-    """Source: Dominion Energy Form ARS FY2023 (SEC), 'Virginia Power Utility Generation', net
-    summer capability -- the filed, audited figures. Capacity figures vary by source (Brunswick is
-    1,376 in the 10-K, 1,472 in a state inventory, '1,300' in press coverage); the 10-K column is
-    used consistently because it is internally consistent across plants."""
+    """Source: EIA-860 2025 Schedule 3 (Generator Data), Virginia, Operable sheet, Energy Source 1
+    = NG, Utility Name = Virginia Electric & Power Co. Rungs assigned by per-unit Operating Year.
 
-    def test_rung_capacities_sum_to_the_filed_total(self):
-        assert sum(a.GAS_MERIT_ORDER_CAPACITY_MW.values()) == a.GAS_DOMINION_OWNED_TOTAL_MW == 8_195.0
+    REBUILT 2026-09-12 from generator-level data, replacing a 10-K-derived mapping. The two use
+    different rating bases -- net summer capability vs nameplate -- and mixing them created a
+    phantom 1,167 MW discrepancy that produced two wrong hypotheses before the units were checked.
+    """
 
-    def test_modern_ccgt_rung_is_the_three_confirmed_2014_plus_plants(self):
-        """Greensville 1,605 (2018) + Brunswick 1,376 (2016) + Warren County 1,349 (2014)."""
-        assert a.GAS_MERIT_ORDER_CAPACITY_MW['ccgt_modern'] == 1_605 + 1_376 + 1_349
+    def test_rung_capacities_sum_to_the_filed_nameplate_total(self):
+        assert sum(a.GAS_MERIT_ORDER_CAPACITY_MW.values()) == pytest.approx(
+            a.GAS_DOMINION_OWNED_NAMEPLATE_MW, abs=0.1)
 
-    def test_ct_capacity_is_explicitly_unallocated_not_assigned_to_a_tier(self):
-        """2,066 MW across a 14% marginal-cost difference, on the units that set peak prices.
-        Assigning it to either tier without sourcing would be a guess with real consequences."""
-        assert 'ct_unallocated' in a.GAS_MERIT_ORDER_CAPACITY_MW
-        assert 'ct_aeroderivative' not in a.GAS_MERIT_ORDER_CAPACITY_MW
-        assert 'ct_fleet' not in a.GAS_MERIT_ORDER_CAPACITY_MW
-        assert 'NOT split' in a.GAS_CT_SPLIT_UNRESOLVED
+    def test_both_rating_bases_are_retained_and_distinguishable(self):
+        """The phantom discrepancy came from mixing them. Keeping both, named, prevents a repeat."""
+        assert a.GAS_DOMINION_OWNED_NAMEPLATE_MW == 9_359.5
+        assert a.GAS_DOMINION_OWNED_NET_SUMMER_MW == 8_195.0
+        ratio = a.GAS_DOMINION_OWNED_NET_SUMMER_MW / a.GAS_DOMINION_OWNED_NAMEPLATE_MW
+        assert 0.85 < ratio < 0.90, 'ratio should be a plausible summer derate, not a real gap'
 
-    def test_the_capacity_basis_discrepancy_is_recorded(self):
-        """8,195 MW Dominion-owned against Schedule A's 9,362 MW. Probably IPPs, not documented,
-        and the two figures are used by different parts of this project."""
-        c = a.GAS_CAPACITY_BASIS_UNRECONCILED
-        assert '8,195' in c and '9,362' in c
-        assert 'Resolve before wiring the merit order into the LP' in c
+    def test_ct_split_is_resolved_as_entirely_frame(self):
+        """Settled from per-unit nameplate, not inferred: Dominion CT units are 92-178.5 MW;
+        aeroderivatives are 36-54 MW. Not one unit is in the aeroderivative class."""
+        assert 'ct_fleet' in a.GAS_MERIT_ORDER_CAPACITY_MW
+        assert 'ct_unallocated' not in a.GAS_MERIT_ORDER_CAPACITY_MW
+        assert '100% FRAME' in a.GAS_CT_SPLIT_RESOLVED
 
-    def test_legacy_rung_vintages_are_flagged_provisional(self):
-        """Possum Point, Chesterfield and Gordonsville CODs are unconfirmed, so their assignment
-        to ccgt_legacy rests on inference rather than sourcing."""
-        src = open(a.__file__).read()
-        assert 'VINTAGES UNCONFIRMED' in src
+    def test_aeroderivative_heat_rate_is_fenced_off_from_the_existing_fleet(self):
+        """9.5 stays defined for new-build analysis but must not be applied to Dominion's units.
+        Applying it would understate their marginal cost by 14%."""
+        assert 'must not be '
+        assert 'new-build' in a.GAS_CT_SPLIT_RESOLVED.lower() or 'NEW-BUILD' in a.GAS_CT_SPLIT_RESOLVED
+        assert a.GAS_HEAT_RATE_CT_AERODERIVATIVE == 9.5
+
+    def test_modern_rung_is_the_largest(self):
+        """4,717.7 MW across 12 units at 2014+, so Dominion's CCGT fleet is mostly modern."""
+        c = a.GAS_MERIT_ORDER_CAPACITY_MW
+        assert c['ccgt_modern'] == max(c.values())
+
+    def test_sourcing_note_records_the_resolution(self):
+        n = a.GAS_MERIT_ORDER_CAPACITY_SOURCING_NOTE
+        assert 'FULLY RESOLVED' in n
+        assert 'no longer blocked on data' in n
+
