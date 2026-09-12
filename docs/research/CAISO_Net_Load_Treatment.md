@@ -91,11 +91,14 @@ Both matter for how faithfully we would want to copy the design rather than adap
 ### Our constraint is sizing against the wrong hour
 
 ```
-S × BUILD_SCALE × solar_cf[t_peak] ≥ (1 + IRM) × demand[t_peak]
+S × BUILD_SCALE × solar_cf[h] ≥ (1 + IRM) × demand[h]
+    where h = hour_of_maximum_net_demand
 ```
 
-**Gross demand, one hour.** In a system with ~174 GW of solar, the hour that stresses the fleet is
-almost certainly an **evening net-load ramp**, not gross peak — and CAISO's own data shows net load
+**One hour.** The hour is selected on NET demand — `find_hour_of_maximum_net_demand()` — so the
+selection is already net-load based, a point earlier drafts of this note got wrong. The requirement
+written at that hour is against GROSS demand. What is missing is a RAMP requirement and any
+constraint on the other 8,759 hours — and CAISO's own data shows net load
 dipping below zero at midday while rising 6.5 GW in a single evening hour.
 
 ### Three candidate responses

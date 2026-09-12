@@ -340,15 +340,15 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
         problem['bounds'][EFE_] = (combined_floor_efe, hi3)
     reserve_info = None
     if reserve_margin_hint is not None:
-        t_peak, demand_at_peak, nuclear_at_peak, wind_cf_at_peak, solar_cf_at_peak = reserve_margin_hint
+        hour_of_maximum_net_demand, demand_at_peak, nuclear_at_peak, wind_cf_at_peak, solar_cf_at_peak = reserve_margin_hint
         # EXTENDED (2026-09-09): the distributed segment's own peak-hour CF, when enabled -- passed as
         # a SEPARATE parameter rather than folded into the existing 5-tuple above, so Scenario 1/1B's
         # own reserve_margin_hint shape (and every place that already unpacks it) is completely
         # unaffected. See add_reserve_margin_constraint()'s own docstring for the credit-fraction
         # question this deliberately does not resolve on its own.
-        dist_solar_cf_at_peak = distributed_solar_cf[t_peak] if (enable_distributed_segment and distributed_solar_cf is not None) else 0.0
+        dist_solar_cf_at_peak = distributed_solar_cf[hour_of_maximum_net_demand] if (enable_distributed_segment and distributed_solar_cf is not None) else 0.0
         problem, reserve_info = add_reserve_margin_constraint(
-            problem, capacity_cap_mw, t_peak, demand_at_peak, nuclear_at_peak,
+            problem, capacity_cap_mw, hour_of_maximum_net_demand, demand_at_peak, nuclear_at_peak,
             wind_cf_at_peak, solar_cf_at_peak, IRM=IRM,
             distributed_solar_cf_at_peak=dist_solar_cf_at_peak,
             distributed_reserve_margin_credit_fraction=distributed_reserve_margin_credit_fraction)
@@ -540,20 +540,34 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
 # source (lp_model.CVOW_MW) instead; this constraint now references that directly, so there is only
 # ever one place this value can go stale.
 
-def find_peak_net_demand_hour(hourly_data, demand, nuclear, exist_solar):
-    """Net demand = demand - nuclear - exist_solar - wind_gen - new_solar_gen; returns the hour
-    index of the single highest value (the adequacy-stress hour used for the reserve constraint)."""
+def find_hour_of_maximum_net_demand(hourly_data, demand, nuclear, exist_solar):
+    """Returns the hour index of maximum NET demand -- the adequacy-stress hour.
+
+        net demand = demand - nuclear - exist_solar - wind_gen - new_solar_gen
+
+    RENAMED 2026-09-11, from find_peak_net_demand_hour returning t_peak. The old name violated
+    Software_Engineering_Standards Rule 12.2 (no terse fragments) and 12.4 (anything crossing a
+    function boundary gets a real name) -- t_peak crossed four. It also said nothing about WHICH
+    peak, which mattered: a reader could reasonably assume gross demand, and this analysis's own
+    documentation did assume that, in three places, until the code was read.
+
+    THE ASYMMETRY WORTH KNOWING, because the name cannot carry it: this function selects the hour
+    on NET demand, but add_reserve_margin_constraint writes its requirement against GROSS demand at
+    that hour -- (1 + IRM) * demand[hour], not net demand. That is deliberate and defensible: the
+    stress hour is a net-load question, while the adequacy test is against the load actually served.
+    But the two quantities differ, and any reader tracing this constraint needs both facts.
+    """
     net_demand = demand - nuclear - exist_solar - hourly_data['wind_gen'] - hourly_data['new_solar_gen']
-    t_peak = int(np.argmax(net_demand))
-    return t_peak, net_demand[t_peak]
+    hour_of_maximum_net_demand = int(np.argmax(net_demand))
+    return hour_of_maximum_net_demand, net_demand[hour_of_maximum_net_demand]
 
 
-def add_reserve_margin_constraint(problem, gas_cap_mw, t_peak, demand_at_peak, nuclear_at_peak,
+def add_reserve_margin_constraint(problem, gas_cap_mw, hour_of_maximum_net_demand, demand_at_peak, nuclear_at_peak,
                                     wind_cf_at_peak, solar_cf_at_peak, IRM=0.177,
                                     distributed_solar_cf_at_peak=0.0,
                                     distributed_reserve_margin_credit_fraction=0.0):
-    """Hard constraint at t_peak: nuclear + gas_cap + CVOW*wind_cf[t_peak] + PNA_*BUILD_SCALE +
-    S_*BUILD_SCALE*solar_cf[t_peak] >= (1+IRM)*demand[t_peak]. Modifies problem in place (A_ub/b_ub)
+    """Hard constraint at hour_of_maximum_net_demand: nuclear + gas_cap + CVOW*wind_cf[hour_of_maximum_net_demand] + PNA_*BUILD_SCALE +
+    S_*BUILD_SCALE*solar_cf[hour_of_maximum_net_demand] >= (1+IRM)*demand[hour_of_maximum_net_demand]. Modifies problem in place (A_ub/b_ub)
     and returns it. S_ and PNA_ are looked up from problem['S_']/problem['P_'][0] (multi-duration)
     or hardcoded indices 0/1 (single-resource build_problem). Iron-air is NOT counted toward reserve-
     margin availability for utility-scale storage either (pre-existing behavior, unchanged here) --
@@ -592,4 +606,4 @@ def add_reserve_margin_constraint(problem, gas_cap_mw, t_peak, demand_at_peak, n
     problem['A_ub'] = sparse.vstack([problem['A_ub'], new_row]).tocsr()
     problem['b_ub'] = np.concatenate([problem['b_ub'], [rhs]])
     gap = target - fixed_avail
-    return problem, dict(t_peak=t_peak, target_mw=target, fixed_avail_mw=fixed_avail, gap_mw=gap)
+    return problem, dict(hour_of_maximum_net_demand=hour_of_maximum_net_demand, target_mw=target, fixed_avail_mw=fixed_avail, gap_mw=gap)

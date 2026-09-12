@@ -645,9 +645,9 @@ stated here as a disclosed assumption rather than left implicit:
 
 **Mechanically:** the constraint is checked using the peak-net-demand hour
 identified from an initial unconstrained solve, then added as a hard
-inequality (`nuclear[t_peak] + gas_capacity_cap + CVOW_MW x wind_cf[t_peak]
-+ storage_power_MW + solar_MW x solar_cf[t_peak] >= (1+IRM) x
-demand[t_peak]`) and the checkpoint is re-solved; the peak-net-demand hour
+inequality (`nuclear[hour_of_maximum_net_demand] + gas_capacity_cap + CVOW_MW x wind_cf[hour_of_maximum_net_demand]
++ storage_power_MW + solar_MW x solar_cf[hour_of_maximum_net_demand] >= (1+IRM) x
+demand[hour_of_maximum_net_demand]`) and the checkpoint is re-solved; the peak-net-demand hour
 is re-checked against the new solution and the process repeats if it has
 shifted (for the 2030 checkpoint, it did not -- hour 7148 in both the
 unconstrained and reserve-constrained solves, so no further iteration was

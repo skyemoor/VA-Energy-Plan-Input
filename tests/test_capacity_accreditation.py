@@ -43,7 +43,7 @@ class TestPeakHourAnalysisSharedBase:
         assert a.peak_hour() == 1
 
     def test_wind_capacity_factor_is_scaled_by_cvow_nameplate(self):
-        """Matches ReserveMarginMixin.find_peak_net_demand_hour, so the scenarios agree on which
+        """Matches ReserveMarginMixin.find_hour_of_maximum_net_demand, so the scenarios agree on which
         hour binds before their requirements can be compared."""
         d, nuc, ex, wcf, scf = flat_year()
         a = PeakHourAnalysis(d, nuc, ex, wind_cf=wcf)

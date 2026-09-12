@@ -22,7 +22,7 @@ to the same reliability standard as the system it replaces.
 The build in every scenario must satisfy:
 
 ```
-accredited capacity ≥ (1 + 0.177) × demand at system peak
+accredited capacity ≥ (1 + 0.177) × gross demand at the hour of maximum NET demand
 ```
 
 This is PJM's Installed Reserve Margin. It is a **capacity adequacy** test — is enough capacity

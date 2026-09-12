@@ -54,7 +54,7 @@ class PeakHourAnalysis:
     def __init__(self, demand, nuclear, exist_solar, wind_cf=None, solar_cf=None,
                  wind_generation_mw=None, solar_generation_mw=None):
         """Accepts generation either as capacity factors (which are scaled by CVOW_MW internally,
-        matching ReserveMarginMixin.find_peak_net_demand_hour) or as absolute MW.
+        matching ReserveMarginMixin.find_hour_of_maximum_net_demand) or as absolute MW.
 
         Rule 5: supplying both forms for the same resource raises, rather than one silently
         winning -- that ambiguity is how a build-size artifact gets into a capacity credit.

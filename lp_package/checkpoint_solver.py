@@ -333,29 +333,29 @@ class ReserveMarginMixin:
     converge_and_solve() to have already run once (to identify the peak-net-demand hour)
     before the reserve-margin-constrained solve/convergence can run."""
 
-    def find_peak_net_demand_hour(self):
+    def find_hour_of_maximum_net_demand(self):
         net_demand = self.demand - self.nuclear - self.exist_solar - lp.CVOW_MW * self.wind_cf
-        t_peak = int(np.argmax(net_demand))
-        return t_peak, self.demand[t_peak], self.nuclear[t_peak], self.wind_cf[t_peak]
+        hour_of_maximum_net_demand = int(np.argmax(net_demand))
+        return hour_of_maximum_net_demand, self.demand[hour_of_maximum_net_demand], self.nuclear[hour_of_maximum_net_demand], self.wind_cf[hour_of_maximum_net_demand]
 
     def solve_with_reserve_margin(self, IRM=0.177, max_iter=5, **solve_kwargs):
         """Iterates the peak-net-demand hour check per Appendix A #13.1's own documented
         process: solve, check whether the peak hour moved, re-solve if it did."""
-        t_peak, demand_at_peak, nuclear_at_peak, wind_cf_at_peak = self.find_peak_net_demand_hour()
+        hour_of_maximum_net_demand, demand_at_peak, nuclear_at_peak, wind_cf_at_peak = self.find_hour_of_maximum_net_demand()
         for _ in range(max_iter):
-            solar_cf_at_peak = self.solar_cf[t_peak]
-            reserve_margin_hint = (t_peak, demand_at_peak, nuclear_at_peak, wind_cf_at_peak, solar_cf_at_peak)
+            solar_cf_at_peak = self.solar_cf[hour_of_maximum_net_demand]
+            reserve_margin_hint = (hour_of_maximum_net_demand, demand_at_peak, nuclear_at_peak, wind_cf_at_peak, solar_cf_at_peak)
             if hasattr(self, 'converge_and_solve'):
                 self.result = self._converge_and_solve_with_reserve(
                     reserve_margin_hint, IRM, **solve_kwargs)
             else:
                 self.result = self.solve(reserve_margin_hint=reserve_margin_hint, IRM=IRM, **solve_kwargs)
-            new_t_peak, new_demand_at_peak, new_nuclear_at_peak, new_wind_cf_at_peak = \
-                self.find_peak_net_demand_hour()
-            if new_t_peak == t_peak:
+            new_hour_of_maximum_net_demand, new_demand_at_peak, new_nuclear_at_peak, new_wind_cf_at_peak = \
+                self.find_hour_of_maximum_net_demand()
+            if new_hour_of_maximum_net_demand == hour_of_maximum_net_demand:
                 return self.result
-            t_peak, demand_at_peak, nuclear_at_peak, wind_cf_at_peak = \
-                new_t_peak, new_demand_at_peak, new_nuclear_at_peak, new_wind_cf_at_peak
+            hour_of_maximum_net_demand, demand_at_peak, nuclear_at_peak, wind_cf_at_peak = \
+                new_hour_of_maximum_net_demand, new_demand_at_peak, new_nuclear_at_peak, new_wind_cf_at_peak
         return self.result
 
     def _converge_and_solve_with_reserve(self, reserve_margin_hint, IRM, start_frac=None, tol=0.003, max_iter=3):

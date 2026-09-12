@@ -103,10 +103,16 @@ Full treatment: `research/CAISO_Net_Load_Treatment.md`.
 
 ### A related question, unexamined
 
-The peak-hour constraint uses **gross demand at `t_peak`**. In a system with ~174 GW of solar, the
-binding hour is almost certainly a **net-load** evening ramp, not gross peak — so the constraint
-may be sizing against the wrong hour entirely. CAISO's net-load-based reserve design is the
-comparison to make.
+The constraint selects its hour on **net demand** — `find_hour_of_maximum_net_demand()` maximises
+`demand − nuclear − existing solar − wind − new solar`. **Corrected 2026-09-11:** earlier versions
+of this note said it used *gross* demand, which was wrong. The hour selection is already net-load
+based.
+
+What it then writes is `(1 + IRM) × demand[hour]` — **gross** demand at that hour. Net load picks
+the hour; gross demand sets the requirement. Deliberate and defensible, but the two differ.
+
+**What is genuinely missing** is narrower than previously stated: no *ramp* requirement, and only
+one hour constrained out of 8,760.
 
 ---
 
