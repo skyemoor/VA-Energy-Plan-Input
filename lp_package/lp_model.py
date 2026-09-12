@@ -512,6 +512,49 @@ UNSERVED_PENALTY = 100000.0  # $/MWh, matching literature convention (e.g. "Prep
                               # before shedding load, but finite, so the LP always remains solvable rather
                               # than infeasible when a fixed design genuinely cannot meet a test year's demand.
 
+
+#: SES-compliant synonyms for the legacy short IDX keys, added 2026-09-12.
+#:
+#: Each maps a readable name to the short key it aliases. Applied by _add_ses_aliases() to every
+#: IDX dict, so IDX['gas_generation_mw'] and IDX['g'] address the same column. Legacy callers in
+#: driver.py and the solve_*.py scripts keep working; new code has no reason to use the short form.
+#:
+#: The names state UNITS and QUANTITY, which is what the short forms lacked. 'g' was read in review
+#: as "the gas total" -- total fuel? cost? MWh? It is gas GENERATION in MW during hour t. 'gascum'
+#: is cumulative gas GENERATION in GWh, accumulating g * 0.001 hourly, existing only so the
+#: gas-share constraint can test a year-end total.
+SES_IDX_ALIASES = {
+    'gas_generation_mw': 'g',
+    'cumulative_gas_generation_gwh': 'gascum',
+    'export_mw': 'e',
+    'bath_charge_mw': 'bc',
+    'bath_discharge_mw': 'bd',
+    'bath_state_of_charge_mwh': 'bsoc',
+    'sodium_ion_charge_mw': 'nc',
+    'sodium_ion_discharge_mw': 'nd',
+    'sodium_ion_state_of_charge_mwh': 'nsoc',
+    'iron_air_charge_mw': 'fc',
+    'iron_air_discharge_mw': 'fd',
+    'iron_air_state_of_charge_mwh': 'fsoc',
+    'unserved_energy_mw': 'unserved',
+    'curtailed_generation_mw': 'curt',
+    'export_to_pjm_mw': 'export',
+}
+
+
+def _add_ses_aliases(index_map):
+    """Adds readable synonyms to an IDX dict in place, then returns it.
+
+    Only aliases keys that dict actually has -- the four IDX dicts in this module carry different
+    subsets, and silently creating an alias to a column that does not exist in this problem would
+    be worse than having no alias at all (Rule 5).
+    """
+    for readable, short in SES_IDX_ALIASES.items():
+        if short in index_map and readable not in index_map:
+            index_map[readable] = index_map[short]
+    return index_map
+
+
 def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_frac,
                             S_mw, PNA_mw, ENA_mwh, EFE_mwh, init_soc_frac=0.5, verbose=True,
                             gas_price_mwh=None, include_export=False):
@@ -541,7 +584,7 @@ def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_
 
     def hv(t, k):
         return t*NVAR_PER_HOUR + k
-    IDX = dict(g=0, e=1, bc=2, bd=3, bsoc=4, nc=5, nd=6, nsoc=7, fc=8, fd=9, fsoc=10, gascum=11, unserved=12, curt=13)
+    IDX = _add_ses_aliases(dict(g=0, e=1, bc=2, bd=3, bsoc=4, nc=5, nd=6, nsoc=7, fc=8, fd=9, fsoc=10, gascum=11, unserved=12, curt=13))
 
     residual = demand - nuclear - exist_solar - CVOW_MW*wind_cf - solar_cf*S_mw
 
@@ -706,7 +749,7 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
 
     def hv(t, k):
         return t*NVAR_PER_HOUR + k
-    IDX = dict(g=0, e=1, bc=2, bd=3, bsoc=4, nc=5, nd=6, nsoc=7, fc=8, fd=9, fsoc=10, gascum=11, unserved=12, curt=13)
+    IDX = _add_ses_aliases(dict(g=0, e=1, bc=2, bd=3, bsoc=4, nc=5, nd=6, nsoc=7, fc=8, fd=9, fsoc=10, gascum=11, unserved=12, curt=13))
 
     ENA_mwh = na_power_mw * na_duration_hr
     EFE_mwh = fe_power_mw * fe_duration_hr
@@ -1028,9 +1071,25 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
     # scoping decision, stated directly rather than silently narrowed). Flagged as a deliberate, separate
     # follow-up rename, not an oversight. The 7 NEW keys below have no such legacy callers, so they're
     # SES-compliant (full, unambiguous words) from the start.
-    IDX = dict(g=0, bc=1, bd=2, bsoc=3, nc=4, nd=5, nsoc=6, fc=7, fd=8, fsoc=9, gascum=10, unserved=11,
-               curt=12, export=13, dist_na_charge_mw=14, dist_na_discharge_mw=15, dist_na_soc_mwh=16,
-               dist_fe_charge_mw=17, dist_fe_discharge_mw=18, dist_fe_soc_mwh=19, dist_curtailment_mw=20)
+    #
+    # ALIASES ADDED 2026-09-12 (see _add_ses_aliases below). The short keys stay, but every one now
+    # has an SES-compliant synonym pointing at the same column, so new code can be readable without
+    # the cascade the 2026-09-09 decision was avoiding.
+    #
+    # WHY THIS MATTERS, from a concrete failure: 'g' was described in review as "the gas total" and
+    # the reviewer asked -- total WHAT, fuel, cost, MWh? It is gas GENERATION in MW during hour t.
+    # 'gascum' was worse: the name says "cumulative gas" without saying cumulative what, in what
+    # units, or what it is for. It is cumulative gas GENERATION in GWh, accumulating g * 0.001 hour
+    # by hour, and it exists solely to let the gas-share constraint test a year-end total.
+    #
+    # The 2026-09-09 decision has aged the way the t_peak decision did: a known-ambiguous name kept
+    # because renaming felt out of scope, which then cost real time in review. Aliasing is the
+    # interim; the full rename is scheduled for after the first successful 2045 solve, when it can
+    # be verified against real solve data rather than assumed safe.
+    IDX = _add_ses_aliases(dict(
+        g=0, bc=1, bd=2, bsoc=3, nc=4, nd=5, nsoc=6, fc=7, fd=8, fsoc=9, gascum=10, unserved=11,
+        curt=12, export=13, dist_na_charge_mw=14, dist_na_discharge_mw=15, dist_na_soc_mwh=16,
+        dist_fe_charge_mw=17, dist_fe_discharge_mw=18, dist_fe_soc_mwh=19, dist_curtailment_mw=20))
     (UTILITY_SOLAR_MW, SODIUM_ION_POWER_MW, SODIUM_ION_ENERGY_MWH, IRON_AIR_ENERGY_MWH,
      DISTRIBUTED_SOLAR_MW, DISTRIBUTED_SODIUM_ION_POWER_MW, DISTRIBUTED_SODIUM_ION_ENERGY_MWH,
      DISTRIBUTED_IRON_AIR_ENERGY_MWH) = 0, 1, 2, 3, 4, 5, 6, 7
@@ -1253,6 +1312,13 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
     b_eq = np.array(eq_rhs)
 
     # ---------------- Inequality constraints (A_ub x <= b_ub) ----------------
+    #
+    # NOTE ON `row`, because it misled a change on 2026-09-12: it is NOT a single running index
+    # across the whole problem. It is one variable REUSED and RESET to zero at the start of each
+    # constraint block -- eight resets across this module. By the time the function returns it
+    # holds the INEQUALITY row count, not the equality one. Code appending equality rows late in
+    # the function must use len(eq_rhs), not `row`; using `row` produced an A_eq of 175,566 rows
+    # against a b_eq of 61,325 and linprog refused the problem.
     ub_rows, ub_cols, ub_data, ub_rhs = [], [], [], []
     row = 0
     # (D3) flushed here, as an inequality -- see the deferred block in the equality section above.
@@ -1679,7 +1745,7 @@ def build_problem_multi_duration(solar_cf, wind_cf, nuclear, exist_solar, demand
     E_ = [2+2*i for i in range(n_dur)]
     EFE_ = 1 + 2*n_dur
 
-    IDX = dict(g=0, bc=1, bd=2, bsoc=3)
+    IDX = _add_ses_aliases(dict(g=0, bc=1, bd=2, bsoc=3))
     base = 4
     NC, ND, NSOC = [], [], []
     for i in range(n_dur):
