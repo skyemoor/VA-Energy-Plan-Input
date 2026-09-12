@@ -72,7 +72,8 @@ as an example of a module that *can* extend the LP.
 document describes as the weakest of the three:
 
 ```
-S × BUILD_SCALE × solar_cf[t_peak] ≥ (1 + IRM) × demand[t_peak]
+S × BUILD_SCALE × solar_cf[h] ≥ (1 + IRM) × demand[h]
+    where h = hour_of_maximum_net_demand
 ```
 
 One hour. It sizes the build so accredited capacity exceeds peak demand by 17.7%, and constrains
@@ -113,6 +114,28 @@ the hour; gross demand sets the requirement. Deliberate and defensible, but the 
 
 **What is genuinely missing** is narrower than previously stated: no *ramp* requirement, and only
 one hour constrained out of 8,760.
+
+---
+
+## 2A. A documented rename regressed — and the error it was meant to prevent recurred
+
+`Weather_Year_Robustness_Approaches_and_Findings_2026-08-23.md` §5 records that on **2026-08-23**
+`t_peak` was renamed to `t_peak_net_load` across `checkpoint_solver.py` and `driver.py`, giving this
+reason:
+
+> *"The ambiguous name directly caused a real analysis error mid-session (checking `argmax(demand)`
+> instead of the actual saved peak-**net-load** hour)."*
+
+**The rename did not survive.** The code on 2026-09-11 carried `t_peak` again, and **the same class
+of error recurred** — four documents were written stating the reserve constraint used *gross*
+demand, when the hour selection has always been net-load based.
+
+Renamed again, to `hour_of_maximum_net_demand`, which is harder to abbreviate back.
+
+**This is the second instance of a documented fix regressing**, alongside `all_hours_reserve.py`
+(§2) — built, documented as the project standard, and never called. Both were found only by reading
+the code rather than the documentation. **Documentation recording that something was fixed is not
+evidence that it is still fixed.**
 
 ---
 

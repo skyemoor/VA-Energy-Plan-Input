@@ -19,7 +19,7 @@ address.
 
 | requirement | sized against | our equivalent |
 |---|---|---|
-| **Resource Adequacy** | peak load + planning reserve margin | **IRM 17.7% at `t_peak`** ✓ we have this |
+| **Resource Adequacy** | peak load + planning reserve margin | **IRM 17.7% at the hour of maximum net demand** ✓ we have this |
 | **Flexible Capacity** | **largest 3-hour net load ramps** + contingency reserves | **nothing** ✗ |
 
 **CAISO does not replace peak-load planning with net-load planning. It adds a second, parallel
@@ -182,7 +182,7 @@ That cuts against any instinct to make our reserve constraint conservative by de
 
 | product | may cover a high-load hour? | our equivalent |
 |---|---|---|
-| Planning reserve margin | yes — statistically | IRM at `t_peak` ✓ |
+| Planning reserve margin | yes — statistically | IRM at the hour of max net demand ✓ |
 | Day-ahead scheduling reserve | **yes — explicitly sized for load forecast error** | none |
 | Contingency reserve | **no**, except under declared EEA-2/3 | none |
 
