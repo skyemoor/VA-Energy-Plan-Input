@@ -12,6 +12,32 @@ Last updated 2026-09-11.
 
 ---
 
+## The gas domain — what is where
+
+Seven files cover gas. **This one is the entry point**; the others remain authoritative for their
+own topics. Check all of them before adding new gas material — this note was itself written on
+2026-09-11 without checking `docs/research/`, which already held two of them.
+
+| file | authoritative for |
+|---|---|
+| **this file** | definitions, heat rates, merit order, capacity per rung, what sits above the stack |
+| `VA_gas_capacity_schedules.md` | **retirement schedules A and B** |
+| `Gas_Technology_Selection_By_Scenario.md` | **which gas technology each scenario assumes**; records an open gap — no simple-cycle capex in the code |
+| `METHODOLOGY_gas_allowed_frac_derivation.md` | gas fraction derivation for the LP |
+| `research/Gas_turbine_lifespans_reference.md` | **CCGT and CT lifespans, EOH thresholds, overhaul windows** |
+| `research/new_peaker_ccgt_costs_by_size.md` | **new-build capex by size tier**, and the overhaul-vs-new-build rule |
+| `Gas_Merit_Order.md` | heat rate tiers and EIA sourcing — largely subsumed here |
+
+**Lead on the unresolved CT split:** `new_peaker_ccgt_costs_by_size.md` distinguishes a small tier
+(20–50 MW) described as *fast-deployment, aeroderivative* from medium (100–250 MW) and larger
+frame-scale tiers. Dominion's CT fleet — Ladysmith 782, Remington 619, Elizabeth River 327, Gravel
+Neck 170, Darbytown 168 — sits mostly well above the aeroderivative size band, which **suggests the
+2,066 MW is predominantly frame** and therefore closer to the 11.0 heat rate than 9.5. That is an
+inference from size, not a sourced unit-type finding, and is recorded as a lead rather than a
+resolution.
+
+---
+
 ## 0. Terms used here, defined once
 
 Defined because several are used loosely in the literature and at least two have caused confusion

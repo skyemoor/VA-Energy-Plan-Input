@@ -1,5 +1,7 @@
 # Methodology: Deriving gas_allowed_frac for Any Checkpoint
 
+> **Gas domain entry point: `docs/methodology/Gas_Fleet_Working_Notes.md`.**
+
 **Update note:** Since this document was first written, export has been
 removed from `build_problem()` entirely (see the appendix's A.9 for full
 detail), and a data-verified existing gas fleet capacity cap (Schedule A/B)

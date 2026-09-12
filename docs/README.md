@@ -1,5 +1,8 @@
 # Documentation
 
+> **Start with [`INDEX.md`](INDEX.md)** — documentation organised by domain, with entry points
+> marked. Check it before starting work in any domain.
+
 Licensed under [CC BY 4.0](../LICENSE-DOCS) — free to share and adapt with attribution.
 
 | File | Contents |

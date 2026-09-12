@@ -1,5 +1,8 @@
 # Gas turbine lifespans
 
+> **Gas domain entry point: `docs/methodology/Gas_Fleet_Working_Notes.md`.** This file remains
+> authoritative for lifespans, EOH thresholds and overhaul windows.
+
 # Contents {#contents .TOC-Heading}
 
 [Gas turbine lifespans

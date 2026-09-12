@@ -1,5 +1,8 @@
 # Gas Technology Selection by Scenario
 
+> **Gas domain entry point: `docs/methodology/Gas_Fleet_Working_Notes.md`.** This file remains
+> authoritative for which gas technology each scenario assumes.
+
 *2026-09-10. Licensed [CC BY 4.0](../../LICENSE-DOCS).*
 
 Which gas technology a scenario should build is **scenario-dependent**, because the marginal unit

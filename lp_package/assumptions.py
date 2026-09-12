@@ -281,7 +281,12 @@ GAS_CT_SPLIT_UNRESOLVED = (
     'GAS_MERIT_ORDER_CAPACITY_MW["ct_unallocated"] (2,066 MW) is NOT split between '
     'aeroderivative and frame CTs. Their heat rates differ 9.5 vs 11.0, a 14% '
     'marginal-cost gap on the units that set peak prices. Do not assume either tier '
-    'for this capacity without sourcing the split.')
+    'for this capacity without sourcing the split. LEAD (not a resolution): '
+    'docs/research/new_peaker_ccgt_costs_by_size.md describes the 20-50 MW tier as '
+    'fast-deployment aeroderivative, while Dominion CT units (Ladysmith 782, Remington '
+    '619, Elizabeth River 327, Gravel Neck 170, Darbytown 168) sit well above that band '
+    '-- suggesting the fleet is predominantly FRAME and closer to 11.0 than 9.5. That is '
+    'an inference from unit size, not a sourced unit-type finding.')
 
 #: Unreconciled: Dominion-owned gas totals 8,195 MW (10-K), while
 #: VA_gas_capacity_schedules.md Schedule A carries 9,362 MW for 2026-2040. IPP inclusion

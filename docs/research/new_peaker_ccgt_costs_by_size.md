@@ -1,5 +1,8 @@
 # New Gas Peaker/CCGT Plant Costs, by Size Tier
 
+> **Gas domain entry point: `docs/methodology/Gas_Fleet_Working_Notes.md`.** This file remains
+> authoritative for new-build capex by size tier and the overhaul-vs-new-build rule.
+
 Compiled for scoping potential new turbine purchases if Schedule A/B's
 existing-fleet capacity proves insufficient to meet gas dispatch needs in
 Scenario 1/3/1B/3B/3C. Organized by size tier so specific figures can be

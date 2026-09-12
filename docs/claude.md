@@ -1,4 +1,6 @@
 # Work Standards
+
+> **Before starting any task, check [`INDEX.md`](INDEX.md)** for existing work in the domain.
  
 ## Workflow
 1. **Explore:** Search the codebase for existing patterns before proposing solutions. Do not read the entire repo blindly; scope your file search tightly.
