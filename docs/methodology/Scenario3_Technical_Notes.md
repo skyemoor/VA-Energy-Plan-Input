@@ -1,5 +1,9 @@
 # Scenario 3 — Technical Notes (Working Document)
 
+> **These findings are NOT Scenario-3-specific.** The flat energy dual, the dormant all-hours
+> reserve constraint, the absence of imports and the foresight asymmetry affect EVERY scenario.
+> See `docs/MODEL_WIDE_FINDINGS.md`.
+
 *Compiled while the user was offline, per explicit direction ("go ahead").
 Every item below is either (a) a factual research finding with clear
 sourcing, presented for adoption, or (b) explicitly flagged as a

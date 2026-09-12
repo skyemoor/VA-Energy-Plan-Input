@@ -1,5 +1,8 @@
 # Pipeline Completeness Audit
 
+> **See also `docs/MODEL_WIDE_FINDINGS.md`** — four issues affecting every scenario, including a
+> constraint that exists, is documented as the current standard, and is never called.
+
 *2026-09-10. Licensed [CC BY 4.0](../LICENSE-DOCS).*
 
 Systematic check of what the modeling pipeline requires versus what the repository contains.

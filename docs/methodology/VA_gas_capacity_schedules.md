@@ -1,5 +1,9 @@
 # Virginia Existing Gas Fleet -- Time-Varying Capacity Schedules
 
+> **Consolidated treatment: `Gas_Fleet_Working_Notes.md`** — this document remains authoritative
+> for retirement schedules; the working notes carry heat rates, merit order, capacity per rung and
+> definitions. Read that before using any gas assumption.
+
 Two DISTINCT schedules, for two genuinely different purposes. Do not use
 interchangeably. This version adds Chesterfield's corrected, gas-only EOH
 figure and walks back the "confirmed retired" language for seven plants

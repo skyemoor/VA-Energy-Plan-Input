@@ -1,5 +1,8 @@
 # Gas Merit Order — heat rate tiers
 
+> **Consolidated treatment: `Gas_Fleet_Working_Notes.md`** — heat rates, capacity per rung,
+> cost structure, retirements, definitions and open items in one place. Read that first.
+
 **Working note, 2026-09-11.**
 
 ## Why this exists

@@ -1,5 +1,8 @@
 # Gas Fleet — Working Notes
 
+> **Model-wide context: `docs/MODEL_WIDE_FINDINGS.md`.** The single-gas-price problem recorded
+> here is one of three causes of a flat hourly energy price affecting all scenarios.
+
 **Read this before using or changing any gas assumption.** Consolidates heat rates, the merit
 order, capacity per rung, cost structure, retirement schedules, and the open problems. Supersedes
 scattered treatment in `Gas_Merit_Order.md` (heat rates) and `VA_gas_capacity_schedules.md`
