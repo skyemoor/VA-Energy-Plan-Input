@@ -1149,3 +1149,79 @@ It would also introduce exactly the kind of parameter set bracketing was chosen 
 **Recorded as a stated limitation rather than attempted.** Worth flagging in the whitepaper
 wherever distributed arbitrage value appears: the figure assumes the distributed fleet takes prices
 it would in reality help set.
+
+---
+
+## MEASURED 2026-09-11: the LP's hourly energy-balance dual is perfectly flat
+
+Prompted by the question of whether the model emulates real price conditions, and by two Virginia
+node LMP graphics plus a PJM-RTO day showing a real-time spike near **$470/MWh** against a $20–60
+baseline.
+
+### The measurement
+
+Solved 2030 with the distributed segment enabled and extracted `res.eqlin.marginals` for the 8,760
+hourly energy-balance rows:
+
+| | |
+|---|---|
+| rows | 0–8,759 of 61,325 equality rows |
+| **unique values across all 8,760 hours** | **1** |
+| value | **$54.70/MWh** in every hour |
+
+Not attenuated. Not smoothed. **Zero temporal variance.**
+
+### Why this happens, and why it is not a bug
+
+In a capacity-expansion LP where storage is a continuous build variable, dispatched with perfect
+foresight, and not constrained from arbitraging, storage will move energy between hours until the
+price differential no longer exceeds its cycling cost. **Unconstrained storage with perfect
+foresight flattens prices completely.** A flat dual is the equilibrium signature of exactly that.
+
+This is the deepest form of the foresight problem recorded above. It is not the scarcity proxy, and
+not the month-hour averaging. It is the optimisation itself.
+
+### This overturns the correction made earlier today
+
+Earlier I corrected an initial claim — that the distributed segment arbitrages only locational
+adders — by pointing out that distributed storage appears in the LP's hourly energy balance and so
+receives system marginal value implicitly.
+
+**That is true in mechanism and empty in effect.** The system marginal value it receives has **no
+time variation whatsoever**. So the distributed segment's only time-varying signal is the exogenous
+adder: mean $0.48/MWh, daily spread $18.30, against real Virginia node spreads of $211–316 on the
+same month-hour averaging basis.
+
+The original concern was correct. My correction identified the right mechanism and drew the wrong
+conclusion from it.
+
+### Consequences, in order of severity
+
+1. **No part of this model sees a $470 hour.** Neither the energy balance nor the locational adder
+   contains scarcity pricing. Every arbitrage figure the model produces is far below achievable.
+2. **The foresight bracket bounds a much smaller quantity than intended.** Both endpoints sit on a
+   price world with no scarcity in it. The bracket still isolates foresight correctly, but the
+   thing it brackets is not real arbitrage value.
+3. **It likely explains the 100% storage accreditation.** Perfect-foresight storage that has
+   flattened all price variation is, by construction, available at every peak.
+4. **Transmission deferral is unaffected**, and remains the sounder basis for Scenario 3's
+   distributed argument. A flat energy price does not touch the physical congestion case — and as
+   noted below, congestion is precisely what a rural node's low LMP reveals.
+
+### On rural versus load-centre siting
+
+An earlier note here suggested the rural Petersburg-area node's low floor ($6.89 vs Ashburn's $28)
+favours rural distributed storage on arbitrage. **That was backwards.** A low LMP at a rural node
+during a load-centre peak *is* the congestion: it means that node's energy cannot reach the load.
+Storage sited there arbitrages a local price depressed precisely because its output is stranded, and
+discharging there relieves nothing at the constrained location.
+
+Storage near load is worth more than storage far from load even when the distant node shows a wider
+local spread. That is the transmission-deferral argument motivating Scenario 3, and it survives all
+of the above intact.
+
+### Not resolved
+
+Recorded as measured fact. Any fix — an hourly reserve requirement, a scarcity-pricing floor, a
+constraint on storage cycling, or exogenous price formation — is a modelling decision affecting
+every scenario, not a Scenario 3 patch.
