@@ -16,7 +16,7 @@ from gas_merit_order import GasMeritOrder, GasRung
 
 @pytest.fixture
 def stack():
-    return GasMeritOrder()
+    return GasMeritOrder()   # defaults to net_summer
 
 
 class TestTheStackProducesARealSpread:
@@ -50,12 +50,15 @@ class TestTheStackProducesARealSpread:
 
 class TestCapacityAndRetirements:
 
-    def test_nameplate_sums_to_the_filed_total_before_any_retirement(self, stack):
-        assert sum(stack.nameplate_mw_by_rung(2030).values()) == pytest.approx(
-            assumptions.GAS_DOMINION_OWNED_NAMEPLATE_MW, abs=0.1)
+    def test_each_basis_sums_to_its_filed_total_before_any_retirement(self, stack):
+        for basis, total in (('nameplate', assumptions.GAS_DOM_ZONE_NAMEPLATE_MW),
+                             ('net_summer', assumptions.GAS_DOM_ZONE_NET_SUMMER_MW),
+                             ('net_winter', assumptions.GAS_DOM_ZONE_NET_WINTER_MW)):
+            s = GasMeritOrder(capacity_basis=basis)
+            assert sum(s.rated_capacity_mw_by_rung(2030).values()) == pytest.approx(total, abs=1.5)
 
     def test_availability_derates_uniformly(self, stack):
-        name = stack.nameplate_mw_by_rung(2030)
+        name = stack.rated_capacity_mw_by_rung(2030)
         avail = stack.available_capacity_mw(2030)
         for r in name:
             assert avail[r] == pytest.approx(name[r] * assumptions.GAS_AVAILABILITY_FACTOR)
@@ -63,19 +66,19 @@ class TestCapacityAndRetirements:
     def test_bear_garden_retires_from_ccgt_fleet_in_2041(self, stack):
         """Retirements are plant-specific, so rung totals move at different times -- which is why
         capacity is summed from the per-plant table rather than pre-summed rung figures."""
-        before = stack.nameplate_mw_by_rung(2040)['ccgt_fleet']
-        after = stack.nameplate_mw_by_rung(2041)['ccgt_fleet']
-        assert before - after == pytest.approx(559.0, abs=0.1)
+        before = stack.rated_capacity_mw_by_rung(2040)['ccgt_fleet']
+        after = stack.rated_capacity_mw_by_rung(2041)['ccgt_fleet']
+        assert before - after == pytest.approx(628.0, abs=0.1)   # Bear Garden net summer
 
     def test_warren_county_retires_from_ccgt_modern_in_2044(self, stack):
-        before = stack.nameplate_mw_by_rung(2043)['ccgt_modern']
-        after = stack.nameplate_mw_by_rung(2044)['ccgt_modern']
-        assert before - after == pytest.approx(1_472.2, abs=0.1)
+        before = stack.rated_capacity_mw_by_rung(2043)['ccgt_modern']
+        after = stack.rated_capacity_mw_by_rung(2044)['ccgt_modern']
+        assert before - after == pytest.approx(1_370.0, abs=0.1)  # Warren County net summer
 
     def test_retirements_hit_different_rungs(self, stack):
         """Bear Garden is ccgt_fleet, Warren County is ccgt_modern. A single fleet-wide retirement
         figure would lose that, and the stack shape matters more than the total."""
-        p = assumptions.GAS_PLANT_NAMEPLATE_MW_BY_RUNG
+        p = assumptions.GAS_PLANT_CAPACITY_MW
         assert p['Bear Garden'][0] != p['Warren County'][0]
 
 
@@ -125,6 +128,63 @@ class TestFailsLoudly:
 class TestEmptyRungsAreDropped:
     def test_fully_retired_rung_is_not_returned(self):
         """A zero-capacity step is a trap for a caller iterating to find the marginal unit."""
-        s = GasMeritOrder(retirement_years={'Bear Garden': 2030, 'Possum Point': 2030})
+        # ccgt_fleet now also holds Martinsville LFG (1 MW), so all three must retire.
+        s = GasMeritOrder(retirement_years={'Bear Garden': 2030, 'Possum Point': 2030,
+                                            'Martinsville LFG Generator': 2030})
         assert 'ccgt_fleet' not in [r.name for r in s.rungs(2035)]
         assert 'ccgt_fleet' in [r.name for r in s.rungs(2035, include_empty=True)]
+
+
+class TestSeasonalBasis:
+    """Three rating bases, all retained. Mixing nameplate with net summer created a phantom
+    1,167 MW discrepancy on 2026-09-11 and produced two wrong hypotheses before the units were
+    checked. The class makes the basis an explicit constructor choice for that reason."""
+
+    def test_winter_exceeds_summer_by_about_eleven_percent(self):
+        """Cold dense air raises compressor mass flow. Matters because the DOM zone now peaks in
+        WINTER, so net summer may be the wrong derate for the binding hour."""
+        ratio = assumptions.GAS_DOM_ZONE_NET_WINTER_MW / assumptions.GAS_DOM_ZONE_NET_SUMMER_MW
+        assert ratio == pytest.approx(1.114, abs=0.005)
+
+    def test_summer_is_below_nameplate(self):
+        assert assumptions.GAS_DOM_ZONE_NET_SUMMER_MW < assumptions.GAS_DOM_ZONE_NAMEPLATE_MW
+
+    def test_basis_changes_available_capacity(self):
+        summer = GasMeritOrder(capacity_basis='net_summer').total_available_mw(2030)
+        winter = GasMeritOrder(capacity_basis='net_winter').total_available_mw(2030)
+        assert winter > summer
+
+    def test_invalid_basis_raises_rather_than_defaulting(self):
+        """Rule 5. There is no basis worth guessing -- each is wrong in a different direction."""
+        with pytest.raises(ValueError, match='capacity_basis must be one of'):
+            GasMeritOrder(capacity_basis='summer')
+
+    def test_deliverability_caveat_is_recorded(self):
+        """Winter CAPABILITY is not winter DELIVERABILITY -- pipeline constraints and heating-load
+        competition are not modelled, and cut against using net winter uncaveated."""
+        n = assumptions.GAS_SEASONAL_BASIS_NOTE
+        assert 'not winter DELIVERABILITY' in n
+        assert 'pipeline constraints' in n
+
+
+class TestScopeIsDomZoneMerchant:
+
+    def test_ipp_plants_are_included(self):
+        """Potomac Energy Center sits by the Loudoun data centres and will run whenever prices
+        allow; Doswell, Marsh Run and Louisa serve zonal load too."""
+        p = assumptions.GAS_PLANT_CAPACITY_MW
+        for name in ('Marsh Run Generation Facility', 'Louisa Generation Facility'):
+            assert name in p
+
+    def test_apco_territory_is_excluded(self):
+        """Clinch River, Wolf Hills and Buchanan are in Appalachian Power's zone, not DOM."""
+        p = assumptions.GAS_PLANT_CAPACITY_MW
+        for name in ('Clinch River', 'Wolf Hills Energy', 'Buchanan Generation LLC'):
+            assert name not in p
+
+    def test_chp_is_excluded(self):
+        """Industrial and IPP CHP run to serve host steam loads, not economic dispatch. Including
+        them would imply a dispatch decision their operators do not make."""
+        p = assumptions.GAS_PLANT_CAPACITY_MW
+        for name in ('Hopewell Cogeneration', 'Celanese Acetate LLC', 'Virginia Tech Power Plant'):
+            assert name not in p

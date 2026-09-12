@@ -193,68 +193,91 @@ retirements and availability in a given year.
 **Why it is more than added realism.** The LP's hourly dual has zero variance at 2030 because gas
 is on the margin in every hour and there is one gas price — so the marginal cost of one more MWh is
 the same whether gas runs at 10% or 90%. Gas *output* already varies enormously across the day;
-gas *marginal cost* does not, and the dual tracks the second.
+gas *marginal cost* does not, and the dual tracks the second. Every mechanism that should create
+intraday price structure — less gas at midday, battery cycling cost, wind variation — is a
+**quantity** effect without a stack and a **price** effect with one.
 
-Every mechanism that should create intraday price structure is a **quantity** effect without a
-stack and a **price** effect with one: less gas at midday, battery cycling cost, wind variation.
+### Scope: all DOM-zone merchant gas
 
-### The stack
+Expanded from Dominion-owned by decision. **Potomac Energy Center sits close to the Loudoun
+data-center concentration and will be dispatched whenever prices allow** — and prices have been
+high — so a Dominion-only stack would omit capacity that genuinely serves zonal load. Doswell,
+Marsh Run (ODEC), Louisa (ODEC) and Gordonsville are in for the same reason.
 
-| rung | 2030 marginal | 2045 marginal | 2030 MW | 2045 MW |
-|---|---:|---:|---:|---:|
-| `ccgt_modern` | $37.56 | $47.32 | 4,340.3 | 2,985.9 |
-| `ccgt_fleet` | $43.76 | $55.27 | 1,078.2 | 564.0 |
-| `ccgt_legacy` | $51.65 | $65.39 | 687.2 | 687.2 |
-| `ct_fleet` | **$64.39** | **$81.17** | 2,505.0 | 2,505.0 |
-| **spread** | **$26.83** | **$33.85** | | |
+**Two exclusions, both deliberate:**
 
-*(available MW = nameplate × 0.92 availability, net of retirements)*
+- **APCo territory** — Clinch River, Wolf Hills, Buchanan and the southwest Virginia industrial
+  units are in Appalachian Power's zone. Filtered by county, since EIA-860 carries no PJM zone field.
+- **CHP** — Hopewell Cogeneration, Celanese, Radford Army Ammunition, Virginia Tech, Spruance and
+  others run to serve **host steam loads, not economic dispatch**. Including them would imply a
+  dispatch decision their operators do not make.
+
+### Three rating bases, all retained
+
+| basis | meaning | DOM-zone total |
+|---|---|---:|
+| nameplate | manufacturer rating at ISO conditions (59°F) | **10,503.6 MW** |
+| net summer | sustained output at ~95°F, net of station service | **9,513.0 MW** |
+| net winter | same at winter ambient | **10,596.1 MW** |
+
+`capacity_basis` is an explicit constructor argument defaulting to `net_summer`, and an invalid
+value raises. **Mixing nameplate with net summer created a phantom 1,167 MW discrepancy on
+2026-09-11 and produced two wrong hypotheses before the units were checked** — making the basis a
+named choice prevents a repeat.
+
+**Winter capability exceeds summer by 11.4%**, because cold dense air raises compressor mass flow.
+That matters here: **the DOM zone now peaks in winter** — 25,413 MW (2025–26) against 23,905 MW
+(summer 2025), with winter growing +45% since 2019–20 against +23%. If the binding hour is a winter
+evening, which a high-solar system makes likely, **net summer is the wrong derate** and understates
+gas at the hour that sizes the fleet.
+
+**The counter-argument, recorded because it is not modelled:** winter *capability* is not winter
+*deliverability*. Pipeline constraints and competition with heating load can make gas unavailable in
+a cold snap whatever the turbine could produce. Using net winter uncaveated would overstate
+cold-snap availability.
+
+### The stack (net summer basis)
+
+| rung | 2030 marginal | 2045 marginal | 2045 MW |
+|---|---:|---:|---:|
+| `ccgt_modern` | $37.56 | $47.32 | 2,742.5 |
+| `ccgt_fleet` | $43.76 | $55.27 | 526.2 |
+| `ccgt_legacy` | $51.65 | $65.39 | 555.7 |
+| `ct_fleet` | **$64.39** | **$81.17** | 3,089.4 |
+| **spread** | **$26.83** | **$33.85** | |
 
 **$26.83/MWh of intraday spread at 2030 from gas alone**, before any scarcity pricing.
 
 ### CT VOM — sourced, and it was understated
 
 `CT_VOM_MWH = 5.00`, from **NREL ATB** (2022: NGCT $5.00 vs NGCC $2.00; 2020: OCGT $4.49 vs CCGT
-$1.61 — a consistent 2.5–2.8× ratio reflecting more starts and cycling wear).
+$1.61 — a 2.5–2.8× ratio reflecting more starts and cycling wear). Peakers previously used
+`CCGT_VOM_MWH = 3.00`. **That compounded with the heat-rate finding** — frame at 11.0, not
+aeroderivative at 9.5 — both understating the rung most likely to set price.
 
-Previously peakers used `CCGT_VOM_MWH = 3.00`. **That compounded with the heat-rate finding** — the
-fleet is frame at 11.0, not aeroderivative at 9.5 — and both errors ran the same direction,
-understating the cost of the rung most likely to set price.
-
-**An inconsistency recorded rather than reconciled:** our `CCGT_VOM_MWH = 3.00` sits *above* ATB's
-$2.00 for the same technology. Taking CT at ATB's $5.00 narrows the ratio to 1.67×; scaling our own
-figure by the ATB ratio would instead give ~$7.50. The ATB absolute is used because it is sourced,
-and the CCGT constant's provenance should be revisited.
+*Inconsistency recorded rather than reconciled:* our `CCGT_VOM_MWH = 3.00` sits above ATB's $2.00
+for the same technology. The ATB absolute is used for CT because it is sourced; the CCGT constant's
+provenance should be revisited.
 
 ### Availability — flat, by decision
 
-`GAS_AVAILABILITY_FACTOR = 0.92`, applied uniformly, covering forced outages and planned
-maintenance together.
+`GAS_AVAILABILITY_FACTOR = 0.92`, applied uniformly. **Scheduled maintenance was considered and
+rejected on evidence:** in a high-solar system the low-gas windows are the shoulder seasons, and
+**the nuclear profile already dips there** — September 2,989 MW, October 2,946, March 3,008 against
+a February peak of 3,695, a refuelling-shaped ~750 MW trough. Concentrating gas maintenance into the
+same months would compound with nuclear refuelling.
 
-**Scheduled maintenance was considered and rejected.** In a high-solar system the low-gas-usage
-windows are the shoulder seasons — and **the nuclear profile already dips there**: September
-2,989 MW, October 2,946, March 3,008, against a February peak of 3,695. That ~750 MW trough is
-refuelling-shaped. Concentrating gas maintenance into the same months would compound with nuclear
-refuelling and create a coincident-outage artifact the model cannot presently reason about. A flat
-factor derates uniformly instead.
+### Retirements flow through per plant
 
-### Retirements flow through per plant, not per rung
+Capacity sums from a **per-plant** table because retirements hit different rungs at different times:
+**Bear Garden (`ccgt_fleet`) 2041**, **Warren County (`ccgt_modern`) 2044**. The stack *shape*
+matters more than the total.
 
-Capacity is summed from a **per-plant** table because retirements hit different rungs at different
-times: **Bear Garden (`ccgt_fleet`) 2041** and **Warren County (`ccgt_modern`) 2044**. A fleet-wide
-retirement figure would lose that, and the stack *shape* matters more than the total.
-
-| year | available MW |
-|---|---:|
-| 2040 | 8,610.7 |
-| 2041 | 8,096.5 |
-| 2044 | 6,742.0 |
-
-**Schedule B is not wired in and has an unresolved discrepancy:** it retires Brunswick, Potomac
-Energy Center and Greensville in 2045 and lists Chesterfield + Doswell + Possum Point as remaining
-(1,860 MW) — but **Doswell is an IPP**, not Dominion-owned, and Potomac Energy Center is likewise
-absent from the Dominion-owned set. That 1,860 MW cannot be reproduced from this mapping. See
-`GAS_RETIREMENT_SCHEDULE_B_UNRESOLVED`.
+**Schedule B resolved 2026-09-12.** It is not inconsistent — it is **DOM-zone gas at net summer
+capability**, and its own text (line 130) names Doswell, Potomac Energy Center, Marsh Run, Louisa
+and Wolf Hills as non-Dominion. The retiring set reconciles at net summer (3,781 vs 3,774 claimed),
+not nameplate (4,057.5). The earlier "discrepancy" was a scope-and-basis mismatch on this project's
+side, now removed by expanding scope to DOM-zone and naming all three bases.
 
 ## 3. Cost structure
 

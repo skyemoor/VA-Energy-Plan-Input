@@ -306,23 +306,75 @@ GAS_CT_SPLIT_RESOLVED = (
 #: frame at 11.0, not aeroderivative at 9.5). Both errors ran the same direction.
 CT_VOM_MWH = 5.0
 
-#: Per-plant nameplate by merit-order rung, MW. Source: EIA-860 2025 Schedule 3, as for
-#: GAS_MERIT_ORDER_CAPACITY_MW. Needed because retirements are plant-specific and the
-#: rung capacities must shrink with them -- see GAS_PLANT_RETIREMENT_YEAR.
-GAS_PLANT_NAMEPLATE_MW_BY_RUNG = {
-    'Greensville County Power Station': ('ccgt_modern', 1_773.3),
-    'Brunswick County Power Station':   ('ccgt_modern', 1_472.2),
-    'Warren County':                    ('ccgt_modern', 1_472.2),
-    'Ladysmith':                        ('ct_fleet',      892.5),
-    'Remington':                        ('ct_fleet',      705.5),
-    'Possum Point':                     ('ccgt_fleet',    613.0),
-    'Bear Garden':                      ('ccgt_fleet',    559.0),
-    'Chesterfield':                     ('ccgt_legacy',   446.6),
-    'Elizabeth River Power Station':    ('ct_fleet',      388.8),
-    'Darbytown':                        ('ct_fleet',      368.4),
-    'Gravel Neck':                      ('ct_fleet',      367.6),
-    'Gordonsville Energy LP':           ('ccgt_legacy',   300.4),
+#: Per-plant capacity by merit-order rung, three rating bases. Source: EIA-860 2025
+#: Schedule 3 (Generator Data), Virginia, Operable sheet, Energy Source 1 = NG.
+#:
+#: SCOPE EXPANDED 2026-09-12 from Dominion-owned to ALL DOM-ZONE MERCHANT GAS, by
+#: decision. Potomac Energy Center sits close to the Loudoun data-center concentration
+#: and will be dispatched whenever prices allow -- and prices have been high -- so
+#: restricting the stack to Dominion-owned plant would omit capacity that genuinely
+#: serves zonal load. Doswell, Marsh Run (ODEC), Louisa (ODEC) and Gordonsville are in
+#: for the same reason.
+#:
+#: TWO FILTERS APPLIED, both deliberate:
+#:   APCo TERRITORY EXCLUDED -- Clinch River, Wolf Hills, Buchanan and the southwest
+#:   Virginia industrial units are in Appalachian Power's zone, not DOM. Filtered by
+#:   county, since EIA-860 carries no PJM zone field.
+#:   CHP EXCLUDED -- Industrial and IPP CHP (Celanese, Radford Army Ammunition, Hopewell
+#:   Cogeneration, Virginia Tech, Spruance, Park 500, Georgia-Pacific, HP Hood, Elkton)
+#:   run to serve host steam loads, not economic dispatch. Including them in a merit
+#:   order would imply a dispatch decision their operators do not make.
+#:
+#: THREE BASES, all retained. Mixing nameplate with net summer created a phantom
+#: 1,167 MW discrepancy on 2026-09-11 and produced two wrong hypotheses before the units
+#: were checked. Naming all three prevents a repeat.
+#:   nameplate      manufacturer rating at ISO conditions (59F, sea level)
+#:   net summer     sustained output at summer ambient (~95F), net of station service
+#:   net winter     same at winter ambient -- HIGHER for gas, since cold dense air
+#:                  raises compressor mass flow
+#:
+#: WINTER EXCEEDS SUMMER BY 11.4% fleet-wide (10,596 vs 9,512 MW). That matters here:
+#: the DOM zone's winter peak (25,413 MW, 2025-26) now EXCEEDS its summer peak (23,905
+#: MW, 2025), and winter has grown far faster (+45% since 2019-20 against +23%). If the
+#: binding hour is a winter evening -- which a high-solar system makes likely -- then net
+#: SUMMER is the wrong derate and understates available gas at the hour that sizes the
+#: fleet.
+#:
+#: THE COUNTER-ARGUMENT, recorded because it is not modelled: winter CAPABILITY is not
+#: winter DELIVERABILITY. Pipeline constraints and competition with heating load can make
+#: gas unavailable in a cold snap regardless of what the turbine could produce. That is a
+#: fuel-supply constraint, and this project models neither it nor storage of fuel on site.
+#: Using net winter without that caveat would overstate cold-snap gas availability.
+GAS_PLANT_CAPACITY_MW = {
+    # plant: (rung, nameplate, net_summer, net_winter)
+    'Greensville County Power Station': ('ccgt_modern', 1_773.3, 1_605.0, 1_727.3),
+    'Warren County':                    ('ccgt_modern', 1_472.2, 1_370.0, 1_485.0),
+    'Brunswick County Power Station':   ('ccgt_modern', 1_472.2, 1_376.0, 1_511.8),
+    'Ladysmith':                        ('ct_fleet',      892.5,   789.0,   935.0),
+    'Remington':                        ('ct_fleet',      705.5,   614.0,   760.0),
+    'Possum Point':                     ('ccgt_fleet',    613.0,   571.0,   630.0),
+    'Marsh Run Generation Facility':    ('ct_fleet',      597.0,   484.0,   576.0),
+    'Bear Garden':                      ('ccgt_fleet',    559.0,   628.0,   644.0),
+    'Louisa Generation Facility':       ('ct_fleet',      546.0,   466.0,   555.0),
+    'Chesterfield':                     ('ccgt_legacy',   446.6,   386.0,   466.0),
+    'Elizabeth River Power Station':    ('ct_fleet',      388.8,   325.0,   351.0),
+    'Darbytown':                        ('ct_fleet',      368.4,   340.0,   359.0),
+    'Gravel Neck':                      ('ct_fleet',      367.6,   340.0,   356.0),
+    'Gordonsville Energy LP':           ('ccgt_legacy',   300.4,   218.0,   240.0),
+    'Martinsville LFG Generator':       ('ccgt_fleet',      1.1,     1.0,     1.0),
 }
+GAS_DOM_ZONE_NAMEPLATE_MW = 10_503.6
+GAS_DOM_ZONE_NET_SUMMER_MW = 9_513.0
+GAS_DOM_ZONE_NET_WINTER_MW = 10_596.1
+
+GAS_SEASONAL_BASIS_NOTE = (
+    'Net WINTER capability exceeds net SUMMER by 11.4% fleet-wide (10,596 vs 9,512 MW), '
+    'because cold dense air raises compressor mass flow. The DOM zone now peaks in '
+    'WINTER (25,413 MW in 2025-26 against 23,905 MW summer 2025, winter growing +45% '
+    'since 2019-20 against +23%), so net summer may be the wrong derate for the binding '
+    'hour. NOT MODELLED and cutting the other way: winter capability is not winter '
+    'DELIVERABILITY -- pipeline constraints and competition with heating load can make '
+    'gas unavailable in a cold snap whatever the turbine could produce.')
 
 #: Retirement year per plant, from VA_gas_capacity_schedules.md Schedule A (physical,
 #: data-driven). A plant is available in year Y if Y < its retirement year.
@@ -346,7 +398,7 @@ GAS_RETIREMENT_SCHEDULE_B_UNRESOLVED = (
     'Schedule B (VCEA-driven) retires Brunswick, Potomac Energy Center and Greensville '
     'in 2045 and lists Chesterfield + Doswell + Possum Point as remaining (1,860 MW). '
     'Doswell is an IPP, not Dominion-owned, so that 1,860 MW cannot be reproduced from '
-    'GAS_PLANT_NAMEPLATE_MW_BY_RUNG. Resolve before using Schedule B with the merit '
+    'GAS_PLANT_CAPACITY_MW. Resolve before using Schedule B with the merit '
     'order. Potomac Energy Center is likewise absent from the Dominion-owned set.')
 
 #: Flat availability factor applied to every rung's nameplate, covering forced outages

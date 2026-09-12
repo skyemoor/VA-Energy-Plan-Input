@@ -1,8 +1,17 @@
 """
 gas_merit_order.py
 
-Merit-order dispatch stack for the Dominion gas fleet: cost per rung, capacity per rung, and
+Merit-order dispatch stack for DOM-zone merchant gas: cost per rung, capacity per rung, and
 capacity net of retirements and availability in a given year.
+
+SCOPE: all DOM-zone merchant gas, not Dominion-owned only -- Potomac Energy Center sits close to
+the Loudoun data-center concentration and will be dispatched whenever prices allow, so restricting
+the stack to Dominion-owned plant would omit capacity that genuinely serves zonal load. APCo
+territory and CHP are excluded; see assumptions.GAS_PLANT_CAPACITY_MW for why.
+
+CAPACITY BASIS is a required design choice, defaulting to net_summer. See
+assumptions.GAS_SEASONAL_BASIS_NOTE -- net winter exceeds net summer by 11.4%, and the DOM zone now
+peaks in winter, so the default may be the wrong derate for the binding hour.
 
 WHY THIS EXISTS -- and why it is more than "added realism"
 
@@ -73,9 +82,20 @@ class GasMeritOrder:
     duplicating that logic at call sites is how the two figures drift apart.
     """
 
+    #: Index into GAS_PLANT_CAPACITY_MW's (rung, nameplate, summer, winter) tuple.
+    _BASIS_INDEX = {'nameplate': 1, 'net_summer': 2, 'net_winter': 3}
+
     def __init__(self,
+                 capacity_basis: str = 'net_summer',
                  availability_factor: Optional[float] = None,
                  retirement_years: Optional[Dict[str, int]] = None):
+        if capacity_basis not in self._BASIS_INDEX:
+            raise ValueError(
+                f'capacity_basis must be one of {sorted(self._BASIS_INDEX)}, got '
+                f'{capacity_basis!r}. There is no default worth guessing: nameplate overstates '
+                'deliverable capacity, net summer understates it at a winter-peaking hour, and '
+                'mixing two bases produced a phantom 1,167 MW discrepancy on 2026-09-11.')
+        self._basis = capacity_basis
         self._availability = (assumptions.GAS_AVAILABILITY_FACTOR
                               if availability_factor is None else availability_factor)
         if not 0.0 < self._availability <= 1.0:
@@ -95,25 +115,31 @@ class GasMeritOrder:
 
     # -- capacity ---------------------------------------------------------
 
-    def nameplate_mw_by_rung(self, year: Optional[int] = None) -> Dict[str, float]:
-        """Nameplate per rung, net of plants retired before `year`. No availability applied.
+    @property
+    def capacity_basis(self) -> str:
+        return self._basis
+
+    def rated_capacity_mw_by_rung(self, year: Optional[int] = None) -> Dict[str, float]:
+        """Rated capacity per rung on this instance's basis, net of plants retired before `year`.
+        No availability applied.
 
         Built by summing the per-plant table rather than reading the pre-summed rung totals,
         because retirements are plant-specific: Bear Garden (ccgt_fleet) retires 2041 and Warren
         County (ccgt_modern) 2044, so the rung totals move at different times.
         """
+        idx = self._BASIS_INDEX[self._basis]
         out = {r: 0.0 for r in self._heat_rate_by_rung}
-        for plant, (rung, mw) in assumptions.GAS_PLANT_NAMEPLATE_MW_BY_RUNG.items():
+        for plant, row in assumptions.GAS_PLANT_CAPACITY_MW.items():
             if year is not None:
                 retire = self._retirements.get(plant)
                 if retire is not None and year >= retire:
                     continue
-            out[rung] = out.get(rung, 0.0) + mw
+            out[row[0]] = out.get(row[0], 0.0) + row[idx]
         return out
 
     def available_capacity_mw(self, year: Optional[int] = None) -> Dict[str, float]:
         """Dispatchable capacity per rung: nameplate, net of retirements, times availability."""
-        return {r: mw * self._availability for r, mw in self.nameplate_mw_by_rung(year).items()}
+        return {r: mw * self._availability for r, mw in self.rated_capacity_mw_by_rung(year).items()}
 
     def total_available_mw(self, year: Optional[int] = None) -> float:
         return sum(self.available_capacity_mw(year).values())
