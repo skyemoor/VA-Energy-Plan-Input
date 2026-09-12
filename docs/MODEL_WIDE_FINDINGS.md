@@ -94,11 +94,31 @@ between them, because the dual jumps straight past the whole stack. **Whatever s
 was there before the stack was built**, and 2040 (`gas_target_share = 0.2100`) is the year that
 actually tests it.
 
-**The shape is the problem.** Almost nothing between $6 and $1,295. Partly real — a 100%-clean
-system has no intermediate-cost dispatchable resource, so it is either curtailing or drawing stored
-energy priced at build cost. Partly artifact — 8.49% of hours above $1,000/MWh is implausible
-against PJM's fraction of a percent, and nothing in the model populates the middle: no imports, no
-demand response bidding at intermediate prices, no scarcity curve.
+**The distribution, from direct inspection** (`duals_3_2045_merit.npy`):
+
+| band | share |
+|---|---:|
+| at the −$5.00 curtailment floor | **32.5%** |
+| −$5 to $6, a smooth continuum | **42.2%** |
+| $6 to $200 | ~11.4% |
+| $200 to $1,000 | ~5.4% |
+| above $1,000 | 8.5% |
+
+**60% of hours have negative marginal energy value.** The median hour says *storing this MWh
+destroys value*: round-trip losses (×0.90) plus $5.43/MWh sodium-ion cycling exceed what the energy
+is worth later. A dual of −$0.65 corresponds to a best-later-use value of ~$5.31, which the
+arithmetic reproduces.
+
+**A correction:** an earlier version of this note called the middle "empty". It is **thin, not
+empty** — ~11% of hours sit between $6 and $200. p75 ($5.54) and p95 ($1,294.65) straddle the
+region, and the percentile spacing made it look like a vacuum. The claim should have been checked
+against the mass between percentiles.
+
+**Partly real, partly artifact.** A 100%-clean system genuinely has no intermediate-cost
+dispatchable resource. But 8.49% of hours above $1,000/MWh is implausible against PJM's fraction of
+a percent, and nothing populates the middle: no imports, no demand response bidding at intermediate
+prices, no scarcity curve. With those outlets the system would curtail less and the median would
+sit higher, so **60% negative is plausibly an upper bound rather than a forecast**.
 
 Tracked separately. A bimodal dual understates arbitrage value **differently** from a flat one:
 storage sees an enormous spread but only in ~14% of hours.
