@@ -57,6 +57,17 @@ four build functions, with far more surface for a silent error and no way to tes
 **Default is off.** `gas_merit_order=None` reproduces prior behaviour exactly, so existing baselines
 stay valid.
 
+**Wired through the solver path 2026-09-12.** It was initially reachable only by calling
+`build_problem` directly — `Scenario3Solver.converge_and_solve()` overrides the parent, and neither
+it nor `drv.run_solve()` / `drv.converge_frac()` accepted the parameter, so **no scenario could use
+it.** Now threaded through all three layers, with `_gas_merit_order_kwargs()` on `CheckpointSolver`
+so every scenario inherits it. Set `solver.gas_merit_order = GasMeritOrder(...)` before
+`converge_and_solve()`.
+
+**Note on solve cost:** a checkpoint is up to **four LP solves**, not one — `converge_frac` iterates
+up to three times before the final solve. At 2030 those run 77–137s each. That is why the 2045
+measurement has not completed in-session.
+
 ### CAUSATION CORRECTED 2026-09-11 — it is not storage arbitrage
 
 An earlier version of this finding attributed the flat dual to **unconstrained storage arbitraging

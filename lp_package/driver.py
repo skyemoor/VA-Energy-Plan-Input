@@ -204,7 +204,8 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
               prior_distributed_solar_mw=0.0, prior_distributed_na_power_mw=0.0,
               prior_distributed_na_energy_mwh=0.0, prior_distributed_ironair_energy_mwh=0.0,
               distributed_reserve_margin_credit_fraction=0.0, pin_build_mw=None,
-              enforce_closing_soc=True, return_raw_result=False, post_build_hook=None):
+              enforce_closing_soc=True, return_raw_result=False, post_build_hook=None,
+              gas_merit_order=None, gas_merit_order_year=None):
     # EXTENDED (this session): prior_* kwargs, passed straight through to build_problem(), so
     # run_solve()/converge_frac() can be used directly for linked checkpoints too -- previously
     # linking required bypassing run_solve() entirely and manually replicating its own internals
@@ -252,8 +253,20 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
     if min_efe_power_mw == 'vcea_default':
         min_efe_power_mw = vcea_long_duration_floor_mw(year)
     set_year_capex(year)
+    # gas_merit_order (2026-09-12): when supplied, build_problem zeroes the flat gas cost and
+    # per-rung variables carry it instead. gas_price_mwh below is still passed -- it is ignored in
+    # that mode rather than being made conditional here, so the two call paths stay identical in
+    # shape and a future reader sees one signature, not two.
+    #
+    # NOTE what the flat price actually is: SIMPLE_CYCLE heat rate. That is why the pre-stack 2030
+    # dual sat at $54.70 = $51.30 simple-cycle fuel + $3.00 VOM -- the model priced every hour as
+    # though a peaker were marginal, in all 8,760.
+    if gas_merit_order is not None and gas_merit_order_year is None:
+        gas_merit_order_year = year          # the caller's own checkpoint year is the only sane default
     problem = lp.build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, frac,
                                 verbose=False, gas_price_mwh=lp.gas_cost_mwh(year, heat_rate=lp.SIMPLE_CYCLE_HEAT_RATE),
+                                gas_merit_order=gas_merit_order,
+                                gas_merit_order_year=gas_merit_order_year,
                                 prior_solar_mw=prior_solar_mw, prior_na_power_mw=prior_na_power_mw,
                                 prior_na_energy_mwh=prior_na_energy_mwh,
                                 prior_ironair_energy_mwh=prior_ironair_energy_mwh,
@@ -466,7 +479,8 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
                    distributed_share_of_total_solar=0.20, distributed_exogenous_price_mwh=None,
                    prior_distributed_solar_mw=0.0, prior_distributed_na_power_mw=0.0,
                    prior_distributed_na_energy_mwh=0.0, prior_distributed_ironair_energy_mwh=0.0,
-                   distributed_reserve_margin_credit_fraction=0.0):
+                   distributed_reserve_margin_credit_fraction=0.0,
+                   gas_merit_order=None, gas_merit_order_year=None):
     # NOTE (2026-08-23, renamed from the ambiguous 'target_share' -- see Internal Debugging Log #51):
     # this parameter SHADOWS the module-level gas_target_share(year) function within this function's
     # own body -- confirmed harmless here (this function never calls that module-level function
@@ -494,6 +508,7 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
                       prior_na_power_mw=prior_na_power_mw, prior_na_energy_mwh=prior_na_energy_mwh,
                       prior_ironair_energy_mwh=prior_ironair_energy_mwh,
                       reserve_margin_hint=reserve_margin_hint, IRM=IRM,
+                      gas_merit_order=gas_merit_order, gas_merit_order_year=gas_merit_order_year,
                       enable_distributed_segment=enable_distributed_segment,
                       distributed_solar_cf=distributed_solar_cf,
                       distributed_share_of_total_solar=distributed_share_of_total_solar,

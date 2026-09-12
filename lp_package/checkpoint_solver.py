@@ -58,6 +58,27 @@ class CheckpointSolver:
         self.sourced_annual_total_gwh = sourced_annual_total_gwh
         self.result = None  # populated by solve()
 
+    def _gas_merit_order_kwargs(self):
+        """Merit-order kwargs for the driver, empty when no stack is set.
+
+        ON THE BASE CLASS DELIBERATELY (Rule 1). Every scenario dispatches gas against the same
+        fleet with the same cost formula -- only the checkpoint year differs, and that is already
+        an attribute. Putting this on Scenario3Solver, where the need surfaced, would have meant
+        the next scenario re-implementing it.
+
+        HOW THE STACK IS SET: assign `solver.gas_merit_order = GasMeritOrder(...)` before calling
+        converge_and_solve(). Absent that, this returns {} and every call path behaves exactly as
+        it did before 2026-09-12 -- the stack is opt-in, so existing baselines stay valid.
+
+        The year comes from self.year rather than being passed separately: a stack resolved for a
+        different year than the checkpoint being solved would silently apply the wrong retirements
+        and the wrong fuel price, and nothing downstream would catch it.
+        """
+        stack = getattr(self, 'gas_merit_order', None)
+        if stack is None:
+            return {}
+        return {'gas_merit_order': stack, 'gas_merit_order_year': self.year}
+
     def verify_input_data(self):
         """Appendix P.2 #14: cached/passed-in input totals must be checked against their
         own current, authoritative source before use -- not assumed correct because the
@@ -246,6 +267,7 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
         self.verify_input_data()
         cap = self.apply_gas_cap()
         prior_kwargs = self._prior_kwargs()
+        gas_kwargs = self._gas_merit_order_kwargs()
         frac, converge_result, history = drv.converge_frac(
             self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
             self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap,
@@ -253,7 +275,7 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
         self.converged_frac = frac
         self.result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
-            self.nuclear, capacity_cap_mw=cap, return_hourly=True, **prior_kwargs)
+            self.nuclear, capacity_cap_mw=cap, return_hourly=True, **prior_kwargs, **gas_kwargs)
         self.verify_result()
         # Store this checkpoint's own total solar (incremental + degraded prior) for the
         # NEXT checkpoint's own linking -- keeps the "total vs. incremental" distinction
@@ -379,10 +401,11 @@ class ReserveMarginMixin:
         cap = self.apply_gas_cap()
         prior_kwargs = self._prior_kwargs() if hasattr(self, '_prior_kwargs') else {}
         dist_kwargs = self._distributed_kwargs() if hasattr(self, '_distributed_kwargs') else {}
+        gas_kwargs = self._gas_merit_order_kwargs()
         frac, converge_result, history = drv.converge_frac(
             self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
             self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap,
-            start_frac=start_frac, **prior_kwargs, **dist_kwargs)
+            start_frac=start_frac, **prior_kwargs, **dist_kwargs, **gas_kwargs)
         self.converged_frac = frac
         result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
@@ -504,6 +527,7 @@ class Scenario3Solver(Scenario1Solver):
         cap = self.apply_gas_cap()
         prior_kwargs = self._prior_kwargs()
         dist_kwargs = self._distributed_kwargs()
+        gas_kwargs = self._gas_merit_order_kwargs()
         frac, converge_result, history = drv.converge_frac(
             self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
             self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap,
@@ -512,7 +536,7 @@ class Scenario3Solver(Scenario1Solver):
         self.result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
             self.nuclear, capacity_cap_mw=cap, return_hourly=True,
-            **prior_kwargs, **dist_kwargs)
+            **prior_kwargs, **dist_kwargs, **gas_kwargs)
         self.verify_result()
         prior_solar_degraded = prior_kwargs['prior_solar_mw']
         prior_dist_solar_degraded = prior_kwargs['prior_distributed_solar_mw']
