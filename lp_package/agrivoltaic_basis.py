@@ -86,6 +86,56 @@ NATIONAL_LEASE_RATE_LOW = 500.0
 NATIONAL_LEASE_RATE_HIGH = 700.0
 
 
+#: Land intensity for the agrivoltaic configuration this project models, acres/MW.
+#:
+#: RESOLVED 2026-09-12 by scoping decision: the modelled configuration is SINGLE-AXIS TRACKING ON
+#: SHADE-TOLERANT FORAGE AND PASTURE. Pasture needs no tractor access rows -- grazing livestock and
+#: hay cutting do not require the inter-row clearance a row crop does -- so the array runs at
+#: STANDARD density. ACRES_PER_MW_LOW/HIGH apply unchanged.
+#:
+#: THIS IS WHY THE SLCOE DELTA IS APPROXIMATELY ZERO. The earlier open question -- that 4-6
+#: acres/MW is a standard-tracking figure and agrivoltaic layouts need more land -- applies to
+#: configurations that must accommodate machinery or shade-sensitive crops. It does not apply here:
+#:   - vertical bifacial needs 11.3-13.7 m row spacing and yields ~35% less per kWp, but is
+#:     indicated for shade-SENSITIVE row crops, which this analysis does not site on
+#:   - elevated tilted racking preserves energy density but adds ~88% to LCOE, and Purdue found
+#:     tracker height a weak yield lever up to 2.44 m, so the premium buys little
+#:   - single-axis tracking on shade-tolerant forage is where LPF is MAXIMISED (Riaz et al. put it
+#:     at 2, the ceiling) AND cost is lowest -- the same configuration, not a trade-off
+#:
+#: TO ADJUST LATER: siting on row crops, or on any ground needing machinery clearance, would
+#: require a configuration-specific acres/MW and would reintroduce both a land-cost adder and
+#: either an output penalty (vertical) or a capex premium (elevated). Those are not in scope while
+#: the modelled base is forage and pasture.
+AGRIVOLTAIC_ACRES_PER_MW_LOW = ACRES_PER_MW_LOW
+AGRIVOLTAIC_ACRES_PER_MW_HIGH = ACRES_PER_MW_HIGH
+
+AGRIVOLTAIC_CONFIGURATION = (
+    'single-axis tracking on shade-tolerant forage and pasture, at standard density. Pasture needs '
+    'no tractor access rows, so no land-intensity penalty applies and ACRES_PER_MW_LOW/HIGH are '
+    'used unchanged. This is simultaneously the highest-LPF configuration (Riaz et al.: LPF '
+    'maximised at 2 for shade-tolerant crops under single-axis tracking) and the lowest-cost one, '
+    'which is why the SLCOE delta against conventional siting is approximately zero. Row crops, or '
+    'any ground needing machinery clearance, would need a different configuration and would '
+    'reintroduce a land-cost adder plus either an output penalty or a capex premium.')
+
+
+def agrivoltaic_land_cost_per_mwh(lease_rate_per_acre: float = 1_850.0,
+                                  acres_per_mw: float = None,
+                                  capacity_factor: float = 0.24) -> float:
+    """Land lease cost per MWh for the modelled agrivoltaic configuration.
+
+    This is the ONLY channel by which agrivoltaic siting reaches SLCOE: hardware cost is unchanged,
+    because the configuration is conventional single-axis tracking. Defaults to the midpoint of
+    the standard acres/MW range, which applies here for the reason in AGRIVOLTAIC_CONFIGURATION.
+    """
+    if acres_per_mw is None:
+        acres_per_mw = (AGRIVOLTAIC_ACRES_PER_MW_LOW + AGRIVOLTAIC_ACRES_PER_MW_HIGH) / 2.0
+    if capacity_factor <= 0:
+        raise ValueError(f'capacity_factor must be positive, got {capacity_factor!r}')
+    return acres_per_mw * lease_rate_per_acre / (capacity_factor * 8760)
+
+
 def share_is_assumed() -> str:
     """The statement that must accompany any figure derived from the 85% share.
 
