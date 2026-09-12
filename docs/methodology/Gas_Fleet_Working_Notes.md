@@ -185,6 +185,77 @@ Cooperative** — a separate DOM-zone utility (1,142.4 MW of gas), not IPPs and 
 Genuine DOM-zone IPP gas: Doswell (1,313.0 MW), Tenaska Virginia (1,011.4), Potomac Energy Center
 (812.0), Luminant/Hopewell Cogeneration (399.0).
 
+## 2A. The dispatch stack — `lp_package/gas_merit_order.py`
+
+Built 2026-09-12. `GasMeritOrder` owns cost per rung, capacity per rung, and capacity net of
+retirements and availability in a given year.
+
+**Why it is more than added realism.** The LP's hourly dual has zero variance at 2030 because gas
+is on the margin in every hour and there is one gas price — so the marginal cost of one more MWh is
+the same whether gas runs at 10% or 90%. Gas *output* already varies enormously across the day;
+gas *marginal cost* does not, and the dual tracks the second.
+
+Every mechanism that should create intraday price structure is a **quantity** effect without a
+stack and a **price** effect with one: less gas at midday, battery cycling cost, wind variation.
+
+### The stack
+
+| rung | 2030 marginal | 2045 marginal | 2030 MW | 2045 MW |
+|---|---:|---:|---:|---:|
+| `ccgt_modern` | $37.56 | $47.32 | 4,340.3 | 2,985.9 |
+| `ccgt_fleet` | $43.76 | $55.27 | 1,078.2 | 564.0 |
+| `ccgt_legacy` | $51.65 | $65.39 | 687.2 | 687.2 |
+| `ct_fleet` | **$64.39** | **$81.17** | 2,505.0 | 2,505.0 |
+| **spread** | **$26.83** | **$33.85** | | |
+
+*(available MW = nameplate × 0.92 availability, net of retirements)*
+
+**$26.83/MWh of intraday spread at 2030 from gas alone**, before any scarcity pricing.
+
+### CT VOM — sourced, and it was understated
+
+`CT_VOM_MWH = 5.00`, from **NREL ATB** (2022: NGCT $5.00 vs NGCC $2.00; 2020: OCGT $4.49 vs CCGT
+$1.61 — a consistent 2.5–2.8× ratio reflecting more starts and cycling wear).
+
+Previously peakers used `CCGT_VOM_MWH = 3.00`. **That compounded with the heat-rate finding** — the
+fleet is frame at 11.0, not aeroderivative at 9.5 — and both errors ran the same direction,
+understating the cost of the rung most likely to set price.
+
+**An inconsistency recorded rather than reconciled:** our `CCGT_VOM_MWH = 3.00` sits *above* ATB's
+$2.00 for the same technology. Taking CT at ATB's $5.00 narrows the ratio to 1.67×; scaling our own
+figure by the ATB ratio would instead give ~$7.50. The ATB absolute is used because it is sourced,
+and the CCGT constant's provenance should be revisited.
+
+### Availability — flat, by decision
+
+`GAS_AVAILABILITY_FACTOR = 0.92`, applied uniformly, covering forced outages and planned
+maintenance together.
+
+**Scheduled maintenance was considered and rejected.** In a high-solar system the low-gas-usage
+windows are the shoulder seasons — and **the nuclear profile already dips there**: September
+2,989 MW, October 2,946, March 3,008, against a February peak of 3,695. That ~750 MW trough is
+refuelling-shaped. Concentrating gas maintenance into the same months would compound with nuclear
+refuelling and create a coincident-outage artifact the model cannot presently reason about. A flat
+factor derates uniformly instead.
+
+### Retirements flow through per plant, not per rung
+
+Capacity is summed from a **per-plant** table because retirements hit different rungs at different
+times: **Bear Garden (`ccgt_fleet`) 2041** and **Warren County (`ccgt_modern`) 2044**. A fleet-wide
+retirement figure would lose that, and the stack *shape* matters more than the total.
+
+| year | available MW |
+|---|---:|
+| 2040 | 8,610.7 |
+| 2041 | 8,096.5 |
+| 2044 | 6,742.0 |
+
+**Schedule B is not wired in and has an unresolved discrepancy:** it retires Brunswick, Potomac
+Energy Center and Greensville in 2045 and lists Chesterfield + Doswell + Possum Point as remaining
+(1,860 MW) — but **Doswell is an IPP**, not Dominion-owned, and Potomac Energy Center is likewise
+absent from the Dominion-owned set. That 1,860 MW cannot be reproduced from this mapping. See
+`GAS_RETIREMENT_SCHEDULE_B_UNRESOLVED`.
+
 ## 3. Cost structure
 
 `gas_cost_mwh(year, heat_rate)` — fuel only, Deloitte/MEDIUM gas price trajectory, piecewise-linear

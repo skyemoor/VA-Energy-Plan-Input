@@ -291,6 +291,76 @@ GAS_CT_SPLIT_RESOLVED = (
     'defined for NEW-BUILD analysis where a specific machine is chosen, and must not be '
     'applied to the existing fleet.')
 
+#: CT variable O&M, $/MWh. SOURCE: NREL Annual Technology Baseline -- ATB 2022 gives
+#: NGCC $2.00 and NGCT $5.00/MWh; ATB 2020 gives CCGT $1.61 and OCGT $4.49. Both put CT
+#: VOM at roughly 2.5-2.8x CCGT, reflecting more starts and more cycling wear.
+#:
+#: NOTE AN INCONSISTENCY, recorded rather than silently reconciled: CCGT_VOM_MWH = 3.0
+#: above sits ABOVE ATB's $2.00 for the same technology. Taking CT at ATB's $5.00 while
+#: CCGT stays at 3.0 narrows the ratio to 1.67x. Scaling our own CCGT figure by the ATB
+#: ratio would instead give ~$7.50. The ATB absolute is used because it is the sourced
+#: figure; the CCGT constant's own provenance should be revisited.
+#:
+#: MATTERS BECAUSE ct_fleet IS THE PRICE-SETTING RUNG. Using CCGT's 3.0 for peakers
+#: understated their marginal cost, compounding with the heat-rate finding (the fleet is
+#: frame at 11.0, not aeroderivative at 9.5). Both errors ran the same direction.
+CT_VOM_MWH = 5.0
+
+#: Per-plant nameplate by merit-order rung, MW. Source: EIA-860 2025 Schedule 3, as for
+#: GAS_MERIT_ORDER_CAPACITY_MW. Needed because retirements are plant-specific and the
+#: rung capacities must shrink with them -- see GAS_PLANT_RETIREMENT_YEAR.
+GAS_PLANT_NAMEPLATE_MW_BY_RUNG = {
+    'Greensville County Power Station': ('ccgt_modern', 1_773.3),
+    'Brunswick County Power Station':   ('ccgt_modern', 1_472.2),
+    'Warren County':                    ('ccgt_modern', 1_472.2),
+    'Ladysmith':                        ('ct_fleet',      892.5),
+    'Remington':                        ('ct_fleet',      705.5),
+    'Possum Point':                     ('ccgt_fleet',    613.0),
+    'Bear Garden':                      ('ccgt_fleet',    559.0),
+    'Chesterfield':                     ('ccgt_legacy',   446.6),
+    'Elizabeth River Power Station':    ('ct_fleet',      388.8),
+    'Darbytown':                        ('ct_fleet',      368.4),
+    'Gravel Neck':                      ('ct_fleet',      367.6),
+    'Gordonsville Energy LP':           ('ccgt_legacy',   300.4),
+}
+
+#: Retirement year per plant, from VA_gas_capacity_schedules.md Schedule A (physical,
+#: data-driven). A plant is available in year Y if Y < its retirement year.
+#:
+#: ONLY TWO RETIREMENTS ARE PLANT-SPECIFIC IN SCHEDULE A -- Bear Garden 2041 and Warren
+#: County 2044. Everything else runs past 2045 under Schedule A. Schedule B (VCEA-driven)
+#: retires Brunswick, Potomac Energy Center and Greensville in 2045 "for lack of market",
+#: which is a DIFFERENT schedule and must not be mixed with this one.
+#:
+#: A DISCREPANCY IN SCHEDULE B worth flagging before it is used: it lists Doswell among
+#: the plants remaining in 2045, but Doswell is an IPP (Doswell Ltd Partnership,
+#: confirmed EIA-860 Schedule 2), not Dominion-owned, and is therefore not in this
+#: Dominion-only mapping at all. Schedule B's 1,860 MW figure cannot be reproduced from
+#: Dominion-owned plant alone.
+GAS_PLANT_RETIREMENT_YEAR = {
+    'Bear Garden': 2041,
+    'Warren County': 2044,
+}
+
+GAS_RETIREMENT_SCHEDULE_B_UNRESOLVED = (
+    'Schedule B (VCEA-driven) retires Brunswick, Potomac Energy Center and Greensville '
+    'in 2045 and lists Chesterfield + Doswell + Possum Point as remaining (1,860 MW). '
+    'Doswell is an IPP, not Dominion-owned, so that 1,860 MW cannot be reproduced from '
+    'GAS_PLANT_NAMEPLATE_MW_BY_RUNG. Resolve before using Schedule B with the merit '
+    'order. Potomac Energy Center is likewise absent from the Dominion-owned set.')
+
+#: Flat availability factor applied to every rung's nameplate, covering forced outages
+#: and planned maintenance together.
+#:
+#: FLAT RATHER THAN SCHEDULED, by decision 2026-09-12. Scheduling maintenance into
+#: low-gas-usage periods would be more realistic, but in a high-solar system those are
+#: the shoulder seasons -- and the nuclear profile already dips there (September 2,989
+#: MW, October 2,946, March 3,008, against a February peak of 3,695, a refuelling-shaped
+#: ~750 MW trough). Concentrating gas maintenance into the same windows would compound
+#: with nuclear refuelling. A flat factor derates uniformly instead, which avoids
+#: creating a coincident-outage artifact the model cannot presently reason about.
+GAS_AVAILABILITY_FACTOR = 0.92
+
 GAS_MERIT_ORDER_CAPACITY_SOURCING_NOTE = (
     'GAS_MERIT_ORDER_HEAT_RATES gives cost per rung but NOT capacity per rung. '
     'A merit order needs MW at each tier to bind. The Virginia fleet split by '
