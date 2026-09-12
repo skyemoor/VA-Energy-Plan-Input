@@ -100,6 +100,7 @@ entry point but does not yet absorb the lifespans or capex material.
 |---|---|
 | `research/CA_NY_PJM_Reliability_Compliance_Comparison_2026-08-23.md` | **Check before any CAISO/NYISO reserve work** |
 | `research/Dominion_FRR_RPM_Status.md` | **Which capacity construct Dominion operates under** — FRR terminated May 2024, currently RPM; what that means for self-supply assumptions |
+| **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
 | `methodology/Six_Day_Lookahead_Firming_Documentation.md` | Six-day lookahead firming methodology |
 
