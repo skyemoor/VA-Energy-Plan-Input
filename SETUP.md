@@ -161,7 +161,18 @@ normal and shrinks each iteration.
 
 **Options.** `--scenario {1,1B,2,3}`, `--capacity-basis {nameplate,net_summer,net_winter}`
 (default `net_summer`; net winter is 11.4% higher and the DOM zone now peaks in winter — see
-`assumptions.GAS_SEASONAL_BASIS_NOTE`).
+`assumptions.GAS_SEASONAL_BASIS_NOTE`), and `--verbose`.
+
+**`--verbose` is worth using on a long run.** It echoes the inputs before solving — demand peak and
+mean, solar and wind CF, nuclear, distributed CF, exogenous price, gas target share — so a wrong
+input is visible in the first second rather than after twenty minutes. At the end it prints a
+**dual profile**: percentiles from p0 to p100, the share of hours priced at or above each merit-order
+rung, and the share above $200 and $1,000/MWh.
+
+That profile is the actual finding. A count of unique values says the dual is not flat; the
+percentiles say whether it has a realistic *shape* — real Virginia nodes show most hours in a narrow
+band with a small number of extreme hours, and a dual that is merely stepped between four rung
+prices would look very different from one with genuine scarcity tails.
 
 **Outputs** land in `results/`:
 

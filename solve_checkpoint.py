@@ -78,6 +78,9 @@ def main():
                          'assumptions.GAS_SEASONAL_BASIS_NOTE -- net winter is 11.4%% higher and '
                          'the DOM zone now peaks in winter)')
     ap.add_argument('--out', default='results')
+    ap.add_argument('--verbose', action='store_true',
+                    help='print problem size, per-iteration timing, and a dual profile at the end. '
+                         'Useful on a long run to tell "still working" from "stuck".')
     args = ap.parse_args()
 
     needs_dist = args.scenario == '3'
@@ -91,6 +94,11 @@ def main():
         kwargs['distributed_solar_cf'] = dist['dist_solar_cf_designyear.npy']
         kwargs['distributed_exogenous_price_mwh'] = dist[f'dist_exog_price_{args.year}.npy']
 
+    if not args.verbose:
+        # lp_model prints capex banners at import and on each build; quiet by default so the
+        # convergence trace is readable, restored by --verbose.
+        os.environ.setdefault('VA_ENERGY_QUIET_IMPORT', '1')
+
     solver = SCENARIOS[args.scenario](**kwargs)
     if args.merit_order:
         solver.gas_merit_order = GasMeritOrder(capacity_basis=args.capacity_basis)
@@ -102,8 +110,26 @@ def main():
     else:
         print('Merit order OFF -- one flat gas price (simple-cycle heat rate).')
 
+    if args.verbose:
+        print(f'\nInputs:')
+        print(f'    demand        {len(demand):,} h   peak {demand.max():>10,.0f} MW   '
+              f'mean {demand.mean():>9,.0f} MW')
+        print(f'    solar CF      mean {w["solar"].mean():.4f}   max {w["solar"].max():.4f}')
+        print(f'    wind CF       mean {w["wind"].mean():.4f}   max {w["wind"].max():.4f}')
+        print(f'    nuclear       mean {w["nuclear"].mean():>9,.0f} MW')
+        print(f'    existing solar peak {exist_solar.max():>9,.0f} MW')
+        if needs_dist:
+            cf = dist['dist_solar_cf_designyear.npy']
+            px = dist[f'dist_exog_price_{args.year}.npy']
+            print(f'    distributed CF  mean {cf.mean():.4f}')
+            print(f'    exogenous price mean ${px.mean():.2f}  max ${px.max():.2f}/MWh')
+        print(f'    gas target share {drv.gas_target_share(args.year):.4f}')
+
     print(f'\nSolving scenario {args.scenario}, {args.year}. '
-          'Up to four LP solves; expect several minutes per solve.\n')
+          'Up to four LP solves; expect several minutes per solve.')
+    print('Each iteration line below is one completed solve -- if the gap stops shrinking across '
+          'iterations,\nconverge_frac is not finding the gas fraction, which is a different problem '
+          'from the solve being slow.\n')
     t0 = time.time()
     result = solver.converge_and_solve()
     elapsed = time.time() - t0
@@ -147,6 +173,19 @@ def main():
         summary['dual_std_mwh'] = float(duals.std())
         print(f'  duals: {summary["dual_unique_values"]} unique values, '
               f'${duals.min():,.2f} to ${duals.max():,.2f}, std {duals.std():,.2f}')
+        if args.verbose:
+            print('\n  Dual profile (the shape is the finding, not just the count):')
+            for q in (0, 1, 5, 25, 50, 75, 95, 99, 100):
+                print(f'    p{q:<3} ${np.percentile(duals, q):>10,.2f}/MWh')
+            if args.merit_order:
+                print('\n  Against the stack that produced it:')
+                for r in solver.gas_merit_order.rungs(args.year):
+                    share = float((duals >= r.marginal_cost_mwh(args.year) - 0.5).mean())
+                    print(f'    {r.name:<14}${r.marginal_cost_mwh(args.year):>7.2f}/MWh   '
+                          f'{share:>6.1%} of hours priced at or above it')
+            above = float((duals > 200).mean())
+            print(f'\n    hours above $200/MWh: {above:>6.2%}   '
+                  f'above $1,000: {float((duals > 1000).mean()):.2%}')
         if summary['dual_unique_values'] <= 1:
             print('  WARNING: the dual is FLAT. With the merit order active that should not '
                   'happen -- see docs/MODEL_WIDE_FINDINGS.md section 1.')
