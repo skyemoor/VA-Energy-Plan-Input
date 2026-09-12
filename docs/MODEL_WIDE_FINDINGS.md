@@ -35,6 +35,41 @@ identically in every hour of the year.**
 The node figures use the *same* month-hour averaging the model uses, so averaging is not the
 explanation.
 
+### CAUSATION CORRECTED 2026-09-11 — it is not storage arbitrage
+
+An earlier version of this finding attributed the flat dual to **unconstrained storage arbitraging
+prices to equilibrium**. That was wrong, and the correction came from a direct challenge: prices
+should not flatten if storage has a cycling cost, and they should not be flat at all in hours with
+solar curtailment.
+
+**Both objections are correct.**
+
+**Storage does carry a cycling cost** — `$5.43/MWh` sodium-ion, `$18.03/MWh` iron-air, applied to
+every discharged MWh in the objective. Storage therefore *cannot* arbitrage prices closer together
+than that spread plus round-trip losses. A perfectly flat dual is not an arbitrage equilibrium.
+
+**The actual cause is simpler: one gas price, and no curtailment.** At 2030 the model has
+**zero curtailment and zero unserved energy** (measured). Gas is marginal in every hour, and there
+is only one gas cost, so the dual is that cost in every hour. Storage did not flatten anything —
+there was never anything to arbitrage, which is why it sat idle.
+
+The causation in the earlier version ran backwards.
+
+### AND THE MEASUREMENT IS 2030-ONLY — not established for 2045
+
+The measurement was taken at **2030**, where the build is small and there is no curtailment. It was
+then documented as a model-wide finding. **The 2045 case has not been measured** — the solve
+exceeds the available time limit and was not completed.
+
+At 2045 the model has **~42% of hours in net surplus** (3,722 of 8,760, with net load reaching
+−160 GW against a 22 GW peak). Those hours must price at or near the curtailment cost, not at the
+gas price. **The dual at 2045 should therefore vary, and the flat-dual finding may not hold there
+at all.**
+
+This does not vacate the finding — a flat dual at 2030 is real, and the single-gas-price cause is
+real in every year. But **"the LP's hourly energy price has zero variance" is established for 2030
+and assumed for 2045**, and the distinction was not made when it was first written.
+
 ### Three causes, all fixable, none fixed
 
 | cause | status |
