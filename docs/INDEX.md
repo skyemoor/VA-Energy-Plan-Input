@@ -150,6 +150,15 @@ RPS compliance accounting.
 
 ---
 
+## Work tracking & process
+
+| file | covers |
+|---|---|
+| **`process/Work_Tracking_Migration_Plan.md`** | **Proposed move from the xlsx tracker to GitHub Issues** — label scheme, mapping of open items, sequence. Draft, nothing migrated |
+| `scripts/audit_documented_fixes.py` | Hourly session check that documented fixes are still true of the code |
+
+---
+
 ## Process & standards — **8 files, 689 KB, fragmented**
 
 | file | covers |
