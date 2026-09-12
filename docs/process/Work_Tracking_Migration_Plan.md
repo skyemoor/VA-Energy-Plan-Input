@@ -1,6 +1,19 @@
 # Work tracking migration — xlsx tracker to GitHub Issues
 
-**Proposal, 2026-09-12.** Draft for approval; nothing migrated yet.
+**EXECUTED 2026-09-12.** 26 labels, 3 milestones and 11 open issues created;
+cross-references added; the xlsx frozen as an archive of closed items.
+
+| tracker | issue | | tracker | issue |
+|---:|---|---|---:|---|
+| 56 | #1 | | 63 | #7 |
+| 57 | #2 | | 66 | #8 |
+| 59 | #3 | | 67 | #9 |
+| 60 | #4 | | 68 | #10 |
+| 61 | #5 | | 70 | #11 |
+| 62 | #6 | | | |
+
+Items 64, 65 and 69 were closed before migration and remain in the xlsx only. Item 58 closed
+2026-09-12 when the merit order was wired in.
 
 ---
 

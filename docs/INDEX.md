@@ -191,18 +191,22 @@ and summaries.
 
 ---
 
-## Task tracking — `registers/Virginia_Grid_Analysis_Tracker_updated.xlsx`
+## Task tracking — **GitHub Issues**
 
-**Not a document — a register, and easy to forget.** The `Activity Tracker` sheet holds numbered
-items with Priority (1–3) and Status. Legend: `NS` not started, `IP` in process, `C` complete,
-`DN` decision needed, `Dx` depends on item x.
+**Open work lives in GitHub Issues** as of 2026-09-12:
+`github.com/skyemoor/VA-Energy-Plan-Input/issues`
 
-**It went un-updated through the whole of 2026-09-11** until the omission was noticed, despite that
-session producing eight trackable items. **Update it at the end of any session that produces
-findings, decisions or deferred work** — git commits record what changed, the tracker records what
-still needs doing, and the two are not substitutes.
+Labels: `scenario:N` / `common` for scope (an issue can carry both), `domain:X` mirroring this
+index, state (`decision-needed`, `blocked`, `needs-data`, `in-progress`) and kind (`finding`,
+`defect`, `regression`, `research`, `deliverable`). Priority is a **milestone**, so it sorts.
 
-Current priority-1 items: **#56** flat hourly energy dual; **#57** `all_hours_reserve.py` exists
+`registers/Virginia_Grid_Analysis_Tracker_updated.xlsx` is now an **archive of closed items**.
+
+The xlsx went un-updated through the whole of 2026-09-11 despite that session producing eight
+trackable items, which is part of why open tracking moved: **commits can close issues** with
+`Fixes #N`, so the work and the record stop being separate artifacts.
+
+Current P1: **#1** flat hourly energy dual (2045 unmeasured); **#2** `all_hours_reserve.py` exists
 but is never called.
 
 ---
