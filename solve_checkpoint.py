@@ -153,18 +153,38 @@ def main():
     # are re-derived by one extra solve at the converged frac rather than by changing run_solve's
     # return contract, which every existing caller depends on.
     print('\nRe-solving at the converged fraction to extract shadow prices...')
-    extra = dict(kwargs)
-    for key in ('year', 'gas_target_share', 'demand', 'exist_solar', 'solar_cf', 'wind_cf',
-                'nuclear', 'distributed_solar_cf', 'distributed_exogenous_price_mwh'):
-        extra.pop(key, None)
+    # MUST REPRODUCE THE SOLVER'S OWN CALL EXACTLY.
+    #
+    # BUG FIXED 2026-09-12: this previously called run_solve WITHOUT capacity_cap_mw and WITHOUT
+    # the prior_* kwargs, making it an UNLINKED checkpoint with no prior-checkpoint build and no
+    # gas cap -- a different optimisation from the one whose build figures were being reported
+    # beside it. The duals and hourly dispatch described a problem that was not the scenario.
+    #
+    # It surfaced as a dispatch that could not balance: at night, supply of ~4,300 MW (wind plus
+    # nuclear) against ~47,900 MW of demand, charging and curtailment, with zero unserved energy.
+    # Physically impossible, and the signature of reading one problem's variables while comparing
+    # against another problem's inputs.
+    #
+    # The kwargs are rebuilt from the solver's own accessors rather than reassembled by hand, so
+    # this cannot drift from what converge_and_solve() ran.
+    solve_kwargs = dict(solver._prior_kwargs())
+    solve_kwargs.update(solver._gas_merit_order_kwargs())
+    if needs_dist:
+        solve_kwargs.update(solver._distributed_kwargs())
     raw = drv.run_solve(
         args.year, solver.converged_frac, demand, exist_solar, w['solar'], w['wind'], w['nuclear'],
-        return_raw_result=True,
-        enable_distributed_segment=needs_dist,
-        distributed_solar_cf=dist.get('dist_solar_cf_designyear.npy'),
-        distributed_exogenous_price_mwh=dist.get(f'dist_exog_price_{args.year}.npy'),
-        gas_merit_order=solver.gas_merit_order if args.merit_order else None,
-        gas_merit_order_year=args.year if args.merit_order else None)
+        capacity_cap_mw=solver.apply_gas_cap(), return_hourly=True, return_raw_result=True,
+        **solve_kwargs)
+
+    # Rule 4: cross-verify against the solve whose results are being reported. A build that differs
+    # means the two problems differ, and the duals do not describe the reported scenario.
+    reported = float(result.get('S_mw', 0.0))
+    rebuilt = float(raw.get('S_mw', 0.0))
+    if reported > 0 and abs(rebuilt - reported) / reported > 1e-6:
+        raise SystemExit(
+            f'Re-solve does not reproduce the converged solve: solar {rebuilt:,.1f} MW vs '
+            f'{reported:,.1f} MW. The duals and hourly dispatch would describe a different '
+            'problem from the build figures. Not writing results.')
     res = raw['res']
     if getattr(res, 'eqlin', None) is not None:
         duals = np.asarray(res.eqlin.marginals, dtype=float)[:8760]
