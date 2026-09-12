@@ -208,7 +208,64 @@ FE_DURATION = 100.0
 # ============================================================================
 # GAS -- HEAT RATES
 # ============================================================================
-SIMPLE_CYCLE_HEAT_RATE = 9.5  # MMBtu/MWh HHV, GE 7F.05 simple-cycle spec (8,580-8,610 Btu/kWh LHV,
+SIMPLE_CYCLE_HEAT_RATE = 9.5
+
+# ---------------------------------------------------------------------------
+# GAS MERIT ORDER -- heat rate tiers (MMBtu/MWh)
+# ---------------------------------------------------------------------------
+# Added 2026-09-11. The LP currently dispatches gas at a SINGLE marginal cost
+# (GAS_COST_MWH), which is one of the reasons its hourly energy-balance dual is
+# perfectly flat: with one price and no operating reserve, storage arbitrages
+# every hour to that price. A merit order gives the dual a ladder to climb.
+#
+# SOURCE: EIA Electric Power Annual Table 8.2, "Average Tested Heat Rates by
+# Prime Mover and Energy Source", Form EIA-860, capacity-weighted, 2024 values
+# unless noted. Vintage splits from EIA Today in Energy #61444 and #60984.
+#
+#   Natural gas, 2024 (Table 8.2)
+#     Combined Cycle        7,548 Btu/kWh
+#     Gas Turbine          10,999 Btu/kWh
+#     Steam Generator      10,337 Btu/kWh
+#     Internal Combustion   8,924 Btu/kWh
+#
+#   CCGT by vintage (Today in Energy)
+#     2014-2023 entry      < 7,000 Btu/kWh
+#     2010-2022 entry        6,960 Btu/kWh (2022)
+#     2000-2009 entry        7,479 Btu/kWh (2022)
+#     1990-1999 entry       ~9,010 Btu/kWh (17% above the 2000-2009 cohort)
+#
+# A FINDING WORTH RECORDING: SIMPLE_CYCLE_HEAT_RATE = 9.5 above is 14% BETTER
+# than EIA's 2024 gas-turbine fleet average of 11.0. 9.5 describes a modern
+# aeroderivative unit, not the fleet. Where the question is what the marginal
+# peaking unit actually costs to run, 11.0 is the better figure and 9.5 is
+# optimistic. Both are retained as separate tiers rather than one being
+# corrected into the other, because they describe genuinely different machines.
+GAS_HEAT_RATE_CCGT_MODERN = 6.4          # 2014+ entry; our own, consistent with EIA "< 7.0"
+GAS_HEAT_RATE_CCGT_FLEET = 7.548         # EIA Table 8.2, 2024 combined cycle
+GAS_HEAT_RATE_CCGT_LEGACY = 9.01         # EIA, 1990-1999 entry cohort
+GAS_HEAT_RATE_CT_AERODERIVATIVE = 9.5    # = SIMPLE_CYCLE_HEAT_RATE; modern aero unit
+GAS_HEAT_RATE_CT_FLEET = 10.999          # EIA Table 8.2, 2024 gas turbine
+GAS_HEAT_RATE_STEAM = 10.337             # EIA Table 8.2, 2024 gas steam generator
+
+#: Merit order, cheapest first. Tuples of (label, heat_rate). Capacity per tier
+#: is NOT set here -- a merit order needs MW at each rung, and the Virginia
+#: fleet split is not yet sourced. See docs/methodology/Gas_Merit_Order.md.
+GAS_MERIT_ORDER_HEAT_RATES = (
+    ('ccgt_modern', GAS_HEAT_RATE_CCGT_MODERN),
+    ('ccgt_fleet', GAS_HEAT_RATE_CCGT_FLEET),
+    ('ccgt_legacy', GAS_HEAT_RATE_CCGT_LEGACY),
+    ('ct_aeroderivative', GAS_HEAT_RATE_CT_AERODERIVATIVE),
+    ('ct_fleet', GAS_HEAT_RATE_CT_FLEET),
+)
+
+GAS_MERIT_ORDER_CAPACITY_UNSOURCED = (
+    'GAS_MERIT_ORDER_HEAT_RATES gives cost per rung but NOT capacity per rung. '
+    'A merit order needs MW at each tier to bind. The Virginia fleet split by '
+    'vintage and prime mover is not yet sourced -- the Dominion IRP PDFs in the '
+    'project folder are truncated and unreadable (no /Root object, confirmed '
+    'with both pypdf and pdfplumber), so EIA-860 generator-level data is the '
+    'likely source. Until then these tiers cannot be wired into the LP.')
+  # MMBtu/MWh HHV, GE 7F.05 simple-cycle spec (8,580-8,610 Btu/kWh LHV,
                                # x1.108 LHV->HHV) -- Scenario 1/3/1B/3B/3C fleet
 CCGT_HEAT_RATE = 6.4          # MMBtu/MWh HHV, GE 7F.05 combined-cycle spec (5,660 Btu/kWh LHV,
                                # x1.108) -- Scenario 2, genuinely CCGT-based
