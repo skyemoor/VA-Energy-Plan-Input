@@ -413,6 +413,52 @@ GAS_RETIREMENT_SCHEDULE_B_UNRESOLVED = (
 #: creating a coincident-outage artifact the model cannot presently reason about.
 GAS_AVAILABILITY_FACTOR = 0.92
 
+#: CVOW delivered capacity at the onshore transmission interconnection, MW.
+#:
+#: THE POINT AT WHICH ELECTRICITY IS USABLE is the transmission interconnect, not the
+#: turbine nameplate. CVOW_MW = 2,587.2 is nameplate and never occurs: the modelled wind
+#: CF peaks at 0.8176, so peak delivery in the weather year is 2,115 MW, and the array
+#: never exceeds 82% of nameplate. Wake losses are already in the CF (source files are
+#: named ...Wake140m...). Electrical losses -- collector system, offshore substation, and
+#: roughly 25 miles of export cable -- typically add another 2-4% combined for an HVAC
+#: export at that distance, and it is NOT established whether they are also embedded in
+#: the CF.
+#:
+#: 2,050 MW adopted by decision 2026-09-12 as the delivered figure, sitting just below the
+#: 2,115 MW modelled peak and consistent with a further few percent of electrical loss.
+CVOW_DELIVERED_AT_INTERCONNECT_MW = 2_050.0
+
+#: Whether CVOW constitutes a single contingency. ASSUMED YES by decision 2026-09-12 --
+#: a single point of failure somewhere in the chain, whether the offshore substation, the
+#: export system, or the onshore interconnection.
+#:
+#: WHY IT MATTERS BEYOND VIRGINIA: NERC BAL-002 sizes contingency reserve to the Most
+#: Severe Single Contingency, and the obligation belongs to PJM as Balancing Authority.
+#: At 2,050 MW delivered, CVOW is roughly 1.4-1.6x the entire RTO synchronized reserve
+#: requirement (1,300-1,500 MW) and more than twice a nuclear unit (~950 MW). So it does
+#: not merely change Virginia's SHARE of a fixed regional pool -- it plausibly RAISES
+#: PJM's MSSC, and the regional requirement with it.
+#:
+#: NOT VERIFIED: the actual export-system configuration. If CVOW lands via multiple
+#: independent circuits, a single-circuit failure loses a fraction rather than the total,
+#: and the MSSC effect shrinks accordingly. The single-point assumption is deliberately
+#: the conservative one.
+#:
+#: CONSEQUENCE FOR THIS PROJECT: the reserves approach does not model contingency reserve
+#: at all (see docs/methodology/Reserves_Approach.md), on the grounds that the obligation
+#: is PJM's and met jointly. That reasoning holds for Virginia's SHARE of an existing
+#: requirement. It does not address Virginia ENLARGING the requirement, which is what a
+#: new 2,050 MW single contingency would do. Recorded as a gap in that argument.
+CVOW_IS_SINGLE_CONTINGENCY = True
+
+CVOW_MSSC_NOTE = (
+    'At 2,050 MW delivered, CVOW is 1.4-1.6x the PJM RTO synchronized reserve requirement '
+    '(1,300-1,500 MW) and over 2x a nuclear unit. Assumed to be a single contingency. If so it '
+    'RAISES PJM\'s Most Severe Single Contingency rather than merely consuming Virginia\'s share '
+    'of a fixed pool -- an effect the Reserves_Approach.md argument does not cover, since that '
+    'argument concerns sharing an existing requirement, not enlarging it. Export-system '
+    'configuration is unverified; multiple independent circuits would shrink the effect.')
+
 GAS_MERIT_ORDER_CAPACITY_SOURCING_NOTE = (
     'GAS_MERIT_ORDER_HEAT_RATES gives cost per rung but NOT capacity per rung. '
     'A merit order needs MW at each tier to bind. The Virginia fleet split by '

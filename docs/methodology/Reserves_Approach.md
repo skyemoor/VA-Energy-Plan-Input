@@ -58,6 +58,32 @@ election, which governs capacity procurement rather than operating reserve.
 therefore overstate the requirement** — it would impose on one zone an obligation the region meets
 collectively.
 
+### A gap in this argument: CVOW may enlarge the requirement rather than share it
+
+The reasoning above concerns Virginia's **share of an existing** requirement. It does not address
+Virginia **enlarging** it.
+
+**CVOW delivers ~2,050 MW at the transmission interconnection.** Nameplate is 2,587.2 MW but never
+occurs — the modelled wind CF peaks at 0.8176, giving 2,115 MW, and wake losses are already in that
+figure; 2,050 allows a further few percent for the collector system, offshore substation and ~25
+miles of export cable.
+
+At 2,050 MW, assuming a single point of failure somewhere in that chain:
+
+| against | ratio |
+|---|---:|
+| PJM RTO synchronized reserve requirement (1,300–1,500 MW) | **1.37–1.58×** |
+| A nuclear unit (~950 MW) | **2.16×** |
+
+BAL-002 sizes contingency reserve to the **Most Severe Single Contingency**. If CVOW is one, it
+**raises PJM's MSSC** — the regional requirement grows, and every member carries part of the
+increase. That is a different effect from Virginia drawing on a fixed pool, and the sharing argument
+does not cover it.
+
+**Unverified:** the export-system configuration. Multiple independent circuits would mean a
+single-circuit failure loses a fraction rather than the total, shrinking the effect. The
+single-point assumption is deliberately the conservative one.
+
 ### The honest limits of this position
 
 **Sharing is not exemption.** A Reserve Sharing Group allocates the obligation; members contribute a
