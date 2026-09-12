@@ -99,6 +99,7 @@ entry point but does not yet absorb the lifespans or capex material.
 | file | covers |
 |---|---|
 | `research/CA_NY_PJM_Reliability_Compliance_Comparison_2026-08-23.md` | **Check before any CAISO/NYISO reserve work** |
+| `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
 | `methodology/Six_Day_Lookahead_Firming_Documentation.md` | Six-day lookahead firming methodology |
 
 Also: `Weather_Year_Robustness_Approaches_and_Findings_2026-08-23.md` documents three reserve

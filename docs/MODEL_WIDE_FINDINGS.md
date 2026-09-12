@@ -82,6 +82,25 @@ mechanism behind §1.
 **This is the highest-value fix available**: the code exists, is documented, and was already
 validated once.
 
+### The net-load question — researched 2026-09-11
+
+**CAISO uses two requirements in parallel, not one.** Resource Adequacy is sized against peak load
+plus a planning reserve margin — our IRM equivalent, which we have. **Flexible Capacity** is sized
+separately against the **largest 3-hour net-load ramps** plus contingency reserves — which we have
+nothing equivalent to.
+
+So net load is addressed **in addition to** peak, not instead of it. Replacing our gross-peak
+constraint with a net-load one would lose what the peak constraint is for.
+
+Scale, for calibration: CAISO net load swings ~25 GW over a day, dips **below zero at midday**, and
+rises **6.5 GW in the 6pm hour**.
+
+**`all_hours_reserve.py` likely subsumes both cases** — enforcing reserve in every hour covers the
+peak hour and the ramp hours without a separate ramp requirement needing to be specified. That is
+another reason to wire it in before building anything new.
+
+Full treatment: `research/CAISO_Net_Load_Treatment.md`.
+
 ### A related question, unexamined
 
 The peak-hour constraint uses **gross demand at `t_peak`**. In a system with ~174 GW of solar, the

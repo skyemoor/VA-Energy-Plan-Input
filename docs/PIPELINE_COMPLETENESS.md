@@ -259,3 +259,56 @@ project has been conservative in a direction it did not intend.
 **Not resolved, and not assumed either way.** Recorded so the 31.8% is not treated as a floor
 without qualification. Would require implementing a precautionary dispatch policy and comparing
 against both existing bases.
+
+---
+
+## DEFERRED TASK: nodal price zones and weather-driven hourly price variation (2026-09-11)
+
+Queued behind the CAISO net-load investigation. Recorded now so it is not lost.
+
+### Why it is needed
+
+PJM requires energy-market aggregations to sit at a **single pricing node** — capacity and
+ancillary services may aggregate across nodes, energy may not (see
+`research/DERA_VPP_WMA_Consolidated_Working_Notes.md` §4). The model currently treats the entire
+distributed fleet as one block arbitraging against one price series, which **energy-market rules do
+not permit**.
+
+### The proposed shape
+
+**Zone the distributed segment** into a small number of price sets rather than one. A workable
+first cut, matching where the load and the measured siting data actually are:
+
+| zone | anchor | character |
+|---|---|---|
+| **Northern Virginia** | Ashburn 35 kV | load centre, data centres, structured parking, high floor (~$28) |
+| **Richmond metro** | Richmond City / Henrico | employment centre, mixed |
+| **SE Tidewater** | Chesapeake / Norfolk | coastal, near CVOW landfall |
+
+A fourth rural/southside set (the NDOSWLDP 115 kV node south of Petersburg, floor ~$6.89) may be
+warranted — its low floor *is* the congestion, and that contrast is the transmission-deferral
+argument in data.
+
+### The second half: weather-driven hourly prices
+
+The project already holds **hourly insolation and temperature** for all these locations (NSRDB
+per-site files, NOAA station records). In principle those allow month-hour average prices to be
+**varied down to individual hours of specific days** — a hot, still, low-insolation evening priced
+differently from a mild breezy one in the same month-hour bucket.
+
+That would address the deeper problem recorded in `MODEL_WIDE_FINDINGS.md` §1: month-hour averaging
+removes 94.5% of the real extreme, and the top 1% of hours hold 29.4% of all positive congestion
+value.
+
+### The open question, stated as such
+
+**Whether this is tractable in an LP is not known and must be investigated before it is built.**
+Zoning multiplies the distributed variable set by the number of zones; weather-conditioned hourly
+prices add a mapping from weather state to price that may not be linear. Either could make the
+problem materially harder to solve, and the 2045 checkpoint already takes ~253 s.
+
+### Sequence
+
+1. CAISO net-load investigation (current task)
+2. This task — zoning first, weather-driven prices second, since zoning is the statutory
+   requirement and prices are the accuracy improvement
