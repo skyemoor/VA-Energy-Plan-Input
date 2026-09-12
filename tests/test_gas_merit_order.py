@@ -59,13 +59,15 @@ class TestMeritOrderStructure:
             hi = lp.gas_cost_mwh(year, heat_rate=a.GAS_MERIT_ORDER_HEAT_RATES[-1][1])
             assert hi / lo == pytest.approx(1.72, abs=0.02)
 
-    def test_capacity_per_tier_is_flagged_as_unsourced(self):
-        """A merit order needs MW at each rung to bind, not just prices. Until the Virginia fleet
-        split is sourced these tiers cannot be wired into the LP, and saying so prevents them
-        being used as though they were complete."""
+    def test_capacity_caveat_tracks_what_is_actually_still_blocking(self):
+        """Updated 2026-09-11 when capacity per rung was sourced from the Dominion 10-K. The
+        caveat now names what REMAINS blocking -- the CT aero/frame split and the 8,195-vs-9,362
+        reconciliation -- rather than claiming capacity is wholly unsourced, which is no longer
+        true. A caveat that overstates the gap erodes trust in the ones that don't."""
         c = a.GAS_MERIT_ORDER_CAPACITY_UNSOURCED
         assert 'NOT capacity per rung' in c
-        assert 'cannot be wired into the LP' in c
+        assert 'PARTLY RESOLVED' in c
+        assert 'CT aero/frame split' in c
 
     def test_the_truncated_irp_pdfs_are_recorded(self):
         """Confirmed unreadable with both pypdf and pdfplumber. Other work may depend on them."""
