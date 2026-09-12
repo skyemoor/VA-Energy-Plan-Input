@@ -124,6 +124,73 @@ the dearest gas tier and then jumps to VOLL. See `MODEL_WIDE_FINDINGS.md` §1 an
 
 ---
 
+## Can reserves be drawn on for outlier peaks? — researched 2026-09-11
+
+Asked because it bears on whether a reserve constraint should be a hard floor in every hour or a
+cushion the system may dip into. **The answer is that "reserves" is three different things with
+three different rules.**
+
+### 1. Planning reserve margin — covers everything, statistically
+
+Long- and near-term planning follows the **one-day-in-ten-years** guideline (NERC BAL-502-RF-03),
+an annual **LOLE of 0.1 events/year**. It is a probabilistic adequacy target covering outages,
+load forecast error and weather together. It does not distinguish causes.
+
+**This is our IRM 17.7%.**
+
+### 2. Day-ahead scheduling reserve — explicitly includes load forecast error
+
+Per **PJM Manual 13**, the day-ahead scheduling 30-minute reserve requirement is calculated from
+the annual peak load forecast **adjusted for under-forecasted load-forecasting error** *and*
+generator forced outage rate.
+
+**So yes — PJM's day-ahead reserve is sized for demand being higher than forecast, not only for
+units failing.** Outlier peaks are covered here.
+
+### 3. Contingency reserve (NERC BAL-002) — outage recovery only, with one exception
+
+Contingency reserve is *"necessary to replace capacity and energy lost due to forced outages of
+generation or transmission equipment."* It is sized to the **Most Severe Single Contingency** and
+is intended for recovery from a **Balancing Contingency Event**.
+
+**It may not be used for load being high.** The drafting record is explicit that this was a real
+problem:
+
+> *"Without a Balancing Contingency Event, a Responsible Entity cannot utilize its Contingency
+> Reserve without violating the NERC Standard BAL-002. To resolve this conflict, the drafting team
+> elected to allow the Responsible Entity to use its Contingency Reserve while in a declared
+> **Energy Emergency Alert 2** [or] **Level 3**."*
+
+**So the answer to "can you dip in for an outlier peak" is: not freely, but yes once an Energy
+Emergency Alert Level 2 or 3 is declared** — and that permission had to be written in
+deliberately, because before it, doing so was a standards violation.
+
+### A live direction of travel worth noting
+
+WECC has petitioned to **retire** its stricter regional requirement (BAL-002-WECC-3, which demands
+the greater of MSSC or 3% of load plus 3% of generation), arguing entities there *"are holding more
+reserves than the rest of the continent, even though there is no technical basis for doing so"* and
+that **FERC Order 901** raises concern that *"holding excess reserves may be inhibiting reliability
+across the interconnection."*
+
+That cuts against any instinct to make our reserve constraint conservative by default.
+
+### What it implies for our modelling choice
+
+| product | may cover a high-load hour? | our equivalent |
+|---|---|---|
+| Planning reserve margin | yes — statistically | IRM at `t_peak` ✓ |
+| Day-ahead scheduling reserve | **yes — explicitly sized for load forecast error** | none |
+| Contingency reserve | **no**, except under declared EEA-2/3 | none |
+
+`all_hours_reserve.py` enforces availability in every hour, which behaves like a **hard floor**.
+That is stricter than any of the three above: contingency reserve is drawable under emergency, and
+planning margin is probabilistic rather than hourly. **Worth checking whether the implementation
+permits any drawdown, or whether it will force overbuild by treating reserve as untouchable in all
+8,760 hours.**
+
+---
+
 ## Sources
 
 - CAISO, *Flexible Capacity Needs and Availability* — the two-requirement structure and the
@@ -138,3 +205,9 @@ the dearest gas tier and then jumps to VOLL. See `MODEL_WIDE_FINDINGS.md` §1 an
   comparison
 - Modo Energy (Aug 2025) — 25 GW daily net load swing, 6.5 GW 6pm ramp, BESS positioning
 - PCI Energy Solutions (Aug 2025) — peak and super-peak ramping resource categories
+- NERC BAL-002-2 Background Document (July 2015) — contingency reserve purpose; the EEA-2/3
+  exception and why it was added
+- NERC BAL-502-RF-03 — one-day-in-ten-years planning standard
+- PJM Manual 13, via arXiv 2506.01358 — day-ahead scheduling reserve includes load forecast error
+- WECC-0142 white paper (Sept 2025) — petition to retire BAL-002-WECC-3; FERC Order 901 on excess
+  reserves

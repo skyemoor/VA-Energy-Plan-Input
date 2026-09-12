@@ -180,6 +180,22 @@ and summaries.
 
 ---
 
+## Task tracking — `registers/Virginia_Grid_Analysis_Tracker_updated.xlsx`
+
+**Not a document — a register, and easy to forget.** The `Activity Tracker` sheet holds numbered
+items with Priority (1–3) and Status. Legend: `NS` not started, `IP` in process, `C` complete,
+`DN` decision needed, `Dx` depends on item x.
+
+**It went un-updated through the whole of 2026-09-11** until the omission was noticed, despite that
+session producing eight trackable items. **Update it at the end of any session that produces
+findings, decisions or deferred work** — git commits record what changed, the tracker records what
+still needs doing, and the two are not substitutes.
+
+Current priority-1 items: **#56** flat hourly energy dual; **#57** `all_hours_reserve.py` exists
+but is never called.
+
+---
+
 ## How to use this index
 
 Before starting work in a domain, read the **START HERE** file for that domain if one is marked,
