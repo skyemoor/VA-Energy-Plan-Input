@@ -129,3 +129,47 @@ partial result set is produced rather than nothing. Re-running after adding the 
 the stages that were blocked — everything already built is skipped.
 
 Nothing writes outside the repository directory.
+
+## Solving a checkpoint
+
+`solve_checkpoint.py` runs one scenario checkpoint and saves the hourly supply-demand shadow
+prices — the measurement that shows whether the model produces intraday price structure.
+
+```bash
+# the 2045 measurement (issue #1)
+python3 solve_checkpoint.py --year 2045 --scenario 3 --merit-order
+
+# without the merit order, for comparison
+python3 solve_checkpoint.py --year 2045 --scenario 3
+```
+
+**Prerequisites.** Source CSVs are gitignored (re-downloadable) and intermediates are gitignored
+(rebuildable), so a fresh clone has neither:
+
+1. Put `DOMLSEHourlyLoadProjections2024through2048.csv` and
+   `PJMMidAtlAPSrt_hrl_lmpsAug2025aug2026.csv` in `data/source/`
+2. `python3 run_all.py` — builds all intermediates, a few minutes
+3. Then solve
+
+`solve_checkpoint.py` checks its inputs first and names the exact `run_all.py` command to rebuild
+anything missing, rather than failing partway through with a `KeyError`.
+
+**Expect it to take a while.** A checkpoint is **up to four LP solves** — `converge_frac` iterates
+up to three times searching for the gas fraction that hits the target share, then solves once more
+at the converged value. At 2030 those run 77–137 s each; 2045 is larger. A large gap at `iter0` is
+normal and shrinks each iteration.
+
+**Options.** `--scenario {1,1B,2,3}`, `--capacity-basis {nameplate,net_summer,net_winter}`
+(default `net_summer`; net winter is 11.4% higher and the DOM zone now peaks in winter — see
+`assumptions.GAS_SEASONAL_BASIS_NOTE`).
+
+**Outputs** land in `results/`:
+
+| file | contents |
+|---|---|
+| `duals_{scenario}_{year}_{merit\|flat}.npy` | 8,760 hourly shadow prices, $/MWh |
+| `solve_{scenario}_{year}_{merit\|flat}.json` | build MW, converged frac, dual summary |
+
+The JSON's `dual_unique_values` is the headline number. **Before the merit order, 2030 gave 1
+unique value across all 8,760 hours.** With it, 40. If a run reports 1, the script warns — that
+means the model has returned to a single effective price and no intraday result from it is usable.
