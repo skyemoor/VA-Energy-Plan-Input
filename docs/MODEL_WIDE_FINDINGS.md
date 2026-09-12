@@ -68,6 +68,41 @@ so every scenario inherits it. Set `solver.gas_merit_order = GasMeritOrder(...)`
 up to three times before the final solve. At 2030 those run 77–137s each. That is why the 2045
 measurement has not completed in-session.
 
+### 2045 MEASURED 2026-09-12 — not flat, but bimodal with an empty middle
+
+Scenario 3, 2045, merit order active, net summer basis. Two full LP solves, 11.2 minutes.
+
+| | |
+|---|---|
+| unique values | **1,834** (against 1 at 2030 before the stack) |
+| range | **−$5.00 to $1,306.13**, std 392.99 |
+| p25 / p50 / p75 | −5.00 / −0.65 / **5.54** |
+| p95 / p100 | **1,294.65** / 1,306.13 |
+| hours above $200 | **13.88%** |
+| hours above $1,000 | **8.49%** |
+
+**Floor is the curtailment cost**, exactly — `slcr_curt_cost = 5.0`. Over a quarter of hours sit at
+precisely −$5.00, where one more MWh means curtailing one more.
+
+**Ceiling is not unserved energy.** VOLL is $100,000/MWh and the maximum is $1,306, so **nothing is
+short**. Those hours are **build-constrained**: serving one more MWh requires more solar and
+storage, and the dual carries that annualised chain.
+
+**The merit order is inert at 2045.** `gas_target_share(2045) = 0.0000` under the VCEA 100% clean
+target, so no gas can dispatch. All four rungs report *identical* 13.9% shares — no hour prices
+between them, because the dual jumps straight past the whole stack. **Whatever structure 2045 has
+was there before the stack was built**, and 2040 (`gas_target_share = 0.2100`) is the year that
+actually tests it.
+
+**The shape is the problem.** Almost nothing between $6 and $1,295. Partly real — a 100%-clean
+system has no intermediate-cost dispatchable resource, so it is either curtailing or drawing stored
+energy priced at build cost. Partly artifact — 8.49% of hours above $1,000/MWh is implausible
+against PJM's fraction of a percent, and nothing in the model populates the middle: no imports, no
+demand response bidding at intermediate prices, no scarcity curve.
+
+Tracked separately. A bimodal dual understates arbitrage value **differently** from a flat one:
+storage sees an enormous spread but only in ~14% of hours.
+
 ### CAUSATION CORRECTED 2026-09-11 — it is not storage arbitrage
 
 An earlier version of this finding attributed the flat dual to **unconstrained storage arbitraging
