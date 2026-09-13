@@ -155,6 +155,20 @@ UNCALLED_BY_DESIGN = {
     'large_ci_curtailment_feature.py':               'demand-side feature, not in the base scenarios',
     'supply_gap_analysis.py':                        'gap characterisation, run on solved results',
     'levelised_cost.py':                             'SLCOE assembly; wired when the annual stream exists',
+    # --- shared base layers of the siting derivations above. Unreachable from an entry point
+    # because their only callers are themselves derivations, which is correct: the transitive
+    # walk added 2026-09-13 surfaces these, where the earlier any-importer check hid them.
+    'rooftop_solar_estimation_base.py':              'base class for the county rooftop derivations',
+    'nsrdb_data.py':                                 'NSRDB reader for the Loudoun profile derivation',
+    'loudoun_battery_dispatch.py':                   'used by loudoun_solar_firming, itself a derivation',
+    'loudoun_solar_hourly_profile.py':               'siting derivation; result filed in assumptions',
+    'loudoun_ci_rooftop_solar_estimate.py':          'siting derivation; result filed in assumptions',
+    'loudoun_parking_canopy_and_storage.py':         'siting derivation; result filed in assumptions',
+    'loudoun_parking_lot_sqft.py':                   'siting derivation; result filed in assumptions',
+    'loudoun_streak_finder.py':                      'one-off analysis, findings documented',
+    'arlington_parking_lot_sqft.py':                 'siting derivation; result filed in assumptions',
+    'fairfax_parking_lot_sqft.py':                   'siting derivation; result filed in assumptions',
+    'fairfax_ci_rooftop_solar_estimate.py':          'siting derivation; result filed in assumptions',
     'scenario2_all_hours_reserve.py':                'opt-in reserve test; measured 0.00% cost, never binds',
 }
 
@@ -191,7 +205,24 @@ def check_no_orphaned_modules():
                     continue
                 if re.search(RE_IMPORTS.format(m=re.escape(m)), src):
                     importers[m].add(fname)
-    orphans = sorted(m for m, imp in importers.items() if not imp)
+    # TRANSITIVE REACHABILITY, added 2026-09-13. A module imported only by another ORPHANED module
+    # is still doing no work -- the first version of this check counted any importer, so an
+    # orphaned chain (A imports B, nothing imports A) reported B as reachable. Walk outward from
+    # the genuine entry points instead: the top-level scripts, and anything listed as called by
+    # design.
+    entry_points = {f for f in os.listdir(REPO) if f.endswith('.py')}
+    reachable, frontier = set(), set(entry_points)
+    while frontier:
+        nxt = set()
+        for f in frontier:
+            for m, imp in importers.items():
+                if m in reachable:
+                    continue
+                if f in imp:
+                    reachable.add(m)
+                    nxt.add(m + '.py')
+        frontier = nxt
+    orphans = sorted(m for m in importers if m not in reachable)
     if orphans:
         return False, ('module(s) imported by nothing in the pipeline (tests do not count): '
                        + ', '.join(orphans)
