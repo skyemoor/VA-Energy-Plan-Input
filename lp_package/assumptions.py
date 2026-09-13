@@ -813,20 +813,45 @@ EXIST_SOLAR_MW_2026 = 5300.0
 #: double-counted roughly 4,655 MW and overstated the baseline's clean share.
 EXIST_SOLAR_PRE_VCEA_MW = 645.2
 
-def vcea_new_solar_mw(target_mw=16_100.0, year=2026):
-    """New solar the statutory target still requires, net of post-VCEA capacity already delivered.
+#: The § D.2 deadline. There are NO interim solar milestones in the statute -- D.2 sets one date,
+#: and D.4 requires annual petitions without specifying per-year MW. So the trajectory between now
+#: and 2035 is an INTERPRETATION, not a statutory figure, and is documented as one.
+VCEA_SOLAR_TARGET_DEADLINE_YEAR = 2035
 
-    Raises rather than clamping if the target has been met (Rule 5): a negative requirement is a
-    real and reportable outcome, but returning one would silently subtract solar from the build.
+def vcea_new_solar_mw(year, target_mw=16_100.0):
+    """New solar the statutory target requires by `year`, net of post-VCEA capacity delivered.
+
+    `year` is REQUIRED. An earlier version took none and returned the full remaining target in
+    every year, so Scenario 2 built the entire statutory fleet in 2030 -- five years before the
+    deadline -- and overstated that checkpoint's clean share.
+
+    TRAJECTORY: linear from post-VCEA capacity in 2026 to the full target at
+    VCEA_SOLAR_TARGET_DEADLINE_YEAR, then flat. Linear because § D.2 sets a single deadline with no
+    interim milestones and § D.4 requires annual petitions without per-year quantities -- so even
+    progress is the neutral reading. It is certainly wrong in detail (no utility builds evenly), but
+    the alternative of front-loading is the one that FLATTERS the baseline, by crediting early
+    checkpoints with solar not yet built.
+
+    THE DEDUCTION USES NAMEPLATE, NOT DEGRADED CAPACITY. Existing solar falls from 5,300 MW to
+    4,818 MW by 2045 at 0.5%/yr. That degraded output is real and the energy balance sees it, but
+    the § D.2 target counts capacity PROCURED -- "construct, acquire, or enter into agreements to
+    purchase" -- not energy delivered. A panel that has lost 9% of its output has not un-procured
+    itself. So the deduction stays at nameplate and does not grow with degradation.
     """
+    if year < 2026:
+        raise ValueError(
+            f'year must be 2026 or later, got {year!r}. The post-VCEA deduction is anchored to '
+            'EXIST_SOLAR_MW_2026 and has no meaning before that.')
     already_counted = EXIST_SOLAR_MW_2026 - EXIST_SOLAR_PRE_VCEA_MW
-    remaining = target_mw - already_counted
-    if remaining < 0:
+    remaining_at_deadline = target_mw - already_counted
+    if remaining_at_deadline < 0:
         raise ValueError(
             f'post-VCEA capacity ({already_counted:,.1f} MW) already exceeds the {target_mw:,.0f} '
             'MW target, so no new build is required. That is a reportable finding, not a negative '
             'build requirement -- handle it at the call site.')
-    return remaining
+    span = VCEA_SOLAR_TARGET_DEADLINE_YEAR - 2026
+    progress = min(1.0, max(0.0, (year - 2026) / span))
+    return remaining_at_deadline * progress
 
 SOLAR_DEGRADATION_RATE_ANNUAL = 0.005  # standard c-Si industry figure (~0.5%/yr)
 

@@ -21,7 +21,7 @@ import paths
 pytestmark = pytest.mark.slow
 
 
-def _solver(year=2045):
+def _solver(year=2045):  # year-aware since 2026-09-13
     p = paths.intermediate(f'demand_{year}fy_va_only.npy')
     if not os.path.exists(p):
         pytest.skip('demand intermediate not built')
@@ -128,7 +128,7 @@ class TestPostVceaSolarIsDeducted:
         """A negative build requirement would silently subtract solar. It is a reportable finding
         instead."""
         with pytest.raises(ValueError, match='already exceeds'):
-            assumptions.vcea_new_solar_mw(target_mw=1_000.0)
+            assumptions.vcea_new_solar_mw(2045, target_mw=1_000.0)
 
 
 class TestImpliedGasCapacity:
@@ -142,3 +142,69 @@ class TestImpliedGasCapacity:
         peak = max(x[t * 14 + I['g']] for t in range(8760))
         assert peak == pytest.approx(22_478, rel=0.05)
         assert peak < r['ccgt_ceiling_mw'], 'the ceiling bound, so the result is not unbounded'
+
+
+class TestSolarTargetIsYearAware:
+    """FIXED 2026-09-13. vcea_new_solar_mw() took no year and returned the full remaining target in
+    every checkpoint, so Scenario 2 built the entire statutory fleet in 2030 -- five years before
+    the § D.2 deadline. That overstated 2030's clean share by 9.8 points (59.2% -> 49.4%)."""
+
+    def test_year_is_required(self):
+        """Rule 5: there is no safe default. A missing year previously meant 'full target, now'."""
+        with pytest.raises(TypeError):
+            assumptions.vcea_new_solar_mw()
+
+    def test_ramps_linearly_to_the_2035_deadline_then_holds(self):
+        """§ D.2 sets ONE deadline -- 31 December 2035 -- with no interim milestones, and § D.4
+        requires annual petitions without per-year quantities. Linear is the neutral reading. It is
+        certainly wrong in detail, but front-loading is the alternative that FLATTERS the baseline
+        by crediting early checkpoints with solar not yet built."""
+        assert assumptions.vcea_new_solar_mw(2026) == pytest.approx(0.0, abs=1.0)
+        assert assumptions.vcea_new_solar_mw(2030) == pytest.approx(5_086.8, abs=1.0)
+        assert assumptions.vcea_new_solar_mw(2035) == pytest.approx(11_445.2, abs=1.0)
+        for y in (2040, 2045):
+            assert assumptions.vcea_new_solar_mw(y) == pytest.approx(11_445.2, abs=1.0)
+
+    def test_deadline_year_is_named_not_inline(self):
+        assert assumptions.VCEA_SOLAR_TARGET_DEADLINE_YEAR == 2035
+
+    def test_before_2026_raises(self):
+        """The deduction is anchored to EXIST_SOLAR_MW_2026 and has no meaning before it."""
+        with pytest.raises(ValueError, match='must be 2026 or later'):
+            assumptions.vcea_new_solar_mw(2020)
+
+    def test_deduction_uses_nameplate_not_degraded_capacity(self):
+        """Existing solar falls 5,300 -> 4,818 MW by 2045 at 0.5%/yr, and the energy balance sees
+        that. But § D.2 counts capacity PROCURED, not energy delivered -- a panel that has lost 9%
+        of its output has not un-procured itself. So the requirement does not grow with
+        degradation."""
+        assert assumptions.vcea_new_solar_mw(2035) == assumptions.vcea_new_solar_mw(2045)
+
+
+class TestPathwayShowsComplianceFalling:
+    """THE WHITEPAPER'S THESIS, measured across all four checkpoints 2026-09-13.
+
+        2030   49.4% clean   14,938 MW gas peak   $3.38B   $28.71/MWh
+        2035   47.3%         18,456 MW            $5.94B   $39.95/MWh
+        2040   37.3%         22,926 MW            $8.93B   $47.39/MWh
+        2045   34.7%         22,479 MW           $10.46B   $51.72/MWh
+
+    Compliance DECLINES while the statute's storage targets ramp, because demand grows 72%
+    (117.9 -> 202.2 TWh) against a solar target fixed at 16,100 MW. Storage moves energy; it does
+    not create it.
+    """
+
+    def test_clean_share_declines_across_the_pathway(self):
+        """A monotonicity check flagged this as a failure when it was first run. It is not a bug --
+        it is the finding."""
+        w, s30 = _solver(2030)
+        _, s45 = _solver(2045)
+        shares = []
+        for s in (s30, s45):
+            r = s.solve(gas_price_mwh=lp.gas_cost_mwh(s.year, heat_rate=lp.CCGT_HEAT_RATE))
+            x, I = r['raw'].x, r['problem']['IDX']
+            gas = sum(x[t * 14 + I['g']] for t in range(8760))
+            shares.append(1 - gas / s.demand.sum())
+        assert shares[0] > shares[1], 'compliance should FALL from 2030 to 2045'
+        assert shares[0] == pytest.approx(0.494, abs=0.02)
+        assert shares[1] == pytest.approx(0.347, abs=0.02)

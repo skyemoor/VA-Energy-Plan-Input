@@ -733,7 +733,13 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         # Only 645 MW of the existing 5,300 predates the VCEA. The other ~4,655 MW counts, so the
         # NEW build required is ~11,445 MW. The uncorrected version overstated Scenario 2's clean
         # generation share by about four percentage points.
-        vcea_new_mw = (assumptions.vcea_new_solar_mw(self.vcea_solar_mw)
+        # YEAR-AWARE since 2026-09-13. The earlier call passed no year and returned the full
+        # remaining target in every checkpoint, so Scenario 2 built the entire statutory fleet in
+        # 2030 -- five years before the § D.2 deadline -- and overstated that checkpoint's clean
+        # share. The trajectory is linear to 2035 then flat; see assumptions.vcea_new_solar_mw for
+        # why linear is the neutral reading of a statute with one deadline and no interim
+        # milestones.
+        vcea_new_mw = (assumptions.vcea_new_solar_mw(self.year, self.vcea_solar_mw)
                        if deduct_existing_post_vcea else self.vcea_solar_mw)
         problem = lp.build_scenario2_problem(
             self.solar_cf, self.wind_cf, self.nuclear, self.exist_solar, self.demand,
