@@ -340,6 +340,22 @@ GAS_UNIT_COMMITMENT_NOT_MODELLED = (
     'cost it would be selected for peaking duty that a CT should serve. Ramp constraints remove '
     'the worst of this; they do not remove all of it.')
 
+#: New-build CCGT overnight capital, $/kW, as a BAND. Named _BY_CASE rather than CCGT_CAPEX_KW
+#: because that name already existed in lp_model.py as a superseded SCALAR ($1,775/kW, a stale
+#: Lazard midpoint). Two live constants under one name -- one scalar, one dict -- is precisely the
+#: collision Rule 6.3 exists to prevent, and it was created on 2026-09-12 by adding this band to
+#: gas_lifecycle_cost.py without checking assumptions.py first.
+#:
+#: CENTRAL $2,500 by decision 2026-09-13. A single point figure is not defensible in this market:
+#: simple-cycle plant entering service in 2023 averaged $562/kW while 2025 costs range
+#: $728-1,544/kW -- a 2-3x move in two years -- and recent CCGT projects are "routinely reporting
+#: costs of $2,000/kW" against an earlier $1,116-1,427/kW range. What a reviewer asks is not "why
+#: $2,500" but "why ONE number in a market that moved 3x in two years". The band is the answer.
+#:
+#: Lazard also flags an "illustrative high case" of $2,400-2,600/kW for post-2028-COD CCGT
+#: reflecting market tightness, which brackets the central figure adopted here.
+CCGT_CAPEX_KW_BY_CASE = {'low': 2_000.0, 'central': 2_500.0, 'high': 3_200.0}
+
 #: New-build gas: the standing 2,862 MW pool the scenarios permit above the existing fleet
 #: (Appendix A #4), and the technology it is assumed to be.
 #:
@@ -973,6 +989,12 @@ PEAKER_CAPEX_KW_BY_TIER = {
     'medium': {'low': 1116.0, 'central': 1425.0, 'high': 1900.0},   # 50-250 MW
     'large':  {'low':  950.0, 'central': 1250.0, 'high': 1700.0},   # > 250 MW
 }
+
+#: New-build CT capital, $/kW. The 'medium' tier is the 100-250 MW "classic single new peaker"
+#: scale, the relevant unit size for filling a capacity gap. Defined HERE rather than beside
+#: CCGT_CAPEX_KW_BY_CASE because it derives from the table above and Python resolves module-level
+#: names in order -- placing it earlier raised NameError.
+CT_CAPEX_KW_BY_CASE = dict(PEAKER_CAPEX_KW_BY_TIER['medium'])
 # Fixed O&M by unit type, Gas Turbine World. Varies by TYPE rather than size tier -- an
 # aeroderivative carries materially higher fixed O&M than a frame machine of similar output.
 PEAKER_FOM_USD_PER_KW_YR = {

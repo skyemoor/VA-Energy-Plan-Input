@@ -41,25 +41,18 @@ from typing import Optional
 import assumptions
 
 
-#: CCGT overnight capital, $/kW, with a band.
-#:
-#: CENTRAL $2,500 by decision 2026-09-13. A single point figure is not defensible in this market:
-#: Gas_Consolidated_Reference.md section 6 records that simple-cycle plant entering service in 2023
-#: averaged $562/kW while 2025 costs range $728-1,544/kW -- a 2-3x move in two years -- and that
-#: "the most recent CCGT projects are routinely reporting costs of $2,000/kW" against an earlier
-#: $1,116-1,427/kW range.
-#:
-#: WHAT A REVIEWER WILL ASK, and why the band matters more than the level: not "why $2,500" but
-#: "why ONE number in a market that moved 3x in two years". The band is the answer. The crossover
-#: between CCGT and CT should be reported across it, not at the central value alone.
-#:
-#: The prior constant was $3,000/kW, above even the "routinely $2,000" recent reports. $2,500
-#: central sits between that and recent experience while leaving the high case above it.
-CCGT_CAPEX_KW = {'low': 2_000.0, 'central': 2_500.0, 'high': 3_200.0}
+#: Sourced from assumptions (Rule 6.1). Defined there rather than here because these were
+#: originally added in this module on 2026-09-12 WITHOUT checking assumptions.py first, and
+#: collided with lp_model.CCGT_CAPEX_KW -- a superseded scalar of $1,775/kW. Two live constants,
+#: one name, one a scalar and one a dict.
+CCGT_CAPEX_KW = assumptions.CCGT_CAPEX_KW_BY_CASE
+CT_CAPEX_KW = assumptions.CT_CAPEX_KW_BY_CASE
 
-#: CT capital, $/kW. Sourced from PEAKER_CAPEX_KW_BY_TIER 'medium' -- the 100-250 MW
-#: "classic single new peaker" scale, which is the relevant unit size for filling a capacity gap.
-CT_CAPEX_KW = dict(assumptions.PEAKER_CAPEX_KW_BY_TIER['medium'])
+# Rule 6.2 cross-check: CT capex is re-derived from the peaker tier table, so assert the two agree
+# rather than trusting them to stay in sync by convention.
+assert CT_CAPEX_KW == assumptions.PEAKER_CAPEX_KW_BY_TIER['medium'], (
+    'CT_CAPEX_KW_BY_CASE has drifted from PEAKER_CAPEX_KW_BY_TIER["medium"]; they are the same '
+    'figure and must agree.')
 
 
 @dataclass(frozen=True)

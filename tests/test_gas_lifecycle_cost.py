@@ -110,3 +110,33 @@ class TestTechnologyCrossover:
         higher capital is repaid, and any returned figure would be meaningless."""
         with pytest.raises(ValueError, match='no capacity factor at which'):
             estimate_technology_crossover_cf(2045, ccgt_marginal_mwh=90.0, ct_marginal_mwh=50.0)
+
+
+class TestConstantsLiveInAssumptions:
+    """Rule 6.1 and 6.3, after a violation found 2026-09-13.
+
+    CCGT_CAPEX_KW was added to gas_lifecycle_cost.py on 2026-09-12 without checking assumptions.py
+    first. It collided with lp_model.CCGT_CAPEX_KW -- a SUPERSEDED SCALAR of $1,775/kW, kept under
+    a _DO_NOT_USE_SUPERSEDED name and then re-aliased to the plain name one line later, which undid
+    the rename entirely. Two live constants, one name, one a scalar and one a dict; whichever
+    module a caller imported from decided which they got.
+    """
+
+    def test_bands_are_defined_in_assumptions(self):
+        assert hasattr(assumptions, 'CCGT_CAPEX_KW_BY_CASE')
+        assert hasattr(assumptions, 'CT_CAPEX_KW_BY_CASE')
+
+    def test_this_module_re_exports_rather_than_redefining(self):
+        assert CCGT_CAPEX_KW is assumptions.CCGT_CAPEX_KW_BY_CASE
+
+    def test_the_superseded_scalar_no_longer_has_a_plain_alias(self):
+        """The warning name is retained; the plain alias that defeated it is gone."""
+        import lp_model
+        assert not hasattr(lp_model, 'CCGT_CAPEX_KW'), 'the ambiguous alias has returned'
+        assert hasattr(lp_model, 'CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED')
+
+    def test_named_by_case_to_avoid_the_collision(self):
+        """Rule 7.2: a longer self-documenting name over a shorter ambiguous one. _BY_CASE also
+        signals a dict rather than a scalar, which was half the original confusion."""
+        assert 'BY_CASE' in 'CCGT_CAPEX_KW_BY_CASE'
+        assert isinstance(assumptions.CCGT_CAPEX_KW_BY_CASE, dict)

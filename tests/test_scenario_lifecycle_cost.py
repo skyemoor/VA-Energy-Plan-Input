@@ -12,7 +12,7 @@ import pytest
 
 import assumptions
 import lp_model as lp
-from gas_lifecycle_cost import CCGT_CAPEX_KW
+from assumptions import CCGT_CAPEX_KW_BY_CASE as CCGT_CAPEX_KW
 from scenario_lifecycle_cost import ScenarioLifecycleCost
 
 

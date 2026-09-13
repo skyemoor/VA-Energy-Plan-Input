@@ -322,6 +322,62 @@ evidence that it is still fixed.**
 
 ---
 
+## 2B. Constants audit against the SES — one live violation, and a fix that had been undone
+
+**Audited 2026-09-13.** `lp_model.py` holds **24 constants imported from `assumptions`** and **8
+defined locally**, so the module is well-disciplined overall. Across `lp_package`, 32 names are
+defined in more than one module; **31 of those pairs agree exactly** and are legitimate Rule 6.2
+re-derivations.
+
+### The violation
+
+| module | `CCGT_CAPEX_KW` | in `assumptions`? |
+|---|---|---|
+| `lp_model` | **1,775.0** — a scalar, `(1450+2100)/2` | no |
+| `gas_lifecycle_cost` | **`{low: 2000, central: 2500, high: 3200}`** — a dict | no |
+
+**Two live constants, one name, different values, one scalar and one dict.** Whichever module a
+caller imported from decided which they got. The dict was added 2026-09-12 without running Rule
+6.3's *"check assumptions.py first"*.
+
+### The part that had already been fixed, and undone
+
+`lp_model` line 62 renamed the stale value to `CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED`, with a comment
+explaining the rename existed so *"a future reader cannot use it incorrectly without having read a
+comment"* and warning about *"a future caller who greps for a constant name and finds the wrong one
+first."*
+
+**Line 73 then read `CCGT_CAPEX_KW = CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED`** — recreating exactly the
+condition the rename was written to close. Nothing referenced it, so the alias provided no
+compatibility, only the trap.
+
+**That is the fourth instance of a documented fix not holding**, alongside `all_hours_reserve`
+(dormant), the `t_peak` rename (reverted), and the distributed iron-air exclusion (documented in a
+comment, never implemented as a bound).
+
+### Fixed
+
+Bands moved to `assumptions` as `CCGT_CAPEX_KW_BY_CASE` and `CT_CAPEX_KW_BY_CASE` — `_BY_CASE` per
+Rule 7.2, since it also signals a dict rather than a scalar. `gas_lifecycle_cost` re-exports them
+with a Rule 6.2 assertion cross-checking CT against `PEAKER_CAPEX_KW_BY_TIER['medium']`. The plain
+alias is removed; the warning-named scalar stays.
+
+**`scripts/audit_documented_fixes.py` now checks this automatically** — it parses every module in
+`lp_package` and fails on any constant defined twice with different values. 256 constants, no
+conflicts remaining.
+
+### Still open, from the same audit
+
+- **`init_soc_frac=0.5`** — storage starts at half charge, an inline default with no source
+- **`c[IDX['nd']] = 100.0`** in the Scenario 2 objective, commented *"RAISED, was
+  na_cycling_cost"* — 18× the sourced cycling cost, for a reason not stated at the site
+- **`GAS_COST_MWH` and `FE_RTE_CHARGE` evaluated at a hardcoded 2044.5** at import, overridden per
+  checkpoint by `driver.set_year_capex()`. Any path that reads them without calling it first gets
+  2045 values silently
+- **`UNSERVED_PENALTY` and `NA_CYCLE_LIFE`** defined in `lp_model` rather than `assumptions`
+
+---
+
 ## 3. No import capability
 
 `export` exists (capped at `EXPORT_CAP_MW`, earning `export_price_mwh`). **`import` has zero

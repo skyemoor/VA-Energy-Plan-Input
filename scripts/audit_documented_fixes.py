@@ -76,6 +76,51 @@ def _identifier_used_in_code(source, name):
         return True
 
 
+
+def check_no_conflicting_duplicate_constants():
+    """Rule 6: a constant defined in two modules must hold the SAME value.
+
+    Rule 6.2 permits legitimate re-derivation with a cross-check assertion; Rule 6.3 requires
+    checking assumptions.py before adding a new name. This catches the case both rules exist to
+    prevent: two live constants, one name, different values -- where whichever module a caller
+    imported from decides which they get.
+
+    FOUND ONCE, 2026-09-13: CCGT_CAPEX_KW existed in lp_model.py as a superseded SCALAR
+    ($1,775/kW, a stale Lazard midpoint kept under a _DO_NOT_USE_SUPERSEDED name but re-aliased to
+    the plain name one line later) and in gas_lifecycle_cost.py as a low/central/high DICT
+    ($2,000/$2,500/$3,200). Neither was in assumptions.py.
+    """
+    import ast
+    import collections
+    pkg = os.path.join(REPO, 'lp_package')
+    defs = collections.defaultdict(dict)
+    for fname in sorted(os.listdir(pkg)):
+        if not fname.endswith('.py'):
+            continue
+        try:
+            tree = ast.parse(read('lp_package', fname))
+        except SyntaxError:
+            continue
+        for node in tree.body:
+            if not isinstance(node, ast.Assign):
+                continue
+            for t in node.targets:
+                if isinstance(t, ast.Name) and t.id.isupper() and not t.id.startswith('_'):
+                    try:
+                        defs[t.id][fname] = ast.literal_eval(node.value)
+                    except (ValueError, TypeError, SyntaxError):
+                        pass          # computed values cannot be compared statically
+    conflicts = []
+    for name, by_file in defs.items():
+        vals = list(by_file.values())
+        if len(by_file) > 1 and any(v != vals[0] for v in vals[1:]):
+            conflicts.append(f'{name} differs across {sorted(by_file)}')
+    if conflicts:
+        return False, ('conflicting duplicate constants: ' + '; '.join(conflicts)
+                       + '. Rule 6: move to assumptions.py, or cross-check with an assertion.')
+    return True, f'{len(defs)} module-level constants, no conflicting duplicates'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -136,6 +181,8 @@ def check_claim_matches_code(doc_path, claim_substring, code_check, description)
 
 
 CHECKS = [
+    ('no conflicting duplicate constants (Rule 6)', check_no_conflicting_duplicate_constants),
+
     ('all_hours_reserve is wired in',
      lambda: check_module_is_actually_called(
          'all_hours_reserve',

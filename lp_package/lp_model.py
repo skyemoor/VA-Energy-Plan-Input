@@ -70,7 +70,17 @@ CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED = (1450.0 + 2100.0) / 2.0   # = $1,775/kW
 # finds the wrong one first. A 2026-09-10 audit confirmed nothing references it.
 # Retained rather than deleted only because deletion would break any out-of-repo caller silently;
 # the name now makes misuse self-evident.
-CCGT_CAPEX_KW = CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED
+#
+# THE PLAIN ALIAS `CCGT_CAPEX_KW = CCGT_CAPEX_KW_DO_NOT_USE_SUPERSEDED` WAS REMOVED 2026-09-13.
+# It sat here and undid the rename entirely: the comment above warns about "a future caller who
+# greps for a constant name and finds the wrong one first", and the alias recreated exactly that
+# condition. Nothing in the repository referenced it -- verified before removal -- so the alias
+# provided no compatibility, only the trap the rename was written to close.
+#
+# It also collided with gas_lifecycle_cost.CCGT_CAPEX_KW (a low/central/high DICT, $2,000/$2,500/
+# $3,200), added 2026-09-12 without running the Rule 6.3 check. Two live constants, same name,
+# different values, one a scalar and one a dict -- whichever module a caller imported from decided
+# which they got. Use ccgt_capex_kw(year) below, or assumptions.CCGT_CAPEX_KW_BY_CASE for the band.
 
 
 def solar_capex(y):
