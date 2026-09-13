@@ -154,6 +154,7 @@ UNCALLED_BY_DESIGN = {
     'storage_accreditation.py':                      'accreditation analysis, run on demand',
     'large_ci_curtailment_feature.py':               'demand-side feature, not in the base scenarios',
     'supply_gap_analysis.py':                        'gap characterisation, run on solved results',
+    'levelised_cost.py':                             'SLCOE assembly; wired when the annual stream exists',
     'scenario2_all_hours_reserve.py':                'opt-in reserve test; measured 0.00% cost, never binds',
 }
 

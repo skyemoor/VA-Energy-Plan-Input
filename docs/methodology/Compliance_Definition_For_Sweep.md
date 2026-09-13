@@ -102,3 +102,63 @@ Items 2 and 5 are scenario variables in their own right. This is a second study,
 
 - `docs/methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md` §5–6 — the source findings
 - `docs/statutes/56-585.5.md` — the statute
+
+---
+
+# Levelisation — SLCOE from the annual stream
+
+**Added 2026-09-13**, `lp_package/levelised_cost.py`.
+
+```
+SLCOE = PV(annual costs) / PV(annual demand served)
+```
+
+at `WACC = 0.045` from `BASE_YEAR = 2026`.
+
+## Four checkpoints are not an SLCOE
+
+Averaging 2030/2035/2040/2045 weights each equally, ignores discounting, and misses that **demand
+grows 72% across the horizon** so later years carry far more MWh. `verify_complete()` raises on
+gaps, because a levelised figure over a partial stream looks identical to one over a complete
+stream and is wrong by however much is missing.
+
+Intermediate years come from **dispatch-only re-solves against an interpolated build** — cheap,
+since there are no build variables to optimise.
+
+## Terminal value is standard practice
+
+**NREL ATB**, identical across the 2021, 2023 and 2024 editions: *"A technical life that is longer
+than the cost recovery period means **residual value** may be left after costs have been
+recovered."* The ATB carries a technical-life table separate from the cost-recovery period
+precisely so this can be computed.
+
+**NREL 72217** treats it as a distinct valuation phase — *"produces a **residual value (RV)** of
+net earnings"* — and quantifies the LCOE effect of extending PV operational life from 20 to 30
+years.
+
+**European Commission methodology** gives the two accepted routes: the residual market value as if
+sold at the horizon, or the present value of net cash flows beyond the reference period.
+
+**With `CRF_LIFE_YEARS = 25` against a 20-year horizon, omitting terminal value is the choice that
+needs defending** — a plant built in 2044 would otherwise be charged in full and credited with
+nothing for 24 years of remaining service.
+
+### Why the EC's second method
+
+**It degrades correctly.** An asset with no post-horizon cash flows — gas stranded at 100%
+compliance — has **zero residual value by construction**, with no special-case rule. The first
+method would require deciding what a stranded plant would sell for, which is a judgement the model
+cannot make.
+
+`undepreciated_value(..., strands_at_horizon=True)` returns 0.0 regardless of book age: the plant
+exists, it is young, and it is worth nothing because it will never run again.
+
+### Reported both ways
+
+With and without the terminal-value credit, following the convention of the prior 20-year SLCOE
+work, so a reader can strip out an assumption they disagree with.
+
+## Applied to all assets in all scenarios
+
+Consistent treatment, per project decision 2026-09-13. An explicit `0.0` records that an asset was
+considered; an omission is indistinguishable from an oversight.
