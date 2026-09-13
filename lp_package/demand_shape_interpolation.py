@@ -106,14 +106,46 @@ def data_center_flattening_alpha(year):
 
 
 def _load_base_shape():
-    """Loads and normalizes the base (2023-vintage) hourly shape from the
-    user-uploaded stakeholder file, using its earliest available year
-    (2024) as the closest proxy. Returns an array summing to exactly 1.0."""
-    path = '/mnt/user-data/uploads/DOM-LSE-HourlyLoadProjections-2024-through-2048_formatted.csv'
-    df = pd.read_csv(path)
-    base = df[df['Year'] == BASE_SHAPE_YEAR].sort_values('DateTime')
-    mwh = base['MWh'].values.astype(float)
-    return mwh / mwh.sum()
+    """Loads and normalises the base hourly shape, returning an array summing to exactly 1.0.
+
+    HANDLES BOTH LAYOUTS OF THE SAME DATASET. This previously read a hardcoded path to a
+    `_formatted` variant carrying DateTime/MWh columns -- a file not present in the repository, so
+    the function raised and nothing could call it. paths.py already warns that the aliases for this
+    dataset mean "same dataset, different filename, NOT same layout", and the layout actually
+    available is wide: Year, Month, Day, 1..24.
+
+    Routed through paths.source_file() so the alias resolution built for this file is actually
+    used, rather than a hardcoded upload path that works on one machine.
+    """
+    import paths
+    df = pd.read_csv(paths.source_file('DOMLSEHourlyLoadProjections2024through2048.csv'))
+
+    if 'DateTime' in df.columns and 'MWh' in df.columns:
+        base = df[df['Year'] == BASE_SHAPE_YEAR].sort_values('DateTime')
+        mwh = base['MWh'].values.astype(float)
+    else:
+        # Wide layout: one row per day, hours 1..24 across columns. Melting preserves chronological
+        # order only if the sort is on (Month, Day, hour) -- sorting on the melted column label
+        # alone would interleave hour 10 between 1 and 2, since the labels are strings.
+        hour_cols = [c for c in df.columns if str(c).strip().isdigit()]
+        if len(hour_cols) != 24:
+            raise ValueError(
+                f'expected 24 hourly columns in the wide layout, found {len(hour_cols)}: '
+                f'{hour_cols[:6]}. The file may be a different vintage than this function expects.')
+        base = df[df['Year'] == BASE_SHAPE_YEAR].sort_values(['Month', 'Day'])
+        if base.empty:
+            raise ValueError(
+                f'no rows for BASE_SHAPE_YEAR {BASE_SHAPE_YEAR} in the source file; available '
+                f'years are {sorted(df["Year"].unique())[:6]}...')
+        mwh = base[hour_cols].values.astype(float).reshape(-1)
+
+    if mwh.sum() <= 0:
+        raise ValueError('base shape sums to zero or less; the source file is not usable')
+    if len(mwh) not in (8760, 8784):
+        raise ValueError(
+            f'base shape has {len(mwh)} hours, expected 8760 (or 8784 in a leap year). A partial '
+            'year would silently distort every intermediate-year demand array built from it.')
+    return mwh[:8760] / mwh[:8760].sum()
 
 
 _BASE_SHAPE_NORMALIZED = None  # lazy-loaded, cached module-level

@@ -162,3 +162,55 @@ work, so a reader can strip out an assumption they disagree with.
 
 Consistent treatment, per project decision 2026-09-13. An explicit `0.0` records that an asset was
 considered; an omission is indistinguishable from an oversight.
+
+---
+
+# The annual stream — intermediate-year demand
+
+**Repaired 2026-09-13.** `demand_shape_interpolation.flattened_hourly_demand(year, annual_total_gwh)`
+builds the hourly array for any year 2026–2045.
+
+## It was unusable
+
+`_load_base_shape()` read a hardcoded path to a **`_formatted` variant** carrying `DateTime`/`MWh`
+columns — a file not present in the repository — so it raised on every call. `paths.py` already
+warned that this dataset's aliases mean *"same dataset, different filename, **NOT** same layout"*,
+and the layout actually available is wide: `Year, Month, Day, 1..24`.
+
+The loader now handles both, routed through `paths.source_file()` so the alias resolution built for
+this file is actually used.
+
+## What it does
+
+Blends the base shape toward flat by an alpha tied to data-centre share growth:
+
+```
+demand(t) = annual_total × [ (1−a)·s_base(t) + a·(1/N) ]
+```
+
+| year | alpha |
+|---|---:|
+| 2026 | 0.031 |
+| 2045 | **0.243** |
+
+Data centres run a near-constant 24×7×365 profile and their share of DOM LSE sales grows through
+the horizon, so the true shape **genuinely flattens** rather than merely scaling. A static shape for
+2045 would understate how flat 2045's load really is.
+
+## The annual total is passed in, not looked up
+
+Deliberate, and it resolves what looked like a blocker. The module carries its own
+`_COMMERCIAL_AND_TOTAL_GWH` table at a **lower vintage** — 186,462 GWh at 2045 against our
+intermediates' 202,193, an 8.4% gap — but that table never reaches callers. The function's own
+docstring: *"NOT looked up internally, passed in explicitly, so this function has no silent
+dependency on which demand vintage/geography the caller has decided to use."*
+
+**So the SLCOE stream uses our own totals, interpolated between checkpoints, with this module
+supplying shape only.**
+
+## Appendix O is missing
+
+The module points at *"Reorganized_Appendices_Draft.md, Appendix O"* as the narrative half of a
+documented pair — *"Read Appendix O first if this is your first time here."* **No Appendix O exists
+in the appendix draft, under that name or any other.** The reasoning survives only in the module
+docstring, which is detailed but was written as the code-side half of a pair.
