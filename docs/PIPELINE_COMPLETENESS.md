@@ -312,3 +312,51 @@ problem materially harder to solve, and the 2045 checkpoint already takes ~253 s
 1. CAISO net-load investigation (current task)
 2. This task — zoning first, weather-driven prices second, since zoning is the statutory
    requirement and prices are the accuracy improvement
+
+---
+
+## Scenario 1 audit, 2026-09-13
+
+**Solves at the 100% endpoint.** 2045, `gas_target_share = 0.0000`, reserve margin applied, 179 s.
+
+| | |
+|---|---:|
+| Solar | **165,875 MW** |
+| Sodium-ion power / energy | 54,153 MW / 372,544 MWh (6.9 h) |
+| Iron-air energy | 3,805,143 MWh |
+| LP objective | **$26.07B** |
+
+Against Scenario 2's 34.7% and $10.46B: **14.5× the solar for 2.9× the clean energy.** That ratio
+is the sweep's subject.
+
+### Gas target trajectory
+
+| year | gas share | clean target | gas cap MW |
+|---|---:|---:|---:|
+| 2035 | 0.4100 | 59.0% | 12,224 |
+| 2040 | 0.2100 | 79.0% | 12,224 |
+| 2045 | 0.0000 | **100.0%** | **4,722** |
+
+**The cap collapses at 2045** — Schedule B's VCEA retirements. At 100% it does not bind because gas
+is zero anyway, but **at 90% and 95% it will**, and it is the cap that uses a different retirement
+schedule from the merit order (see `Gas_Consolidated_Reference.md` § 3).
+
+### `compute_tier123_final.py` RESTORED
+
+Recovered from the uploaded project files, 297 lines. `SocialCostRGGIMixin.compute_year_social_cost_rggi()`
+depends on it and had been raising.
+
+Verified end to end: `compute_year(2045, 500 MW flat, existing, new)` returns CO2 1,541,760 t,
+CH4 12,402 t, NOx 1,388 t, **SC-CO2 $577M, SC-GHG $642M, health $32M**, with the NOx blend computed
+from the existing/new split.
+
+Rule 6.2 cross-checks pass: `CPI_DEFLATOR_2020_TO_2026` (1.2902) and `HEAT_RATE_CCGT` (6.4) agree
+with `assumptions`.
+
+### Blocking the sweep
+
+**The cost figures are not yet comparable.** Scenario 2's $10.46B is full lifecycle — capital, FOM,
+operating. Scenario 1's $26.07B is the **LP objective**, which includes capital on build variables
+but not FOM on existing assets, and carries curtailment and unserved penalties. Until both are
+computed the same way they cannot be plotted on one chart, and the per-MWh figures
+($51.72 vs $128.92) should not be quoted.
