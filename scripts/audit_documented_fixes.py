@@ -121,6 +121,83 @@ def check_no_conflicting_duplicate_constants():
     return True, f'{len(defs)} module-level constants, no conflicting duplicates'
 
 
+
+#: Modules that legitimately have no production caller. Each needs a stated reason -- the point of
+#: the check is that "nothing imports this" should be a deliberate choice, not an accident.
+#: Import-detection pattern, defined as a plain template rather than an inline rf-string. Written
+#: inline, the \b word boundary was repeatedly mangled into a literal backspace by the tooling that
+#: edits this file, so the regex silently matched NOTHING and every module looked orphaned.
+RE_IMPORTS = r'(?:^|\W)(?:import\s+{m}\b|from\s+{m}\s+import)'
+
+UNCALLED_BY_DESIGN = {
+    'assumptions.py':      'the parameter surface; imported by nearly everything',
+    'paths.py':            'path resolution; imported by nearly everything',
+    'provenance.py':       'provenance helper',
+    '__init__.py':          'package marker',
+    # --- county-level siting estimates: standalone analyses whose OUTPUT (a MW or sqft figure)
+    # was transcribed into assumptions.py. The module is the derivation record, not a runtime
+    # dependency. Re-run by hand when a source dataset changes.
+    'arlington_ci_rooftop_solar_estimate.py':        'siting derivation; result filed in assumptions',
+    'chesapeake_ci_rooftop_solar_estimate.py':       'siting derivation; result filed in assumptions',
+    'prince_william_ci_rooftop_solar_estimate.py':   'siting derivation; result filed in assumptions',
+    'prince_william_parking_lot_density_estimate.py': 'siting derivation; result filed in assumptions',
+    'parking_ratio_basis.py':                        'siting derivation; result filed in assumptions',
+    'population_extrapolation.py':                   'siting derivation; result filed in assumptions',
+    'loudoun_load_shape_gap_analysis.py':            'one-off analysis, findings documented',
+    'loudoun_solar_firming.py':                      'one-off analysis, findings documented',
+    'agrivoltaic_basis.py':                          'land-use derivation; constants filed in assumptions',
+    'peaker_capex.py':                               'capex derivation; PEAKER_CAPEX_KW_BY_TIER filed in assumptions',
+    'der_revenue_stack.py':                          'reporting helper for the whitepaper, not the LP',
+    'gas_outage_stress.py':                          'stress analysis, findings documented',
+    'foresight_bracket.py':                          'bracketing analysis for issue #5',
+    'charging_adequacy.py':                          'storage adequacy check, run on demand',
+    'storage_accreditation.py':                      'accreditation analysis, run on demand',
+    'large_ci_curtailment_feature.py':               'demand-side feature, not in the base scenarios',
+    'supply_gap_analysis.py':                        'gap characterisation, run on solved results',
+    'scenario2_all_hours_reserve.py':                'opt-in reserve test; measured 0.00% cost, never binds',
+}
+
+
+def check_no_orphaned_modules():
+    """Rule 1: a module built and documented as the standard, then never wired in, is a defect.
+
+    THE PATTERN THIS CATCHES has recurred five times in this project:
+      - all_hours_reserve.py           documented as "current standard", never imported
+      - the t_peak rename              done, then reverted
+      - distributed iron-air exclusion documented in a comment, never implemented as a bound
+      - CCGT_CAPEX_KW                  renamed to _DO_NOT_USE_SUPERSEDED, then re-aliased back
+      - demand_shape_interpolation.py  built for "intermediate-year dispatch-only re-solves",
+                                       referenced only by a test
+
+    Each was found by hand, months apart. A module imported ONLY by tests is doing no work in the
+    pipeline, whatever its docstring claims.
+    """
+    import re
+    pkg = os.path.join(REPO, 'lp_package')
+    modules = {f[:-3] for f in os.listdir(pkg)
+               if f.endswith('.py') and f not in UNCALLED_BY_DESIGN}
+    importers = {m: set() for m in modules}
+    for root in ('lp_package', '.'):
+        d = os.path.join(REPO, root)
+        for fname in os.listdir(d):
+            if not fname.endswith('.py'):
+                continue
+            src = read(root, fname) if root != '.' else read(fname)
+            if not src:
+                continue
+            for m in modules:
+                if fname == m + '.py':
+                    continue
+                if re.search(RE_IMPORTS.format(m=re.escape(m)), src):
+                    importers[m].add(fname)
+    orphans = sorted(m for m, imp in importers.items() if not imp)
+    if orphans:
+        return False, ('module(s) imported by nothing in the pipeline (tests do not count): '
+                       + ', '.join(orphans)
+                       + '. Either wire it in or record why it is uncalled in UNCALLED_BY_DESIGN.')
+    return True, f'{len(modules)} modules, all imported by production code'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -182,6 +259,7 @@ def check_claim_matches_code(doc_path, claim_substring, code_check, description)
 
 CHECKS = [
     ('no conflicting duplicate constants (Rule 6)', check_no_conflicting_duplicate_constants),
+    ('no orphaned modules (Rule 1)', check_no_orphaned_modules),
 
     ('all_hours_reserve is wired in',
      lambda: check_module_is_actually_called(
