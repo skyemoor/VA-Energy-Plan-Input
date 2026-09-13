@@ -353,10 +353,43 @@ from the existing/new split.
 Rule 6.2 cross-checks pass: `CPI_DEFLATOR_2020_TO_2026` (1.2902) and `HEAT_RATE_CCGT` (6.4) agree
 with `assumptions`.
 
-### Blocking the sweep
+### Cost accounting reconciled — 2026-09-13
 
-**The cost figures are not yet comparable.** Scenario 2's $10.46B is full lifecycle — capital, FOM,
-operating. Scenario 1's $26.07B is the **LP objective**, which includes capital on build variables
-but not FOM on existing assets, and carries curtailment and unserved penalties. Until both are
-computed the same way they cannot be plotted on one chart, and the per-MWh figures
-($51.72 vs $128.92) should not be quoted.
+**The two objectives contain different things, and confusing them would double-count billions:**
+
+| | contains |
+|---|---|
+| `build_scenario2_problem` | dispatch-only — **no capital, no FOM, on anything** |
+| `build_problem` | capital **and** FOM on **built** assets already inside the objective |
+
+So the adjustments differ. Scenario 2 needs capital and FOM added for every asset. Scenario 1 needs
+**FOM on existing assets only** — adding capital again would price its 165,875 MW of solar twice.
+
+**Three adjustments on the `build_problem` side, only one an addition:**
+
+1. **FOM on existing assets — added.** The objective has no term for capacity it did not build.
+2. **Curtailment penalty — removed.** `apply_slcr_constraint(curt_cost=5.0)` discourages
+   curtailment in dispatch; it does not price it. Netted out of **every** scenario — Scenario 2's
+   happens to be zero, and that symmetry is the point.
+3. **Unserved penalty — asserted zero, not adjusted.** At $100,000/MWh it would dominate any total
+   it appeared in, so a nonzero value is a failed solve rather than a cost. Raises.
+
+### Scenario 1 at 2045, 100% — SLCOE basis
+
+| | |
+|---|---:|
+| LP objective | $26.07B |
+| less curtailment penalty | −$0.81B |
+| plus existing-solar FOM | +$0.12B |
+| **total** | **$25.38B** |
+| | **$125.52/MWh** |
+
+**Curtailment is 161.5 TWh against 202.2 TWh of demand** — the system generates roughly 364 TWh to
+serve 202. That is the cost of reaching 100% with solar and storage alone, and it is the single
+most consequential number the sweep will trace.
+
+### Still not fully comparable
+
+**Existing gas FOM is not yet included on the Scenario 1 side.** Schedule B leaves 1,860 MW at 2045,
+which does not run at 100% compliance but still costs money to keep available. Small against
+$25.38B, but it should be added before the figures are published side by side.

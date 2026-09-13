@@ -77,6 +77,65 @@ class ScenarioLifecycleCost:
         self.assets: List[AssetCost] = []
         self.warnings: List[str] = []
 
+    @classmethod
+    def from_build_problem_result(cls, year, result, existing_assets,
+                                  curtailment_mwh=0.0, unserved_mwh=0.0,
+                                  curtailment_penalty_usd_per_mwh=5.0,
+                                  capital_recovery_factor=None):
+        """Lifecycle cost for a scenario solved through `lp_model.build_problem`.
+
+        THIS IS NOT THE SAME ADJUSTMENT AS SCENARIO 2's, and confusing the two would double-count
+        billions. The two objectives contain different things:
+
+            build_scenario2_problem   dispatch-only. NO capital, NO FOM, on anything.
+                                      -> add capital and FOM for every asset.
+            build_problem             capital AND FOM on BUILT assets are already in the
+                                      objective: c[UTILITY_SOLAR_MW] = CRF*SOLAR_CAPEX*1000 +
+                                      SOLAR_OM*1000, and the storage energy terms carry
+                                      STOR_FOM_PCT.
+                                      -> add FOM on EXISTING assets only. Adding capital again
+                                         would count the build twice.
+
+        THREE ADJUSTMENTS, and only one of them is an addition:
+
+        1. FOM on EXISTING assets -- ADDED. A plant already paid for still costs money to keep
+           available, and the objective has no term for capacity it did not build.
+
+        2. CURTAILMENT PENALTY -- REMOVED. `apply_slcr_constraint(curt_cost=5.0)` exists to
+           discourage curtailment in dispatch, not to price it. Real curtailment does cost
+           something -- foregone RECs, PPA curtailment payments -- but not $5/MWh, and not as a
+           cheque anyone writes. At 100% compliance the build is large enough that curtailment
+           reaches tens of TWh, so leaving it in makes high-compliance scenarios look worse by an
+           amount that GROWS WITH OVERBUILD, which is exactly where the sweep is most sensitive.
+
+           It is netted out of every scenario, not only the clean ones. Scenario 2's happens to be
+           zero, so its total is unchanged -- that symmetry is the point, and a reviewer seeing "a
+           cost was removed from the clean scenario" needs it stated.
+
+        3. UNSERVED PENALTY -- ASSERTED ZERO, not adjusted. At $100,000/MWh it would dominate any
+           total it appeared in, so a nonzero value is a failed solve rather than a cost. Raises.
+        """
+        if unserved_mwh > 1.0:
+            raise ValueError(
+                f'unserved energy is {unserved_mwh:,.1f} MWh, not zero. At $100,000/MWh that term '
+                f'contributes ${unserved_mwh * 100_000 / 1e9:,.2f}B and would dominate the total. '
+                'A solve with unserved energy has failed verify_result() and its cost is not '
+                'meaningful -- fix the solve rather than costing it.')
+
+        curtailment_usd = curtailment_mwh * curtailment_penalty_usd_per_mwh
+        c = cls(year, operating_cost_usd=float(result['obj']) - curtailment_usd,
+                capital_recovery_factor=capital_recovery_factor)
+        c.objective_usd = float(result['obj'])
+        c.curtailment_removed_usd = curtailment_usd
+        c.curtailment_mwh = curtailment_mwh
+        for name, mw, capex, fom in existing_assets:
+            # new_mw=0 throughout: build_problem already charged capital and FOM on what it built.
+            c.add_asset(name, existing_mw=mw, new_mw=0.0, capex_usd_per_kw=capex,
+                        fixed_om_usd_per_kw_yr=fom,
+                        note='existing asset -- FOM only; capital is sunk, and any NEW build of '
+                             'this type is already priced inside the LP objective')
+        return c
+
     def add_asset(self, name, existing_mw, new_mw, capex_usd_per_kw,
                   fixed_om_usd_per_kw_yr=0.0, note=''):
         """Adds one asset class. Capital is charged on `new_mw` only; FOM on both.
@@ -135,6 +194,9 @@ class ScenarioLifecycleCost:
             'assets': [{'name': a.name, 'existing_mw': a.existing_mw, 'new_mw': a.new_mw,
                         'annualised_capital_usd': a.annualised_capital_usd,
                         'fixed_om_usd': a.fixed_om_usd, 'note': a.note} for a in self.assets],
+            'objective_usd': getattr(self, 'objective_usd', None),
+            'curtailment_removed_usd': getattr(self, 'curtailment_removed_usd', 0.0),
+            'curtailment_mwh': getattr(self, 'curtailment_mwh', 0.0),
             'warnings': list(self.warnings),
             'caveats': self.stranding_caveat(),
         }
