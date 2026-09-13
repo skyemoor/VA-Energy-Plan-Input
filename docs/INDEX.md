@@ -104,6 +104,7 @@ of the other.
 | `research/Dominion_FRR_RPM_Status.md` | **Which capacity construct Dominion operates under** — FRR terminated May 2024, currently RPM; what that means for self-supply assumptions |
 | **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
+| **`Session_Handoff_2026-09-13.md`** | **START HERE** — the Scenario 2 SLCOE, corrections to published figures, defects fixed, and what is next |
 | **`appendices/Appendix_P_Solve_Procedure.md`** | **THE SOLVE REQUIREMENTS.** Thirteen general rules applying to every scenario and every solve, plus disclosed gaps. Added to the repo 2026-09-13 |
 | **`methodology/Scenario_Restructuring_Compliance_Sweep.md`** | **START HERE for the whitepaper's structure** — compliance as the axis, the counterfactual, what the sweep drops |
 | `methodology/Scenario2_Runnability_Audit.md` | Why the baseline scenario is not currently runnable — three blockers |
