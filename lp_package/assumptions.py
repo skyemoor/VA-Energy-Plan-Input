@@ -247,6 +247,44 @@ GAS_HEAT_RATE_CT_AERODERIVATIVE = 9.5    # = SIMPLE_CYCLE_HEAT_RATE; modern aero
 GAS_HEAT_RATE_CT_FLEET = 10.999          # EIA Table 8.2, 2024 gas turbine
 GAS_HEAT_RATE_STEAM = 10.337             # EIA Table 8.2, 2024 gas steam generator
 
+# ============================================================================
+# COMPLIANCE SWEEP -- axis definition
+# ============================================================================
+# The sweep axis is CLEAN GENERATION SHARE, not statutory RPS percentage. They are different
+# quantities and the difference is large: at 2045, 100% on the model's measure requires ~121,000
+# GWh of new clean generation; the statutory measure requires ~75,000 GWh, because § 56-585.5(A)
+# EXCLUDES in-Commonwealth nuclear operating by 1 July 2020 from the compliance base while the
+# model counts it as clean. Opposite treatments of the same 32,000 GWh.
+#
+# Generation share is used because it is physically answerable from a dispatch model, and because
+# it is the STRICTER of the two at the endpoint -- a cost curve built on it does not understate
+# what compliance demands. The statutory measure would additionally require ACEB participation
+# assumptions (opt-in, aggregating across affiliates, "plausibly the single largest lever"),
+# § H legacy load, and a REC accounting layer including out-of-state eligibility. That is a second
+# study, not an axis change.
+#
+# See docs/methodology/Compliance_Definition_For_Sweep.md.
+COMPLIANCE_SWEEP_LEVELS = (0.75, 0.80, 0.85, 0.90, 0.95, 1.00)
+
+#: gas_allowed_frac corresponding to each sweep level. The model constrains GAS share, so a
+#: compliance level of 0.90 is a gas allowance of 0.10.
+def gas_allowed_frac_for_compliance(compliance_level):
+    if not 0.0 <= compliance_level <= 1.0:
+        raise ValueError(
+            f'compliance_level must be in [0, 1], got {compliance_level!r}. It is a SHARE of clean '
+            'generation, not a percentage -- pass 0.9 for 90%.')
+    return 1.0 - compliance_level
+
+COMPLIANCE_AXIS_LABEL = 'clean generation share'
+
+COMPLIANCE_AXIS_CAVEAT = (
+    'The sweep axis is CLEAN GENERATION SHARE, not statutory VCEA compliance percentage. Nuclear '
+    'counts as clean in this model and is EXCLUDED from the statutory compliance base under '
+    '§ 56-585.5(A), so the two differ by roughly 46,000 GWh at the 100% point -- about 38%. Any '
+    'chart or table using this axis must label it as generation share and state the nuclear '
+    'treatment. Scenario 2\'s plotted point uses the same definition and is therefore comparable '
+    'to the curve, but is NOT a statement about whether that build satisfies § 56-585.5.')
+
 #: New-build gas: the standing 2,862 MW pool the scenarios permit above the existing fleet
 #: (Appendix A #4), and the technology it is assumed to be.
 #:
@@ -350,14 +388,22 @@ CT_VOM_MWH = 5.0
 #: serves zonal load. Doswell, Marsh Run (ODEC), Louisa (ODEC) and Gordonsville are in
 #: for the same reason.
 #:
+#: FILTER BUG FIXED 2026-09-13, and it was substantial. The CHP exclusion was written as
+#: `~Sector.str.contains('CHP')` -- and 'IPP Non-CHP' CONTAINS the substring 'CHP', so the filter
+#: excluded every NON-CHP independent producer: exactly the merchant plant it was meant to include.
+#: Doswell (1,313 MW), Tenaska Virginia (1,011) and Potomac Energy Center (812) were all dropped.
+#: 3,136 MW, about 30% of the DOM-zone fleet, silently missing. The correct test is
+#: `endswith('CHP') & ~contains('Non-CHP')`.
+#:
 #: TWO FILTERS APPLIED, both deliberate:
 #:   APCo TERRITORY EXCLUDED -- Clinch River, Wolf Hills, Buchanan and the southwest
 #:   Virginia industrial units are in Appalachian Power's zone, not DOM. Filtered by
 #:   county, since EIA-860 carries no PJM zone field.
-#:   CHP EXCLUDED -- Industrial and IPP CHP (Celanese, Radford Army Ammunition, Hopewell
-#:   Cogeneration, Virginia Tech, Spruance, Park 500, Georgia-Pacific, HP Hood, Elkton)
-#:   run to serve host steam loads, not economic dispatch. Including them in a merit
-#:   order would imply a dispatch decision their operators do not make.
+#:   TRUE CHP EXCLUDED -- Industrial CHP and IPP CHP (Celanese, Radford Army Ammunition,
+#:   Hopewell Cogeneration, Virginia Tech, Spruance, Park 500, Georgia-Pacific, HP Hood,
+#:   Elkton) run to serve host steam loads, not economic dispatch. Including them in a
+#:   merit order would imply a dispatch decision their operators do not make. NOTE this
+#:   means 'IPP Non-CHP' is KEPT -- see the filter bug above.
 #:
 #: THREE BASES, all retained. Mixing nameplate with net summer created a phantom
 #: 1,167 MW discrepancy on 2026-09-11 and produced two wrong hypotheses before the units
@@ -367,7 +413,7 @@ CT_VOM_MWH = 5.0
 #:   net winter     same at winter ambient -- HIGHER for gas, since cold dense air
 #:                  raises compressor mass flow
 #:
-#: WINTER EXCEEDS SUMMER BY 11.4% fleet-wide (10,596 vs 9,512 MW). That matters here:
+#: WINTER EXCEEDS SUMMER BY 10.1% fleet-wide (13,673 vs 12,414 MW). That matters here:
 #: the DOM zone's winter peak (25,413 MW, 2025-26) now EXCEEDS its summer peak (23,905
 #: MW, 2025), and winter has grown far faster (+45% since 2019-20 against +23%). If the
 #: binding hour is a winter evening -- which a high-solar system makes likely -- then net
@@ -381,28 +427,35 @@ CT_VOM_MWH = 5.0
 #: Using net winter without that caveat would overstate cold-snap gas availability.
 GAS_PLANT_CAPACITY_MW = {
     # plant: (rung, nameplate, net_summer, net_winter)
-    'Greensville County Power Station': ('ccgt_modern', 1_773.3, 1_605.0, 1_727.3),
-    'Warren County':                    ('ccgt_modern', 1_472.2, 1_370.0, 1_485.0),
-    'Brunswick County Power Station':   ('ccgt_modern', 1_472.2, 1_376.0, 1_511.8),
-    'Ladysmith':                        ('ct_fleet',      892.5,   789.0,   935.0),
-    'Remington':                        ('ct_fleet',      705.5,   614.0,   760.0),
-    'Possum Point':                     ('ccgt_fleet',    613.0,   571.0,   630.0),
-    'Marsh Run Generation Facility':    ('ct_fleet',      597.0,   484.0,   576.0),
-    'Bear Garden':                      ('ccgt_fleet',    559.0,   628.0,   644.0),
-    'Louisa Generation Facility':       ('ct_fleet',      546.0,   466.0,   555.0),
-    'Chesterfield':                     ('ccgt_legacy',   446.6,   386.0,   466.0),
-    'Elizabeth River Power Station':    ('ct_fleet',      388.8,   325.0,   351.0),
-    'Darbytown':                        ('ct_fleet',      368.4,   340.0,   359.0),
-    'Gravel Neck':                      ('ct_fleet',      367.6,   340.0,   356.0),
+    'Greensville County Power Station': ('ccgt_modern', 1_773.3, 1_605.1, 1_727.6),
+    'Warren County':                    ('ccgt_modern', 1_472.2, 1_369.9, 1_485.0),
+    'Brunswick County Power Station':   ('ccgt_modern', 1_472.2, 1_376.0, 1_511.5),
+    'Tenaska Virginia Generating Station': ('ccgt_fleet', 1_011.4, 937.4, 981.2),
+    'Ladysmith':                        ('ct_fleet',      892.5,   788.9,   935.0),
+    'Potomac Energy Center, LLC':       ('ccgt_modern',   812.0,   766.0,   770.0),
+    'Doswell Energy Center (CC)':       ('ccgt_legacy',   752.0,   701.5,   762.0),
+    'Remington':                        ('ct_fleet',      705.5,   613.7,   760.0),
+    'Possum Point':                     ('ccgt_fleet',    613.0,   570.7,   630.0),
+    'Marsh Run Generation Facility':    ('ct_fleet',      596.7,   484.0,   576.0),
+    'Doswell Energy Center (CT)':       ('ct_fleet',      561.0,   496.7,   564.0),
+    'Bear Garden':                      ('ccgt_fleet',    559.0,   628.2,   644.0),
+    'Louisa Generation Facility':       ('ct_fleet',      545.7,   466.0,   555.0),
+    'Chesterfield':                     ('ccgt_legacy',   446.6,   386.0,   465.5),
+    'Elizabeth River Power Station':    ('ct_fleet',      388.8,   325.0,   351.3),
+    'Darbytown':                        ('ct_fleet',      368.4,   340.0,   358.7),
+    'Gravel Neck':                      ('ct_fleet',      367.6,   340.0,   355.6),
     'Gordonsville Energy LP':           ('ccgt_legacy',   300.4,   218.0,   240.0),
     'Martinsville LFG Generator':       ('ccgt_fleet',      1.1,     1.0,     1.0),
 }
-GAS_DOM_ZONE_NAMEPLATE_MW = 10_503.6
-GAS_DOM_ZONE_NET_SUMMER_MW = 9_513.0
-GAS_DOM_ZONE_NET_WINTER_MW = 10_596.1
+#: Doswell Energy Center appears TWICE because it has both combined-cycle and combustion-turbine
+#: units, which belong to different rungs. Keyed '(CC)' and '(CT)' rather than summed, since
+#: summing would put 1,313 MW on whichever rung happened to be chosen.
+GAS_DOM_ZONE_NAMEPLATE_MW = 13_639.4
+GAS_DOM_ZONE_NET_SUMMER_MW = 12_414.1
+GAS_DOM_ZONE_NET_WINTER_MW = 13_673.4
 
 GAS_SEASONAL_BASIS_NOTE = (
-    'Net WINTER capability exceeds net SUMMER by 11.4% fleet-wide (10,596 vs 9,512 MW), '
+    'Net WINTER capability exceeds net SUMMER by 10.1% fleet-wide (13,673 vs 12,414 MW), '
     'because cold dense air raises compressor mass flow. The DOM zone now peaks in '
     'WINTER (25,413 MW in 2025-26 against 23,905 MW summer 2025, winter growing +45% '
     'since 2019-20 against +23%), so net summer may be the wrong derate for the binding '

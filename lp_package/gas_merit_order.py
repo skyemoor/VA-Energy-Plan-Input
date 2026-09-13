@@ -132,10 +132,16 @@ class GasMeritOrder:
                                  applied as a per-hour upper bound on IDX['g']
             this stack           sum of rung capacities, net summer x availability
 
-        They disagree, AND THE DIRECTION FLIPS BETWEEN CHECKPOINTS:
+        They disagree:
 
-            2030-2040   cap 12,224 MW   stack  8,752 MW   -> stack binds
-            2045        cap  4,722 MW   stack  6,914 MW   -> cap binds
+            2030-2040   cap 12,224 MW   stack 14,054 MW   -> cap binds
+            2045        cap  4,722 MW   stack 12,216 MW   -> cap binds
+
+        FIGURES REVISED 2026-09-13 after a filter bug was found: the CHP exclusion was written as
+        ~contains('CHP'), and 'IPP Non-CHP' CONTAINS 'CHP', so every merchant independent producer
+        was silently dropped -- Doswell, Tenaska and Potomac Energy Center, 3,136 MW, about 30% of
+        the DOM-zone fleet. With them restored the STACK NO LONGER BINDS in any year; the scenario
+        cap governs throughout. The direction no longer flips.
 
         The cause is that they use DIFFERENT RETIREMENT SCHEDULES. This stack applies Schedule A
         (physical: Bear Garden 2041, Warren County 2044). schedule_b_baseline_mw applies Schedule B

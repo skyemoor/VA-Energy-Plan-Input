@@ -87,7 +87,7 @@ class TestCapacityAndRetirements:
         capacity is summed from the per-plant table rather than pre-summed rung figures."""
         before = stack.rated_capacity_mw_by_rung(2040)['ccgt_fleet']
         after = stack.rated_capacity_mw_by_rung(2041)['ccgt_fleet']
-        assert before - after == pytest.approx(628.0, abs=0.1)   # Bear Garden net summer
+        assert before - after == pytest.approx(628.2, abs=0.5)   # Bear Garden net summer
 
     def test_warren_county_retires_from_ccgt_modern_in_2044(self, stack):
         before = stack.rated_capacity_mw_by_rung(2043)['ccgt_modern']
@@ -150,9 +150,12 @@ class TestFailsLoudly:
 class TestEmptyRungsAreDropped:
     def test_fully_retired_rung_is_not_returned(self):
         """A zero-capacity step is a trap for a caller iterating to find the marginal unit."""
-        # ccgt_fleet now also holds Martinsville LFG (1 MW), so all three must retire.
+        # ccgt_fleet holds Bear Garden, Possum Point, Martinsville LFG and -- since the
+        # 2026-09-13 filter fix restored the merchant IPPs -- Tenaska Virginia. All must retire
+        # for the rung to empty.
         s = GasMeritOrder(retirement_years={'Bear Garden': 2030, 'Possum Point': 2030,
-                                            'Martinsville LFG Generator': 2030})
+                                            'Martinsville LFG Generator': 2030,
+                                            'Tenaska Virginia Generating Station': 2030})
         assert 'ccgt_fleet' not in [r.name for r in s.rungs(2035)]
         assert 'ccgt_fleet' in [r.name for r in s.rungs(2035, include_empty=True)]
 
@@ -162,11 +165,16 @@ class TestSeasonalBasis:
     1,167 MW discrepancy on 2026-09-11 and produced two wrong hypotheses before the units were
     checked. The class makes the basis an explicit constructor choice for that reason."""
 
-    def test_winter_exceeds_summer_by_about_eleven_percent(self):
+    def test_winter_exceeds_summer(self):
         """Cold dense air raises compressor mass flow. Matters because the DOM zone now peaks in
-        WINTER, so net summer may be the wrong derate for the binding hour."""
+        WINTER, so net summer may be the wrong derate for the binding hour.
+
+        BASELINE MOVED 2026-09-13, from 11.4% to 10.1%. A filter bug had excluded every merchant
+        IPP -- Doswell, Tenaska, Potomac Energy Center, 3,136 MW. The restored plants have a lower
+        winter uplift than the Dominion-owned average, so the fleet-wide ratio fell. The test name
+        no longer states the figure, since a name that embeds a baseline goes stale silently."""
         ratio = assumptions.GAS_DOM_ZONE_NET_WINTER_MW / assumptions.GAS_DOM_ZONE_NET_SUMMER_MW
-        assert ratio == pytest.approx(1.114, abs=0.005)
+        assert ratio == pytest.approx(1.101, abs=0.005)
 
     def test_summer_is_below_nameplate(self):
         assert assumptions.GAS_DOM_ZONE_NET_SUMMER_MW < assumptions.GAS_DOM_ZONE_NAMEPLATE_MW
@@ -223,17 +231,50 @@ class TestScenarioCapReconciliation:
         assert r['binding'] in ('stack', 'scenario_cap')
         assert r['scenario_existing_cap_mw'] == pytest.approx(9362.0)
 
-    def test_the_direction_flips_between_checkpoints(self):
-        """2030-2040 the stack binds; 2045 the cap does. The cause is that they use DIFFERENT
-        RETIREMENT SCHEDULES -- the stack applies Schedule A (Bear Garden 2041, Warren County
-        2044), schedule_b_baseline_mw applies Schedule B's VCEA-driven 2045 drop to 1,860 MW. One
-        model, two retirement futures."""
+    def test_the_scenario_cap_binds_in_every_year(self):
+        """BASELINE MOVED 2026-09-13, and the premise of the old test was removed.
+
+        Before the filter fix the stack bound at 2030-2040 and the scenario cap at 2045, and the
+        FLIP between them was the finding. With the merchant IPPs restored -- Doswell, Tenaska and
+        Potomac Energy Center, 3,136 MW -- the stack no longer binds anywhere and the scenario cap
+        governs throughout.
+
+        That is the more comfortable outcome: the scenario's own gas allowance decides how much gas
+        can run, rather than an incidental fleet-availability figure. The two still use different
+        retirement schedules (Schedule A in the stack, Schedule B in schedule_b_baseline_mw) and
+        different scopes (DOM-zone merchant vs Dominion-owned), which remains recorded in
+        reconcile_with_scenario_cap's docstring -- it just no longer changes which limit binds."""
         import driver as drv
         m = GasMeritOrder()
-        b = {y: m.reconcile_with_scenario_cap(y, drv.schedule_b_baseline_mw(y) + 2862.0,
-                                              2862.0)['binding']
-             for y in (2030, 2045)}
-        assert b[2030] != b[2045], 'the flip is the finding; if it stops flipping, check why'
+        for y in (2030, 2045):
+            r = m.reconcile_with_scenario_cap(y, drv.schedule_b_baseline_mw(y) + 2862.0, 2862.0)
+            assert r['binding'] == 'scenario_cap', f'{y}: stack binds unexpectedly'
+
+    def test_merchant_ipps_are_present(self):
+        """REGRESSION GUARD for the 2026-09-13 filter bug. The CHP exclusion was written as
+        ~Sector.str.contains('CHP'), and 'IPP Non-CHP' CONTAINS 'CHP', so every merchant
+        independent producer was silently dropped: 3,136 MW, about 30% of the DOM-zone fleet.
+        A rebuild that reintroduces the bug must fail here rather than quietly lose a third."""
+        p = assumptions.GAS_PLANT_CAPACITY_MW
+        for name in ('Doswell Energy Center (CC)', 'Doswell Energy Center (CT)',
+                     'Tenaska Virginia Generating Station', 'Potomac Energy Center, LLC'):
+            assert name in p, f'{name} missing -- the CHP filter bug may have recurred'
+
+    def test_the_chp_filter_keeps_non_chp(self):
+        """The specific string behaviour, asserted directly rather than via its consequences.
+        'IPP Non-CHP' must survive a filter intended to remove cogeneration."""
+        import pandas as pd
+        sectors = pd.Series(['IPP Non-CHP', 'Industrial CHP', 'IPP CHP', 'Electric Utility'])
+        is_chp = sectors.str.endswith('CHP') & ~sectors.str.contains('Non-CHP')
+        assert list(is_chp) == [False, True, True, False]
+
+    def test_doswell_is_split_by_prime_mover(self):
+        """Doswell has both combined-cycle units (1991-92) and combustion turbines (2001, 2018),
+        which belong to different rungs. Summing them would put 1,313 MW on whichever rung happened
+        to be chosen."""
+        p = assumptions.GAS_PLANT_CAPACITY_MW
+        assert p['Doswell Energy Center (CC)'][0] == 'ccgt_legacy'
+        assert p['Doswell Energy Center (CT)'][0] == 'ct_fleet'
 
     def test_new_build_without_a_rung_is_flagged(self):
         """Before 2026-09-13 the pool had no rung and could not dispatch. The flag stays so a

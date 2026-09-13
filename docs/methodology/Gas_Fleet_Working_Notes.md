@@ -216,16 +216,23 @@ Marsh Run (ODEC), Louisa (ODEC) and Gordonsville are in for the same reason.
 
 | basis | meaning | DOM-zone total |
 |---|---|---:|
-| nameplate | manufacturer rating at ISO conditions (59°F) | **10,503.6 MW** |
-| net summer | sustained output at ~95°F, net of station service | **9,513.0 MW** |
-| net winter | same at winter ambient | **10,596.1 MW** |
+| nameplate | manufacturer rating at ISO conditions (59°F) | **13,639.4 MW** |
+| net summer | sustained output at ~95°F, net of station service | **12,414.1 MW** |
+| net winter | same at winter ambient | **13,673.4 MW** |
+
+> **FIGURES REVISED 2026-09-13.** The CHP exclusion was written as
+> `~Sector.str.contains('CHP')` — and **`'IPP Non-CHP'` contains the substring `'CHP'`**, so the
+> filter removed every *non*-CHP independent producer: exactly the merchant plant it was meant to
+> keep. **Doswell (1,313 MW), Tenaska Virginia (1,011) and Potomac Energy Center (812) were all
+> dropped — 3,136 MW, about 30% of the DOM-zone fleet.** The correct test is
+> `endswith('CHP') & ~contains('Non-CHP')`. Nineteen plants now, not fifteen.
 
 `capacity_basis` is an explicit constructor argument defaulting to `net_summer`, and an invalid
 value raises. **Mixing nameplate with net summer created a phantom 1,167 MW discrepancy on
 2026-09-11 and produced two wrong hypotheses before the units were checked** — making the basis a
 named choice prevents a repeat.
 
-**Winter capability exceeds summer by 11.4%**, because cold dense air raises compressor mass flow.
+**Winter capability exceeds summer by 10.1%**, because cold dense air raises compressor mass flow.
 That matters here: **the DOM zone now peaks in winter** — 25,413 MW (2025–26) against 23,905 MW
 (summer 2025), with winter growing +45% since 2019–20 against +23%. If the binding hour is a winter
 evening, which a high-solar system makes likely, **net summer is the wrong derate** and understates
@@ -268,12 +275,18 @@ actually chosen, unlike the existing fleet, which is 100% frame.*
 
 | year | scenario cap | stack available | binds |
 |---|---:|---:|---|
-| 2030–2040 | 12,224 | 11,385 | **stack** |
-| 2045 | **4,722** | 9,547 | **cap** |
+| 2030–2040 | 12,224 | 14,054 | **cap** |
+| 2045 | 4,722 | 12,216 | **cap** |
+
+**The direction no longer flips.** Before the filter fix the stack bound at 2030–2040 and the cap
+at 2045, and that flip was itself the finding. With the merchant IPPs restored the stack no longer
+binds anywhere — **the scenario's own gas allowance governs throughout**, which is the more
+comfortable outcome: how much gas can run is decided by the scenario definition rather than by an
+incidental fleet-availability figure.
 
 `apply_gas_cap()` returns `schedule_b_baseline_mw(year) + 2,862`, applied as a **per-hour** upper
-bound on gas. The stack applies its own hourly availability. **Whichever binds first governs, and
-nobody decided which should.**
+bound on gas. The stack applies its own hourly availability. **Whichever binds first governs**, and before 2026-09-13 nobody
+had decided which should.
 
 **The cause is that they use different retirement schedules.** The stack applies **Schedule A**
 (physical: Bear Garden 2041, Warren County 2044). `schedule_b_baseline_mw` applies **Schedule B**
@@ -286,7 +299,7 @@ should apply:
   in nameplate terms, which is the right basis for that constraint.
 - **The stack limits how much can RUN in a given hour** — net summer capability × availability.
 
-A fleet can be capped at 9,362 MW nameplate *and* only deliver 8,752 MW on a summer afternoon.
+A fleet can be capped at 13,639 MW nameplate *and* only deliver 12,414 MW on a summer afternoon.
 Consistent statements.
 
 **Dispatch should use actual available energy.** Nameplate is a rating, not deliverable output. And
@@ -294,8 +307,13 @@ the flat availability factor is not merely a convenience: gas maintenance would 
 low-demand shoulder seasons, but **the nuclear profile already dips there**. With no scheduling
 freedom left to exploit, a flat derate is the honest representation.
 
-**Still unresolved:** Schedule B's 2045 figure of 1,860 MW is Chesterfield + Doswell + Possum
-Point, and **Doswell is an IPP**. It is in the stack's DOM-zone scope but not in a Dominion-owned
+**Doswell is now in the stack** (split `(CC)` 1991–92 → `ccgt_legacy` and `(CT)` 2001/2018 →
+`ct_fleet`, since summing would put 1,313 MW on whichever rung was chosen). So Schedule B naming it
+among the 2045 survivors is consistent.
+
+**Still unresolved:** Tenaska and Potomac Energy Center appear in **neither** schedule — the
+schedules are Dominion-owned documents and reconcile to VEPCO's 9,362 MW, while the stack is
+DOM-zone merchant. Different scopes by construction, not by error. It is in the stack's DOM-zone scope but not in a Dominion-owned
 schedule, so the two are not counting the same fleet. `reconcile_with_scenario_cap()` surfaces all
 of this rather than letting it bind silently. See issue #18.
 
