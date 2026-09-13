@@ -199,6 +199,44 @@ def check_no_orphaned_modules():
     return True, f'{len(modules)} modules, all imported by production code'
 
 
+
+def check_no_export_revenue_in_objectives():
+    """Appendix P.2 §8: "Export revenue must never appear inside any year-solve's own optimization
+    objective, in any scenario." A standing, project-wide rule.
+
+    WHY IT NEEDS A CHECK RATHER THAN A COMMENT: this exact bug has occurred twice. P.2 §8 records
+    the first -- an earlier Scenario 2 calculation included it, "carried over from Scenario 1/3's
+    code without reconsidering whether it belonged there", and the optimizer began running gas as a
+    profit-seeking merchant generator. It was found on 2026-09-13 to have returned, live and
+    unguarded in build_scenario2_problem while the equivalent in build_dispatch_problem sat behind
+    an `if include_export:` flag.
+
+    An unguarded assignment of a NEGATIVE cost to the export variable is the signature: negative
+    cost in a minimisation is revenue.
+    """
+    import re
+    src = read('lp_package', 'lp_model.py')
+    if not src:
+        return False, 'lp_model.py not readable'
+    offenders = []
+    for i, line in enumerate(src.split('\n'), 1):
+        stripped = line.strip()
+        if stripped.startswith('#'):
+            continue
+        if re.search(r"c\[hv\(t,\s*IDX\['e'\]\)\]\s*=\s*-", stripped):
+            # Guarded assignments are permitted -- the caller decides. Look back a few lines for
+            # the flag rather than assuming any nearby `if` is the right one.
+            window = src.split('\n')[max(0, i - 4):i - 1]
+            if not any('include_export' in w for w in window):
+                offenders.append(i)
+    if offenders:
+        return False, (f'export revenue assigned in the objective, unguarded, at line(s) '
+                       f'{offenders}. Appendix P.2 §8 forbids this in every scenario -- it gives '
+                       'the optimizer an incentive to overbuild purely to capture export revenue. '
+                       'Compute export POST-SOLVE from curtailment instead.')
+    return True, 'no unguarded export revenue in any objective (Appendix P.2 §8)'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -261,6 +299,7 @@ def check_claim_matches_code(doc_path, claim_substring, code_check, description)
 CHECKS = [
     ('no conflicting duplicate constants (Rule 6)', check_no_conflicting_duplicate_constants),
     ('no orphaned modules (Rule 1)', check_no_orphaned_modules),
+    ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
 
     ('all_hours_reserve is wired in',
      lambda: check_module_is_actually_called(

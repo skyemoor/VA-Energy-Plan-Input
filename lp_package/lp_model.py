@@ -897,7 +897,26 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
     fe_cycling_cost = (FE_ENERGY_CAPEX*1000) / (FE_CYCLE_LIFE * FE_DOD)
     for t in range(T):
         c[hv(t,IDX['g'])] = gas_price_mwh + ccgt_vom_mwh
-        c[hv(t,IDX['e'])] = -price[t]
+        # EXPORT REVENUE IS DELIBERATELY ABSENT (Appendix P.2 §8, enforced here 2026-09-13). The
+        # rule is project-wide and standing: "Export revenue must never appear inside any
+        # year-solve's own optimization objective, in any scenario." With it in, the optimizer has
+        # a direct incentive to build or dispatch more capacity than demand requires purely to
+        # capture that revenue -- turning a least-cost-to-serve-demand calculation into a
+        # profit-maximizing merchant one.
+        #
+        # THIS EXACT BUG HAS HAPPENED HERE BEFORE. P.2 §8 records it: an earlier Scenario 2
+        # calculation included export revenue, "carried over from Scenario 1/3's code without
+        # reconsidering whether it belonged there", and the optimizer began running gas as a
+        # merchant generator. It was caught because export revenue came out identical at every
+        # checkpoint regardless of demand.
+        #
+        # It had returned -- live and unguarded here, while build_dispatch_problem's equivalent sat
+        # behind `if include_export:`. Measured before removal: export was 0.00 TWh at all four
+        # checkpoints and the objective was unchanged to four decimals, so no published figure
+        # moves. A latent trap, not an active error.
+        #
+        # Export is computed POST-SOLVE by applying an export price to the curtailment the
+        # optimizer's own dispatch produced, subject to an interconnection volume limit.
         c[hv(t,IDX['unserved'])] = UNSERVED_PENALTY
         c[hv(t,IDX['nd'])] = 100.0  # RAISED (below), was na_cycling_cost
         c[hv(t,IDX['fd'])] = fe_cycling_cost
