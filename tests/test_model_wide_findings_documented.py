@@ -77,13 +77,13 @@ class TestDiscoverability:
     def test_pipeline_completeness_points_at_findings(self):
         assert 'MODEL_WIDE_FINDINGS' in read(os.path.join(REPO, 'docs', 'PIPELINE_COMPLETENESS.md'))
 
-    def test_gas_documents_point_at_the_consolidated_notes(self):
+    def test_gas_stubs_point_at_the_consolidated_file(self):
         for rel in (('docs', 'methodology', 'Gas_Merit_Order.md'),
                     ('docs', 'methodology', 'VA_gas_capacity_schedules.md')):
-            assert 'Gas_Fleet_Working_Notes' in read(os.path.join(REPO, *rel))
+            assert 'Gas_Consolidated_Reference' in read(os.path.join(REPO, *rel))
 
-    def test_gas_notes_point_back_at_model_wide_findings(self):
-        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Fleet_Working_Notes.md'))
+    def test_consolidated_gas_file_points_back_at_model_wide_findings(self):
+        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Consolidated_Reference.md'))
         assert 'MODEL_WIDE_FINDINGS' in s
 
 
@@ -92,15 +92,15 @@ class TestDefinitionsAreRecorded:
     than a price, and the dual being the LP's internal energy price rather than an LMP."""
 
     def test_ambiguous_terms_are_defined(self):
-        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Fleet_Working_Notes.md'))
+        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Consolidated_Reference.md'))
         for term in ('**VOM', '**VOLL', '**Dual', '**Merit order', '**LMP', '**Heat rate',
                      '**Aeroderivative', '**EOH'):
             assert term in s, f'{term} not defined'
 
     def test_voll_is_distinguished_from_a_price(self):
-        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Fleet_Working_Notes.md'))
+        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Consolidated_Reference.md'))
         assert 'penalty, not a price' in s
 
     def test_dual_is_distinguished_from_an_lmp(self):
-        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Fleet_Working_Notes.md'))
+        s = read(os.path.join(REPO, 'docs', 'methodology', 'Gas_Consolidated_Reference.md'))
         assert 'It is not an LMP' in s

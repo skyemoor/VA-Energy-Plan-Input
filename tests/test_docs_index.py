@@ -51,21 +51,38 @@ class TestDomainEntryPointsAreMarked:
             assert hub in s, f'{hub} not in index'
         assert 'START HERE' in s
 
-    def test_gas_files_point_at_the_hub(self):
+    def test_merged_gas_stubs_point_at_the_consolidated_file(self):
+        """CHANGED 2026-09-13: the seven gas documents were MERGED rather than hub-and-spoke
+        linked. Each remains as a stub so existing links and citations resolve."""
         for rel in (('docs', 'research', 'Gas_turbine_lifespans_reference.md'),
                     ('docs', 'research', 'new_peaker_ccgt_costs_by_size.md'),
                     ('docs', 'methodology', 'Gas_Technology_Selection_By_Scenario.md'),
                     ('docs', 'methodology', 'METHODOLOGY_gas_allowed_frac_derivation.md'),
                     ('docs', 'methodology', 'Gas_Merit_Order.md'),
-                    ('docs', 'methodology', 'VA_gas_capacity_schedules.md')):
-            assert 'Gas_Fleet_Working_Notes' in read(*rel), f'{rel[-1]} does not point at the hub'
+                    ('docs', 'methodology', 'VA_gas_capacity_schedules.md'),
+                    ('docs', 'methodology', 'Gas_Fleet_Working_Notes.md')):
+            body = read(*rel)
+            assert 'Gas_Consolidated_Reference' in body, f'{rel[-1]} does not point at the merge'
+            assert 'MERGED 2026-09-13' in body
 
-    def test_gas_hub_maps_the_whole_domain(self):
-        s = read('docs', 'methodology', 'Gas_Fleet_Working_Notes.md')
-        assert 'Seven files cover gas' in s
-        for f in ('Gas_turbine_lifespans_reference.md', 'new_peaker_ccgt_costs_by_size.md',
-                  'Gas_Technology_Selection_By_Scenario.md'):
-            assert f in s
+    def test_consolidated_file_covers_every_merged_topic(self):
+        """The merge must not have summarised anything away. These facts are each unique to one
+        source file -- if any is missing, content was lost rather than moved."""
+        s = read('docs', 'methodology', 'Gas_Consolidated_Reference.md')
+        for fact in ('13,639.4',        # capacity, from the fleet notes
+                     '1,175/kW',        # aeroderivative capex, from new_peaker_ccgt_costs_by_size
+                     '713/kW',          # F-class capex, same
+                     '48,000',          # EOH window, from the lifespans reference
+                     'Schedule B',      # from VA_gas_capacity_schedules
+                     'gas_allowed_frac'):
+            assert fact in s, f'{fact} lost in the merge'
+
+    def test_consolidated_file_has_a_navigation_map(self):
+        """1,359 lines is only usable with one."""
+        s = read('docs', 'methodology', 'Gas_Consolidated_Reference.md')
+        assert '## Where to look' in s
+        for n in range(1, 11):
+            assert f'# {n}. ' in s, f'section {n} missing'
 
 
 class TestPJMConstraintsSurfacedInTheIndex:

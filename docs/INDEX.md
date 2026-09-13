@@ -14,20 +14,22 @@ Last updated 2026-09-11.
 
 ---
 
-## Gas fleet & thermal generation — **7 files, fragmented**
+## Gas fleet & thermal generation — **consolidated**
 
 | file | covers |
 |---|---|
-| **`methodology/Gas_Fleet_Working_Notes.md`** | **START HERE.** Definitions, heat rate tiers, capacity per rung, cost structure, what sits above the merit order |
-| `methodology/Gas_Merit_Order.md` | Heat rate tiers, EIA sourcing (subsumed by the above) |
-| `methodology/VA_gas_capacity_schedules.md` | Retirement schedules A and B — **authoritative for retirements** |
-| `methodology/Gas_Technology_Selection_By_Scenario.md` | Which gas technology each scenario assumes |
-| `methodology/METHODOLOGY_gas_allowed_frac_derivation.md` | Gas fraction derivation for the LP |
-| `research/Gas_turbine_lifespans_reference.md` | Turbine lifespans, EOH thresholds, overhaul windows |
-| `research/new_peaker_ccgt_costs_by_size.md` | Peaker and CCGT capex by plant size; Tenaska/Ladysmith overhaul analysis |
+| **`methodology/Gas_Consolidated_Reference.md`** | **EVERYTHING GAS.** Definitions, heat rates and merit order, capacity by rung and plant, retirement schedules, operating constraints, new-build capex by size tier, lifespans and EOH, technology selection by scenario, deriving `gas_allowed_frac`, open items |
 
-**Consolidation needed.** Seven files, overlapping. `Gas_Fleet_Working_Notes.md` was created as the
-entry point but does not yet absorb the lifespans or capex material.
+The seven previous gas documents were **merged 2026-09-13** and remain as stubs pointing at the
+consolidated file, so existing links resolve:
+`METHODOLOGY_gas_allowed_frac_derivation.md`, `research/Gas_turbine_lifespans_reference.md`,
+`research/new_peaker_ccgt_costs_by_size.md`, `Gas_Fleet_Working_Notes.md`, `Gas_Merit_Order.md`,
+`VA_gas_capacity_schedules.md`, `Gas_Technology_Selection_By_Scenario.md`.
+
+**Why:** the CT capex figures the project needed ($713–1,175/kW by class) were sitting in
+`new_peaker_ccgt_costs_by_size.md` while `Gas_Technology_Selection_By_Scenario.md` recorded *"no
+simple-cycle capex exists in the code"* as an open gap. Two files, opposite claims, neither aware
+of the other.
 
 ---
 
