@@ -86,3 +86,42 @@ class TestFailsLoudly:
         finally:
             dsi.BASE_SHAPE_YEAR = saved
             dsi._BASE_SHAPE_NORMALIZED = None
+
+
+class TestItIsSupersededAndWhy:
+    """Confirmed 2026-09-13. The module ages a SINGLE fixed shape forward; the demand stage now
+    builds every year directly from Dominion's own projections, which carry a different shape per
+    year and already flatten."""
+
+    def test_the_source_projection_flattens_on_its_own(self):
+        """Dominion's forecast embeds data-centre growth, so the load factor rises without any
+        adjustment from this module."""
+        import demand_basis as db
+        lfs = {}
+        for y in (2030, 2037, 2045):
+            a = db.VirginiaOnlyLoad(y).hourly_mw()
+            lfs[y] = a.mean() / a.max()
+        assert lfs[2030] < lfs[2037] < lfs[2045]
+        assert lfs[2045] == pytest.approx(0.794, abs=0.01)
+
+    def test_applying_the_module_would_make_the_shape_LESS_flat(self):
+        """The measurement that settles it: the module reaches LF 0.712 at 2045, against the source
+        projection's own 0.794. The adjustment runs backwards, because the input it was designed
+        for no longer arrives unflattened."""
+        import demand_basis as db
+        source = db.VirginiaOnlyLoad(2045).hourly_mw()
+        adjusted = dsi.flattened_hourly_demand(2045, source.sum() / 1000)
+        assert adjusted.mean() / adjusted.max() < source.mean() / source.max()
+        assert adjusted.max() > source.max()
+
+    def test_the_source_covers_every_year_so_no_interpolation_is_needed(self):
+        """2026-2045 with a full year of hours each -- the intermediate years an SLCOE needs come
+        from the same place the checkpoints do."""
+        import demand_basis as db
+        for y in (2026, 2031, 2042):
+            assert len(db.VirginiaOnlyLoad(y).hourly_mw()) == 8760
+
+    def test_the_supersession_is_documented_in_the_module(self):
+        """Rule 10.3: a future reader must not wire it in believing it is the missing piece."""
+        assert 'SUPERSEDED 2026-09-13' in dsi.__doc__
+        assert 'DO NOT WIRE IT INTO A SOLVE PATH' in dsi.__doc__

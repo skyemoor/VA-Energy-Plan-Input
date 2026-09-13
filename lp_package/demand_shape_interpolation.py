@@ -28,6 +28,46 @@ amount (alpha) tied to how much data-center-like load has been added since
 2023, sourced from Dominion's own two IRP filings (see COMMERCIAL_SHARE_PCT
 below). This is a proxy, not a direct data-center measurement -- flagged
 explicitly, see LIMITATIONS at the bottom of this file.
+
+================================================================================
+SUPERSEDED 2026-09-13 -- READ THIS BEFORE USING THIS MODULE
+================================================================================
+
+This module exists to age a SINGLE fixed hourly shape forward, flattening it as
+data-centre load grows. That was the right answer when the project had one
+sourced shape and had to project it.
+
+IT IS NO LONGER THE SITUATION. The demand stage now builds every year directly
+from Dominion's own hourly projections
+(DOMLSEHourlyLoadProjections2024through2048.csv, which covers 2024-2048 with a
+full year of hours for every year in 2026-2045, no gaps), via
+demand_basis.VirginiaOnlyLoad(year). Those projections carry a DIFFERENT SHAPE
+PER YEAR and already flatten, because Dominion's own forecast embeds data-centre
+growth:
+
+    load factor of the source projection:   2024  0.652
+                                            2030  0.705
+                                            2037  0.761
+                                            2045  0.794
+
+APPLYING THIS MODULE ON TOP WOULD MAKE THE SHAPE LESS FLAT, NOT MORE. It starts
+from the 2024 base shape (LF 0.652) and blends toward flat by alpha, reaching
+LF 0.712 at 2045 -- against the source projection's own 0.794. Measured: peak
++11.8% at 2045, load factor 0.796 -> 0.712. The adjustment runs backwards
+because the input it was designed for no longer arrives unflattened.
+
+APPENDIX P.2 SECTION 7 IS SATISFIED WITHOUT IT. The requirement is "this
+project's Virginia-only demand total, adjusted for the flattening effect of
+data-center load growth" -- and that adjustment is already IN the source, not
+something to apply afterwards.
+
+RETAINED, NOT DELETED, for two reasons. The sourced commercial-share series in
+_COMMERCIAL_AND_TOTAL_GWH (2018-2045, from Dominion's 2018 and 2025 IRPs) is
+real data with citations. And Appendix O -- which P.2 section 7 cites
+normatively, and which is MISSING from the repository -- is partly
+reconstructible from this file.
+
+DO NOT WIRE IT INTO A SOLVE PATH.
 """
 
 import numpy as np

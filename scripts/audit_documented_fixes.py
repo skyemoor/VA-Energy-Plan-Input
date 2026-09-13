@@ -155,6 +155,7 @@ UNCALLED_BY_DESIGN = {
     'large_ci_curtailment_feature.py':               'demand-side feature, not in the base scenarios',
     'supply_gap_analysis.py':                        'gap characterisation, run on solved results',
     'levelised_cost.py':                             'SLCOE assembly; wired when the annual stream exists',
+    'demand_shape_interpolation.py':                 'SUPERSEDED 2026-09-13 -- the source projections already flatten; retained for its sourced IRP series',
     # --- shared base layers of the siting derivations above. Unreachable from an entry point
     # because their only callers are themselves derivations, which is correct: the transitive
     # walk added 2026-09-13 surfaces these, where the earlier any-importer check hid them.

@@ -167,6 +167,28 @@ considered; an omission is indistinguishable from an oversight.
 
 # The annual stream — intermediate-year demand
 
+> **SUPERSEDED 2026-09-13.** The section below documents repairing
+> `demand_shape_interpolation`. Having repaired it, measurement showed it should not be used:
+> **Dominion's own hourly projections already flatten**, and applying the module on top would make
+> the shape *less* flat, not more.
+>
+> | | load factor |
+> |---|---:|
+> | source projection 2024 | 0.652 |
+> | source projection 2045 | **0.794** |
+> | module output 2045 | **0.712** |
+>
+> Measured at 2045: peak **+11.8%**, load factor **0.796 → 0.712**. The adjustment runs backwards
+> because the input it was built for no longer arrives unflattened.
+>
+> **P.2 §7 is satisfied without it** — the flattening adjustment is already *in* the source. And
+> the source covers **2026–2045 with no gaps**, so intermediate years for the SLCOE stream come
+> from `demand_basis.VirginiaOnlyLoad(year)`, the same place the checkpoints do.
+>
+> The repair was still worth making: the module was unusable, and its sourced IRP commercial-share
+> series is the only surviving fragment of the missing Appendix O.
+
+
 **Repaired 2026-09-13.** `demand_shape_interpolation.flattened_hourly_demand(year, annual_total_gwh)`
 builds the hourly array for any year 2026–2045.
 
