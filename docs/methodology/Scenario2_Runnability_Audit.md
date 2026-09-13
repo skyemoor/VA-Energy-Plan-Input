@@ -1,6 +1,21 @@
-# Scenario 2 runnability audit
+# Scenario 2 runnability audit — RESOLVED
 
-**2026-09-13.** Scenario 2 is the whitepaper's **baseline** — Dominion's approach of building only
+**2026-09-13.** All three blockers cleared; the baseline runs and its compliance level is measured.
+
+> ## The result
+>
+> **Scenario 2 reaches 39.2% clean generation share at 2045**, with an implied gas peak of
+> **22,478 MW**. Cross-checked independently: nuclear 28.7 + CVOW 9.3 + existing solar 9.5 + VCEA
+> solar 31.8 = **79.3 TWh** against **202.2 TWh** demand. The solver agreed to the decimal.
+>
+> **Demand has roughly doubled since the VCEA was written, while the statutory MW targets did not
+> change.** The statutory build was sized against a much smaller system.
+>
+> **This falls far below the 75–100% sweep range.** The baseline cannot be plotted on that axis as
+> designed — the sweep must extend downward, or the chart must show Scenario 2 as an off-scale
+> reference. That is a structural consequence for the restructuring, not a detail.
+
+**Original audit, 2026-09-13.** Scenario 2 is the whitepaper's **baseline** — Dominion's approach of building only
 the solar and storage assets named in the Code. Before it can be plotted as the reference point on
 the compliance sweep, it has to run. This records what was found tracing it.
 
@@ -22,7 +37,7 @@ does **not** apply to Scenario 2. That cap governs Scenarios 1, 1B and 3.
 
 ## Three blockers
 
-### 1. `peak_gas_mw` comes from a lost temp file
+### 1. `peak_gas_mw` comes from a lost temp file — RESOLVED by making gas unbounded
 
 `get_existing_new_mw()` back-computes new build from `self.peak_gas_mw`, documented as coming from
 *"Scenario 2's own already-solved 20-year gas capex schedule"* at
@@ -35,20 +50,43 @@ Scoped: this path is needed **only** for the social-cost/RGGI mixin. A plain cos
 it, and the constructor raises a clear error if it is called without the value rather than
 substituting a default.
 
-### 2. `compute_scenario2_gas_replacement` is not restored
+### 2. `compute_scenario2_gas_replacement` is not restored — still true, but not blocking
+
+Needed only by `get_existing_new_mw()` for the social-cost/RGGI mixin, which the cost run does not
+touch.
+
+### 2a. The original blocker was worse than either of these
 
 `get_existing_new_mw()` imports it for `existing_fleet_mw_by_type()`. It is on the outstanding
 restore list from earlier sessions, alongside `compute_tier123_final.py` and
 `compute_scenario2_costs.py`.
 
-### 3. Whether storage is pinned is unverified
+### 3. Whether storage is pinned — RESOLVED: everything is pinned
 
 `build_scenario2_problem()` takes `vcea_solar_mw`. The baseline definition requires **16,100 MW
 solar, 16 GW short-duration storage, 4 GW long-duration** — all three pinned.
 
-**Whether the storage figures are pinned or left free has not been checked.** If storage is free,
-the LP optimises it and the run is not Dominion's approach — it is a partially-optimised hybrid,
-and the baseline point would be wrong in the favourable direction.
+**Verified: all three are hard bounds.** `build_scenario2_problem` is **dispatch-only** — `NVAR =
+14 × T`, no build block at all. `vcea_solar_mw`, `na_power_mw`, `na_duration_hr`, `fe_power_mw` and
+`fe_duration_hr` are fixed inputs applied directly as variable bounds.
+
+**The real blocker was different and larger:** `Scenario2Solver.solve()` passed **six** arguments to
+a function requiring **thirteen**. Every call raised `TypeError`. The baseline scenario had never
+run through the solver class.
+
+**Two interpretations were needed to wire it:**
+
+- **Sodium-ion duration: 4 hours**, by decision. The Code names MW, not MWh, so duration is an
+  *interpretation* rather than a requirement — and it is the single largest discretionary number in
+  the baseline. 16,000 MW × 4 h = 64 GWh.
+- **Gas effectively unbounded**, by decision. The external CCGT sizing the docstring describes lived
+  in `/tmp/scenario2_20yr_gas_capex.npz`, which did not survive. Rather than invent a replacement,
+  gas runs against a ceiling high enough never to bind and **the peak is an output** — how much gas
+  the statutory build implies. That is a better question than whether Dominion's gas fits a number
+  we made up.
+
+**What this cannot tell you** is the CCGT/CT split within that 22,478 MW. This function has one gas
+variable and one gas price — no merit order — so everything is CCGT by construction.
 
 ---
 

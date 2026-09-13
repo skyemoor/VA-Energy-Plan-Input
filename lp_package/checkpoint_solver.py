@@ -31,6 +31,8 @@ needed here, since it calls run_solve()/converge_frac() rather than
 reimplementing their own internals.
 """
 import numpy as np
+
+import assumptions
 import lp_model as lp
 import driver as drv
 
@@ -617,13 +619,62 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         new_mw = max(0.0, self.peak_gas_mw - existing_mw)
         return existing_mw, new_mw
 
-    def solve(self, gas_price_mwh, return_hourly=True):
+    def solve(self, gas_price_mwh, return_hourly=True, ccgt_mw=None,
+              na_duration_hr=None, unbounded_gas_ceiling_mw=200_000.0):
+        """Dispatch the statutory build and let gas fill the residual.
+
+        BROKEN UNTIL 2026-09-13: this passed six arguments to build_scenario2_problem(), which
+        requires thirteen. Every call raised TypeError. The scenario had never been runnable
+        through the solver class.
+
+        THE PINNED CAPACITIES ARE THE WHOLE POINT. Scenario 2 is the baseline -- Dominion's
+        approach of building only what the Code specifically names -- so solar, short-duration and
+        long-duration storage are all FIXED inputs, not build variables. build_scenario2_problem()
+        is dispatch-only (NVAR = 14 x T, no build block), which is exactly right for this. If any
+        of the three were optimised instead, the run would be a partially-optimised hybrid rather
+        than Dominion's approach, and the baseline point would move toward the least-cost curve for
+        the wrong reason.
+
+        GAS IS EFFECTIVELY UNBOUNDED by decision (2026-09-13). The docstring for
+        build_scenario2_problem describes CCGT as "sized externally to cover the worst hour with
+        zero storage credit", but that external sizing lived in /tmp/scenario2_20yr_gas_capex.npz,
+        a temp file that did not survive any session. Rather than invent a replacement, gas runs
+        against a ceiling high enough never to bind, and THE RESULTING PEAK IS AN OUTPUT: how much
+        gas capacity the statutory build implies. That is a better question than whether Dominion's
+        gas fits a number we made up.
+
+        WHAT THIS CANNOT TELL YOU is the CCGT/CT split within that peak. This function has one gas
+        variable and one gas price -- no merit order -- so everything is CCGT by construction. Even
+        with the merit order the LP would pick CCGT for peaking duty, since it is cheapest on
+        marginal cost and minimum up/down times are not modelled. See
+        assumptions.GAS_UNIT_COMMITMENT_NOT_MODELLED.
+        """
         self.verify_input_data()
+        if na_duration_hr is None:
+            # 4-hour, by decision 2026-09-13. The Code names MW, not MWh, so duration is an
+            # INTERPRETATION rather than a requirement -- and it is the single largest
+            # discretionary number in the baseline. 4-hour is the conventional assumption and
+            # matches DISTRIBUTED_STORAGE_DURATION_HR.
+            na_duration_hr = assumptions.DISTRIBUTED_STORAGE_DURATION_HR
+        if ccgt_mw is None:
+            ccgt_mw = unbounded_gas_ceiling_mw
         problem = lp.build_scenario2_problem(
             self.solar_cf, self.wind_cf, self.nuclear, self.exist_solar, self.demand,
-            self.vcea_solar_mw, gas_price_mwh=gas_price_mwh)
+            vcea_solar_mw=self.vcea_solar_mw,
+            ccgt_mw=ccgt_mw,
+            na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
+            na_duration_hr=na_duration_hr,
+            fe_power_mw=drv.vcea_long_duration_floor_mw(self.year),
+            fe_duration_hr=lp.FE_DURATION,
+            gas_price_mwh=gas_price_mwh,
+            ccgt_vom_mwh=assumptions.CCGT_VOM_MWH,
+            verbose=False)
         res = lp.solve_problem(problem)
         # Scenario 2's own extraction convention differs from run_solve()'s (Appendix C) --
         # kept as its own path rather than forced into Scenario1Solver's own result shape.
-        self.result = dict(status=res.status, success=res.success, obj=res.fun, raw=res)
+        self.result = dict(status=res.status, success=res.success, obj=res.fun, raw=res,
+                           problem=problem, ccgt_ceiling_mw=ccgt_mw,
+                           na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
+                           na_duration_hr=na_duration_hr,
+                           fe_power_mw=drv.vcea_long_duration_floor_mw(self.year))
         return self.result
