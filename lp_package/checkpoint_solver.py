@@ -260,7 +260,15 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
                     prior_na_energy_mwh=self.prior_result['ENA_mwh'],
                     prior_ironair_energy_mwh=self.prior_result['EFE_mwh'])
 
-    def converge_and_solve(self, start_frac=None, tol=0.003, max_iter=3):
+    def converge_and_solve(self, start_frac=None, tol=0.003, max_iter=8):
+        """Converge the gas fraction, then solve at it.
+
+        max_iter RAISED FROM 3 TO 8 on 2026-09-13. converge_frac now bisects rather than
+        extrapolating proportionally, and bisection needs enough iterations to halve the interval
+        to tolerance: from a starting gap of 0.115 against tol 0.003 that is six. Three was chosen
+        for the old proportional step, which was expected to land in one or two jumps -- it did not,
+        and an overnight scenario-3 run exhausted all three without converging.
+        """
         """Converges frac against this checkpoint's own gas_target_share (linking included
         throughout, not bolted on after convergence -- linking changes the LP's own energy
         balance, so frac convergence without it can converge to the wrong value)."""
@@ -380,7 +388,7 @@ class ReserveMarginMixin:
                 new_hour_of_maximum_net_demand, new_demand_at_peak, new_nuclear_at_peak, new_wind_cf_at_peak
         return self.result
 
-    def _converge_and_solve_with_reserve(self, reserve_margin_hint, IRM, start_frac=None, tol=0.003, max_iter=3):
+    def _converge_and_solve_with_reserve(self, reserve_margin_hint, IRM, start_frac=None, tol=0.003, max_iter=8):
         """Scenario1Solver-specific path: converge_frac() itself doesn't accept a
         reserve_margin_hint (the constraint depends on a peak hour identified from an
         already-built problem, which convergence doesn't have until it's run) -- so this
@@ -515,7 +523,7 @@ class Scenario3Solver(Scenario1Solver):
                     distributed_exogenous_price_mwh=self.distributed_exogenous_price_mwh,
                     distributed_reserve_margin_credit_fraction=self.distributed_reserve_margin_credit_fraction)
 
-    def converge_and_solve(self, start_frac=None, tol=0.003, max_iter=3):
+    def converge_and_solve(self, start_frac=None, tol=0.003, max_iter=8):
         """OVERRIDDEN, not just extended via super() -- Scenario1Solver's own version calls
         drv.converge_frac()/drv.run_solve() with a fixed call signature that has no hook for the
         distributed_* kwargs this subclass needs threaded through at every iteration. This is a

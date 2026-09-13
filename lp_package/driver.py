@@ -470,7 +470,7 @@ def run_solve_multi_duration(year, frac, demand, exist_solar, solar_cf, wind_cf,
     return out
 
 
-def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf, nuclear, tol=0.003, max_iter=3,
+def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf, nuclear, tol=0.003, max_iter=8,
                    capacity_cap_mw=None, start_frac=None, min_na_power_mw='vcea_default', min_na_duration_hr=6.0,
                    min_efe_power_mw='vcea_default', prior_solar_mw=0.0, prior_na_power_mw=0.0,
                    prior_na_energy_mwh=0.0, prior_ironair_energy_mwh=0.0,
@@ -500,6 +500,7 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
     # when enable_distributed_segment=True, not against an unrelated, distributed-free problem.
     frac = start_frac if start_frac is not None else gas_target_share  # first guess
     history = []
+    lo, hi = None, None            # bisection bracket on frac; see the step logic below
     for i in range(max_iter):
         t0 = time.time()
         r = run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capacity_cap_mw=capacity_cap_mw,
@@ -524,15 +525,53 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
               f"gap={gas_target_share-r['achieved_share']:+.4f} ({dt:.0f}s)", flush=True)
         gap = gas_target_share - r['achieved_share']
         if abs(gap) <= tol:
+            r['converged'] = True
+            r['convergence_gap'] = float(gap)
             return frac, r, history
         if len(history) >= 2:
             (f0,a0,_),(f1,a1,_) = history[-2], history[-1]
             if abs(a1-a0) < 1e-6:
                 print("  achieved share unchanged across two fracs -- capacity-cap-style saturation; stopping search", flush=True)
                 return frac, r, history
-        # linear extrapolation using ratio frac/achieved from most recent point
-        ratio = frac/r['achieved_share'] if r['achieved_share'] > 1e-9 else 1.0
-        frac = min(0.999, max(0.0001, gas_target_share*ratio))
+
+        # BISECTION, replacing proportional extrapolation (2026-09-13).
+        #
+        # THE OLD METHOD WAS frac = gas_target_share * (frac / achieved_share) -- a proportional
+        # rescale assuming achieved_share moves linearly with frac. It does not. An overnight run
+        # of scenario 3 at 2030 measured:
+        #     iter0  frac 0.5900  achieved 0.7046   ratio 0.837
+        #     iter1  frac 0.4940  achieved 0.6580   ratio 0.751
+        # The ratio itself moved 10%, so each step overshot and the gap closed only ~40% per
+        # iteration. From a starting gap of -0.1146, reaching tol=0.003 would have needed roughly
+        # SEVEN iterations. With max_iter=3 it could not converge at all, and the run returned a
+        # build missing its own gas target by about four percentage points -- silently, because
+        # this function does not distinguish converged from exhausted.
+        #
+        # achieved_share is monotonically increasing in frac (a higher gas allowance cannot reduce
+        # gas generation), so bisection halves the interval deterministically every iteration:
+        # 0.115 -> 0.057 -> 0.029 -> 0.014 -> 0.007 -> 0.004 -> 0.002. Six iterations that ARRIVE,
+        # against an extrapolation that may not.
+        if gap < 0:
+            hi = frac          # achieved too high, so the answer is below the current frac
+        else:
+            lo = frac
+        if hi is None:
+            # No upper bracket yet -- step up geometrically until achieved overshoots the target.
+            frac = min(0.999, frac * 2.0)
+        elif lo is None:
+            frac = max(0.0001, frac * 0.5)
+        else:
+            frac = 0.5 * (lo + hi)
+
+    # Exhausted max_iter without reaching tol. Returned, not raised, because some callers
+    # legitimately want the best available answer -- but the caller MUST be able to tell, so the
+    # result carries the flag rather than looking identical to a converged solve (Rule 5).
+    final_gap = gas_target_share - r['achieved_share']
+    r['converged'] = False
+    r['convergence_gap'] = float(final_gap)
+    print(f"  NOT CONVERGED after {max_iter} iterations: gap {final_gap:+.4f} against tol {tol:.4f}. "
+          f"The build misses its own gas target -- raise max_iter or widen tol deliberately.",
+          flush=True)
     return frac, r, history
 
 
