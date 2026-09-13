@@ -248,6 +248,57 @@ cold-snap availability.
 
 **$26.83/MWh of intraday spread at 2030 from gas alone**, before any scarcity pricing.
 
+### The new-build rung, and two gas limits that disagree
+
+**Added 2026-09-13.** The stack covered only the existing EIA-860 fleet, so the **2,862 MW
+new-build pool** that `apply_gas_cap()` has always included **had no rung and could not dispatch at
+all.** Any scenario relying on new gas was silently denied capacity it was granted — most
+consequentially **Scenario 1B, whose whole premise is 5% gas from 2045.**
+
+`new_build_ccgt` uses `GAS_HEAT_RATE_CCGT_MODERN` (6.4) and prices **identically to
+`ccgt_modern`** — they are the same technology, differing only in whether the plant exists. Two
+rungs at one price is intentional: dispatch cannot distinguish them, but **capacity accounting
+must**, since one counts against the existing-fleet schedule and the other against the pool.
+
+*If a scenario instead assumes new **peakers**, use `GAS_HEAT_RATE_CT_AERODERIVATIVE` (9.5). That is
+the one case where the aeroderivative figure is right — new build is where a specific machine is
+actually chosen, unlike the existing fleet, which is 100% frame.*
+
+### Two independent gas limits, and the direction flips
+
+| year | scenario cap | stack available | binds |
+|---|---:|---:|---|
+| 2030–2040 | 12,224 | 11,385 | **stack** |
+| 2045 | **4,722** | 9,547 | **cap** |
+
+`apply_gas_cap()` returns `schedule_b_baseline_mw(year) + 2,862`, applied as a **per-hour** upper
+bound on gas. The stack applies its own hourly availability. **Whichever binds first governs, and
+nobody decided which should.**
+
+**The cause is that they use different retirement schedules.** The stack applies **Schedule A**
+(physical: Bear Garden 2041, Warren County 2044). `schedule_b_baseline_mw` applies **Schedule B**
+(VCEA-driven: a drop to 1,860 MW in 2045). **One model, two retirement futures.**
+
+**They are not, however, in conflict as concepts** — they constrain different quantities and both
+should apply:
+
+- **The cap limits how much gas capacity may EXIST.** Capacity is permitted, financed and retired
+  in nameplate terms, which is the right basis for that constraint.
+- **The stack limits how much can RUN in a given hour** — net summer capability × availability.
+
+A fleet can be capped at 9,362 MW nameplate *and* only deliver 8,752 MW on a summer afternoon.
+Consistent statements.
+
+**Dispatch should use actual available energy.** Nameplate is a rating, not deliverable output. And
+the flat availability factor is not merely a convenience: gas maintenance would naturally go into
+low-demand shoulder seasons, but **the nuclear profile already dips there**. With no scheduling
+freedom left to exploit, a flat derate is the honest representation.
+
+**Still unresolved:** Schedule B's 2045 figure of 1,860 MW is Chesterfield + Doswell + Possum
+Point, and **Doswell is an IPP**. It is in the stack's DOM-zone scope but not in a Dominion-owned
+schedule, so the two are not counting the same fleet. `reconcile_with_scenario_cap()` surfaces all
+of this rather than letting it bind silently. See issue #18.
+
 ### CT VOM — sourced, and it was understated
 
 `CT_VOM_MWH = 5.00`, from **NREL ATB** (2022: NGCT $5.00 vs NGCC $2.00; 2020: OCGT $4.49 vs CCGT

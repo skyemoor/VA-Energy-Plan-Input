@@ -50,12 +50,31 @@ class TestTheStackProducesARealSpread:
 
 class TestCapacityAndRetirements:
 
-    def test_each_basis_sums_to_its_filed_total_before_any_retirement(self, stack):
+    def test_each_basis_sums_to_its_filed_total_before_any_retirement(self):
+        """BASELINE CONTEXT 2026-09-13: the new-build pool (2,862 MW) is now a rung, so the stack
+        total is the filed EXISTING-fleet figure plus the pool. This checks the existing-fleet
+        arithmetic on its own; the pool is checked separately below."""
         for basis, total in (('nameplate', assumptions.GAS_DOM_ZONE_NAMEPLATE_MW),
                              ('net_summer', assumptions.GAS_DOM_ZONE_NET_SUMMER_MW),
                              ('net_winter', assumptions.GAS_DOM_ZONE_NET_WINTER_MW)):
-            s = GasMeritOrder(capacity_basis=basis)
+            s = GasMeritOrder(capacity_basis=basis, include_new_build=False)
             assert sum(s.rated_capacity_mw_by_rung(2030).values()) == pytest.approx(total, abs=1.5)
+
+    def test_new_build_pool_adds_to_the_existing_fleet_total(self):
+        """The pool is capacity the scenarios PERMIT, not plant that exists, so it sits on top of
+        the filed fleet figure rather than inside it."""
+        with_pool = GasMeritOrder().rated_capacity_mw_by_rung(2030)
+        without = GasMeritOrder(include_new_build=False).rated_capacity_mw_by_rung(2030)
+        assert sum(with_pool.values()) - sum(without.values()) == pytest.approx(
+            assumptions.GAS_NEW_BUILD_POOL_MW, abs=0.1)
+
+    def test_new_build_prices_identically_to_modern_ccgt(self):
+        """Same heat rate, same VOM -- the same technology, differing only in whether the plant
+        exists. Two rungs at one price is intentional: dispatch cannot distinguish them but
+        capacity accounting must."""
+        rungs = {r.name: r for r in GasMeritOrder().rungs(2045)}
+        assert rungs['new_build_ccgt'].marginal_cost_mwh(2045) == pytest.approx(
+            rungs['ccgt_modern'].marginal_cost_mwh(2045))
 
     def test_availability_derates_uniformly(self, stack):
         name = stack.rated_capacity_mw_by_rung(2030)
@@ -119,9 +138,12 @@ class TestFailsLoudly:
             stack.marginal_rung_at_output(2045, -1.0)
 
     def test_marginal_rung_identifies_the_price_setting_step(self, stack):
+        # BASELINE MOVED 2026-09-13: new_build_ccgt now sorts first, tied on cost with
+        # ccgt_modern. The assertion is on COST rather than name, since which of two equally
+        # priced rungs sorts first is an implementation detail and not the behaviour under test.
         cheap = stack.marginal_rung_at_output(2045, 100.0)
-        dear = stack.marginal_rung_at_output(2045, 6_000.0)
-        assert cheap.name == 'ccgt_modern'
+        dear = stack.marginal_rung_at_output(2045, 8_000.0)
+        assert cheap.name in ('new_build_ccgt', 'ccgt_modern')
         assert dear.marginal_cost_mwh(2045) > cheap.marginal_cost_mwh(2045)
 
 
@@ -188,3 +210,46 @@ class TestScopeIsDomZoneMerchant:
         p = assumptions.GAS_PLANT_CAPACITY_MW
         for name in ('Hopewell Cogeneration', 'Celanese Acetate LLC', 'Virginia Tech Power Plant'):
             assert name not in p
+
+
+class TestScenarioCapReconciliation:
+    """Two independent gas limits were applied with whichever bound first governing, and nobody
+    deciding which should. reconcile_with_scenario_cap() makes that visible."""
+
+    def test_reconciliation_reports_which_limit_binds(self):
+        import driver as drv
+        m = GasMeritOrder()
+        r = m.reconcile_with_scenario_cap(2030, drv.schedule_b_baseline_mw(2030) + 2862.0, 2862.0)
+        assert r['binding'] in ('stack', 'scenario_cap')
+        assert r['scenario_existing_cap_mw'] == pytest.approx(9362.0)
+
+    def test_the_direction_flips_between_checkpoints(self):
+        """2030-2040 the stack binds; 2045 the cap does. The cause is that they use DIFFERENT
+        RETIREMENT SCHEDULES -- the stack applies Schedule A (Bear Garden 2041, Warren County
+        2044), schedule_b_baseline_mw applies Schedule B's VCEA-driven 2045 drop to 1,860 MW. One
+        model, two retirement futures."""
+        import driver as drv
+        m = GasMeritOrder()
+        b = {y: m.reconcile_with_scenario_cap(y, drv.schedule_b_baseline_mw(y) + 2862.0,
+                                              2862.0)['binding']
+             for y in (2030, 2045)}
+        assert b[2030] != b[2045], 'the flip is the finding; if it stops flipping, check why'
+
+    def test_new_build_without_a_rung_is_flagged(self):
+        """Before 2026-09-13 the pool had no rung and could not dispatch. The flag stays so a
+        future change that drops the rung is visible rather than silent."""
+        import driver as drv
+        m = GasMeritOrder(include_new_build=False)
+        r = m.reconcile_with_scenario_cap(2030, 12_224.0, 2862.0)
+        assert r['new_build_has_no_rung'] is True
+        assert 'NO RUNG' in r['note']
+
+    def test_doswell_mismatch_is_documented(self):
+        """Schedule B's 2045 figure of 1,860 MW is Chesterfield + Doswell + Possum Point, and
+        Doswell is an IPP. It is in this stack's DOM-zone scope but not in a Dominion-owned
+        schedule, so the two are not counting the same fleet."""
+        import re
+        from gas_merit_order import GasMeritOrder as G
+        src = re.sub(r'\s*\n\s*#?\s*', ' ', open(G.__module__ and
+                     __import__('gas_merit_order').__file__).read())
+        assert 'DOSWELL IS AN IPP' in src

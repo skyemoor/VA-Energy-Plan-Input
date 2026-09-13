@@ -247,10 +247,44 @@ GAS_HEAT_RATE_CT_AERODERIVATIVE = 9.5    # = SIMPLE_CYCLE_HEAT_RATE; modern aero
 GAS_HEAT_RATE_CT_FLEET = 10.999          # EIA Table 8.2, 2024 gas turbine
 GAS_HEAT_RATE_STEAM = 10.337             # EIA Table 8.2, 2024 gas steam generator
 
+#: New-build gas: the standing 2,862 MW pool the scenarios permit above the existing fleet
+#: (Appendix A #4), and the technology it is assumed to be.
+#:
+#: ADDED 2026-09-13. The merit order covered only the existing EIA-860 fleet, so this pool -- which
+#: apply_gas_cap() has always included -- had NO RUNG and could not dispatch at all. Any scenario
+#: relying on new gas was silently denied capacity it was granted, most consequentially Scenario 1B,
+#: whose entire premise is 5% gas from 2045.
+#:
+#: MODERN CCGT IS THE ASSUMPTION, not a peaker. A new-build pool of this size serving a
+#: high-renewable system is an intermediate-duty resource; GAS_HEAT_RATE_CCGT_MODERN (6.4) is the
+#: sourced figure for 2014+ entry, consistent with EIA's "< 7,000 Btu/kWh" for that cohort. If a
+#: scenario instead assumes new PEAKERS, use GAS_HEAT_RATE_CT_AERODERIVATIVE (9.5) -- that is the
+#: one case where the aeroderivative figure is right, because new build is where a specific machine
+#: is actually chosen, unlike the existing fleet which is 100% frame.
+#:
+#: IT PRICES IDENTICALLY TO ccgt_modern, because both are 6.4 MMBtu/MWh with the same VOM -- they
+#: are the same technology, differing only in whether the plant exists yet. Two rungs at one price
+#: is intentional: dispatch cannot distinguish them, but CAPACITY ACCOUNTING must, since one counts
+#: against the existing-fleet schedule and the other against the new-build pool. Merging them would
+#: save 8,760 variables and lose that distinction.
+#:
+#: IT ENTERS AS THE CHEAPEST RUNG, which is correct and worth stating because it is
+#: counter-intuitive against the existing fleet: a new CCGT at 6.4 MMBtu/MWh burns less fuel per
+#: MWh than anything currently installed, so on marginal cost it dispatches first. Capital cost does
+#: not enter the merit order -- the merit order is about what it costs to run one more MWh from a
+#: unit already built, and the build decision is made elsewhere in the LP.
+GAS_NEW_BUILD_POOL_MW = 2_862.0
+GAS_NEW_BUILD_HEAT_RATE = GAS_HEAT_RATE_CCGT_MODERN
+#: Same as CCGT_VOM_MWH, which is defined further down this file (line ~502) and so cannot be
+#: referenced here without reordering. Stated as a literal with a cross-check at the end of the
+#: module rather than moving a constant other code depends on by position.
+GAS_NEW_BUILD_VOM_MWH = 3.00
+
 #: Merit order, cheapest first. Tuples of (label, heat_rate). Capacity per tier
 #: is NOT set here -- a merit order needs MW at each rung, and the Virginia
 #: fleet split is not yet sourced. See docs/methodology/Gas_Merit_Order.md.
 GAS_MERIT_ORDER_HEAT_RATES = (
+    ('new_build_ccgt', GAS_NEW_BUILD_HEAT_RATE),
     ('ccgt_modern', GAS_HEAT_RATE_CCGT_MODERN),
     ('ccgt_fleet', GAS_HEAT_RATE_CCGT_FLEET),
     ('ccgt_legacy', GAS_HEAT_RATE_CCGT_LEGACY),
@@ -861,3 +895,16 @@ DOMINION_EV_PEAK_DEMAND_MW_BY_2038 = 1_600
 # Rule 6 is now enforced structurally (single definition, imported) rather than by runtime
 # comparison, and tests/test_single_source_of_truth.py asserts the import linkage holds.
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# CROSS-CHECK (Rule 4): constants that must agree but are defined far apart
+# ---------------------------------------------------------------------------
+# GAS_NEW_BUILD_VOM_MWH is stated as a literal because CCGT_VOM_MWH is defined ~230 lines below it
+# and reordering would move a constant other code indexes by position. This asserts they have not
+# drifted -- a silent divergence would price new-build gas differently from the CCGT fleet for no
+# stated reason.
+assert GAS_NEW_BUILD_VOM_MWH == CCGT_VOM_MWH, (
+    f'GAS_NEW_BUILD_VOM_MWH ({GAS_NEW_BUILD_VOM_MWH}) has drifted from CCGT_VOM_MWH '
+    f'({CCGT_VOM_MWH}). New-build gas is assumed to be a modern CCGT, so they must agree unless a '
+    'reason is recorded here for them not to.')

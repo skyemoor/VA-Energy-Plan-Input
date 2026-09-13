@@ -86,6 +86,7 @@ class GasMeritOrder:
     _BASIS_INDEX = {'nameplate': 1, 'net_summer': 2, 'net_winter': 3}
 
     def __init__(self,
+                 include_new_build: bool = True,
                  capacity_basis: str = 'net_summer',
                  availability_factor: Optional[float] = None,
                  retirement_years: Optional[Dict[str, int]] = None):
@@ -105,13 +106,71 @@ class GasMeritOrder:
                 'assumptions.GAS_AVAILABILITY_FACTOR for why it is flat rather than scheduled.')
         self._retirements = (dict(assumptions.GAS_PLANT_RETIREMENT_YEAR)
                              if retirement_years is None else dict(retirement_years))
+        # The new-build pool is capacity the scenarios PERMIT rather than plant that exists, so it
+        # is not in GAS_PLANT_CAPACITY_MW and carries no retirement year. Off by default would be
+        # the wrong default: apply_gas_cap() has always included it, and omitting it is what left
+        # it unable to dispatch.
+        self._include_new_build = include_new_build
         self._vom_by_rung = {
+            'new_build_ccgt': assumptions.GAS_NEW_BUILD_VOM_MWH,
             'ccgt_modern': assumptions.CCGT_VOM_MWH,
             'ccgt_fleet': assumptions.CCGT_VOM_MWH,
             'ccgt_legacy': assumptions.CCGT_VOM_MWH,
             'ct_fleet': assumptions.CT_VOM_MWH,
         }
         self._heat_rate_by_rung = dict(assumptions.GAS_MERIT_ORDER_HEAT_RATES)
+
+    # -- reconciling with the scenario's own gas cap -----------------------
+
+    def reconcile_with_scenario_cap(self, year, scenario_cap_mw, new_build_pool_mw=0.0):
+        """Compares this stack's hourly availability against the scenario's own gas cap.
+
+        THE PROBLEM THIS EXISTS TO SURFACE (found 2026-09-13). Two independent gas limits were
+        being applied and whichever bound first governed, with nobody deciding which should:
+
+            apply_gas_cap()      schedule_b_baseline_mw(year) + 2,862 MW new-build pool,
+                                 applied as a per-hour upper bound on IDX['g']
+            this stack           sum of rung capacities, net summer x availability
+
+        They disagree, AND THE DIRECTION FLIPS BETWEEN CHECKPOINTS:
+
+            2030-2040   cap 12,224 MW   stack  8,752 MW   -> stack binds
+            2045        cap  4,722 MW   stack  6,914 MW   -> cap binds
+
+        The cause is that they use DIFFERENT RETIREMENT SCHEDULES. This stack applies Schedule A
+        (physical: Bear Garden 2041, Warren County 2044). schedule_b_baseline_mw applies Schedule B
+        (VCEA-driven: a drop to 1,860 MW in 2045). One model, two retirement futures.
+
+        TWO FURTHER MISMATCHES worth naming rather than papering over:
+          - Schedule B's 2045 figure of 1,860 MW is Chesterfield + Doswell + Possum Point, and
+            DOSWELL IS AN IPP, not Dominion-owned. It is in this stack's DOM-zone scope but is not
+            in a Dominion-owned schedule, so the two are not counting the same fleet.
+          - The 2,862 MW new-build pool HAS NO RUNG. New gas the scenario permits cannot dispatch,
+            because the stack contains only the existing EIA-860 fleet.
+
+        Returns a dict rather than raising: which limit SHOULD govern is a scenario-definition
+        question, not something this class can decide. But it must be visible.
+        """
+        available = self.total_available_mw(year)
+        existing_cap = scenario_cap_mw - new_build_pool_mw
+        return {
+            'year': year,
+            'scenario_cap_mw': scenario_cap_mw,
+            'scenario_existing_cap_mw': existing_cap,
+            'new_build_pool_mw': new_build_pool_mw,
+            'stack_available_mw': available,
+            'binding': 'stack' if available < scenario_cap_mw else 'scenario_cap',
+            'new_build_has_no_rung': new_build_pool_mw > 0,
+            'note': (
+                f'Scenario cap {scenario_cap_mw:,.0f} MW ({existing_cap:,.0f} existing + '
+                f'{new_build_pool_mw:,.0f} new-build pool) against stack availability '
+                f'{available:,.1f} MW. '
+                + ('The STACK binds, so the scenario\'s own gas allowance is not reachable.'
+                   if available < scenario_cap_mw else
+                   'The scenario CAP binds, so part of the physically available fleet cannot run.')
+                + (f' The {new_build_pool_mw:,.0f} MW new-build pool has NO RUNG and cannot '
+                   'dispatch at all.' if new_build_pool_mw > 0 else '')),
+        }
 
     # -- capacity ---------------------------------------------------------
 
@@ -129,6 +188,12 @@ class GasMeritOrder:
         """
         idx = self._BASIS_INDEX[self._basis]
         out = {r: 0.0 for r in self._heat_rate_by_rung}
+        if self._include_new_build:
+            # The pool is quoted as a single figure, not per-plant, so there is no seasonal
+            # (summer/winter) derate to apply and it enters unchanged on all three bases. The
+            # AVAILABILITY factor is applied separately in available_capacity_mw() and does apply:
+            # a new plant has forced outages and maintenance like any other.
+            out['new_build_ccgt'] = assumptions.GAS_NEW_BUILD_POOL_MW
         for plant, row in assumptions.GAS_PLANT_CAPACITY_MW.items():
             if year is not None:
                 retire = self._retirements.get(plant)
