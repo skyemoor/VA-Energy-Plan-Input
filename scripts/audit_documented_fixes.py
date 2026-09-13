@@ -74,11 +74,21 @@ def check_name_absent(bad_name, replacement, why):
     hits = []
     # This script names the banned identifier in order to check for it; exclude itself.
     for f, s in source_files(exclude=('audit_documented_fixes.py',)).items():
-        if s and re.search(rf'\b{re.escape(bad_name)}\b', s):
-            # docstrings explaining the rename are legitimate
-            if re.search(rf'RENAMED.{{0,400}}\b{re.escape(bad_name)}\b', s, re.S):
-                continue
-            hits.append(f)
+        if not s:
+            continue
+        # Only CODE occurrences count. Prose about the rename is legitimate and expected -- the
+        # whole point of documenting a regression is to name what regressed.
+        #
+        # WIDENED 2026-09-13: this previously excluded only text within 400 characters of the word
+        # RENAMED, which covered driver.py's own docstring but not a later comment in lp_model.py
+        # referring to the t_peak decision as precedent. That produced a false positive, and a
+        # false positive in a regression audit is expensive -- it trains the reader to ignore it.
+        code_lines = [ln for ln in s.split('\n')
+                      if re.search(rf'\b{re.escape(bad_name)}\b', ln)
+                      and not ln.lstrip().startswith(('#', '"""', "'''", '*'))
+                      and not re.search(r'^\s*[A-Za-z].*\b(RENAMED|decision|violated|aged)\b', ln)]
+        if code_lines:
+            hits.append(f'{f} ({len(code_lines)} line(s))')
     if not hits:
         return True, f'{bad_name} absent (renamed to {replacement})'
     return False, f'{bad_name} has REAPPEARED in {", ".join(hits)}. {why}'
