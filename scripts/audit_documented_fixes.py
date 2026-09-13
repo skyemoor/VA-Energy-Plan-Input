@@ -27,9 +27,12 @@ EXIT CODES
   0  all checks pass
   1  one or more regressions detected
 """
+import io
 import os
 import re
 import sys
+import token
+import tokenize
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -58,6 +61,21 @@ def source_files(subdirs=('lp_package', 'scripts'), exclude=()):
 # Checks. Each returns (passed, message).
 # --------------------------------------------------------------------------
 
+
+def _identifier_used_in_code(source, name):
+    """True if `name` appears as an identifier in executable code, ignoring comments and strings.
+
+    Uses tokenize rather than regex because the alternative is matching English, which was tried
+    twice and failed twice. A NAME token is an identifier; a COMMENT or STRING token is prose.
+    """
+    try:
+        tokens = tokenize.generate_tokens(io.StringIO(source).readline)
+        return any(t.type == token.NAME and t.string == name for t in tokens)
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        # An unparseable file cannot be cleared, so report it rather than passing it silently.
+        return True
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -79,16 +97,14 @@ def check_name_absent(bad_name, replacement, why):
         # Only CODE occurrences count. Prose about the rename is legitimate and expected -- the
         # whole point of documenting a regression is to name what regressed.
         #
-        # WIDENED 2026-09-13: this previously excluded only text within 400 characters of the word
-        # RENAMED, which covered driver.py's own docstring but not a later comment in lp_model.py
-        # referring to the t_peak decision as precedent. That produced a false positive, and a
-        # false positive in a regression audit is expensive -- it trains the reader to ignore it.
-        code_lines = [ln for ln in s.split('\n')
-                      if re.search(rf'\b{re.escape(bad_name)}\b', ln)
-                      and not ln.lstrip().startswith(('#', '"""', "'''", '*'))
-                      and not re.search(r'^\s*[A-Za-z].*\b(RENAMED|decision|violated|aged)\b', ln)]
-        if code_lines:
-            hits.append(f'{f} ({len(code_lines)} line(s))')
+        # STRIPS COMMENTS AND STRINGS WITH tokenize RATHER THAN MATCHING PROSE. Two earlier
+        # attempts failed: a 400-character window around the word RENAMED missed a later comment in
+        # lp_model.py citing the t_peak decision as precedent, and a grammar heuristic then missed a
+        # continuation line of driver.py's own docstring. Both produced false positives, and a
+        # false positive in a regression audit is expensive -- the audit runs hourly, and its value
+        # depends on a failure meaning something. One that cries wolf trains the reader to skip it.
+        if _identifier_used_in_code(s, bad_name):
+            hits.append(f)
     if not hits:
         return True, f'{bad_name} absent (renamed to {replacement})'
     return False, f'{bad_name} has REAPPEARED in {", ".join(hits)}. {why}'
