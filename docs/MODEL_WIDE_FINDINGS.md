@@ -179,6 +179,66 @@ flattened all price variation is by construction available at every peak.
 
 ---
 
+## 1A. Solve cost, measured — and two hypotheses that failed
+
+**Measured 2026-09-13**, scenario 3 at 2030:
+
+| | vars | eq rows | nnz | solve |
+|---|---:|---:|---:|---:|
+| baseline | 183,968 | 61,325 | 727,090 | **31.9 s** |
+| merit order | 219,008 | 70,085 | 770,890 | **120.5 s** |
+
+**3.8× for 19% more variables and 6% more nonzeros.** `highs-ds` gives the same 120.5 s, so it is
+not solver choice; `highs-ipm` did not finish in a 290 s window.
+
+**Two hypotheses tested and refuted:**
+
+*Degeneracy* — four rung variables feeding one `g` through a linking equality should create many
+equivalent bases. **Forcing maximum degeneracy (identical rung costs) ran FASTER**: 113.4 s against
+122.5 s. Refuted.
+
+*Objective conditioning* — the objective spans 1.84e+04, from $5.43/MWh cycling to $100,000/MWh
+unserved penalty. **Lowering the penalty to $10,000 left the ratio at 1.83e+04 and the solve at
+120.0 s.** The penalty is not the binding extreme. Refuted.
+
+**Coefficient scaling was also checked and is unchanged** by the merit order — objective, `A_eq`
+and `A_ub` ranges are identical with and without it. The rung costs sit inside the existing span
+and the linking equality uses ±1.0 coefficients.
+
+**So the slowdown is simply problem size**, and the reasoning that "19% more variables shouldn't
+cost 3.8×" was naive: LP solve time is not linear in size, since iteration count scales with
+constraint count and each iteration costs proportional to nonzeros.
+
+**Practical consequence.** An overnight pathway-comparison run measured **538 s and 565 s** per
+converge iteration with the merit order *and* reserve margin active. A 60–90 minute estimate — made
+by reusing a single-solve figure from a run with neither — became 5 h 50 m without completing one
+checkpoint. Estimates must be built from the configuration actually being run.
+
+---
+
+## 1B. converge_frac could not converge, and did not say so
+
+The same overnight run, at 2030:
+
+    iter0  frac 0.5900  achieved 0.7046  gap -0.1146   (538s)
+    iter1  frac 0.4940  achieved 0.6580  gap -0.0680   (565s)
+
+The step rule was `frac = target × (frac / achieved)` — a **proportional rescale** assuming
+`achieved` moves linearly with `frac`. The implied ratio moved 10% between those iterations (0.837
+→ 0.751), so each step overshot and the gap closed only ~40% per iteration. From −0.1146, reaching
+tolerance 0.003 needed about **seven** iterations; `max_iter` was **3**.
+
+**And it returned silently.** After exhausting `max_iter` the function returned with no raise and
+no flag, so a build missing its own gas target by ~4 percentage points was indistinguishable from a
+converged one.
+
+**Fixed 2026-09-13.** `achieved_share` is monotonically increasing in `frac` — a higher gas
+allowance cannot reduce gas generation — so **bisection** halves the interval deterministically:
+0.115 → 0.057 → 0.029 → 0.014 → 0.007 → 0.004. Results now carry `converged` and
+`convergence_gap` either way, and `max_iter` is 8 across all four entry points.
+
+---
+
 ## 2. The all-hours reserve constraint exists, is documented as the standard, and is never called
 
 `docs/Weather_Year_Robustness_Approaches_and_Findings_2026-08-23.md` describes three approaches to

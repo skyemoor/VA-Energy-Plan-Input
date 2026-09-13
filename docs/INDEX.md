@@ -102,6 +102,8 @@ entry point but does not yet absorb the lifespans or capex material.
 | `research/Dominion_FRR_RPM_Status.md` | **Which capacity construct Dominion operates under** — FRR terminated May 2024, currently RPM; what that means for self-supply assumptions |
 | **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
+| **`methodology/Scenario_Restructuring_Compliance_Sweep.md`** | **START HERE for the whitepaper's structure** — compliance as the axis, the counterfactual, what the sweep drops |
+| `methodology/Scenario2_Runnability_Audit.md` | Why the baseline scenario is not currently runnable — three blockers |
 | **`methodology/Compliance_Definition_For_Sweep.md`** | **What the sweep axis means** — clean generation share vs statutory RPS, and why they differ by ~38% |
 | **`methodology/Experiment_Pathway_Foresight.md`** | **Myopic chain vs target-first** — the taxonomy, the literature (14–23% myopia penalty), and the open experiment |
 | `methodology/Six_Day_Lookahead_Firming_Documentation.md` | Six-day lookahead firming methodology |
