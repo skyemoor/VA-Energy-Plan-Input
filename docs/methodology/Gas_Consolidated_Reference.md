@@ -19,6 +19,7 @@ the other.
 | What does gas cost over its lifecycle? | **6A. Lifecycle costing** |
 | How long do turbines last? | **7. Lifespans, EOH and overhaul** |
 | Which technology does each scenario assume? | **8. Technology selection by scenario** |
+| Which technology fits the actual gaps? | **8 → Gap-driven technology matching** |
 | How is the gas fraction derived? | **9. Deriving gas_allowed_frac** |
 | What is still open? | **10. Open items** |
 
@@ -1344,6 +1345,119 @@ interpolated.
 
 `compute_scenario2_costs.py` — the caller of `ccgt_capex_kw()` — is not present. The Statutory
 Floor's cost side therefore cannot be run from a clean clone, only its dispatch side.
+
+---
+
+## Gap-driven technology matching — the method
+
+**Proposed 2026-09-13.** Supersedes choosing CCGT-versus-CT by assumption, and is cheaper than
+the MILP alternative.
+
+### The idea
+
+Rather than committing the technology split inside the LP, **let the LP find the gaps** — the hours
+and MW where clean resources cannot meet demand — and then **characterise those gaps** by the
+attributes that determine which machine fits.
+
+| gap attribute | what it implies |
+|---|---|
+| **Duration**, hours per event | short → CT; sustained → CCGT |
+| **Ramp needed**, MW/hour into and out of the event | steep → CT; gradual → CCGT tolerable |
+| **Frequency**, events per year | drives capacity factor, hence the 28.1% crossover above |
+| **Interval between events** | below 6 h a CCGT cannot cycle off and back — it must idle at minimum stable output |
+| **Predictability** | whether cold-start time (CCGT 4–12 h, CT 10–30 min) matters |
+
+### Why this beats putting capex in the LP
+
+**No MILP required.** Minimum up/down time and start cost become **post-hoc tests against the gap
+shape** rather than integer constraints in the optimisation. That avoids 43,800 binary variables.
+
+**It answers a question the LP cannot.** An LP with capex returns a single MW split. This returns
+the **distribution** — and the distribution is what says whether 7 GW should be CT, or whether it is
+really 3 GW of CT plus 4 GW of something else.
+
+**It can find gaps no gas technology fits.** If the analysis surfaces 60-hour events with 15 GW
+ramps, that is a finding about **storage duration**, not gas, and the framing shifts entirely.
+
+### The source — corrected, and it needs no new solve
+
+**The gas dispatch column of an existing solve IS the gap profile.** Where gas is the only
+dispatchable resource,
+
+```
+gas[t] = demand − nuclear − solar − wind − storage_discharge + storage_charge
+```
+
+which is the residual after clean supply and optimal storage cycling. That is the gap, by
+definition.
+
+| source series | valid? |
+|---|---|
+| **gas dispatch**, gas-inclusive solve | **yes — and preferred** |
+| unserved, clean-only solve | yes, same residual under another name |
+| unserved, gas-inclusive solve | **no — a double residual**, what gas *failed* to cover |
+
+**Gas dispatch is preferred over a purpose-built clean-only solve**, not merely equivalent: with
+unserved penalised at $100,000/MWh a clean-only solve has enormous incentive to build storage
+rather than leave gaps, distorting the shape being measured. Gas at ~$47/MWh creates no such
+distortion. It also means **every sweep point yields a gap profile with no extra solve.**
+
+*An earlier version of this method required a clean-only solve and refused gas-inclusive input
+entirely. That was aimed at the wrong failure.*
+
+### Measured on Scenario 2, 2045 — and the finding is not what the method was built to find
+
+| | |
+|---|---:|
+| gap events | 37 |
+| gas runs | **8,632 of 8,760 hours — 98.5%** |
+| longest single event | **4,200 hours** |
+| events over 72 h | 13 events carrying **114.6 of 122.9 TWh** |
+| annual CF | **62.4%** against a 28.1% crossover |
+
+**At 39.2% clean, gas is not filling gaps — it is the system.** The CCGT/CT question is answered
+decisively here (CCGT), but only because there is nothing peaky to serve.
+
+**The method becomes informative at higher compliance levels**, where gas genuinely peaks. That is
+what makes running it across the sweep worthwhile: watching the gap structure shift from baseload
+to peaking *is* the answer to which technology fits.
+
+Note that even at 98.5% utilisation the attributes disagree — 2 events fall below CCGT minimum up
+time, 26 fall within 6 hours of the previous one, and 1 needs a steeper ramp than a CCGT delivers.
+**Cost and operating constraints do not have to agree**, and the disagreement is a finding rather
+than something to resolve by majority.
+
+### The trap, and the run that avoids it
+
+**Gap shape depends on what was already built.** A solve with 10 GW of gas dispatching freely shows
+a different gap profile than one with none, because gas smooths its own gaps. Characterising gaps
+from a gas-inclusive solve measures the residual *after* gas filled it — which says nothing about
+what gas was needed for.
+
+**So the gaps must come from a clean-only solve**: clean resources, no gas, **unserved energy
+allowed**. The unserved profile *is* the gap profile.
+
+### What to extract, per event
+
+Start hour, duration, peak MW, total MWh, ramp in, ramp out, hours since the previous event, and
+season. Then cluster. Two or three natural families are expected — short evening peaks, multi-day
+winter events, and possibly a shoulder-season dunkelflaute — and **each family is matched against
+the technology parameters in §5 and §7. The match, or the failure to match, is the finding.**
+
+### Relationship to the other gas work
+
+| | |
+|---|---|
+| §6A lifecycle costing | gives the **crossover CF** a matched family is tested against |
+| §5 operating constraints | gives ramp, minimum up/down and start parameters to test against |
+| issue #19 (gas as a build variable) | this method may show whether that is asking the right question at all |
+
+**Residual value is a known gap in both.** Annualised capital assumes an asset earns over its full
+life. A CT built in 2035 and stranded at 2045 under 100% compliance has been charged 10 years of a
+30-year annuity, implicitly assuming the remaining 20 have value. **At 100% they do not.** Capital
+must either be amortised over the years it actually runs — roughly 3× the annual charge — or the
+stranding recognised as a write-off. This makes late-built gas look cheap when it is very expensive,
+and argues against building in the 2035–2040 window.
 
 ---
 
