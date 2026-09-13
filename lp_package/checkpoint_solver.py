@@ -619,6 +619,69 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         new_mw = max(0.0, self.peak_gas_mw - existing_mw)
         return existing_mw, new_mw
 
+    def lifecycle_cost(self, ccgt_capex_basis='central'):
+        """Full annualised cost: capital and FOM on every asset, plus the LP's operating cost.
+
+        WHY THIS IS NOT result['obj']. build_scenario2_problem is dispatch-only -- its objective
+        carries fuel, VOM, storage cycling, export revenue and the unserved penalty, and NO CAPITAL
+        WHATSOEVER. Everything is pinned, so there is nothing for the LP to trade capital against.
+        Reading result['obj'] as a scenario cost understates Scenario 2 by billions, and does so in
+        the direction that flatters the baseline the whitepaper is measured against.
+
+        CAPITAL IS CHARGED ON NEW BUILD ONLY. Charging it on the existing fleet would bill Dominion
+        twice for plant already paid for; charging none would treat ~10 GW of new gas and ~11 GW of
+        new solar as free. FOM applies to existing capacity too -- an already-paid-for plant still
+        costs money to keep available.
+        """
+        if self.result is None:
+            raise RuntimeError('lifecycle_cost() called before solve()')
+
+        from gas_lifecycle_cost import CCGT_CAPEX_KW
+        from gas_merit_order import GasMeritOrder
+        from scenario_lifecycle_cost import ScenarioLifecycleCost
+
+        x, IDX = self.result['raw'].x, self.result['problem']['IDX']
+        peak_gas_mw = max(x[t * 14 + IDX['g']] for t in range(len(self.demand)))
+        existing_gas_mw = GasMeritOrder().total_available_mw(self.year)
+
+        c = ScenarioLifecycleCost(self.year, operating_cost_usd=self.result['obj'])
+        c.add_asset('solar',
+                    existing_mw=lp.exist_solar_mw(self.year),
+                    new_mw=self.result['vcea_new_build_mw'],
+                    capex_usd_per_kw=lp.SOLAR_CAPEX,
+                    fixed_om_usd_per_kw_yr=lp.SOLAR_OM,
+                    note='new build is the statutory target net of post-VCEA capacity delivered')
+        c.add_asset('storage_sodium_power',
+                    existing_mw=0.0, new_mw=self.result['na_power_mw'],
+                    capex_usd_per_kw=lp.NA_POWER_CAPEX,
+                    fixed_om_usd_per_kw_yr=lp.NA_POWER_CAPEX * assumptions.STOR_FOM_PCT,
+                    note='statutory short-duration floor; no existing fleet credited')
+        # Storage ENERGY is priced per kWh, so it enters as a $/kW figure on an equivalent-MW basis
+        # rather than through add_asset's power convention. Kept separate and labelled, because
+        # silently folding energy capex into a power figure is exactly the units error
+        # AnnualizedCost.units_plausibility_check exists to catch.
+        c.add_asset('storage_sodium_energy',
+                    existing_mw=0.0,
+                    new_mw=self.result['na_power_mw'] * self.result['na_duration_hr'],
+                    capex_usd_per_kw=lp.NA_ENERGY_CAPEX,
+                    fixed_om_usd_per_kw_yr=0.0,
+                    note='MW figure is MWh of energy capacity; capex is $/kWh')
+        c.add_asset('storage_ironair_energy',
+                    existing_mw=0.0,
+                    new_mw=self.result['fe_power_mw'] * lp.FE_DURATION,
+                    capex_usd_per_kw=lp.FE_ENERGY_CAPEX,
+                    fixed_om_usd_per_kw_yr=0.0,
+                    note='MW figure is MWh of energy capacity; capex is $/kWh')
+        c.add_asset('gas',
+                    existing_mw=min(peak_gas_mw, existing_gas_mw),
+                    new_mw=max(0.0, peak_gas_mw - existing_gas_mw),
+                    capex_usd_per_kw=CCGT_CAPEX_KW[ccgt_capex_basis],
+                    fixed_om_usd_per_kw_yr=assumptions.CCGT_FOM_KW_YR,
+                    note=f'all CCGT by construction -- this problem has one gas variable, so the '
+                         f'CCGT/CT split cannot be determined here; capex basis {ccgt_capex_basis}')
+        self.result['lifecycle_cost'] = c
+        return c
+
     def solve(self, gas_price_mwh, return_hourly=True, ccgt_mw=None,
               na_duration_hr=None, unbounded_gas_ceiling_mw=200_000.0,
               deduct_existing_post_vcea=True):
