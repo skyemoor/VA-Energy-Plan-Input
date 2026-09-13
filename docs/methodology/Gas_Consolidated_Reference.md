@@ -16,6 +16,7 @@ the other.
 | When does each plant retire? | **4. Retirement schedules** |
 | How fast can it ramp? What isn't modelled? | **5. Operating constraints** |
 | What does new gas cost to build? | **6. New-build capex by size tier** |
+| What does gas cost over its lifecycle? | **6A. Lifecycle costing** |
 | How long do turbines last? | **7. Lifespans, EOH and overhaul** |
 | Which technology does each scenario assume? | **8. Technology selection by scenario** |
 | How is the gas fraction derived? | **9. Deriving gas_allowed_frac** |
@@ -28,6 +29,8 @@ the other.
 | DOM-zone gas, nameplate | **13,639.4 MW** |
 | Marginal cost range at 2045 | **$47.32 – $81.17/MWh** |
 | Scenario 2's implied gas peak at 2045 | **22,478 MW** |
+| ...of which NEW build required | **10,262 MW** |
+| CCGT/CT crossover capacity factor | **28.1%** (central) |
 
 ---
 
@@ -842,6 +845,94 @@ fixed-O&M figures listed per genset above.
 - These are overnight capital costs (excluding financing/inflation during
   construction) — actual project costs including financing would be
   higher
+
+---
+
+# 6A. Lifecycle costing — capital on new build only
+
+**Added 2026-09-13**, `lp_package/gas_lifecycle_cost.py`.
+
+## The problem it fixes
+
+Scenario 2 — the whitepaper's baseline — dispatched gas against a ceiling high enough never to
+bind, and carried **fuel and VOM only, no capital at all**. Its 22,478 MW peak at 2045 appeared for
+free.
+
+That flatters the baseline, in the direction a reviewer will attack. **But the naive correction is
+wrong the other way:** charging capital on all 22,478 MW would bill Dominion for plant that already
+exists and is already paid for.
+
+| | charged |
+|---|---|
+| **existing fleet** | FOM + fuel + VOM — capital is **sunk** |
+| **new build** | capex + FOM + fuel + VOM — capital is **incurred** |
+
+## Scenario 2 at 2045
+
+| | MW |
+|---|---:|
+| peak gas | 22,478 |
+| existing fleet available *(net summer × 0.92, post-retirement)* | **12,216** |
+| **new gas implied** | **10,262** |
+
+**Dominion's statutory build implies roughly 10 GW of new gas**, which the scenario's cost did not
+previously show at all.
+
+| capex case | capital | annual gas cost | capital share |
+|---|---:|---:|---:|
+| low ($2,000/kW) | $20.5B | $7.60B | 18.2% |
+| **central ($2,500/kW)** | **$25.7B** | **$7.94B** | **21.8%** |
+| high ($3,200/kW) | $32.8B | $8.43B | 26.3% |
+
+**Capital is a fifth to a quarter of the annual gas bill** — large enough that omitting it
+materially understated the baseline.
+
+## CCGT capex: a band, not a number
+
+**$2,500/kW central**, with $2,000 low and $3,200 high.
+
+A single point figure is not defensible here. §6 below records simple-cycle plant entering service
+in 2023 averaging **$562/kW** against 2025 costs of **$728–1,544/kW** — a 2–3× move in two years —
+and notes recent CCGT projects *"routinely reporting costs of $2,000/kW"* against an earlier
+$1,116–1,427/kW range.
+
+**What a reviewer will ask is not "why $2,500" but "why one number in a market that moved 3× in two
+years."** The band is the answer. The prior constant was $3,000/kW, above even the recent
+"routinely $2,000" reports.
+
+## The CCGT/CT crossover
+
+The capacity factor at which the two have equal total cost per MWh. **Above it build CCGT** — lower
+fuel repays higher capital. **Below it build CT.**
+
+| both bases | crossover CF |
+|---|---:|
+| low | **23.7%** |
+| **central** | **28.1%** |
+| high | **33.2%** |
+
+**Bases must match.** Pairing CCGT *high* with CT *low* gives **51.0%**; the reverse gives **5.9%**.
+A crossover quoted without stating both bases is uninterpretable, which is why both are explicit
+arguments.
+
+*This corrects an earlier estimate of 41%, which used $3,000/kW CCGT against a guessed $1,200/kW CT
+and omitted FOM entirely.*
+
+**Scenario 2's fleet-average CF is 62.4%** — comfortably above even the high-case crossover, so
+CCGT is right *on average* for its gas. That says nothing about the **marginal** units serving
+evening peaks, which run far below the average and would be better served by CT. **An average
+cannot answer a marginal question**, which is why the LP must eventually make the choice
+endogenously.
+
+## Why post-solve rather than in the LP
+
+`build_scenario2_problem` has **one gas variable and one gas price** — no merit order, so no
+existing/new distinction is available inside it. Wiring the merit order into that function is a
+model change; computing the increment from the reported peak is an accounting layer that gets the
+baseline's SLCOE right today without touching dispatch.
+
+**What it cannot do** is split the new build between CCGT and CT. That is a capital-versus-fuel
+trade the LP must make endogenously, and it is the reason to eventually wire the merit order in.
 
 ---
 
