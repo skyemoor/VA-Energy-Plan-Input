@@ -215,6 +215,48 @@ class GasMeritOrder:
     def total_available_mw(self, year: Optional[int] = None) -> float:
         return sum(self.available_capacity_mw(year).values())
 
+    # -- operating constraints --------------------------------------------
+
+    def ramp_limit_mw_per_hour(self, year=None):
+        """Maximum hour-to-hour output change per rung, MW.
+
+        WHY THIS EXISTS. The LP sees only marginal cost, so it would use ccgt_modern ($47.32/MWh at
+        2045) for a one-hour evening spike as readily as for baseload, in preference to ct_fleet
+        ($81.17). That is physically wrong twice over: a combined-cycle unit cannot start fast
+        enough, and running one at a 2% capacity factor is uneconomic on capital grounds the
+        dispatch objective never sees.
+
+        Ramp rate is the one operating constraint that stays LINEAR -- |g[t] - g[t-1]| <= limit is
+        two inequality rows per hour. Minimum up/down times and start costs need binary commitment
+        variables and would make this a MILP; see assumptions.GAS_UNIT_COMMITMENT_NOT_MODELLED for
+        what that omission costs and which way it biases.
+
+        Applied to AVAILABLE capacity rather than nameplate, so a rung whose plant has retired
+        ramps within what remains rather than within what it once was.
+        """
+        avail = self.available_capacity_mw(year)
+        out = {}
+        for rung, mw in avail.items():
+            frac = assumptions.GAS_RAMP_FRACTION_PER_HOUR.get(rung)
+            if frac is None:
+                raise ValueError(
+                    f'no ramp fraction for rung {rung!r}; add it to '
+                    'assumptions.GAS_RAMP_FRACTION_PER_HOUR rather than defaulting, since a '
+                    'missing entry would silently leave that rung unconstrained.')
+            out[rung] = mw * frac
+        return out
+
+    def ramp_binds_for(self, year=None):
+        """Rungs whose ramp fraction is below 1.0, i.e. where the constraint can actually bind.
+
+        OCGT is specified at 100%/hour -- full range within one hour -- so its ramp constraint is
+        never binding at hourly resolution, and adding rows for it would cost solve time for no
+        behavioural change.
+        """
+        avail = self.available_capacity_mw(year)
+        return [r for r, f in assumptions.GAS_RAMP_FRACTION_PER_HOUR.items()
+                if f < 1.0 and avail.get(r, 0.0) > 0.0]
+
     # -- the stack --------------------------------------------------------
 
     def rungs(self, year: float, include_empty: bool = False) -> List[GasRung]:

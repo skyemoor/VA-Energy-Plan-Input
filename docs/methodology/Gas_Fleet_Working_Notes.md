@@ -328,6 +328,59 @@ aeroderivative at 9.5 — both understating the rung most likely to set price.
 for the same technology. The ATB absolute is used for CT because it is sourced; the CCGT constant's
 provenance should be revisited.
 
+### Ramp constraints — added, and what is deliberately left out
+
+**Added 2026-09-13.** Source: **arXiv 2311.04398 Table D.1** (NREL Annual Technology Baseline 2020
+basis). Class-level parameters, which is standard practice — PLEXOS, GridView and PROMOD all use
+technology-class defaults rather than per-unit specifications.
+
+| technology | min stable output | **hourly ramp** | min up/down | startup fuel |
+|---|---:|---:|---:|---:|
+| OCGT | 30% | **100%** | 1 / 1 h | 350 MMBtu |
+| CCGT | 20% | **64%** | 6 / 6 h | 1,000 MMBtu |
+
+**Why it matters.** The LP sees only *marginal* cost, so without a ramp limit it uses
+`ccgt_modern` ($47.32/MWh at 2045) for a one-hour evening spike as readily as for baseload, in
+preference to `ct_fleet` ($81.17). Wrong twice over: a combined-cycle unit cannot start fast
+enough, and running one at a 2% capacity factor is uneconomic on capital grounds the dispatch
+objective never sees.
+
+**Implementation.** `|rung[t] − rung[t−1]| ≤ limit`, two inequality rows per hour per binding rung.
+Only the four CCGT rungs get rows — OCGT at 100%/hour can never bind at hourly resolution, and
+adding 17,520 rows for it would cost solve time for no behavioural change.
+
+**Measured at 2030: all four constrained rungs bind exactly at their limits.**
+
+| rung | limit MW/h | observed max swing |
+|---|---:|---:|
+| `new_build_ccgt` | 1,685.1 | 1,685.1 |
+| `ccgt_modern` | 3,012.9 | 3,012.9 |
+| `ccgt_fleet` | 1,258.4 | 1,258.4 |
+| `ccgt_legacy` | 768.7 | 768.7 |
+
+Objective moved **+0.02%**, solve time **33.8 s → 41.2 s**.
+
+**An honest note on effect size:** at 2030, CT usage barely moved (112,066 → 111,308 MWh). The
+constraint binds, but it did not shift work toward CTs at this compliance level — because with 59%
+gas allowed, gas runs steadily rather than spikily. The CCGT/CT substitution should matter more at
+higher compliance levels, where gas is marginal and peaky. That is a prediction, not a measurement.
+
+### What is NOT modelled, and which way it biases
+
+**Minimum up/down times and start costs require binary commitment variables** — 43,800 of them at
+five rungs × 8,760 hours. That is unit commitment, a MILP, and `scipy.optimize.linprog` cannot do
+it at all (SciPy's `milp()` exists but means a second solve path).
+
+**The omission flatters CCGT.** Without minimum run times the LP can start a combined-cycle unit
+for a single hour and shut it down — physically impossible and uneconomic. Since CCGT is *also* the
+cheapest gas on marginal cost, it gets selected for peaking duty a CT should serve. Ramp
+constraints remove the worst of this; they do not remove all of it.
+
+**Scoped as a separate deliverable**, to be run *after* the LP sweep so the difference unit
+commitment makes is measurable rather than assumed. A rung is not one turbine — `ccgt_modern` is
+12 units across three plants — so integer commitment of a whole rung would itself be an
+approximation, and that needs deciding deliberately rather than at solve time.
+
 ### Availability — flat, by decision
 
 `GAS_AVAILABILITY_FACTOR = 0.92`, applied uniformly. **Scheduled maintenance was considered and

@@ -285,6 +285,61 @@ COMPLIANCE_AXIS_CAVEAT = (
     'treatment. Scenario 2\'s plotted point uses the same definition and is therefore comparable '
     'to the curve, but is NOT a statement about whether that build satisfies § 56-585.5.')
 
+# ============================================================================
+# GAS OPERATING CONSTRAINTS -- ramp rates, and what is deliberately NOT modelled
+# ============================================================================
+# SOURCE: arXiv 2311.04398 Table D.1, whose technical assumptions derive from NREL Annual
+# Technology Baseline 2020 "Moderate" projections for 2050. Class-level parameters, which is
+# standard practice -- production cost models (PLEXOS, GridView, PROMOD) and published unit
+# commitment studies use technology-class defaults rather than per-unit specifications. Nobody
+# models nineteen individual turbines.
+#
+#     technology   min stable output   hourly ramp   min up/down   startup fuel
+#     OCGT                    30%            100%        1 / 1 h    350 MMBtu
+#     CCGT                    20%             64%        6 / 6 h  1,000 MMBtu
+#
+# A CORRECTION TO A FIGURE STATED FROM MEMORY IN REVIEW. I described CCGT ramp as "5-7%/minute",
+# which would be 300-420% per hour -- far above the sourced 64%. The error was conflating MW/min
+# with %/min: a large CCGT ramps at roughly 5-10 MW/min, which on a 500 MW unit is about
+# 1-2%/min, or 60-120%/hour. The sourced 64%/hour is consistent with ~5 MW/min on a 500 MW unit.
+# The recalled figure was wrong by a factor of five.
+GAS_RAMP_FRACTION_PER_HOUR = {
+    'new_build_ccgt': 0.64,
+    'ccgt_modern': 0.64,
+    'ccgt_fleet': 0.64,
+    'ccgt_legacy': 0.64,
+    'ct_aeroderivative': 1.00,  # defined for new-build analysis; ramps faster than frame if used
+    'ct_fleet': 1.00,           # OCGT: full range within one hour, so effectively unconstrained
+}
+
+#: WHY ONLY RAMP RATES ARE MODELLED.
+#:
+#: Minimum up/down times and start costs require BINARY COMMITMENT VARIABLES -- that is unit
+#: commitment, not linear programming. Adding them turns this LP into a MILP, and at 8,760 hours
+#: across five rungs that is a materially harder solve on a problem already taking ~120 s.
+#:
+#: Ramp rate is the exception: |g[t] - g[t-1]| <= rate x capacity is linear, two inequality rows
+#: per hour per rung, and it is the constraint that actually prevents a CCGT serving a one-hour
+#: spike. That is the behaviour the omission was distorting.
+#:
+#: THE BIAS DIRECTION IS KNOWN AND RUNS ONE WAY. Omitting minimum up/down times and start costs
+#: FLATTERS CCGT: without them the LP will happily start a combined-cycle unit for a single hour
+#: and shut it down, which is neither physically possible nor economic. Since CCGT is also the
+#: cheapest gas on marginal cost ($47.32/MWh at 2045 against $81.17 for ct_fleet), the LP would
+#: otherwise use CCGT in peaker slots -- choosing the wrong technology for sharp evening demand
+#: spikes. Ramp constraints alone do not fully correct that, but they remove the worst of it.
+#:
+#: IF THE CCGT/CT SPLIT PROVES MATERIAL to a result, that is the point to consider a MILP, and
+#: only for the years where gas does real work.
+GAS_UNIT_COMMITMENT_NOT_MODELLED = (
+    'Minimum up/down times (CCGT 6/6 h, OCGT 1/1 h) and start costs (CCGT ~1,000 MMBtu/start '
+    'against OCGT ~350, roughly a 5x ratio consistent with the $67,000 vs $13,400 per start in '
+    'arXiv 2311.04398) are NOT modelled, because they require binary commitment variables and '
+    'would make this a MILP. The omission FLATTERS CCGT: without them the LP can start a '
+    'combined-cycle unit for a single hour, and since CCGT is also the cheapest gas on marginal '
+    'cost it would be selected for peaking duty that a CT should serve. Ramp constraints remove '
+    'the worst of this; they do not remove all of it.')
+
 #: New-build gas: the standing 2,862 MW pool the scenarios permit above the existing fleet
 #: (Appendix A #4), and the technology it is assumed to be.
 #:

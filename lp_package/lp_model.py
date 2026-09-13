@@ -1704,6 +1704,45 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
             eq_rhs.append(0.0)
             eq_row += 1
 
+        # ---- RAMP CONSTRAINTS -------------------------------------------
+        # |rung[t] - rung[t-1]| <= ramp_limit, as two inequality rows per hour per binding rung.
+        #
+        # WHY. The LP sees only MARGINAL cost, so without this it uses ccgt_modern ($47.32/MWh at
+        # 2045) for a one-hour evening spike as readily as for baseload, in preference to ct_fleet
+        # ($81.17). That is wrong twice over: a combined-cycle unit cannot start fast enough, and
+        # running one at a 2% capacity factor is uneconomic on capital grounds the dispatch
+        # objective never sees.
+        #
+        # LINEAR, DELIBERATELY. Minimum up/down times and start costs would need binary commitment
+        # variables -- 43,800 of them at five rungs x 8,760 hours -- making this a MILP. Those are
+        # sourced and recorded (assumptions.GAS_UNIT_COMMITMENT_NOT_MODELLED) and scoped as a
+        # separate deliverable, to be validated against this LP rather than replacing it untested.
+        #
+        # ONLY BINDING RUNGS GET ROWS. OCGT is specified at 100%/hour -- full range within one hour
+        # -- so its constraint can never bind at hourly resolution, and adding 17,520 rows for it
+        # would cost solve time for no behavioural change.
+        ramp_limits = gas_merit_order.ramp_limit_mw_per_hour(year)
+        binding = [r for r in gas_merit_order.ramp_binds_for(year)
+                   if r in [g.name for g in rungs]]
+        ub_row = len(ub_rhs)
+        for rung_name in binding:
+            ri = [g.name for g in rungs].index(rung_name)
+            limit = ramp_limits[rung_name] / BUILD_SCALE
+            for t in range(1, T):
+                # up-ramp:   rung[t] - rung[t-1] <= limit
+                ub_rows += [ub_row, ub_row]
+                ub_cols += [rung_var(ri, t), rung_var(ri, t - 1)]
+                ub_data += [1.0, -1.0]
+                ub_rhs.append(limit)
+                ub_row += 1
+                # down-ramp: rung[t-1] - rung[t] <= limit
+                ub_rows += [ub_row, ub_row]
+                ub_cols += [rung_var(ri, t - 1), rung_var(ri, t)]
+                ub_data += [1.0, -1.0]
+                ub_rhs.append(limit)
+                ub_row += 1
+        problem['gas_ramp_constrained_rungs'] = binding
+
         A_eq = sparse.coo_matrix((eq_data, (eq_rows, eq_cols)),
                                  shape=(len(eq_rhs), len(c))).tocsr()
         A_ub = (sparse.coo_matrix((ub_data, (ub_rows, ub_cols)), shape=(len(ub_rhs), len(c))).tocsr()
