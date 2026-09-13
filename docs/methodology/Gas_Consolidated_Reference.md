@@ -29,7 +29,7 @@ the other.
 |---|---:|
 | DOM-zone gas, nameplate | **13,639.4 MW** |
 | Marginal cost range at 2045 | **$47.32 – $81.17/MWh** |
-| Scenario 2's implied gas peak at 2045 | **22,478 MW** |
+| Scenario 2's implied gas peak at 2045 | **22,479 MW** |
 | ...of which NEW build required | **10,262 MW** |
 | CCGT/CT crossover capacity factor | **28.1%** (central) |
 
@@ -1415,7 +1415,7 @@ entirely. That was aimed at the wrong failure.*
 | events over 72 h | 13 events carrying **114.6 of 122.9 TWh** |
 | annual CF | **62.4%** against a 28.1% crossover |
 
-**At 39.2% clean, gas is not filling gaps — it is the system.** The CCGT/CT question is answered
+**At 34.7% clean, gas is not filling gaps — it is the system.** The CCGT/CT question is answered
 decisively here (CCGT), but only because there is nothing peaky to serve.
 
 **The method becomes informative at higher compliance levels**, where gas genuinely peaks. That is

@@ -620,7 +620,8 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         return existing_mw, new_mw
 
     def solve(self, gas_price_mwh, return_hourly=True, ccgt_mw=None,
-              na_duration_hr=None, unbounded_gas_ceiling_mw=200_000.0):
+              na_duration_hr=None, unbounded_gas_ceiling_mw=200_000.0,
+              deduct_existing_post_vcea=True):
         """Dispatch the statutory build and let gas fill the residual.
 
         BROKEN UNTIL 2026-09-13: this passed six arguments to build_scenario2_problem(), which
@@ -658,9 +659,22 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
             na_duration_hr = assumptions.DISTRIBUTED_STORAGE_DURATION_HR
         if ccgt_mw is None:
             ccgt_mw = unbounded_gas_ceiling_mw
+        # THE STATUTORY TARGET IS A TOTAL, NOT AN INCREMENT (corrected 2026-09-13).
+        #
+        # build_scenario2_problem subtracts BOTH exist_solar and vcea_solar_mw from demand, so
+        # passing the full 16,100 MW alongside the existing fleet treated the target as entirely
+        # new build on top of everything already there. It is not: § 56-585.5 D.4 requires Dominion
+        # to petition the SCC annually for new solar, and that process is the statutory mechanism
+        # the 16,100 MW is measured by. Capacity approved through it counts toward the target.
+        #
+        # Only 645 MW of the existing 5,300 predates the VCEA. The other ~4,655 MW counts, so the
+        # NEW build required is ~11,445 MW. The uncorrected version overstated Scenario 2's clean
+        # generation share by about four percentage points.
+        vcea_new_mw = (assumptions.vcea_new_solar_mw(self.vcea_solar_mw)
+                       if deduct_existing_post_vcea else self.vcea_solar_mw)
         problem = lp.build_scenario2_problem(
             self.solar_cf, self.wind_cf, self.nuclear, self.exist_solar, self.demand,
-            vcea_solar_mw=self.vcea_solar_mw,
+            vcea_solar_mw=vcea_new_mw,
             ccgt_mw=ccgt_mw,
             na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
             na_duration_hr=na_duration_hr,
@@ -674,6 +688,7 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         # kept as its own path rather than forced into Scenario1Solver's own result shape.
         self.result = dict(status=res.status, success=res.success, obj=res.fun, raw=res,
                            problem=problem, ccgt_ceiling_mw=ccgt_mw,
+                           vcea_target_mw=self.vcea_solar_mw, vcea_new_build_mw=vcea_new_mw,
                            na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
                            na_duration_hr=na_duration_hr,
                            fe_power_mw=drv.vcea_long_duration_floor_mw(self.year))

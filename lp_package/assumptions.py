@@ -768,7 +768,50 @@ EXPORT_CAP_MW = 5000.0  # A STATIC PROXY for a fundamentally dynamic reality, no
 # ============================================================================
 # EXISTING ASSETS
 # ============================================================================
+# EXIST_SOLAR_MW_2026 had NO PROVENANCE COMMENT until 2026-09-13. Reconciled then against two
+# independent routes, which agree within 72 MW (1.4%):
+#
+#     pre-VCEA (before 2020), EIA-860 2025 operable, DOM-zone      645.2 MW
+#     post-VCEA 2020-2025, EIA-860 2025 operable                 4,417.1 MW
+#     2026 additions (Walnut 149.9, Dulles Intl 100, Moon Corner 60) 309.9 MW
+#     -------------------------------------------------------------------
+#     implied 2026 total                                         5,372.2 MW
+#     this constant                                              5,300.0 MW
+#
+# EIA-860 alone gives 5,062 MW, and is stale by up to 18 months for PPA solar and 6 months for
+# utility-owned. The 2026 projects close most of that gap, which is why the constant sits above the
+# EIA figure and is right to.
 EXIST_SOLAR_MW_2026 = 5300.0
+
+#: Of the existing fleet, how much predates the VCEA and therefore does NOT count toward the
+#: 16,100 MW target in Va. Code § 56-585.5 D.2.
+#:
+#: ONLY 645 MW OF 5,300 PREDATES THE STATUTE. The other ~4,655 MW was built from 2020 onward under
+#: § 56-585.5 D.4, which requires Dominion to petition the SCC ANNUALLY for approval of new solar
+#: and onshore wind capacity. That petition process IS the statutory mechanism the 16,100 MW is
+#: measured by -- the Code's own words are "construct, acquire, or enter into agreements to
+#: purchase" -- so capacity approved through it counts toward the target.
+#:
+#: WHY THIS MATTERS: Scenario 2 previously passed BOTH exist_solar AND vcea_solar_mw = 16,100,
+#: treating the statutory target as entirely new build on top of everything existing. That
+#: double-counted roughly 4,655 MW and overstated the baseline's clean share.
+EXIST_SOLAR_PRE_VCEA_MW = 645.2
+
+def vcea_new_solar_mw(target_mw=16_100.0, year=2026):
+    """New solar the statutory target still requires, net of post-VCEA capacity already delivered.
+
+    Raises rather than clamping if the target has been met (Rule 5): a negative requirement is a
+    real and reportable outcome, but returning one would silently subtract solar from the build.
+    """
+    already_counted = EXIST_SOLAR_MW_2026 - EXIST_SOLAR_PRE_VCEA_MW
+    remaining = target_mw - already_counted
+    if remaining < 0:
+        raise ValueError(
+            f'post-VCEA capacity ({already_counted:,.1f} MW) already exceeds the {target_mw:,.0f} '
+            'MW target, so no new build is required. That is a reportable finding, not a negative '
+            'build requirement -- handle it at the call site.')
+    return remaining
+
 SOLAR_DEGRADATION_RATE_ANNUAL = 0.005  # standard c-Si industry figure (~0.5%/yr)
 
 def solar_degradation_factor(years_elapsed):

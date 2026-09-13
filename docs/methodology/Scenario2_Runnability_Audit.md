@@ -4,9 +4,15 @@
 
 > ## The result
 >
-> **Scenario 2 reaches 39.2% clean generation share at 2045**, with an implied gas peak of
-> **22,478 MW**. Cross-checked independently: nuclear 28.7 + CVOW 9.3 + existing solar 9.5 + VCEA
-> solar 31.8 = **79.3 TWh** against **202.2 TWh** demand. The solver agreed to the decimal.
+> **Scenario 2 reaches 34.7% clean generation share at 2045**, with an implied gas peak of
+> **22,479 MW**.
+>
+> **Corrected 2026-09-13 from 39.2%.** The earlier figure double-counted post-VCEA solar — it
+> passed the full 16,100 MW target alongside the existing fleet, treating the statutory target as
+> entirely new build. It is a **total**, not an increment: only **645 MW** of the existing 5,300
+> predates the VCEA, and the other **~4,655 MW** was approved under § 56-585.5 D.4's annual
+> petition process, which is the mechanism the 16,100 MW is measured by. **New build required is
+> ~11,445 MW, not 16,100.**
 >
 > **Demand has roughly doubled since the VCEA was written, while the statutory MW targets did not
 > change.** The statutory build was sized against a much smaller system.

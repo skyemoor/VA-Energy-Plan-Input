@@ -66,10 +66,14 @@ class TestEverythingIsPinned:
 class TestComplianceLevel:
     """The number the compliance sweep needs, and the whitepaper's central finding."""
 
-    def test_clean_share_is_about_39_percent(self):
-        """BASELINE LOCKED 2026-09-13, and INDEPENDENTLY CROSS-CHECKED (Rule 4) against a direct
-        sum of clean supply: nuclear 28.7 + CVOW 9.3 + existing solar 9.5 + VCEA solar 31.8 =
-        79.3 TWh against 202.2 TWh demand = 39.2%. The solver agreed to the decimal.
+    def test_clean_share_is_about_35_percent(self):
+        """BASELINE MOVED 2026-09-13, from 39.2% to 34.7%.
+
+        The earlier figure double-counted post-VCEA solar: it passed the full 16,100 MW target
+        alongside the existing fleet, treating the target as entirely new build. Only 645 MW of
+        the existing 5,300 predates the statute; the other ~4,655 MW was approved under
+        § 56-585.5 D.4's annual petition process, which is the mechanism the target is measured by.
+        New build required is ~11,445 MW, not 16,100.
 
         WHY IT IS SO LOW: demand has roughly doubled since the VCEA was written, while the
         statutory MW targets did not change. The statutory build was sized against a much smaller
@@ -79,14 +83,14 @@ class TestComplianceLevel:
         x, I = r['raw'].x, r['problem']['IDX']
         gas = sum(x[t * 14 + I['g']] for t in range(8760))
         demand = s.demand.sum()
-        assert 1 - gas / demand == pytest.approx(0.392, abs=0.02)
+        assert 1 - gas / demand == pytest.approx(0.347, abs=0.02)
 
     def test_it_falls_below_the_sweep_range(self):
         """CONSEQUENCE FOR THE RESTRUCTURING: the sweep was scoped at 75-100% clean generation
         share. Scenario 2 lands at ~39%, far below it, so the baseline cannot be plotted on that
         axis as designed -- the sweep must extend down to reach it, or the chart must show it as
         an off-scale reference."""
-        assert 0.392 < min(assumptions.COMPLIANCE_SWEEP_LEVELS)
+        assert 0.347 < min(assumptions.COMPLIANCE_SWEEP_LEVELS)
 
     def test_unserved_is_zero(self):
         """Gas is effectively unbounded here, so it should always be able to serve load. Nonzero
@@ -95,6 +99,36 @@ class TestComplianceLevel:
         r = s.solve(gas_price_mwh=50.0)
         x, I = r['raw'].x, r['problem']['IDX']
         assert sum(x[t * 14 + I['unserved']] for t in range(8760)) == pytest.approx(0.0, abs=1.0)
+
+
+class TestPostVceaSolarIsDeducted:
+    """The statutory target is a TOTAL, not an increment on top of everything existing."""
+
+    def test_new_build_is_the_target_less_post_vcea_capacity(self):
+        _, s = _solver()
+        r = s.solve(gas_price_mwh=50.0)
+        assert r['vcea_target_mw'] == 16_100.0
+        assert r['vcea_new_build_mw'] == pytest.approx(11_445.2, abs=1.0)
+
+    def test_only_pre_vcea_capacity_is_excluded_from_the_target(self):
+        """645 MW of 5,300 predates the statute. The rest was approved under § 56-585.5 D.4's
+        annual petition process -- 'construct, acquire, or enter into agreements to purchase' --
+        which is the mechanism the 16,100 MW is measured by."""
+        assert assumptions.EXIST_SOLAR_PRE_VCEA_MW == pytest.approx(645.2)
+        counted = assumptions.EXIST_SOLAR_MW_2026 - assumptions.EXIST_SOLAR_PRE_VCEA_MW
+        assert counted == pytest.approx(4_654.8, abs=1.0)
+
+    def test_the_flag_can_reproduce_the_uncorrected_result(self):
+        """Kept so the size of the correction stays measurable rather than becoming folklore."""
+        _, s = _solver()
+        r = s.solve(gas_price_mwh=50.0, deduct_existing_post_vcea=False)
+        assert r['vcea_new_build_mw'] == 16_100.0
+
+    def test_exceeding_the_target_raises_rather_than_going_negative(self):
+        """A negative build requirement would silently subtract solar. It is a reportable finding
+        instead."""
+        with pytest.raises(ValueError, match='already exceeds'):
+            assumptions.vcea_new_solar_mw(target_mw=1_000.0)
 
 
 class TestImpliedGasCapacity:
