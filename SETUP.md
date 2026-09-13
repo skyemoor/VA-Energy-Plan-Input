@@ -198,3 +198,44 @@ than an artifact of scale.
 The JSON's `dual_unique_values` is the headline number. **Before the merit order, 2030 gave 1
 unique value across all 8,760 hours.** With it, 40. If a run reports 1, the script warns — that
 means the model has returned to a single effective price and no intraday result from it is usable.
+
+## Comparing pathways (overnight)
+
+```bash
+nohup python3 run_pathway_comparison.py --scenario 3 --merit-order > pathway.log 2>&1 &
+tail -f pathway.log
+```
+
+Runs **both** pathways in one call and reports the comparison:
+
+| | |
+|---|---|
+| **A — myopic chain** | 2030 → 2035 → 2040 → 2045, each carrying the prior build forward as a floor |
+| **B — target-first** | 2045 standalone, no prior build |
+
+**Five checkpoint solves, 60–90 minutes.** See
+`docs/methodology/Experiment_Pathway_Foresight.md` for why this is an open question rather than a
+settled choice.
+
+**Built for unattended running:**
+
+- **Results are written after every checkpoint**, not at the end — a run that fails on the last
+  solve keeps the first four. Progress lands in `results/pathway_progress_{scenario}.json` and is
+  renamed to `pathway_comparison_{scenario}.json` on completion.
+- **A failed pathway does not kill the other.** If the chain fails at 2040, the target-first solve
+  still runs and both partial results are reported with the traceback recorded.
+- **Every line is timestamped and flushed**, so `tail -f` shows where a stalled run stopped.
+
+**It uses the reserve-margin solver variants** (`Scenario1WithReserveMargin`,
+`Scenario3WithReserveMargin`) and warns for any scenario lacking one. `solve_checkpoint.py` uses the
+plain classes and therefore applies **no reserve margin** — which is how a full 2045 run was made
+without one on 2026-09-12.
+
+**What to look for in the output:**
+
+| | meaning |
+|---|---|
+| `final systems agree` | the literature predicts a similar 2045 system with differing pathways — this tests it |
+| build deltas marked `MATERIAL` | above 2%; below that is rounding |
+| `myopia penalty` | our **endpoint annual** cost gap, read against the literature's **cumulative NPC** range of 14–23%. **Not directly comparable** — the output says so |
+| `iron-air deferral` | whether the chain builds the whole long-duration fleet in the final checkpoint, which would be implausible against any real deployment rate |
