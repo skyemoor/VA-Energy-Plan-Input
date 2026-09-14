@@ -91,7 +91,12 @@ def solve_checkpoint(year, weather, prior, irm):
         'year': year,
         'demand_mwh': float(demand.sum()),
         'gas_mwh': gas_mwh,
-        'gas_share': gas_mwh / float(demand.sum()) if demand.sum() else 0.0,
+        # BOTH BASES -- see driver.run_solve. gas_share_statutory is gas / (demand - nuclear), the
+        # § 56-585.5(A) base that EXCLUDES nuclear and that gas_target_share is defined on;
+        # gas_share_of_demand counts nuclear as clean and is the whitepaper's compliance axis. They
+        # differ by 14 percentage points at 2030.
+        'gas_share_statutory': float(result.get('achieved_share', 0.0)),
+        'gas_share_of_demand': gas_mwh / float(demand.sum()) if demand.sum() else 0.0,
         'gas_target_share': float(solver.gas_target_share),
         'gas_cap_mw': float(solver.apply_gas_cap()),
         'solar_mw_total': float(result.get('S_mw_total', result.get('S_mw', 0.0))),
@@ -121,17 +126,23 @@ def main():
 
     weather = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
     print('Scenario 1: ' + ' -> '.join(str(y) for y in CHECKPOINTS), flush=True)
-    print(f'\n{"year":<6}{"clean":>8}{"solar total":>13}{"new":>12}{"curt TWh":>10}'
-          f'{"obj $B":>9}{"salvage $B":>12}', flush=True)
+    # 'incr obj' IS NOT A COST TRAJECTORY: each checkpoint charges annualised capital on that
+    # year's NEW build only, so a year building little shows a low objective while operating a
+    # fleet it is not charged for. Comparable only after the full lifecycle treatment.
+    # 'clean' is 1 - gas/total demand, the whitepaper's compliance axis. The STATUTORY share, which
+    # excludes nuclear and is what the RPS target is defined on, is reported per year below.
+    print(f'\n{"year":<6}{"clean":>8}{"statutory":>11}{"solar total":>13}{"new":>12}'
+          f'{"curt TWh":>10}{"incr obj $B":>13}{"salvage $B":>12}', flush=True)
 
     prior, rows = None, []
     t_start = time.time()
     for year in CHECKPOINTS:
         row, result = solve_checkpoint(year, weather, prior, args.irm)
         rows.append(row)
-        print(f'{year:<6}{1 - row["gas_share"]:>7.1%}{row["solar_mw_total"]:>13,.0f}'
+        print(f'{year:<6}{1 - row["gas_share_of_demand"]:>7.1%}'
+              f'{row["gas_share_statutory"]:>10.1%} {row["solar_mw_total"]:>12,.0f}'
               f'{row["solar_mw_new"]:>12,.0f}{row["curtailment_mwh"]/1e6:>10.1f}'
-              f'{row["obj_usd"]/1e9:>9.2f}{row["salvage_usd"]/1e9:>12.2f}', flush=True)
+              f'{row["obj_usd"]/1e9:>13.2f}{row["salvage_usd"]/1e9:>12.2f}', flush=True)
         prior = result
 
     # THE BUILD TRAJECTORY IS THE FINDING. Each checkpoint builds only what its own gas target

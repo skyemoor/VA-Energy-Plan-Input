@@ -40,16 +40,26 @@ class TestTheRunnerChecksWhatMatters:
     """For this scenario the 2044 -> 2045 increment is the diagnostic: same target, so it should be
     zero. A nonzero value means the linking is not carrying 2044 forward."""
 
-    def test_the_increment_is_computed_and_reported(self):
+    def test_it_tests_new_build_not_the_increment(self):
+        """CORRECTED 2026-09-14 after the first real run. The cumulative total FALLS between
+        checkpoints even when nothing is built, because the carried-forward fleet degrades at
+        0.5%/yr: 125,193.88 x 0.995 = 124,567.91, exactly the -626 MW measured. An increment-based
+        test can therefore NEVER read zero, and flagged a correct result as suspicious."""
         src = inspect.getsource(r1b.main)
-        assert "final['solar_mw_total'] - penultimate['solar_mw_total']" in src
+        assert "final['solar_mw_new'] > 1.0" in src
 
-    def test_a_nonzero_increment_is_flagged_with_both_explanations(self):
+    def test_the_degradation_arithmetic_is_explained_not_just_tolerated(self):
+        """A reader seeing a negative increment needs to know it is expected and why."""
+        src = inspect.getsource(r1b.main)
+        assert 'degradation of the' in src
+        assert '0.5%/yr' in src
+
+    def test_a_real_nonzero_build_is_still_flagged_with_both_explanations(self):
         """It could mean broken linking, OR that the corrected 6,000 MW cap changed what 2045
         needs against the 4,722 MW N.4 was written at. The message must not assert either."""
         src = inspect.getsource(r1b.main)
         assert 'not carrying 2044 forward' in src
-        assert '4,722 when N.4 was written' in src
+        assert 'cap has changed what 2045 needs' in src
 
     def test_the_gas_share_is_compared_against_the_prior_finding(self):
         src = inspect.getsource(r1b.main)
@@ -93,3 +103,55 @@ class TestItUsesTheReserveMarginVariant:
     def test_convergence_and_unserved_are_recorded_per_checkpoint(self):
         src = inspect.getsource(r1b.solve_checkpoint)
         assert "'converged'" in src and "'unserved_mwh'" in src
+
+
+class TestBothShareBasesAreReported:
+    """MEASURED 2026-09-14: the runner printed "gas share at 2045: 3.66% against a 5% ceiling",
+    comparing gas / TOTAL DEMAND against a ceiling defined on gas / (demand - nuclear). The correct
+    comparison is 4.27% against 5%. At 2030 the two bases differ by FOURTEEN percentage points."""
+
+    def test_both_are_carried_in_the_row(self):
+        src = inspect.getsource(r1b.solve_checkpoint)
+        assert "'gas_share_statutory'" in src and "'gas_share_of_demand'" in src
+
+    def test_the_statutory_base_is_the_one_compared_against_the_ceiling(self):
+        src = inspect.getsource(r1b.main)
+        assert 'gas_share_statutory' in src
+        assert 'the comparison that' in src
+
+    def test_the_driver_computes_both(self):
+        import driver as drv
+        src = inspect.getsource(drv)
+        assert 'gas_share_of_demand = g.sum()/demand.sum()' in src
+        assert 'achieved_share = g.sum()/nonnuclear_demand' in src
+
+    def test_a_failure_to_converge_is_reported_as_a_result(self):
+        """2045 did not converge: the achieved share was unchanged across a TRIPLING of the
+        allowance (0.0427 at frac 0.1649, 0.2562 and 0.5124). Gas cannot reach the ceiling at
+        6,000 MW. That is Appendix N.4's conclusion surviving the capacity correction, not a solver
+        failure -- and the runner must say so rather than reporting a bare 'not converged'.
+
+        Joins adjacent string literals before matching. The message is built from several
+        concatenated literals, so the source contains `binding ' 'constraint` -- normalising
+        whitespace alone is not enough, because the QUOTE CHARACTERS survive. That caught my first
+        two attempts at this assertion."""
+        import re
+        src = inspect.getsource(r1b.main)
+        src = re.sub(r"['\"]\s*\+?\s*['\"]", "", src)       # join adjacent literals
+        src = re.sub(r"\s+", " ", src)
+        assert 'that is the result rather than a failure' in src
+        assert 'binding constraint is physical fleet capacity' in src
+
+
+class TestTheObjectiveIsLabelledIncremental:
+    """Scenario 1B's 2045 objective ($8.25B) sits BELOW its 2044 ($13.29B) on higher demand,
+    because 2045 builds nothing and so is charged almost no capital while operating a 124,568 MW
+    fleet. Read as a cost trajectory that is simply wrong."""
+
+    def test_the_column_says_incremental(self):
+        assert 'incr obj $B' in inspect.getsource(r1b.main)
+
+    def test_the_reason_is_stated(self):
+        src = inspect.getsource(r1b.main)
+        assert 'NOT A COST TRAJECTORY' in src
+        assert 'not charged for' in src

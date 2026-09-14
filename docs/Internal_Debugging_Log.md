@@ -6497,3 +6497,42 @@ could actually be procured.
 the new build. That reads as an inconsistency until the newbuild term is noticed, so it is now
 stated at the function and asserted in a test.
 
+
+## 129. Three reporting defects found by reading the first real Scenario 1B run
+
+**Context:** the run completed cleanly -- every checkpoint converged except 2045, zero unserved
+throughout -- and the defects were all in how it REPORTED, not in what it solved. None would have
+been visible without a real result to read.
+
+**(a) Two share bases, one ceiling.** `converge_frac` searches on `achieved_share` =
+gas / (demand - nuclear), the statutory § 56-585.5(A) base that EXCLUDES nuclear. The runners
+reported gas / TOTAL demand, which counts nuclear as clean and is the whitepaper's own compliance
+axis. Both are correct and both are wanted -- but the runner printed "gas share at 2045: 3.66%
+against a 5% ceiling" when the ceiling is defined on the other base and the correct comparison is
+4.27% against 5%. At 2030 the two differ by FOURTEEN percentage points. Both are now computed in
+`driver.run_solve`, carried per checkpoint, and printed with the statutory one marked as the
+comparison that matters.
+
+**(b) The zero-new-build test could never pass.** Scenario 1B's 2045 checkpoint should build
+nothing, since 2044's own RPS target is already 5% gas. The runner tested the CUMULATIVE increment,
+which fell 626 MW -- and flagged a correct result as suspicious. The fall is exactly the 0.5%/yr
+degradation of the carried-forward fleet: 125,193.88 x 0.995 = 124,567.91. An increment-based test
+can never read zero while degradation is applied. Now tests `solar_mw_new`, which was 0.0, and
+explains the degradation rather than merely tolerating it.
+
+**(c) The objective is incremental, not a cost trajectory.** Scenario 1B's 2045 objective is
+$8.25B against 2044's $13.29B -- LOWER, on higher demand -- because 2045 builds nothing and is
+therefore charged almost no capital while operating a 124,568 MW fleet. Column relabelled "incr obj
+$B" with the reason stated at the site.
+
+**The substantive result, which none of this changed:** at 6,000 MW gas reaches 4.27% of the
+statutory base and CANNOT reach 5%. The search saturated -- achieved share unchanged at 0.0427
+across `frac` 0.1649, 0.2562 and 0.5124, a tripling of the allowance. Appendix N.4's conclusion that
+the binding constraint is physical fleet capacity rather than the RPS percentage survives the
+capacity correction, at 4.27% rather than the 1.63% it was measured at.
+
+**A test assertion needed two attempts.** Matching a message built from concatenated string
+literals: normalising whitespace is not enough, because the QUOTE CHARACTERS survive -- the source
+contains `binding ' 'constraint`. Adjacent literals must be joined first. Sixth instance in this
+project of a check needing source-vs-prose handling before it was trustworthy.
+

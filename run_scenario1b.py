@@ -94,7 +94,13 @@ def solve_checkpoint(year, weather, prior, irm):
         'year': year,
         'demand_mwh': float(demand.sum()),
         'gas_mwh': gas_mwh,
-        'gas_share': gas_mwh / float(demand.sum()) if demand.sum() else 0.0,
+        # BOTH BASES. gas_share_statutory is gas / (demand - nuclear), the § 56-585.5(A) base that
+        # EXCLUDES nuclear -- what gas_target_share means and what a compliance ceiling applies to.
+        # gas_share_of_demand counts nuclear as clean and is the whitepaper's own compliance axis.
+        # They differ by 14 points at 2030 and 0.6 at 2045; comparing one against the other's
+        # ceiling is an apples-to-oranges claim.
+        'gas_share_statutory': float(result.get('achieved_share', 0.0)),
+        'gas_share_of_demand': gas_mwh / float(demand.sum()) if demand.sum() else 0.0,
         'gas_target_share': float(solver.gas_target_share),
         'gas_cap_mw': float(solver.apply_gas_cap()),
         'solar_mw_total': float(result.get('S_mw_total', result.get('S_mw', 0.0))),
@@ -124,14 +130,19 @@ def main():
     print('Scenario 1B: ' + ' -> '.join(str(y) for y in CHECKPOINTS), flush=True)
     print('  2044 carries 1B\'s own 2045 target (5% gas), so 2045 should need no new build.',
           flush=True)
+    # 'obj $B' IS NOT A COST TRAJECTORY. Each checkpoint's objective charges annualised capital on
+    # that year's NEW build only, so a year that builds nothing shows a low objective while
+    # operating a fleet it is not charged for -- Scenario 1B's 2045 ($8.25B) sits below its 2044
+    # ($13.29B) for exactly that reason, on higher demand. Comparable across checkpoints only after
+    # the full lifecycle treatment.
     print(f'\n{"year":<6}{"clean":>8}{"gas cap":>10}{"solar total":>13}{"new solar":>11}'
-          f'{"obj $B":>9}', flush=True)
+          f'{"incr obj $B":>13}', flush=True)
 
     prior, rows = None, []
     for year in CHECKPOINTS:
         row, result = solve_checkpoint(year, weather, prior, args.irm)
         rows.append(row)
-        print(f'{year:<6}{1 - row["gas_share"]:>7.1%}{row["gas_cap_mw"]:>10,.0f}'
+        print(f'{year:<6}{1 - row["gas_share_of_demand"]:>7.1%}{row["gas_cap_mw"]:>10,.0f}'
               f'{row["solar_mw_total"]:>13,.0f}{row["solar_mw_new"]:>11,.0f}'
               f'{row["obj_usd"]/1e9:>9.2f}', flush=True)
         prior = result
@@ -141,22 +152,37 @@ def main():
     # nonzero increment means the linking is not carrying 2044 forward.
     final, penultimate = rows[-1], rows[-2]
     increment = final['solar_mw_total'] - penultimate['solar_mw_total']
-    print(f'\n2044 -> 2045 solar increment: {increment:,.1f} MW', flush=True)
-    if abs(increment) > 1.0:
-        print('  NOTE: nonzero. 2044 and 2045 share the same 5% target, so N.4 expects zero. '
-              'Either the linking is not carrying 2044 forward, or the 6,000 MW cap (against '
-              '4,722 when N.4 was written) has changed what 2045 needs.', flush=True)
-    else:
-        print('  Zero, as Appendix N.4 found: 2044 already exceeds what the 5% target needs.',
-              flush=True)
 
-    print(f'\ngas share at 2045: {final["gas_share"]:.2%} against a {final["gas_target_share"]:.0%} '
-          f'ceiling', flush=True)
+    # TEST solar_mw_new, NOT THE INCREMENT. The cumulative total FALLS between checkpoints even
+    # when nothing is built, because the carried-forward fleet degrades at 0.5%/yr -- 125,193.88 x
+    # 0.995 = 124,567.91, which is exactly the -626 MW first measured here. An increment-based test
+    # can therefore never read zero, and flagged a correct result as suspicious.
+    print(f'\n2044 -> 2045: new build {final["solar_mw_new"]:,.1f} MW, '
+          f'cumulative {increment:+,.1f} MW', flush=True)
+    if final['solar_mw_new'] > 1.0:
+        print('  NOTE: 2044 and 2045 share the same 5% target, so Appendix N.4 expects NO new '
+              'build. A nonzero figure means either the linking is not carrying 2044 forward, or '
+              'the 6,000 MW cap has changed what 2045 needs.', flush=True)
+    else:
+        degradation = penultimate['solar_mw_total'] * (1 - 0.995)
+        print(f'  No new build, as Appendix N.4 found: 2044 already exceeds what the 5% target '
+              f'needs. The cumulative fall of {abs(increment):,.0f} MW is degradation of the '
+              f'carried-forward fleet ({degradation:,.0f} MW expected at 0.5%/yr).', flush=True)
+
+    print(f'\ngas share at {final["year"]}:', flush=True)
+    print(f'  {final["gas_share_statutory"]:.2%} on the STATUTORY base (gas / demand excluding '
+          f'nuclear) against the {final["gas_target_share"]:.0%} ceiling  <- the comparison that '
+          'matters', flush=True)
+    print(f'  {final["gas_share_of_demand"]:.2%} of total demand, the model\'s own clean-share '
+          'axis, which counts nuclear as clean', flush=True)
     print(f'  Appendix N.4 reported 1.63% at a 4,722 MW cap; this runs at '
           f'{final["gas_cap_mw"]:,.0f} MW.', flush=True)
-    if final['gas_share'] < final['gas_target_share'] * 0.5:
-        print('  Still far below the ceiling -- the binding constraint is not the RPS percentage.',
-              flush=True)
+    if not final['converged']:
+        print('  DID NOT CONVERGE, and that is the result rather than a failure: the search '
+              'saturated with the achieved share unchanged across a tripling of the allowance, so '
+              'gas CANNOT reach the ceiling at this capacity. N.4\'s conclusion that the binding '
+              'constraint is physical fleet capacity rather than the RPS percentage survives the '
+              'correction -- at a materially higher share than it was measured at.', flush=True)
 
     # Retain/overhaul plan at the final checkpoint -- which plants the 6,000 MW target implies
     # keeping, which need overhaul, and how much genuinely new capacity is left over.
@@ -201,6 +227,7 @@ def main():
                    'new_ct_mw': assumptions.SCENARIO_1B_NEW_CT_MW,
                    'new_ct_capex_kw': assumptions.SCENARIO_1B_NEW_CT_CAPEX_KW,
                    'solar_increment_2044_to_2045_mw': increment,
+                   'solar_new_build_2045_mw': final['solar_mw_new'],
                    'retain_overhaul_plan': plan}, f, indent=2)
     print(f'\nWrote {path}', flush=True)
 

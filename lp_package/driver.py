@@ -417,11 +417,26 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
     unserved = np.array([x[hv(t,IDX['unserved'])] for t in range(T)])
     curt = np.array([x[hv(t,IDX['curt'])] for t in range(T)])
     gas_gwh = g.sum()/1000.0
+    # TWO SHARE BASES, BOTH REPORTED, because they differ by up to 14 percentage points and the
+    # ceiling each is compared against is different (2026-09-14).
+    #
+    #   achieved_share        gas / (demand - nuclear).  The statutory § 56-585.5(A) base, which
+    #                         EXCLUDES nuclear. This is what gas_target_share means and what
+    #                         converge_frac searches on, so it is the number a compliance ceiling
+    #                         applies to.
+    #   gas_share_of_demand   gas / total demand. The model's own clean-share axis, which counts
+    #                         nuclear as clean. This is what the whitepaper's compliance axis uses.
+    #
+    # Reporting only one and comparing it against the other's ceiling is an apples-to-oranges
+    # claim: at Scenario 1B's 2045 checkpoint that is 3.66% against a 5% ceiling when the correct
+    # comparison is 4.27% against 5%, and at 2030 the two bases differ by 14 points.
     nonnuclear_demand = (demand - nuclear).sum()
     achieved_share = g.sum()/nonnuclear_demand
+    gas_share_of_demand = g.sum()/demand.sum()
     peak_g = g.max()
     out = dict(status=res.status, success=res.success, obj=res.fun, S_mw=S_mw, PNA_mw=PNA_mw,
                 ENA_mwh=ENA_mwh, EFE_mwh=EFE_mwh, gas_gwh=gas_gwh, achieved_share=achieved_share,
+                gas_share_of_demand=gas_share_of_demand,
                 peak_g_mw=peak_g, unserved_mwh=unserved.sum(), curt_mwh=curt.sum())
     # EXTENDED (2026-09-09): distributed build sizes, extracted the same way as the utility-scale
     # ones above -- exact zeros when enable_distributed_segment=False, since 'distributed_builds'
