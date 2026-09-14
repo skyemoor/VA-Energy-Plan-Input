@@ -293,3 +293,25 @@ Given free rein the uncapped LP picked 17,704 MW.
 **The diagnostic to watch** is the 2044 → 2045 solar increment. Same target both years, so it should
 be **zero**; a nonzero value means either the linking isn't carrying 2044 forward, or the corrected
 6,000 MW cap changed what 2045 needs relative to the 4,722 MW N.4 was written at.
+
+## Scenario 1 — the full twenty-year stream
+
+```bash
+python3 run_scenario1.py                                    # four checkpoints, ~26 min
+python3 run_scenario1_annual.py                             # sixteen more, ~8 min
+```
+
+Flags: `--checkpoints results/scenario1.json`, `--irm 0.177`, `--out results`. The defaults make the
+bare call work.
+
+Interpolates the build between checkpoints and solves each remaining year **dispatch-only** at that
+fixed build, with **2026 anchored at zero build** so 2026–2029 have an earlier pair.
+
+**Not twenty full solves.** Each year optimising against its own gas target alone would be
+maximally myopic — 71% gas is allowed at 2026, so almost nothing would be built until late. The
+checkpoints carry the foresight and the intermediate years inherit it, which is why a year like
+2044 *under*-shoots its own allowance. It is also 3–4 hours against roughly 8 minutes.
+
+**Reserve margin is applied, not merely checked.** With the build pinned, an inadequate
+interpolation surfaces as **infeasibility** rather than as silently-accepted unserved energy. An
+infeasible year is a real possibility and is reported as a finding about the interpolation.
