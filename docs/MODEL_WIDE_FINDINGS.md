@@ -481,6 +481,27 @@ eliminated. Open question, not a settled explanation.
 An import-time assertion now catches a raise above the threshold **without running a solve**. It
 failed loudly once, but only because a solve happened to be run.
 
+### Audited against P.2 §11, and one requirement was unverifiable
+
+| §11 requirement | $25/MWh result |
+|---|---|
+| Zero unserved demand | **0.0 MWh** |
+| Zero simultaneous charge/discharge | **passes** — `verify_result()` did not raise |
+| Gas share achieved | **0.0000** against a 0.0000 target |
+| Convergence reported | **absent** |
+
+**`converge_frac()` sets `converged` and `convergence_gap` on its own result — which every caller
+discards.** They re-solve at the converged fraction and return the new one, so the flag never
+reached a caller. A build that missed its gas target was indistinguishable from one that hit it,
+which is exactly the failure the flag was added to prevent, **defeated by where it was attached.**
+
+**And there are three convergence paths.** Fixing one left the others silently wrong — the same
+shape as the gap itself. A shared `_carry_convergence_verdict()` helper now binds all three, with a
+test that scans every `converge_frac` call site and fails if any enclosing method omits it.
+
+A missing flag defaults to **not converged**: a result whose convergence is unknown is not a
+converged result.
+
 ---
 
 ## 3. No import capability

@@ -60,6 +60,26 @@ class CheckpointSolver:
         self.sourced_annual_total_gwh = sourced_annual_total_gwh
         self.result = None  # populated by solve()
 
+    def _carry_convergence_verdict(self, converge_result):
+        """Copies converge_frac()'s verdict onto the result this solver actually returns.
+
+        WHY IT IS NEEDED. converge_frac() sets 'converged' and 'convergence_gap' on ITS OWN result,
+        but every caller here DISCARDS that result -- they re-solve at the converged fraction and
+        return the new one. So the flag never reached a caller, and a build that missed its gas
+        target was indistinguishable from one that hit it. That is precisely the failure the flag
+        was added to prevent, defeated by where it was attached.
+
+        A SHARED HELPER RATHER THAN THREE COPIES, because there are three convergence paths in this
+        file and fixing one would leave the others silently wrong -- which is how the original gap
+        survived.
+        """
+        if self.result is None:
+            raise RuntimeError('_carry_convergence_verdict() called before a result exists')
+        self.result['converged'] = bool(converge_result.get('converged', False))
+        self.result['convergence_gap'] = float(converge_result.get('convergence_gap', 0.0))
+        self.result['achieved_share'] = float(converge_result.get('achieved_share', 0.0))
+        return self.result
+
     def _curtailment_kwargs(self):
         """Passed to run_solve so the hook, not driver.py's default, decides the value."""
         return {'slcr_curt_cost': self.curtailment_cost_mwh()}
@@ -307,6 +327,7 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
         self.result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
             self.nuclear, capacity_cap_mw=cap, return_hourly=True, **prior_kwargs, **gas_kwargs, **self._curtailment_kwargs())
+        self._carry_convergence_verdict(converge_result)
         self.verify_result()
         # Store this checkpoint's own total solar (incremental + degraded prior) for the
         # NEXT checkpoint's own linking -- keeps the "total vs. incremental" distinction
@@ -443,6 +464,7 @@ class ReserveMarginMixin:
             self.nuclear, capacity_cap_mw=cap, return_hourly=True,
             reserve_margin_hint=reserve_margin_hint, IRM=IRM, **prior_kwargs, **dist_kwargs, **self._curtailment_kwargs())
         self.result = result
+        self._carry_convergence_verdict(converge_result)
         self.verify_result()
         if prior_kwargs:
             prior_solar_degraded = prior_kwargs.get('prior_solar_mw', 0.0)
@@ -574,6 +596,7 @@ class Scenario3Solver(Scenario1Solver):
         self.result['S_mw_total'] = self.result['S_mw'] + prior_solar_degraded
         self.result['dist_S_mw_total'] = self.result['dist_S_mw'] + prior_dist_solar_degraded
         self.result['year'] = self.year
+        self._carry_convergence_verdict(converge_result)
         self._verify_monotonicity(prior_kwargs)
         return self.result
 
