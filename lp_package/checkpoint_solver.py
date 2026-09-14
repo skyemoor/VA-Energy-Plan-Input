@@ -748,6 +748,27 @@ class Scenario3Solver(Scenario1Solver):
                     distributed_exogenous_price_mwh=self.distributed_exogenous_price_mwh,
                     distributed_reserve_margin_credit_fraction=self.distributed_reserve_margin_credit_fraction)
 
+    def get_existing_new_mw(self, year):
+        """Identical to Scenario 1's split, stated explicitly rather than inherited silently.
+
+        WHY THIS EXISTS WHEN IT CHANGES NOTHING. SocialCostRGGIMixin refuses to supply a default,
+        on the stated grounds that "a wrong-but-silent default (e.g. reusing another scenario's own
+        split) is worse than an explicit failure here". That guard cannot fire for this class:
+        Scenario3Solver inherits from Scenario1Solver, so it picks up Scenario 1's implementation
+        through the MRO and the raise is never reached. The decision the guard exists to force was
+        being made by the class hierarchy instead of by anyone.
+
+        VERIFIED IDENTICAL, not assumed. Scenario 3 does not override apply_gas_cap, so its gas
+        fleet IS Scenario 1's -- schedule_b_baseline_mw(year) plus the standing 2,862 MW
+        overhaul/retain pool. The distributed segment adds solar and storage, not gas capacity, so
+        the existing/new split that feeds compute_year()'s NOx blend is unchanged.
+
+        IF SCENARIO 3 EVER GAINS ITS OWN GAS CAPACITY -- as Scenario 1B did at 2045 -- this must be
+        revisited. Delegating to super() keeps the two in step until then, while leaving a place
+        where the divergence would be written.
+        """
+        return super().get_existing_new_mw(year)
+
     def _post_build_hook(self):
         """Scenario 3's structural bounds on the distributed segment.
 

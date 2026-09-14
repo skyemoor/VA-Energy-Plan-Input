@@ -519,6 +519,49 @@ def check_one_demand_source():
     return True, 'demand read from demand_basis everywhere in the runners'
 
 
+
+def check_scenarios_state_their_own_gas_split():
+    """Every Scenario*Solver must declare get_existing_new_mw in its OWN namespace.
+
+    SocialCostRGGIMixin refuses to supply a default, on the stated grounds that "a wrong-but-silent
+    default (e.g. reusing another scenario's own split) is worse than an explicit failure here".
+
+    THAT GUARD CANNOT FIRE THROUGH INHERITANCE. Scenario3Solver inherits from Scenario1Solver, so
+    it picked up Scenario 1's implementation through the MRO and the raise was never reached -- the
+    decision the guard exists to force was being made by the class hierarchy instead of by anyone.
+    Found 2026-09-14; the split turned out to be genuinely identical, but nobody had checked.
+
+    A formal ABC would NOT catch this: abstractmethod is satisfied by an inherited implementation.
+    The check has to look at the class's own __dict__.
+
+    VARIANT CLASSES ARE EXEMPT -- Scenario1WithReserveMargin IS Scenario 1, and forcing a
+    meaningless override on every marker class would train people to write `return super()`
+    without thinking, which is worse than the problem.
+    """
+    import importlib
+    import sys
+    sys.path.insert(0, os.path.join(REPO, 'lp_package'))
+    try:
+        cs = importlib.import_module('checkpoint_solver')
+    except Exception as exc:                                              # noqa: BLE001
+        return False, 'could not import checkpoint_solver: ' + type(exc).__name__
+    missing = []
+    for name in dir(cs):
+        if not (name.startswith('Scenario') and name.endswith('Solver')):
+            continue
+        klass = getattr(cs, name)
+        if not isinstance(klass, type):
+            continue
+        if 'get_existing_new_mw' not in vars(klass):
+            missing.append(name)
+    if missing:
+        return False, ('scenario solver(s) not stating their own gas existing/new split: '
+                       + ', '.join(sorted(missing))
+                       + '. Declare get_existing_new_mw, delegating to super() if the split is '
+                       'genuinely identical -- but say so.')
+    return True, 'every scenario solver states its own gas existing/new split'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -585,6 +628,7 @@ CHECKS = [
     ('no undocumented dormant driver functions', check_no_dormant_driver_functions),
     ('no dead functions in the runners', check_no_dead_functions_in_runners),
     ('one demand source in the runners', check_one_demand_source),
+    ('scenarios state their own gas split', check_scenarios_state_their_own_gas_split),
     ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 

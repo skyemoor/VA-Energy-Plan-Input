@@ -281,3 +281,48 @@ class TestFreshIncrementNeverNegative:
 if __name__ == '__main__':
     import sys
     sys.exit(pytest.main([__file__, '-v']))
+
+
+class TestEveryScenarioStatesItsOwnGasSplit:
+    """SocialCostRGGIMixin refuses to supply a default for get_existing_new_mw, on the stated
+    grounds that "a wrong-but-silent default (e.g. reusing another scenario's own split) is worse
+    than an explicit failure here".
+
+    THE GUARD CANNOT FIRE THROUGH INHERITANCE. Scenario3Solver inherits from Scenario1Solver, so it
+    picked up Scenario 1's implementation through the MRO and the raise was never reached -- the
+    decision the guard exists to force was being made by the class hierarchy instead of by anyone.
+    Found 2026-09-14."""
+
+    @pytest.mark.parametrize('name', ['Scenario1Solver', 'Scenario1BSolver', 'Scenario2Solver',
+                                      'Scenario3Solver'])
+    def test_it_is_declared_in_the_classs_own_namespace(self, name):
+        assert 'get_existing_new_mw' in vars(getattr(cs, name))
+
+    def test_the_mixin_still_refuses_to_default(self):
+        class Bare(cs.SocialCostRGGIMixin):
+            pass
+        with pytest.raises(NotImplementedError, match='wrong-but-silent default'):
+            Bare().get_existing_new_mw(2045)
+
+    def test_scenario3s_split_is_genuinely_identical_to_scenario_1s(self):
+        """Verified, not assumed: Scenario 3 does not override apply_gas_cap, so its gas fleet IS
+        Scenario 1's. The distributed segment adds solar and storage, not gas capacity, so the
+        split feeding compute_year's NOx blend is unchanged."""
+        assert 'apply_gas_cap' not in vars(cs.Scenario3Solver)
+        s3 = cs.Scenario3Solver.__new__(cs.Scenario3Solver)
+        assert (cs.Scenario3Solver.get_existing_new_mw(s3, 2045)
+                == cs.Scenario1Solver.get_existing_new_mw(s3, 2045))
+
+    def test_variant_classes_are_exempt(self):
+        """Scenario1WithReserveMargin IS Scenario 1. Forcing a meaningless override on every marker
+        class would train people to write `return super()` without thinking, which is worse than
+        the problem it solves."""
+        assert 'get_existing_new_mw' not in vars(cs.Scenario1WithReserveMargin)
+        s = cs.Scenario1WithReserveMargin.__new__(cs.Scenario1WithReserveMargin)
+        assert cs.Scenario1WithReserveMargin.get_existing_new_mw(s, 2045) is not None
+
+    def test_a_formal_abc_would_not_have_caught_this(self):
+        """abstractmethod is satisfied by an INHERITED implementation, so an ABC would have passed
+        Scenario3Solver. The check has to look at the class's own __dict__ -- which is why the
+        textbook answer was the wrong one here."""
+        assert cs.SocialCostRGGIMixin.__bases__ == (object,)
