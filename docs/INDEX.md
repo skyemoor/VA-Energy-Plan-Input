@@ -104,7 +104,8 @@ of the other.
 | `research/Dominion_FRR_RPM_Status.md` | **Which capacity construct Dominion operates under** — FRR terminated May 2024, currently RPM; what that means for self-supply assumptions |
 | **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
-| **`Session_Handoff_2026-09-13.md`** | **START HERE** — the Scenario 2 SLCOE, corrections to published figures, defects fixed, and what is next |
+| **`Session_Handoff_2026-09-14.md`** | **START HERE** — results, corrections, the resistor threshold, the foresight technique, and what to run next |
+| `Session_Handoff_2026-09-13.md` | Prior handoff — superseded by the 2026-09-14 one above |
 | **`appendices/Reorganized_Appendices_Draft.md`** | **The full appendix draft**, 275 KB. The repo previously held only a 61 KB truncation |
 | `appendices/Appendix_D_Tiered_Social_Cost.md` | Tier 1/2/3 framework — full methodology and sourcing (P.2 §9 points here) |
 | `appendices/Appendix_M_Reference_Literature.md` | Reference literature |
