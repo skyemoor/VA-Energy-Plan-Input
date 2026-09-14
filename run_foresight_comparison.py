@@ -43,6 +43,7 @@ from scipy.optimize import linprog                                        # noqa
 
 import assumptions                                                        # noqa: E402
 import checkpoint_solver as cs                                            # noqa: E402
+import demand_basis                                                       # noqa: E402
 import driver as drv                                                      # noqa: E402
 import lp_model as lp                                                     # noqa: E402
 import multi_period_problem as mp                                         # noqa: E402
@@ -60,8 +61,19 @@ _LIFE_BY_BUILD_VAR = [assumptions.CRF_LIFE_YEARS] * 8
 
 
 def load_year(year, needs_distributed):
+    """Weather, demand and any distributed inputs for one year.
+
+    DEMAND COMES FROM demand_basis.VirginiaOnlyLoad, NOT the cached intermediate. The two are
+    byte-identical where both exist -- verified 2026-09-14 at 2030 and 2045 -- because the
+    intermediate is produced by run_all from exactly this call. But the cache exists only for
+    CHECKPOINT years, while the source works for any year in 2026-2045, so reading the cache made
+    this runner silently checkpoint-only and put a second demand path in the repository for no gain.
+
+    The distributed inputs stay on the cache: they are genuinely derived artefacts of run_all's
+    scenario3_inputs stage, not a cache of something callable.
+    """
     weather = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
-    demand = np.load(paths.intermediate(f'demand_{year}fy_va_only.npy'))
+    demand = demand_basis.VirginiaOnlyLoad(year).hourly_mw()
     dist = {}
     if needs_distributed:
         for name in ('dist_solar_cf_designyear.npy', f'dist_exog_price_{year}.npy'):

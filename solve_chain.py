@@ -49,6 +49,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lp_
 import numpy as np                                                        # noqa: E402
 
 import checkpoint_solver as cs                                            # noqa: E402
+import demand_basis
 import driver as drv                                                      # noqa: E402
 import lp_model as lp                                                     # noqa: E402
 import paths                                                              # noqa: E402
@@ -72,9 +73,9 @@ def load_year(year, needs_distributed):
     weather = paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz')
     if not os.path.exists(weather):
         missing.append(f'{weather}  (weather year)')
-    demand_path = paths.intermediate(f'demand_{year}fy_va_only.npy')
-    if not os.path.exists(demand_path):
-        missing.append(f'{demand_path}  -- rebuild: python3 run_all.py --only demand')
+    # NO DEMAND GUARD NEEDED. Demand now comes from demand_basis.VirginiaOnlyLoad, which
+    # reads the source projection directly and works for any year in 2026-2045 -- the cached
+    # intermediate it used to check for exists only for checkpoint years.
     dist = {}
     if needs_distributed:
         for name in ('dist_solar_cf_designyear.npy', f'dist_exog_price_{year}.npy'):
@@ -86,7 +87,7 @@ def load_year(year, needs_distributed):
     if missing:
         raise SystemExit('Missing inputs:\n  ' + '\n  '.join(missing))
     w = np.load(weather)
-    return w, np.load(demand_path), dist
+    return w, demand_basis.VirginiaOnlyLoad(year).hourly_mw(), dist
 
 
 def main():

@@ -487,6 +487,38 @@ def check_no_dead_functions_in_runners():
     return True, 'no dead functions in the top-level runners'
 
 
+
+def check_one_demand_source():
+    """Demand must come from demand_basis, not the cached intermediate.
+
+    THE TWO ARE BYTE-IDENTICAL where both exist -- the intermediate is produced by run_all from
+    exactly the demand_basis call -- but the CACHE ONLY EXISTS FOR CHECKPOINT YEARS while the
+    source works for any year in 2026-2045. A runner reading the cache is silently checkpoint-only,
+    which is a real limitation for the SLCOE work that needs all twenty years, and it puts a second
+    demand path in the repository for no gain.
+
+    Found 2026-09-14: run_foresight_comparison read the cache while three other runners read the
+    source.
+    """
+    import re
+    offenders = []
+    for fname in sorted(f for f in os.listdir(REPO)
+                        if f.startswith(('run_', 'solve_')) and f.endswith('.py')):
+        src = read(fname)
+        if not src or fname == 'run_all.py':
+            # run_all PRODUCES the cache -- it is the only thing that should name that path.
+            continue
+        for i, line in enumerate(src.split('\n'), 1):
+            if line.strip().startswith('#'):
+                continue
+            if re.search(r"intermediate\(\s*f?['\"]demand_", line):
+                offenders.append(fname + ':' + str(i))
+    if offenders:
+        return False, ('demand read from the cached intermediate at ' + ', '.join(offenders)
+                       + '. Use demand_basis.VirginiaOnlyLoad(year), which works for any year.')
+    return True, 'demand read from demand_basis everywhere in the runners'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -552,6 +584,7 @@ CHECKS = [
     ('modules import what they reference', check_modules_import_what_they_reference),
     ('no undocumented dormant driver functions', check_no_dormant_driver_functions),
     ('no dead functions in the runners', check_no_dead_functions_in_runners),
+    ('one demand source in the runners', check_one_demand_source),
     ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 
