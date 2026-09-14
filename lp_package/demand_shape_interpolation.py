@@ -61,11 +61,25 @@ project's Virginia-only demand total, adjusted for the flattening effect of
 data-center load growth" -- and that adjustment is already IN the source, not
 something to apply afterwards.
 
-RETAINED, NOT DELETED, for two reasons. The sourced commercial-share series in
-_COMMERCIAL_AND_TOTAL_GWH (2018-2045, from Dominion's 2018 and 2025 IRPs) is
-real data with citations. And Appendix O -- which P.2 section 7 cites
-normatively, and which is MISSING from the repository -- is partly
-reconstructible from this file.
+APPENDIX O ITSELF SUPPORTS THIS READING, now that it is in the repository
+(docs/appendices/Appendix_O_Intermediate_Year_Demand_Shape.md, restored
+2026-09-13). O.1 states the problem it solves as "a static 2023 shape scaled up
+to 2045's" total -- which is not what the demand stage does. And O.6(1) discloses
+that the commercial-share proxy "likely UNDERSTATES the true data-center-driven
+flattening effect", which is consistent with the source projection being flatter
+still. The module is superseded for this pipeline, not wrong.
+
+O.2 also settles a question raised separately: both source tables are
+VIRGINIA-ONLY, "not combined VA+NC DOM LSE". The gap between this module's totals
+and the demand intermediates is a vintage difference, not a geography one. O.5
+records that an earlier draft DID mislabel the source as the combined 2B-1 table
+rather than Virginia-only 2B-2 -- caught and corrected, with an impact of about
+1.0-1.4 percentage points that "mostly cancels out" because alpha is a difference
+from a baseline.
+
+RETAINED, NOT DELETED: the sourced commercial-share series in
+_COMMERCIAL_AND_TOTAL_GWH (2018-2045, from Dominion's 2018 and 2025 IRPs) is real
+data with citations.
 
 DO NOT WIRE IT INTO A SOLVE PATH.
 """
