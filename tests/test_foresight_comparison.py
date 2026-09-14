@@ -124,6 +124,45 @@ class TestFailureIsReported:
         assert 'inverts the literature' in src
 
 
+class TestVerificationIsSymmetric:
+    """P.2 §11. The myopic side verifies through solve_with_reserve_margin; the foresight side had
+    nothing, so the comparison would have held the two to different standards."""
+
+    def test_the_foresight_side_verifies(self):
+        src = inspect.getsource(rfc.run_perfect_foresight)
+        assert 'mp.verify_solution(assembled, res.x)' in src
+
+    def test_the_verification_travels_with_the_result(self):
+        assert "'verification': verification" in inspect.getsource(rfc.run_perfect_foresight)
+
+
+class TestBuildOrderingIsAsserted:
+    """_capex_by_build_var and _BUILD_RESULT_KEYS are aligned POSITIONALLY and nothing in the type
+    system enforces it. A reordering of either would credit solar salvage against storage MW
+    without raising."""
+
+    def test_the_check_passes(self):
+        assert rfc._assert_build_ordering() is True
+
+    def test_it_runs_before_any_solve(self):
+        assert '_assert_build_ordering()' in inspect.getsource(rfc.main)
+
+    def test_it_would_catch_a_swap(self):
+        """Checked by magnitude, the only available signal: solar $/MW is ~17x storage energy
+        $/MWh at 2045, so a swap shows up immediately."""
+        capex = rfc._capex_by_build_var(2045)
+        assert capex[0] > capex[2] * 5
+
+    def test_salvage_uses_the_increment_not_the_cumulative_total(self):
+        """S_mw, not S_mw_total. Salvage credits what each VINTAGE built -- a 2035 build has 2035's
+        remaining life -- and crediting the cumulative total at every checkpoint would count the
+        same capacity four times. The row's own solar_mw field reports S_mw_total, and the two
+        differing is deliberate."""
+        assert rfc._BUILD_RESULT_KEYS[0] == 'S_mw'
+        assert 'S_mw_total' in inspect.getsource(rfc.run_myopic)      # for the reported trajectory
+        assert 'NOT S_mw_total' in inspect.getsource(rfc._build_value)
+
+
 class TestScopeIsStated:
     def test_the_checkpoint_only_limitation_is_documented(self):
         """Both sides use the same four checkpoints, so the comparison is like-for-like -- but

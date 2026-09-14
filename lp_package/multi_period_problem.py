@@ -177,6 +177,51 @@ def builds_by_period(assembled: Dict, x) -> List[Dict[str, float]]:
     return out
 
 
+def verify_solution(assembled: Dict, x, years: Optional[Sequence[int]] = None) -> Dict:
+    """Appendix P.2 §11 checks on a solved multi-period result, per period.
+
+    WHY THIS EXISTS. CheckpointSolver.verify_result() runs on the myopic side, through
+    solve_with_reserve_margin. The perfect-foresight side produces a raw solution vector and had NO
+    verification at all -- so a solve with unserved energy or simultaneous charge/discharge would
+    have been reported without checking. §11 requires both before any solve is presented as final,
+    and the comparison would otherwise hold the two sides to different standards, which is exactly
+    the failure the comparison is meant to avoid.
+
+    Raises on the first violation rather than returning a flag, matching verify_result()'s own
+    convention: a solve that fails these is not a result whose cost means anything.
+    """
+    years = list(years or assembled['years'])
+    report = []
+    for i, year in enumerate(years):
+        nb, nph = assembled['hv_params_by_period'][i]
+        off = assembled['offsets'][i]
+        block = x[off:off + assembled['nvar_per_period'][i]]
+        IDX = assembled['IDX']
+        T = (len(block) - nb) // nph
+
+        def hourly(key):
+            k = IDX[key]
+            return np.array([block[nb + t * nph + k] for t in range(T)])
+
+        unserved = float(hourly('unserved').sum()) if 'unserved' in IDX else 0.0
+        if unserved > 1e-3:
+            raise ValueError(
+                f'#11 VERIFICATION FAILED: perfect-foresight period {year} has {unserved:.1f} MWh '
+                'unserved energy.')
+        simul = {}
+        for charge_key, discharge_key, label in (('nc', 'nd', 'Na'), ('fc', 'fd', 'iron-air'),
+                                                 ('bc', 'bd', 'Bath')):
+            if charge_key in IDX and discharge_key in IDX:
+                n = int(np.sum((hourly(charge_key) > 1e-6) & (hourly(discharge_key) > 1e-6)))
+                simul[label] = n
+                if n:
+                    raise ValueError(
+                        f'#13 VERIFICATION FAILED: perfect-foresight period {year} has {n} hours '
+                        f'of simultaneous charge/discharge for {label} storage.')
+        report.append({'year': year, 'unserved_mwh': unserved, 'simultaneous_hours': simul})
+    return {'verified': True, 'per_period': report}
+
+
 def verify_assembly(assembled: Dict, standalone_objectives: Sequence[float],
                     assembled_objective: float, tol: float = 1e-6) -> Dict:
     """Checks an UNLINKED assembly against the standalone solves it should reproduce.

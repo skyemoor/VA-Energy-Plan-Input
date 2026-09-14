@@ -227,3 +227,28 @@ belonging to neither — they have different capex bases.
 *A test written to catch this bug then made the same class of error itself, asserting
 `1.0 − 10×df` where the period's own cost is also discounted and the answer is `(1.0 − 10)×df`.
 Mixing discounted and undiscounted quantities is the recurring shape here.*
+
+### Audit of the comparison runner — two gaps closed, two recorded
+
+**Traced 2026-09-14** across `run_foresight_comparison`, `checkpoint_solver` and `driver`.
+
+**Fixed — verification was asymmetric.** The myopic side verifies through
+`solve_with_reserve_margin`; **the foresight side had none at all.** A solve with unserved energy or
+simultaneous charge/discharge would have been reported unchecked, holding the two sides of the
+comparison to different standards — the failure the comparison exists to avoid. `verify_solution()`
+now applies P.2 §11 per period and names the failing year.
+
+**Fixed — the salvage/build pairing was positional and unasserted.** `_capex_by_build_var` returns
+`[solar $/MW, NA power, NA energy, FE energy]` and `_BUILD_RESULT_KEYS` must name the same four in
+the same order. A reordering of either would credit solar salvage against storage MW **without
+raising**. Now checked by magnitude before any solve, since solar $/MW is ~17× storage energy $/MWh.
+
+**Recorded — salvage uses `S_mw`, not `S_mw_total`.** That is correct: salvage credits what each
+*vintage* built, and crediting the cumulative total at every checkpoint would count the same
+capacity four times. But the row's own `solar_mw` field reports `S_mw_total`, so the two differ
+deliberately and that is now stated at the site.
+
+**Recorded — `driver.run_solve` can apply both reserve paths.** `add_reserve_margin_constraint`
+still runs when `reserve_margin_hint` is passed, *and* the all-hours hook arrives via
+`post_build_hook`. Under `AllHoursReserveMixin` no hint is passed, so only all-hours applies —
+correct, but it rests on a caller *not* passing something rather than on a structural guarantee.

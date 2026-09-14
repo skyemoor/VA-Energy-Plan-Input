@@ -182,3 +182,54 @@ class TestPerVariableSalvage:
         with pytest.raises(ValueError, match='decommissioning liability'):
             mp.assemble([fake_problem(), fake_problem()], [2030, 2035],
                         salvage_usd_by_period=[[0.0] * 8, [-1.0] + [0.0] * 7])
+
+
+class TestVerifySolution:
+    """Appendix P.2 §11 on a solved multi-period result. The myopic side verifies through
+    CheckpointSolver.verify_result(); the foresight side had NO verification at all, so a solve
+    with unserved energy or simultaneous dispatch would have been reported unchecked -- holding the
+    two sides of the comparison to different standards, which is the failure it exists to avoid."""
+
+    @staticmethod
+    def _solved(nc, nd, unserved=0.0, hours=3):
+        """An assembled problem plus a hand-built solution vector with known dispatch."""
+        nb, nph = 8, 2
+        p = fake_problem(nvar_build=nb, hours=hours)
+        p['IDX'] = {'nc': 0, 'nd': 1}
+        a = mp.assemble([p, p], [2030, 2035])
+        x = np.zeros(len(a['c']))
+        for i, off in enumerate(a['offsets']):
+            for t in range(hours):
+                x[off + nb + t * nph + 0] = nc
+                x[off + nb + t * nph + 1] = nd
+        return a, x
+
+    def test_clean_dispatch_verifies(self):
+        a, x = self._solved(nc=5.0, nd=0.0)
+        assert mp.verify_solution(a, x)['verified'] is True
+
+    def test_simultaneous_charge_and_discharge_raises(self):
+        a, x = self._solved(nc=5.0, nd=5.0)
+        with pytest.raises(ValueError, match='simultaneous charge/discharge'):
+            mp.verify_solution(a, x)
+
+    def test_the_failing_period_is_named(self):
+        """A four-period solve needs to say WHICH period failed, or the diagnostic is useless."""
+        a, x = self._solved(nc=5.0, nd=5.0)
+        with pytest.raises(ValueError, match='period 2030'):
+            mp.verify_solution(a, x)
+
+    def test_unserved_energy_raises(self):
+        nb, nph, hours = 8, 2, 3
+        p = fake_problem(nvar_build=nb, hours=hours)
+        p['IDX'] = {'unserved': 0}
+        a = mp.assemble([p, p], [2030, 2035])
+        x = np.zeros(len(a['c']))
+        x[a['offsets'][1] + nb + 0 * nph + 0] = 500.0
+        with pytest.raises(ValueError, match='period 2035 has 500.0 MWh'):
+            mp.verify_solution(a, x)
+
+    def test_it_reports_per_period_when_clean(self):
+        a, x = self._solved(nc=5.0, nd=0.0)
+        r = mp.verify_solution(a, x)
+        assert [p['year'] for p in r['per_period']] == [2030, 2035]

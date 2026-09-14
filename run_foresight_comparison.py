@@ -141,10 +141,45 @@ def run_myopic(klass, needs_distributed, verbose=True):
     return rows
 
 
+#: Result keys for the four utility build variables, IN THE SAME ORDER as the first four entries
+#: of _capex_by_build_var. The pairing is positional and nothing in the type system enforces it, so
+#: a reordering of either list would credit solar salvage against storage MW WITHOUT RAISING.
+#: Asserted in _assert_build_ordering below.
+_BUILD_RESULT_KEYS = ['S_mw', 'PNA_mw', 'ENA_mwh', 'EFE_mwh']
+
+
+def _assert_build_ordering():
+    """Rule 4: cross-check the two positional lists that must stay aligned.
+
+    _capex_by_build_var returns [solar $/MW, NA power $/MW, NA energy $/MWh, FE energy $/MWh] and
+    _BUILD_RESULT_KEYS must name the same four quantities in the same order. Checked by magnitude,
+    which is the only signal available: solar capex per MW is ~30x storage ENERGY capex per MWh, so
+    a swap shows up immediately.
+    """
+    import lp_model as lp
+    drv.set_year_capex(2045)
+    capex = _capex_by_build_var(2045)
+    if not capex[0] > capex[2] * 5:
+        raise AssertionError(
+            f'build ordering looks wrong: position 0 ({capex[0]:,.0f}) should be solar $/MW and '
+            f'position 2 ({capex[2]:,.0f}) storage energy $/MWh, which differ by an order of '
+            'magnitude. Check _capex_by_build_var against _BUILD_RESULT_KEYS.')
+    if _BUILD_RESULT_KEYS[0] != 'S_mw' or _BUILD_RESULT_KEYS[3] != 'EFE_mwh':
+        raise AssertionError('_BUILD_RESULT_KEYS reordered without updating _capex_by_build_var')
+    return True
+
+
 def _build_value(result, position):
-    """Build variable value by position, from a solved checkpoint result."""
-    keys = ['S_mw', 'PNA_mw', 'ENA_mwh', 'EFE_mwh']
-    return float(result.get(keys[position], 0.0)) if position < len(keys) else 0.0
+    """Build variable value by position, from a solved checkpoint result.
+
+    USES S_mw, THE INCREMENT, NOT S_mw_total. Salvage credits what each VINTAGE built -- a 2035
+    build has 2035's remaining life, and crediting the cumulative total at every checkpoint would
+    count the same capacity four times. The row's own `solar_mw` field reports S_mw_total, which is
+    the right figure for the build trajectory and the wrong one here; the two differing is
+    deliberate.
+    """
+    return (float(result.get(_BUILD_RESULT_KEYS[position], 0.0))
+            if position < len(_BUILD_RESULT_KEYS) else 0.0)
 
 
 def run_perfect_foresight(klass, needs_distributed, verbose=True):
@@ -185,6 +220,10 @@ def run_perfect_foresight(klass, needs_distributed, verbose=True):
                   bounds=assembled['bounds'], method='highs')
     if not res.success:
         raise RuntimeError(f'perfect-foresight solve failed: status {res.status}, {res.message}')
+    # APPENDIX P.2 §11 -- the myopic side verifies through solve_with_reserve_margin, and this
+    # side had nothing. Without it the comparison would hold the two to different standards, which
+    # is the failure the comparison exists to avoid. Raises rather than reporting a flag.
+    verification = mp.verify_solution(assembled, res.x)
     builds = mp.builds_by_period(assembled, res.x)
     if verbose:
         print(f'  solved in {(time.time() - t0)/60:.1f} min, objective '
@@ -194,7 +233,7 @@ def run_perfect_foresight(klass, needs_distributed, verbose=True):
                   f'NA {b["sodium_ion_power_mw"]:>10,.0f} MW   '
                   f'FE {b["iron_air_energy_mwh"]/1e6:>7.2f} TWh', flush=True)
     return {'objective_usd': float(res.fun), 'builds': builds, 'demands_mwh': demands,
-            'seconds': round(time.time() - t0, 1)}
+            'verification': verification, 'seconds': round(time.time() - t0, 1)}
 
 
 def main():
@@ -205,6 +244,7 @@ def main():
     args = ap.parse_args()
     klass = SCENARIOS[args.scenario]
     needs_dist = args.scenario == '3'
+    _assert_build_ordering()
 
     print(f'Foresight comparison, scenario {args.scenario}. '
           'Five solves total; the foresight one is ~4x the size of a checkpoint.', flush=True)
