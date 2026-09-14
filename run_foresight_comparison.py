@@ -260,8 +260,26 @@ def main():
     print(f'Foresight comparison, scenario {args.scenario}. '
           'Five solves total; the foresight one is ~4x the size of a checkpoint.', flush=True)
     if args.myopic_from:
-        with open(args.myopic_from) as f:
-            saved = json.load(f)
+        # A MISSING FILE HERE IS THE EXPECTED FIRST-RUN STATE, not an error worth a traceback:
+        # run_scenario1.py writes it, and --myopic-from is the natural thing to reach for before
+        # noticing that. Say what to run.
+        if not os.path.exists(args.myopic_from):
+            raise SystemExit(
+                f'{args.myopic_from} does not exist yet. It is written by:\n\n'
+                f'    python3 run_scenario1.py\n\n'
+                'which solves the myopic chain (~19 min). Run that first, then this with '
+                '--myopic-from. Omit --myopic-from to solve both sides in one go.')
+        try:
+            with open(args.myopic_from) as f:
+                saved = json.load(f)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(
+                f'{args.myopic_from} is not valid JSON ({exc}). If run_scenario1.py was '
+                'interrupted mid-write, delete the file and re-run it.')
+        if 'checkpoints' not in saved:
+            raise SystemExit(
+                f'{args.myopic_from} has no "checkpoints" key -- it does not look like a '
+                'run_scenario1.py result. Check the path.')
         myopic = saved['checkpoints']
         if [r['year'] for r in myopic] != list(CHECKPOINTS):
             raise SystemExit(
