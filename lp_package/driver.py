@@ -129,6 +129,9 @@ def set_year_capex(year):
     CORRECTED: was using the stale na_capex_kwh_4hr_ref name plus an ad-hoc 25%/75% power/energy split;
     now uses na_power_energy_split() directly, which is properly NREL-share-derived AND correctly
     benchmarked to the validated 6-hr reference (per Assumptions tab row 33 / prior session's finding)."""
+    # Record which year the constants are bound to, so a reader outside a solver can assert the
+    # year it means rather than silently inheriting whichever solve ran last (2026-09-14).
+    lp.CAPEX_YEAR = year
     lp.SOLAR_CAPEX = lp.solar_capex(year)
     lp.NA_POWER_CAPEX, lp.NA_ENERGY_CAPEX = lp.na_power_energy_split(year)
     lp.FE_ENERGY_CAPEX = lp.fe_capex_kwh(year)

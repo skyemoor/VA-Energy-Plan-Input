@@ -156,6 +156,23 @@ def na_power_energy_split(y):
 def fe_capex_kwh(y):
     return 52.50 * 0.25**((y-2026)/24)
 
+#: WHICH YEAR THE CAPEX CONSTANTS BELOW ARE CURRENTLY BOUND TO.
+#:
+#: The five values that follow are evaluated at import against BUILD_YEAR, then REBOUND IN PLACE by
+#: driver.set_year_capex(year) on every checkpoint solve. That is a deliberate design -- the code
+#: was written against module-level names -- and the solver path is correct, because set_year_capex
+#: runs before any solve reads them.
+#:
+#: THE TRAP IS FOR READERS OUTSIDE A SOLVER. A module that imports these constants and computes
+#: something from them gets whichever year was last bound, which may be no checkpoint at all.
+#: storage_resistor_threshold.py did exactly that on 2026-09-14 and reported a sodium-ion threshold
+#: of $48.87 -- the BUILD_YEAR value -- where set_year_capex(2045) gives $48.06 and
+#: set_year_capex(2030) gives $119.54. Found by a test-order failure, not by reading the code.
+#:
+#: Exposed so the assumption becomes checkable: any module reading these outside a solver should
+#: assert CAPEX_YEAR is the year it means.
+CAPEX_YEAR = BUILD_YEAR
+
 SOLAR_CAPEX = solar_capex(BUILD_YEAR)          # $/kW-AC
 NA_REF_KWH = na_capex_kwh_6hr_ref(BUILD_YEAR)  # $/kWh at 6-hr reference (corrected from 4-hr label)
 # decompose 6-hr-reference $/kWh into power ($/kW) and energy ($/kWh) via na_power_energy_split(),
@@ -237,7 +254,8 @@ def iron_air_rte(year):
         return 0.80
     return 0.45 + (0.80-0.45)*(year-2026)/(2033-2026)
 
-FE_RTE_CHARGE = iron_air_rte(2044.5)  # = 0.80: both 2044 and 2045 fall past the 2033 ramp
+FE_RTE_CHARGE = iron_air_rte(BUILD_YEAR)  # = 0.80: both 2044 and 2045 fall past the 2033 ramp.
+# Was a second literal 2044.5 -- identical in value to BUILD_YEAR but free to drift from it.
                                         # completion, so this dispatch window uses the flat
                                         # terminal 80% value, not an in-progress ramp value.
 
@@ -401,7 +419,8 @@ def gas_cost_mwh_bernstein(year, high_case=False):
     heat_rate = 6.4
     return mmbtu * heat_rate
 
-GAS_COST_MWH = gas_cost_mwh(2044.5, heat_rate=CCGT_HEAT_RATE)  # RETAINED for backward compatibility
+GAS_COST_MWH = gas_cost_mwh(BUILD_YEAR, heat_rate=CCGT_HEAT_RATE)  # RETAINED for backward compatibility
+# Was a second literal 2044.5 -- identical in value to BUILD_YEAR but free to drift from it.
                                        # with any code still referencing the flat constant directly --
                                        # uses CCGT_HEAT_RATE since this constant's original consumer
                                        # (pre-parameterization) was Scenario 2. New code should call

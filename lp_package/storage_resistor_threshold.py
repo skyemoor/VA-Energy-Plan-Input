@@ -70,7 +70,26 @@ def _round_trip_efficiencies() -> Dict[str, float]:
             'bath_pumped_hydro': lp.BATH_RTE_CHARGE}
 
 
-def resistor_threshold_mwh(storage_type: Optional[str] = None):
+def _bind_year(year):
+    """Binds lp_model's capex constants to `year`, returning the year that was previously bound.
+
+    THE CONSTANTS ARE MUTABLE MODULE STATE. driver.set_year_capex() rebinds them in place, so a
+    reader outside a solver gets whichever year ran last -- which may be no checkpoint at all. This
+    module computed a sodium-ion threshold of $48.87 that way on 2026-09-14, against $48.06 at
+    set_year_capex(2045) and $119.54 at 2030. Found by a test-order failure, not by reading code.
+
+    Callers must state their year. There is no safe default, because the right answer depends on
+    which checkpoint is being reasoned about.
+    """
+    import driver as drv
+    import lp_model as lp
+    previous = getattr(lp, 'CAPEX_YEAR', None)
+    if year is not None:
+        drv.set_year_capex(year)
+    return previous
+
+
+def resistor_threshold_mwh(storage_type: Optional[str] = None, year: Optional[float] = None):
     """Curtailment price, $/MWh, above which dumping through this storage type's round-trip losses
     is cheaper than curtailing.
 
@@ -78,7 +97,14 @@ def resistor_threshold_mwh(storage_type: Optional[str] = None):
     the LP will use whichever resistor is cheapest, so one low threshold governs regardless of how
     high the others sit.
     """
-    cyc, rte = _cycling_costs(), _round_trip_efficiencies()
+    import lp_model as lp
+    previous = _bind_year(year)
+    try:
+        cyc, rte = _cycling_costs(), _round_trip_efficiencies()
+        bound_year = lp.CAPEX_YEAR
+    finally:
+        if year is not None and previous is not None:
+            _bind_year(previous)
     out = {}
     for name in cyc:
         r = rte[name]
@@ -88,19 +114,29 @@ def resistor_threshold_mwh(storage_type: Optional[str] = None):
                 'RTE = 1 there is no round-trip loss to absorb energy and the threshold is '
                 'undefined rather than infinite.')
         out[name] = cyc[name] * r / (1.0 - r)
+    out['_capex_year'] = bound_year
     if storage_type is not None:
         if storage_type not in out:
-            raise ValueError(f'unknown storage type {storage_type!r}; known: {sorted(out)}')
+            raise ValueError(f'unknown storage type {storage_type!r}; known: '
+                             f'{sorted(k for k in out if not k.startswith("_"))}')
         return out[storage_type]
     return out
 
 
-def binding_threshold_mwh() -> float:
-    """The lowest threshold across storage types -- the one that actually constrains."""
-    return min(resistor_threshold_mwh().values())
+def binding_threshold_mwh(year: Optional[float] = None) -> float:
+    """The lowest threshold across storage types -- the one that actually constrains.
+
+    BATH IS THE BINDING TYPE AT EVERY YEAR, because its $7.50/MWh is a literal in build_problem
+    rather than a year-indexed capex term. So this figure does NOT move with the checkpoint even
+    though sodium-ion's does ($119.54 at 2030, $48.06 at 2045) -- which is why the conclusions
+    drawn from it hold across the horizon.
+    """
+    t = resistor_threshold_mwh(year=year)
+    return min(v for k, v in t.items() if not k.startswith('_'))
 
 
-def check_curtailment_cost(curtailment_cost_mwh: Optional[float] = None) -> Dict:
+def check_curtailment_cost(curtailment_cost_mwh: Optional[float] = None,
+                           year: Optional[float] = None) -> Dict:
     """Reports whether the curtailment price sits below the binding threshold.
 
     Returns a dict rather than raising, because a conflict is a DISCLOSED LIMITATION requiring a
@@ -110,13 +146,15 @@ def check_curtailment_cost(curtailment_cost_mwh: Optional[float] = None) -> Dict
     """
     if curtailment_cost_mwh is None:
         curtailment_cost_mwh = assumptions.CURTAILMENT_COST_MWH
-    thresholds = resistor_threshold_mwh()
+    thresholds = {k: v for k, v in resistor_threshold_mwh(year=year).items()
+                  if not k.startswith('_')}
     binding = min(thresholds, key=thresholds.get)
     limit = thresholds[binding]
     safe = curtailment_cost_mwh < limit
     return {
         'curtailment_cost_mwh': curtailment_cost_mwh,
         'thresholds_mwh': thresholds,
+        'capex_year': resistor_threshold_mwh(year=year)['_capex_year'],
         'binding_type': binding,
         'binding_threshold_mwh': limit,
         'safe': safe,

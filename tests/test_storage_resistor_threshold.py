@@ -141,3 +141,72 @@ class TestMeasuredEffect:
         relabelled as storage losses rather than eliminated. Recorded as an open question, not a
         settled explanation."""
         assert 142.1 > 0
+
+
+class TestCapexYearIsExplicit:
+    """The fix for mutable module state, 2026-09-14. lp_model's capex constants are REBOUND IN
+    PLACE by driver.set_year_capex(), so a reader outside a solver gets whichever year ran last.
+    This module reported $48.87 that way -- the BUILD_YEAR (2044.5) value -- where 2045 gives
+    $48.06 and 2030 gives $119.54."""
+
+    def test_lp_model_exposes_the_bound_year(self):
+        import lp_model as lp
+        assert hasattr(lp, 'CAPEX_YEAR')
+
+    def test_set_year_capex_records_it(self):
+        import driver as drv
+        import lp_model as lp
+        try:
+            drv.set_year_capex(2030)
+            assert lp.CAPEX_YEAR == 2030
+            drv.set_year_capex(2045)
+            assert lp.CAPEX_YEAR == 2045
+        finally:
+            drv.set_year_capex(2045)
+
+    def test_the_threshold_reports_which_year_it_used(self):
+        """So a figure can never be quoted without its basis."""
+        assert srt.resistor_threshold_mwh(year=2030)['_capex_year'] == 2030
+        assert srt.check_curtailment_cost(year=2045)['capex_year'] == 2045
+
+    def test_it_restores_the_previous_binding(self):
+        """A module that silently leaves the constants on a different year poisons whatever runs
+        next -- which is how this was found, by a test-order failure."""
+        import driver as drv
+        import lp_model as lp
+        drv.set_year_capex(2045)
+        srt.resistor_threshold_mwh(year=2030)
+        assert lp.CAPEX_YEAR == 2045
+
+    def test_bath_binds_at_every_year(self):
+        """Its $7.50/MWh is a literal in build_problem, not a year-indexed capex term. So the
+        BINDING threshold does not move with the checkpoint even though sodium-ion's does -- which
+        is why every conclusion drawn from $30.00 holds across the horizon."""
+        for y in (2030, 2035, 2040, 2045):
+            r = srt.check_curtailment_cost(year=y)
+            assert r['binding_type'] == 'bath_pumped_hydro'
+            assert r['binding_threshold_mwh'] == pytest.approx(30.0, abs=0.5)
+
+    def test_sodium_moves_but_bath_does_not(self):
+        assert srt.resistor_threshold_mwh('sodium_ion', year=2030) > 100
+        assert srt.resistor_threshold_mwh('sodium_ion', year=2045) < 60
+        assert (srt.resistor_threshold_mwh('bath_pumped_hydro', year=2030)
+                == srt.resistor_threshold_mwh('bath_pumped_hydro', year=2045))
+
+    def test_the_duplicate_2044_5_literals_are_gone(self):
+        """FE_RTE_CHARGE and GAS_COST_MWH each carried their own literal 2044.5 -- identical to
+        BUILD_YEAR in value but free to drift from it.
+
+        Uses tokenize rather than a line heuristic. Prose mentioning 2044.5 in a docstring is
+        legitimate and expected; three earlier checks in this project failed by trying to tell code
+        from prose with string matching, and the right tool is a NUMBER token."""
+        import io
+        import inspect
+        import tokenize
+        import lp_model as lp
+        src = inspect.getsource(lp)
+        literals = [t for t in tokenize.generate_tokens(io.StringIO(src).readline)
+                    if t.type == tokenize.NUMBER and t.string == '2044.5']
+        assert not literals, (
+            f'{len(literals)} literal 2044.5 token(s) still in code at line(s) '
+            f'{[t.start[0] for t in literals]}')

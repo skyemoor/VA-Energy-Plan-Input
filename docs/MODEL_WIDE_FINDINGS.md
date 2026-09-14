@@ -519,8 +519,28 @@ stands. But the $48.87 quoted when the threshold was first derived was at the mo
 **import-time parameters, evaluated at a hardcoded 2044.5** — neither 2045 nor any checkpoint.
 That inconsistency was flagged in §2B above as an open item; this is it producing a wrong figure.
 
-Tests now pin `set_year_capex(2045)` explicitly and restore it afterwards, and assert the
-*derivation* rather than only a number.
+### Fixed by making the bound year inspectable, not by removing the state
+
+`lp.CAPEX_YEAR` is now set by `set_year_capex()` and initialised to `BUILD_YEAR`, so **any reader
+outside a solver can assert the year it means** rather than silently inheriting whichever solve ran
+last.
+
+`storage_resistor_threshold` takes an explicit `year`, reports `_capex_year` alongside every figure
+so a number can never be quoted without its basis, and **restores the previous binding** — a module
+that leaves the constants on a different year poisons whatever runs next, which is how this was
+found.
+
+The duplicate literal `2044.5` in `FE_RTE_CHARGE` and `GAS_COST_MWH` is replaced by `BUILD_YEAR` —
+identical in value, but a second literal is free to drift from the first.
+
+**The rebinding mechanism is kept.** It is a documented design choice and the solver path was never
+wrong: `set_year_capex` runs before any solve reads the constants. The failure was a *reader*
+assuming they were static, and making the binding inspectable turns that into a checkable
+assumption. Replacing the mechanism outright would touch dozens of call sites written against
+module-level names, for no gain the check does not already provide.
+
+Tests pin the year explicitly, restore it afterwards, and assert the *derivation* rather than only
+a number.
 
 ---
 
