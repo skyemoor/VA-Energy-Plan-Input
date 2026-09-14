@@ -47,7 +47,7 @@ import driver as drv                                                      # noqa
 import lp_model as lp                                                     # noqa: E402
 import multi_period_problem as mp                                         # noqa: E402
 import paths                                                              # noqa: E402
-from levelised_cost import undepreciated_value                            # noqa: E402
+from levelised_cost import build_salvage_credit, undepreciated_value      # noqa: E402
 
 CHECKPOINTS = (2030, 2035, 2040, 2045)
 
@@ -124,8 +124,8 @@ def run_myopic(klass, needs_distributed, verbose=True):
         # Pairs each per-MW credit with its OWN build variable. _build_value returns the four
         # utility build quantities in the same order as _capex_by_build_var's first four entries;
         # a mismatch here would credit solar salvage against storage MW without raising.
-        per_mw = salvage_credit_per_mw(year, _capex_by_build_var(year))
-        salvage = sum(per_mw[k] * _build_value(result, k) for k in range(4))
+        drv.set_year_capex(year)
+        salvage, _ = build_salvage_credit(result, year, CHECKPOINTS[-1])
         rows.append({'year': year, 'obj_usd': float(result['obj']),
                      'solar_mw': float(result.get('S_mw_total', result.get('S_mw', 0.0))),
                      'na_power_mw': float(result.get('PNA_mw', 0.0)),

@@ -157,6 +157,57 @@ class LevelisedCost:
         }
 
 
+#: Result keys for the four utility build variables, in the order their capex figures are derived
+#: below. The pairing is positional and nothing enforces it, so a reordering of either list would
+#: credit solar salvage against storage MW without raising -- checked in build_salvage_credit.
+BUILD_RESULT_KEYS = ('S_mw', 'PNA_mw', 'ENA_mwh', 'EFE_mwh')
+
+
+def build_salvage_credit(result, year, horizon_year, life_years=None):
+    """Total salvage credit for one solved checkpoint, on an ANNUITY basis, across ALL build assets.
+
+    ONE IMPLEMENTATION FOR BOTH RUNNERS. run_scenario1.py credited SOLAR ONLY while
+    run_foresight_comparison.py credited four build variables -- so a comparison drawing its myopic
+    side from a saved run_scenario1 result would have weighed a solar-only salvage against a
+    four-asset one, biasing the myopia penalty by whatever the storage credit is worth. Found by
+    audit 2026-09-14, before either figure was published.
+
+    THE ANNUITY BASIS MATTERS. build_problem charges build variables as CRF x capex x 1000, an
+    ANNUAL cost. Crediting raw undepreciated CAPITAL against an annuity-based objective made
+    salvage exceed the entire year's cost when this was first written -- $6.50B against $4.13B.
+
+    Uses each asset's own vintage: a 2035 build has 2035's remaining life. Crediting the CUMULATIVE
+    total at every checkpoint would count the same capacity once per checkpoint.
+    """
+    import lp_model as lp
+    import assumptions
+    life_years = assumptions.CRF_LIFE_YEARS if life_years is None else life_years
+
+    lp_year = getattr(lp, 'CAPEX_YEAR', None)
+    if lp_year != year:
+        raise ValueError(
+            f'capex constants are bound to {lp_year}, not {year}. Call driver.set_year_capex('
+            f'{year}) first -- lp_model\'s capex values are mutable module state, and a salvage '
+            'credit computed against another year\'s costs is wrong in a way nothing else catches.')
+
+    capex_per_unit = (lp.SOLAR_CAPEX * 1000, lp.NA_POWER_CAPEX * 1000,
+                      lp.NA_ENERGY_CAPEX * 1000, lp.FE_ENERGY_CAPEX * 1000)
+    if not capex_per_unit[0] > capex_per_unit[2] * 5:
+        raise AssertionError(
+            f'build ordering looks wrong: position 0 ({capex_per_unit[0]:,.0f}) should be solar '
+            f'$/MW and position 2 ({capex_per_unit[2]:,.0f}) storage energy $/MWh, which differ by '
+            'an order of magnitude. Check BUILD_RESULT_KEYS against the capex tuple.')
+
+    total = 0.0
+    per_asset = {}
+    for key, capex in zip(BUILD_RESULT_KEYS, capex_per_unit):
+        quantity = float(result.get(key, 0.0))
+        credit = undepreciated_value(capex, year, horizon_year, life_years) * lp.CRF * quantity
+        per_asset[key] = credit
+        total += credit
+    return total, per_asset
+
+
 def undepreciated_value(capex_usd, build_year, horizon_year, life_years,
                         strands_at_horizon=False):
     """Straight-line residual value of an asset at the horizon.

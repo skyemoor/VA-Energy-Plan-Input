@@ -44,7 +44,7 @@ import demand_basis                                                       # noqa
 import driver as drv                                                      # noqa: E402
 import lp_model as lp                                                     # noqa: E402
 import paths                                                              # noqa: E402
-from levelised_cost import undepreciated_value                            # noqa: E402
+from levelised_cost import build_salvage_credit                           # noqa: E402
 
 CHECKPOINTS = (2030, 2035, 2040, 2045)
 
@@ -77,14 +77,15 @@ def solve_checkpoint(year, weather, prior, irm):
                  'social_cost_ghg_usd': float(t['social_cost_of_ghg']),
                  'health_impacts_usd': float(t['health_impacts_cost'])}
 
-    # Salvage on an ANNUITY basis, matching how build_problem charges build variables
-    # (CRF x capex x 1000, an annual cost). Crediting raw capital against an annuity-based
-    # objective made salvage exceed the entire year's cost when this was first written.
+    # Salvage across ALL FOUR build assets, on an annuity basis, from the shared implementation.
+    #
+    # THIS CREDITED SOLAR ONLY until 2026-09-14, while run_foresight_comparison credited four build
+    # variables. A comparison drawing its myopic side from a saved result here would have weighed a
+    # solar-only salvage against a four-asset one -- worth 2.4x at 2030 ($0.326B against $0.779B),
+    # biasing the myopia penalty by the whole difference. One implementation now, so the two cannot
+    # diverge again.
     drv.set_year_capex(year)
-    solar_capex_per_mw = lp.SOLAR_CAPEX * 1000
-    salvage = (undepreciated_value(solar_capex_per_mw, year, CHECKPOINTS[-1],
-                                   assumptions.CRF_LIFE_YEARS) * lp.CRF
-               * float(result.get('S_mw', 0.0)))
+    salvage, salvage_by_asset = build_salvage_credit(result, year, CHECKPOINTS[-1])
 
     row = {
         'year': year,
@@ -101,6 +102,7 @@ def solve_checkpoint(year, weather, prior, irm):
         'curtailment_mwh': float(result.get('curt_mwh', 0.0)),
         'obj_usd': float(result['obj']),
         'salvage_usd': float(salvage),
+        'salvage_by_asset_usd': {k: float(v) for k, v in salvage_by_asset.items()},
         'converged': bool(result.get('converged', False)),
         'convergence_gap': float(result.get('convergence_gap', 0.0)),
         'unserved_mwh': float(result.get('unserved_mwh', 0.0)),

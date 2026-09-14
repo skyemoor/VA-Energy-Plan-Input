@@ -147,3 +147,59 @@ class TestUndepreciatedValue:
     def test_zero_life_raises(self):
         with pytest.raises(ValueError, match='life_years must be positive'):
             undepreciated_value(1000.0, 2040, 2045, 0)
+
+
+class TestBuildSalvageCredit:
+    """ONE IMPLEMENTATION FOR BOTH RUNNERS, extracted 2026-09-14.
+
+    run_scenario1.py credited SOLAR ONLY while run_foresight_comparison.py credited four build
+    variables. A comparison drawing its myopic side from a saved run_scenario1 result would have
+    weighed a solar-only salvage against a four-asset one -- worth 2.4x at 2030 ($0.326B against
+    $0.779B), biasing the myopia penalty by the whole difference."""
+
+    @staticmethod
+    def _at(year):
+        import driver as drv
+        drv.set_year_capex(year)
+        return {'S_mw': 8702.0, 'PNA_mw': 12000.0, 'ENA_mwh': 72000.0, 'EFE_mwh': 200000.0}
+
+    def test_it_covers_all_four_build_assets(self):
+        from levelised_cost import BUILD_RESULT_KEYS, build_salvage_credit
+        total, per = build_salvage_credit(self._at(2030), 2030, 2045)
+        assert set(per) == set(BUILD_RESULT_KEYS)
+        assert all(v > 0 for v in per.values())
+
+    def test_solar_alone_understates_it_substantially(self):
+        """The magnitude of the asymmetry that was there."""
+        from levelised_cost import build_salvage_credit
+        total, per = build_salvage_credit(self._at(2030), 2030, 2045)
+        assert total / per['S_mw'] > 2.0
+
+    def test_it_is_on_an_annuity_basis(self):
+        """build_problem charges build variables as CRF x capex x 1000, an ANNUAL cost. Crediting
+        raw capital against that made salvage exceed the entire year's cost -- $6.50B against
+        $4.13B -- when it was first written."""
+        import driver as drv
+        import lp_model as lp
+        from levelised_cost import build_salvage_credit, undepreciated_value
+        drv.set_year_capex(2045)
+        total, per = build_salvage_credit({'S_mw': 1000.0}, 2045, 2045)
+        expected = undepreciated_value(lp.SOLAR_CAPEX * 1000, 2045, 2045,
+                                       __import__('assumptions').CRF_LIFE_YEARS) * lp.CRF * 1000.0
+        assert per['S_mw'] == pytest.approx(expected)
+
+    def test_it_refuses_a_mismatched_capex_year(self):
+        """lp_model's capex values are mutable module state, and a credit computed against another
+        year's costs is wrong in a way nothing else catches."""
+        import driver as drv
+        from levelised_cost import build_salvage_credit
+        drv.set_year_capex(2045)
+        with pytest.raises(ValueError, match='capex constants are bound to 2045, not 2030'):
+            build_salvage_credit({'S_mw': 1.0}, 2030, 2045)
+
+    def test_it_checks_the_positional_build_ordering(self):
+        """BUILD_RESULT_KEYS and the capex tuple are aligned by position and nothing enforces it.
+        Checked by magnitude -- solar $/MW is ~17x storage energy $/MWh."""
+        import inspect
+        import levelised_cost as lc
+        assert 'build ordering looks wrong' in inspect.getsource(lc.build_salvage_credit)

@@ -528,11 +528,6 @@ if not assumptions.QUIET_IMPORT:
     print(f"Exist solar 2044 MW={exist_solar_mw(2044):.1f}  2045 MW={exist_solar_mw(2045):.1f}")
 
 
-def make_hv(hv_params):
-    NVAR_BUILD, NVAR_PER_HOUR = hv_params
-    def hv(t, k):
-        return NVAR_BUILD + t*NVAR_PER_HOUR + k
-    return hv
 
 
 UNSERVED_PENALTY = 100000.0  # $/MWh, matching literature convention (e.g. "Preparing for the worst," 2025)
@@ -756,8 +751,6 @@ def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_
                 fixed_build=(S_mw, PNA_mw, ENA_mwh, EFE_mwh))
 
 
-def make_hv_dispatch():
-    return make_hv((0, 14))
 
 
 def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
@@ -1814,177 +1807,6 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
     return problem
 
 
-def build_problem_multi_duration(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_frac,
-                                  init_soc_frac=0.5, verbose=True, gas_price_mwh=None, na_year=None,
-                                  durations=(4.0, 6.0, 8.0)):
-    """
-    Variant of build_problem() with sodium-ion storage split into discrete, duration-locked
-    products (default 4/6/8-hr) instead of one freely-ratioed resource. ASSUMPTION: all duration
-    classes share the SAME underlying $/kWh (energy) and $/kW (power) unit costs -- see
-    na_power_energy_split() for sourcing. Because those per-unit rates are duration-independent,
-    the three products are economically equivalent per unit of useful capacity; the split the
-    solver reports among them is not economically meaningful (LP may be indifferent / degenerate
-    across ties) and should not be read as "the LP preferred 6hr over 8hr" -- it's a presentation
-    choice (stakeholder-recognizable product SKUs) rather than a distinct cost signal. Bath and
-    iron-air are unchanged from build_problem(). na_year: year to evaluate na_power_energy_split
-    at (defaults to BUILD_YEAR global if not given -- callers doing checkpoint-specific solves
-    should pass the checkpoint year explicitly, same caveat as gas_price_mwh above).
-    """
-    T = len(demand)
-    n_dur = len(durations)
-    NVAR_BUILD = 2 + 2*n_dur + 1  # S, [P_d,E_d]*n_dur, E_fe
-    S_ = 0
-    P_ = [1+2*i for i in range(n_dur)]
-    E_ = [2+2*i for i in range(n_dur)]
-    EFE_ = 1 + 2*n_dur
-
-    IDX = _add_ses_aliases(dict(g=0, bc=1, bd=2, bsoc=3))
-    base = 4
-    NC, ND, NSOC = [], [], []
-    for i in range(n_dur):
-        NC.append(base+3*i); ND.append(base+3*i+1); NSOC.append(base+3*i+2)
-    base2 = base + 3*n_dur
-    IDX.update(fc=base2, fd=base2+1, fsoc=base2+2, gascum=base2+3, unserved=base2+4, curt=base2+5)
-    NVAR_PER_HOUR = base2 + 6
-    NVAR = NVAR_BUILD + NVAR_PER_HOUR*T
-
-    def hv(t, k):
-        return NVAR_BUILD + t*NVAR_PER_HOUR + k
-
-    residual = demand - nuclear - exist_solar - CVOW_MW*wind_cf
-    BUILD_SCALE = 1.0  # CORRECTED (2026-08-16), consistent with build_problem() -- see that function's
-                        # comment for the full rationale.
-
-    eq_rows, eq_cols, eq_data, eq_rhs = [], [], [], []
-    row = 0
-
-    # (A) energy balance -- discharge/charge from every sodium duration class
-    for t in range(T):
-        cols = [S_, hv(t,IDX['g']), hv(t,IDX['bd']), hv(t,IDX['bc'])]
-        data = [solar_cf[t]*BUILD_SCALE, 1.0, 1.0, -1.0]
-        for i in range(n_dur):
-            cols += [hv(t,ND[i]), hv(t,NC[i])]; data += [1.0, -1.0]
-        cols += [hv(t,IDX['fd']), hv(t,IDX['fc']), hv(t,IDX['unserved']), hv(t,IDX['curt'])]
-        data += [1.0, -1.0, 1.0, -1.0]
-        eq_rows += [row]*len(cols); eq_cols += cols; eq_data += data
-        eq_rhs.append(residual[t]); row += 1
-
-    # (B) Bath SoC (unchanged)
-    init_bath = init_soc_frac*BATH_MWH
-    for t in range(T):
-        if t == 0:
-            eq_rows += [row, row, row]; eq_cols += [hv(t,IDX['bsoc']), hv(t,IDX['bc']), hv(t,IDX['bd'])]
-            eq_data += [1.0, -BATH_RTE_CHARGE, 1.0]; eq_rhs.append(init_bath)
-        else:
-            eq_rows += [row]*4; eq_cols += [hv(t,IDX['bsoc']), hv(t-1,IDX['bsoc']), hv(t,IDX['bc']), hv(t,IDX['bd'])]
-            eq_data += [1.0, -1.0, -BATH_RTE_CHARGE, 1.0]; eq_rhs.append(0.0)
-        row += 1
-    eq_rows += [row]; eq_cols += [hv(T-1, IDX['bsoc'])]; eq_data += [1.0]; eq_rhs.append(init_bath); row += 1
-
-    # (C) SoC dynamics for each sodium duration class
-    for i in range(n_dur):
-        for t in range(T):
-            if t == 0:
-                eq_rows += [row]*4; eq_cols += [hv(t,NSOC[i]), hv(t,NC[i]), hv(t,ND[i]), E_[i]]
-                eq_data += [1.0, -NA_RTE_CHARGE, 1.0, -init_soc_frac*BUILD_SCALE]; eq_rhs.append(0.0)
-            else:
-                eq_rows += [row]*4; eq_cols += [hv(t,NSOC[i]), hv(t-1,NSOC[i]), hv(t,NC[i]), hv(t,ND[i])]
-                eq_data += [1.0, -1.0, -NA_RTE_CHARGE, 1.0]; eq_rhs.append(0.0)
-            row += 1
-        eq_rows += [row, row]; eq_cols += [hv(T-1,NSOC[i]), E_[i]]; eq_data += [1.0, -init_soc_frac*BUILD_SCALE]
-        eq_rhs.append(0.0); row += 1
-
-    # (D) Iron-air SoC (unchanged)
-    for t in range(T):
-        if t == 0:
-            eq_rows += [row]*4; eq_cols += [hv(t,IDX['fsoc']), hv(t,IDX['fc']), hv(t,IDX['fd']), EFE_]
-            eq_data += [1.0, -FE_RTE_CHARGE, 1.0, -init_soc_frac*BUILD_SCALE]; eq_rhs.append(0.0)
-        else:
-            eq_rows += [row]*4; eq_cols += [hv(t,IDX['fsoc']), hv(t-1,IDX['fsoc']), hv(t,IDX['fc']), hv(t,IDX['fd'])]
-            eq_data += [1.0, -1.0, -FE_RTE_CHARGE, 1.0]; eq_rhs.append(0.0)
-        row += 1
-    eq_rows += [row, row]; eq_cols += [hv(T-1,IDX['fsoc']), EFE_]; eq_data += [1.0, -init_soc_frac*BUILD_SCALE]
-    eq_rhs.append(0.0); row += 1
-
-    # (E) Cumulative gas tracking (unchanged)
-    for t in range(T):
-        if t == 0:
-            eq_rows += [row, row]; eq_cols += [hv(t,IDX['gascum']), hv(t,IDX['g'])]; eq_data += [1.0, -0.001]
-        else:
-            eq_rows += [row]*3; eq_cols += [hv(t,IDX['gascum']), hv(t-1,IDX['gascum']), hv(t,IDX['g'])]
-            eq_data += [1.0, -1.0, -0.001]
-        eq_rhs.append(0.0); row += 1
-
-    # (F) NEW -- duration lock per class: E_i - duration_i*P_i = 0 (exact fixed-duration product)
-    for i, d in enumerate(durations):
-        eq_rows += [row, row]; eq_cols += [E_[i], P_[i]]; eq_data += [1.0, -d]; eq_rhs.append(0.0); row += 1
-
-    n_eq_rows = row
-    A_eq = sparse.csr_matrix((eq_data, (eq_rows, eq_cols)), shape=(n_eq_rows, NVAR))
-    b_eq = np.array(eq_rhs)
-
-    ub_rows, ub_cols, ub_data, ub_rhs = [], [], [], []
-    row = 0
-    for t in range(T):
-        for i in range(n_dur):
-            ub_rows += [row,row]; ub_cols += [hv(t,NC[i]), P_[i]]; ub_data += [1.0,-BUILD_SCALE]; ub_rhs.append(0.0); row+=1
-            ub_rows += [row,row]; ub_cols += [hv(t,ND[i]), P_[i]]; ub_data += [1.0,-BUILD_SCALE]; ub_rhs.append(0.0); row+=1
-            ub_rows += [row,row]; ub_cols += [hv(t,NSOC[i]), E_[i]]; ub_data += [1.0,-BUILD_SCALE]; ub_rhs.append(0.0); row+=1
-        ub_rows += [row,row]; ub_cols += [hv(t,IDX['fc']), EFE_]; ub_data += [FE_DURATION,-BUILD_SCALE]; ub_rhs.append(0.0); row+=1
-        ub_rows += [row,row]; ub_cols += [hv(t,IDX['fd']), EFE_]; ub_data += [FE_DURATION,-BUILD_SCALE]; ub_rhs.append(0.0); row+=1
-        ub_rows += [row,row]; ub_cols += [hv(t,IDX['fsoc']), EFE_]; ub_data += [1.0,-BUILD_SCALE]; ub_rhs.append(0.0); row+=1
-
-    if gas_allowed_frac is None:
-        for t in range(T):
-            ub_rows += [row]; ub_cols += [hv(t,IDX['g'])]; ub_data += [1.0]; ub_rhs.append(0.0); row += 1
-    else:
-        # CORRECTED (2026-08-16), same fix as build_problem() -- see that function's comment for the
-        # full rationale.
-        k = gas_allowed_frac/(1-gas_allowed_frac)
-        clean_sum_const = np.sum(nuclear + exist_solar + CVOW_MW*wind_cf)
-        ub_rows += [row, row]; ub_cols += [hv(T-1,IDX['gascum']), S_]; ub_data += [1.0, -k*BUILD_SCALE*np.sum(solar_cf)/1000.0]
-        ub_rhs.append(k*clean_sum_const/1000.0); row += 1
-
-    n_ub_rows = row
-    A_ub = sparse.csr_matrix((ub_data, (ub_rows, ub_cols)), shape=(n_ub_rows, NVAR))
-    b_ub = np.array(ub_rhs)
-
-    bounds = [(0, None)]*NVAR
-    for t in range(T):
-        bounds[hv(t,IDX['bc'])] = (0, BATH_MW)
-        bounds[hv(t,IDX['bd'])] = (0, BATH_MW)
-        bounds[hv(t,IDX['bsoc'])] = (0, BATH_MWH)
-        if gas_allowed_frac is None:
-            bounds[hv(t,IDX['g'])] = (0, 0)
-
-    c = np.zeros(NVAR)
-    _na_year = na_year if na_year is not None else BUILD_YEAR
-    energy_per_kwh, power_per_kw = na_power_energy_split(_na_year)
-    c[S_] = CRF*SOLAR_CAPEX*1000 + SOLAR_OM*1000
-    for i in range(n_dur):
-        c[P_[i]] = CRF*power_per_kw*1000
-        c[E_[i]] = CRF*energy_per_kwh*1000 + STOR_FOM_PCT*energy_per_kwh*1000
-    c[EFE_] = (CRF*FE_ENERGY_CAPEX*1000 + STOR_FOM_PCT*FE_ENERGY_CAPEX*1000) * (1.0 - RESILIENCE_TILT_PCT)
-    years_factor = T/8760.0
-    c[S_] *= years_factor; c[EFE_] *= years_factor
-    for i in range(n_dur):
-        c[P_[i]] *= years_factor; c[E_[i]] *= years_factor
-    c[S_] *= BUILD_SCALE; c[EFE_] *= BUILD_SCALE
-    for i in range(n_dur):
-        c[P_[i]] *= BUILD_SCALE; c[E_[i]] *= BUILD_SCALE
-    _gas_price = GAS_COST_MWH if gas_price_mwh is None else gas_price_mwh
-    for t in range(T):
-        c[hv(t,IDX['g'])] = _gas_price
-        c[hv(t,IDX['unserved'])] = UNSERVED_PENALTY
-        c[hv(t,IDX['curt'])] = 0.01
-
-    if verbose:
-        print(f"T={T} NVAR={NVAR} n_eq={n_eq_rows} n_ub={n_ub_rows} durations={durations}")
-
-    problem = dict(c=c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=bounds,
-                    IDX=IDX, hv_params=(NVAR_BUILD, NVAR_PER_HOUR), T=T, BUILD_SCALE=BUILD_SCALE,
-                    S_=S_, P_=P_, E_=E_, EFE_=EFE_, durations=durations)
-    return problem
 
 
 def solve_problem(problem, solver_options=None, method='highs-ds'):

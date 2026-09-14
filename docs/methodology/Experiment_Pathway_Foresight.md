@@ -252,3 +252,24 @@ deliberately and that is now stated at the site.
 still runs when `reserve_margin_hint` is passed, *and* the all-hours hook arrives via
 `post_build_hook`. Under `AllHoursReserveMixin` no hint is passed, so only all-hours applies —
 correct, but it rests on a caller *not* passing something rather than on a structural guarantee.
+
+### Audit 2026-09-14 — two fixes before any number was published
+
+**Salvage covered different assets on each side.** `run_scenario1.py` credited **solar only**;
+`run_foresight_comparison.py` credited **four build variables**. With `--myopic-from`, the
+comparison would have weighed a solar-only myopic salvage against a four-asset foresight one.
+
+| at 2030 | |
+|---|---:|
+| solar alone | **$0.326B** |
+| all four assets | **$0.779B** |
+
+**2.4×** — the whole difference would have landed in the myopia penalty.
+
+Now one implementation, `levelised_cost.build_salvage_credit`, used by both. It refuses a
+mismatched `CAPEX_YEAR` (the capex constants are mutable module state) and checks the positional
+build ordering by magnitude before crediting anything.
+
+**`build_problem_multi_duration` was left orphaned** when `run_solve_multi_duration` was deleted —
+its only caller. 178 lines removed with its two exclusive helpers, `make_hv` and `make_hv_dispatch`.
+Deleting a caller without checking what it uniquely reached is how a dead chain survives.
