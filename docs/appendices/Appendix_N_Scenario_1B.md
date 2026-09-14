@@ -117,25 +117,32 @@ already built. Fixed: both storage floors now take the max of the VCEA
 statutory floor and whatever the linking mechanism already requires,
 rather than silently discarding the higher of the two.
 
-**The 2045 dispatch and gas-share results in this section are pending re-measurement.** They were
-produced with the gas fleet capped at 4,722 MW — the existing fleet and standing pool alone —
-without the 1,278 MW of new simple-cycle CT that N.2 selects. Scenario 1B's capacity at 2045 is
-**6,000 MW**, and the figures below do not reflect it.
+**At 6,000 MW, gas reaches 4.27% of the statutory base against the 5% ceiling — and cannot reach
+it.** The convergence search saturates: the achieved share is unchanged at 0.0427 across a tripling
+of the allowance (`frac` 0.1649, 0.2562, 0.5124). The fleet cannot generate more in the hours it is
+needed, whatever the RPS permits.
 
-What the earlier run established at 4,722 MW, and which may or may not survive the correction:
+**The binding constraint is therefore physical fleet capacity, not the RPS percentage.** On the
+model's own clean-share axis — which counts nuclear as clean — the same dispatch is 3.66% of total
+demand. The two bases differ because § 56-585.5(A) excludes nuclear from the compliance base; 4.27%
+is the figure a compliance ceiling applies to.
 
-- the 2045 checkpoint required **no new solar or storage build**, 2044's capacity already exceeding
-  what the 5%-gas target needs
-- gas dispatch pinned the capacity cap exactly but reached only **1.63%** of 2045 demand
-- the binding constraint was therefore physical fleet capacity rather than the RPS percentage
+**Scenario 1B's 2045 checkpoint builds no new solar or storage.** 2044's capacity already exceeds
+what the 5% target requires, which follows from 2044's own RPS target being 5% gas — identical to
+Scenario 1B's 2045 target. The cumulative fleet falls 626 MW between the two years, which is exactly
+the 0.5%/yr degradation of the carried-forward build (125,194 × 0.995 = 124,568), not a reduction in
+capacity built.
 
-The first of these should hold independently of capacity: 2044's own RPS target is 5% gas, which is
-identical to Scenario 1B's 2045 target, so 2045 should require no incremental build whatever the gas
-cap. The second and third depend directly on the capacity that was wrong.
+| | 2044 | 2045 |
+|---|---:|---:|
+| gas, statutory base | 4.93% | **4.27%** |
+| gas, share of demand | 4.23% | 3.66% |
+| solar, cumulative | 125,194 MW | 124,568 MW |
+| solar, new build | 62,352 MW | **0 MW** |
+| gas capacity | 12,224 MW | **6,000 MW** |
 
-Re-run with `python3 run_scenario1b.py`, which solves the five-checkpoint set
-(2030, 2035, 2040, **2044**, 2045) at 6,000 MW and reports the 2044 → 2045 increment as its primary
-diagnostic.
+**The gas capacity halves between 2044 and 2045** as Schedule B's VCEA-driven retirements take
+effect. That is what makes the 5% ceiling unreachable while the target itself is unchanged.
 
 **Full 20-year result:**
 
