@@ -68,6 +68,12 @@ class TestEveryPostBuildStepIsApplied:
         assert problem_2030['A_ub'].shape[0] > 240_000
         assert len(problem_2030['c']) == 219_008
 
+    def test_the_row_count_matches_what_the_solve_consumes(self, problem_2030):
+        """245,647, not 245,646. The one-row difference is the SLCR row, and its absence is exactly
+        what the misplaced return caused -- an audit comparing build_only against a full solve
+        caught the discrepancy before the source inspection did."""
+        assert problem_2030['A_ub'].shape[0] == 245_647
+
     def test_the_curtailment_cost_is_the_solver_hook_value(self, problem_2030):
         import assumptions
         nb, nph = problem_2030['hv_params']
