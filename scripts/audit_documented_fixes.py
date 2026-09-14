@@ -156,6 +156,7 @@ UNCALLED_BY_DESIGN = {
     'supply_gap_analysis.py':                        'gap characterisation, run on solved results',
     'levelised_cost.py':                             'SLCOE assembly; wired when the annual stream exists',
     'storage_resistor_threshold.py':                 'derivation + disclosure; checked by assumptions and the audit',
+    'multi_period_problem.py':                       'perfect-foresight assembler; wired when the comparison runner exists',
     'rps_compliance.py':                             'optional statutory layer, sits alongside the physical formulation by design; not the sweep axis',
     'virginia_only_demand.py':                       'declared back-compatibility shim, superseded by demand_basis.VirginiaOnlyLoad',
     'demand_shape_interpolation.py':                 'SUPERSEDED 2026-09-13 -- the source projections already flatten; retained for its sourced IRP series',
