@@ -387,6 +387,26 @@ class Scenario1BSolver(Scenario1Solver):
     target -- the entire class body is this one override, versus a fully duplicated
     solve_2045_1b_*.py script under the pre-refactor pattern."""
 
+    def apply_gas_cap(self):
+        """6,000 MW from 2045, the figure Appendix N.2's capacity sweep locked in.
+
+        THE INHERITED CAP WAS WRONG FOR THIS SCENARIO. Scenario1Solver's apply_gas_cap returns
+        schedule_b_baseline_mw(year) + 2,862, which is 4,722 MW at 2045 -- the "existing only" row
+        of N.2's own sweep table, costing $10,065.2M against $9,469.3M at 6,000 MW. The 1,278 MW of
+        new simple-cycle CT that the sweep selected was never implemented anywhere.
+
+        N.4's finding that gas reaches only 1.63% of demand, and that "the 5% statutory ceiling is
+        largely moot... the binding constraint is physical fleet capacity", was measured at 4,722 MW
+        and is therefore an artifact of the omission rather than a result about the scenario.
+
+        Before 2045 this scenario is identical to Scenario 1 -- same RPS target every year through
+        2044 -- so the inherited cap applies unchanged.
+        """
+        drv.set_year_capex(self.year)
+        if self.year >= 2045:
+            return assumptions.SCENARIO_1B_GAS_CAPACITY_MW
+        return super().apply_gas_cap()
+
     def __init__(self, year, demand, exist_solar, solar_cf, wind_cf, nuclear,
                  sourced_annual_total_gwh=None, prior_result=None, additional_peaker_mw=0.0):
         # BUG FIXED (2026-08-23): was `0.95 if year >= 2045`, contradicting this class's own
@@ -742,6 +762,19 @@ class Scenario3Solver(Scenario1Solver):
             if current < prior - 0.01:
                 raise ValueError(f"Monotonicity violated for {name} at {self.year}: "
                                   f"{current:.1f} < prior checkpoint's {prior:.1f}")
+
+
+class Scenario1BWithReserveMargin(AllHoursReserveMixin, Scenario1BSolver):
+    """Scenario 1B with the all-hours reserve margin.
+
+    ADDED 2026-09-14. There was no reserve-margin variant for 1B, so it solved with NO RESERVE
+    MARGIN AT ALL while Scenarios 1 and 3 carried the all-hours constraint. Comparing them would
+    have held 1B to a looser reliability standard than the scenarios it is measured against -- the
+    same defect Scenario 2 had, and the same one that makes a comparison meaningless.
+
+    Nothing else differs: 1B's divergence from Scenario 1 is its gas target (5% from 2045, against
+    0%), which Scenario1BSolver already sets.
+    """
 
 
 class Scenario3WithReserveMargin(AllHoursReserveMixin, Scenario3Solver):

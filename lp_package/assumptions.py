@@ -405,6 +405,44 @@ GAS_UNIT_COMMITMENT_NOT_MODELLED = (
 #: reflecting market tightness, which brackets the central figure adopted here.
 CCGT_CAPEX_KW_BY_CASE = {'low': 2_000.0, 'central': 2_500.0, 'high': 3_200.0}
 
+#: SCENARIO 1B's total gas capacity at 2045 and beyond, MW.
+#:
+#: LOCKED IN BY A CAPACITY SWEEP (Appendix N.2), not assumed. Solving 2045 with the gas bound
+#: removed entirely let the LP pick 17,704 MW -- but the LP carries no capex penalty for gas within
+#: its own objective, only marginal fuel cost, so it had no reason to economize once given free
+#: rein. N.2 instead swept capped capacities and costed each as LP objective PLUS externally-priced
+#: new-build capex:
+#:
+#:     total capacity   new build    @$1,200/kW   @$2,000/kW   @$2,500/kW   @$3,000/kW
+#:      4,722 (existing)        0     $10,065.2M   $10,065.2M   $10,065.2M   $10,065.2M
+#:      6,000               1,278      $9,406.5M    $9,469.3M    $9,508.5M    $9,547.7M
+#:      7,000               2,278      $9,362.2M    $9,474.0M    $9,544.0M    $9,613.9M
+#:      8,000               3,278      $9,416.2M    $9,577.2M    $9,677.8M    $9,778.5M
+#:     17,704              12,982     $10,182.9M   $10,820.5M   $11,219.0M   $11,617.5M
+#:
+#: The minimum holds at 6,000-7,000 MW across the whole $1,200-3,000/kW range tested, so the choice
+#: is not sensitive to where the true simple-cycle rate falls within it.
+#:
+#: IT WAS NEVER IMPLEMENTED. Appendix N.4 then solved 2045 at 4,722 MW -- the "existing only" row,
+#: which N.2's own table shows costing $10,065.2M against $9,469.3M at 6,000 MW. Scenario1BSolver
+#: inherited apply_gas_cap() unchanged, so the 1,278 MW of new simple-cycle CT that the sweep
+#: selected appeared nowhere in the code. N.4's finding that gas reaches only 1.63% of demand and
+#: that "the 5% statutory ceiling is largely moot" was measured WITHOUT that capacity, and is an
+#: artifact of the omission rather than a result about the scenario.
+#:
+#: LEAD TIME IS NOT A CONSTRAINT (N.3): simple-cycle units run 2-4 years against 5-7 for heavy-duty
+#: CCGT frames, and the 2045 checkpoint is 19 years out.
+SCENARIO_1B_GAS_CAPACITY_MW = 6_000.0
+
+#: New simple-cycle CT that figure implies, beyond the 4,722 MW of existing fleet plus standing
+#: new-build pool. Costed externally at SCENARIO_1B_NEW_CT_CAPEX_KW, not inside the LP objective.
+SCENARIO_1B_NEW_CT_MW = 1_278.0
+
+#: $/kW for that build. N.2's central assumption, "the midpoint of the tested range, consistent with
+#: this project's own Wood Mackenzie-sourced equipment-to-full-project-cost ratio for CCGT extended
+#: to simple-cycle by the same underlying supply-chain logic".
+SCENARIO_1B_NEW_CT_CAPEX_KW = 2_000.0
+
 #: New-build gas: the standing 2,862 MW pool the scenarios permit above the existing fleet
 #: (Appendix A #4), and the technology it is assumed to be.
 #:

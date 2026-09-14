@@ -1,0 +1,97 @@
+"""
+test_scenario1b_capacity.py
+
+Scenario 1B's gas capacity at 2045, and the reserve-margin variant it lacked.
+
+TWO DEFECTS, both found 2026-09-14 by auditing the scenario before building its runner.
+"""
+import inspect
+
+import pytest
+
+import assumptions
+import checkpoint_solver as cs
+import driver as drv
+import lp_model as lp
+import numpy as np
+import paths
+
+
+def _solver(year):
+    w = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
+    d = np.load(paths.intermediate('demand_2045fy_va_only.npy'))
+    return cs.Scenario1BWithReserveMargin(
+        year=year, demand=d, exist_solar=lp.exist_solar_mw(year) * w['solar'],
+        solar_cf=w['solar'], wind_cf=w['wind'], nuclear=w['nuclear'])
+
+
+class TestTheReserveMarginVariantExists:
+    """There was none. 1B solved with NO reserve margin at all while Scenarios 1 and 3 carried the
+    all-hours constraint -- holding it to a looser reliability standard than the scenarios it is
+    compared against. The same defect Scenario 2 had."""
+
+    def test_it_uses_the_all_hours_mixin(self):
+        assert cs.AllHoursReserveMixin in cs.Scenario1BWithReserveMargin.__mro__
+
+    def test_it_keeps_1b_target_logic(self):
+        assert cs.Scenario1BSolver in cs.Scenario1BWithReserveMargin.__mro__
+
+    def test_the_target_is_5_percent_gas_from_2045(self):
+        assert _solver(2045).gas_target_share == 0.05
+
+    def test_before_2045_it_follows_the_rps(self):
+        """1B diverges from Scenario 1 only at 2045 -- same RPS target every year through 2044.
+
+        2044's RPS is 5% gas, which IS 1B's 2045 target. That is why 2044 must be a checkpoint for
+        this scenario: its 2045 build should equal its 2044 build, and linking 2045 back to 2040
+        instead produced what Appendix N.4 called 'a physically nonsensical, wildly oversized 2045
+        buildout'. Compared with a tolerance because gas_target_share interpolates."""
+        assert _solver(2044).gas_target_share == pytest.approx(drv.gas_target_share(2044))
+        assert drv.gas_target_share(2044) == pytest.approx(0.05)
+
+
+class TestTheCapacitySweepIsImplemented:
+    """Appendix N.2 locked in 6,000 MW total (1,278 MW new simple-cycle CT) after sweeping capped
+    capacities and costing each as LP objective PLUS externally-priced new-build capex. THE FIGURE
+    WAS NEVER IMPLEMENTED -- Scenario1BSolver inherited apply_gas_cap unchanged, giving 4,722 MW."""
+
+    def test_the_locked_figure_is_a_constant(self):
+        assert assumptions.SCENARIO_1B_GAS_CAPACITY_MW == 6_000.0
+        assert assumptions.SCENARIO_1B_NEW_CT_MW == 1_278.0
+        assert assumptions.SCENARIO_1B_NEW_CT_CAPEX_KW == 2_000.0
+
+    def test_the_arithmetic_closes(self):
+        """6,000 total = 4,722 existing-plus-pool + 1,278 new. That the two figures reconcile
+        exactly is what confirms N.2's 'new build' column is measured beyond 4,722, not beyond the
+        1,860 MW of surviving plant."""
+        inherited = drv.schedule_b_baseline_mw(2045) + assumptions.GAS_NEW_BUILD_POOL_MW
+        assert inherited == pytest.approx(4_722.0)
+        assert inherited + assumptions.SCENARIO_1B_NEW_CT_MW == pytest.approx(
+            assumptions.SCENARIO_1B_GAS_CAPACITY_MW)
+
+    def test_the_cap_applies_from_2045(self):
+        assert _solver(2045).apply_gas_cap() == 6_000.0
+
+    def test_before_2045_the_inherited_cap_is_unchanged(self):
+        """Identical to Scenario 1 through 2044, so the cap must be too."""
+        assert _solver(2044).apply_gas_cap() == pytest.approx(12_224.0)
+
+    def test_it_exceeds_scenario_1s_cap_at_2045(self):
+        """Scenario 1 is bound at 4,722 MW; 1B builds beyond it. If these were equal, 1B's relaxed
+        target would have no capacity to exercise it with -- which is exactly what N.4 measured."""
+        assert _solver(2045).apply_gas_cap() > drv.schedule_b_baseline_mw(2045) + 2_862.0
+
+    def test_the_omission_is_documented_where_it_bit(self):
+        """Rule 10.3: a future reader must not 'simplify' this back to the inherited cap."""
+        src = inspect.getsource(cs.Scenario1BSolver.apply_gas_cap)
+        assert '1.63%' in src
+        assert 'artifact of the omission' in src
+
+
+class TestWhatThisInvalidates:
+    def test_appendix_n4s_headline_was_measured_at_the_wrong_capacity(self):
+        """N.4: 'gas dispatch still pins the physical gas-fleet capacity cap exactly (4,722 MW)'
+        -- which is N.2's own 'existing only' row, costing $10,065.2M against $9,469.3M at 6,000 MW.
+        N.4 solved the configuration N.2 explicitly rejected, so its 1.63% and its conclusion that
+        'the 5% statutory ceiling is largely moot' both need re-measuring."""
+        assert 4_722.0 < assumptions.SCENARIO_1B_GAS_CAPACITY_MW

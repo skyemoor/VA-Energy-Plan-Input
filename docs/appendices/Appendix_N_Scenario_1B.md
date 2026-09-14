@@ -73,6 +73,32 @@ tighter, genuinely constrained case was Scenario 2's 2030 checkpoint,
 addressed separately in Appendix C.11 — not a live issue for Scenario
 1B, whose only new-build lands at 2045.)
 
+> ## CORRECTION 2026-09-14 — N.4 was solved at the wrong capacity
+>
+> **N.2 locked in 6,000 MW total (1,278 MW new simple-cycle CT). N.4 then solved 2045 at 4,722 MW**
+> — N.2's own *"existing only"* row, which its table shows costing **$10,065.2M against $9,469.3M**
+> at 6,000 MW. N.4 solved the configuration N.2 explicitly rejected.
+>
+> **The arithmetic closes exactly:** 4,722 (existing + standing pool) + 1,278 (new CT) = 6,000.
+>
+> **It was never implemented in code either.** `Scenario1BSolver` inherited `apply_gas_cap()`
+> unchanged, so the 1,278 MW appeared nowhere. Fixed 2026-09-14:
+> `SCENARIO_1B_GAS_CAPACITY_MW = 6,000` with an override on the subclass.
+>
+> **What this invalidates below:** the **1.63%** gas share, and the conclusion that *"the 5%
+> statutory ceiling is, in practice, largely moot... the binding constraint is physical fleet
+> capacity, not the RPS percentage."* Both were measured without the capacity the sweep selected,
+> and are artifacts of the omission rather than results about the scenario. **Re-measurement
+> needed.**
+>
+> **Also fixed:** there was no `Scenario1BWithReserveMargin`, so 1B solved with **no reserve margin
+> at all** while Scenarios 1 and 3 carried the all-hours constraint — holding it to a looser
+> reliability standard than the scenarios it is compared against.
+>
+> **And 2044 must be a checkpoint for this scenario.** 2044's RPS is 5% gas, which *is* 1B's 2045
+> target, so its 2045 build should equal its 2044 build. Linking 2045 back to 2040 is what produced
+> the *"physically nonsensical, wildly oversized 2045 buildout"* N.4 itself records correcting.
+
 ### N.4 Full SLCOE/NPV Build
 
 **Fully rebuilt this session, replacing an earlier attempt that
