@@ -542,6 +542,36 @@ module-level names, for no gain the check does not already provide.
 Tests pin the year explicitly, restore it afterwards, and assert the *derivation* rather than only
 a number.
 
+### The threshold verified empirically — and Bath breaks first, alone
+
+The formula was in doubt for Bath specifically: its $7.50/MWh is sourced as an **RTE-loss cost
+already computed at 80% RTE**, so multiplying by `RTE/(1−RTE)` looked like double-counting.
+Bracketed at 2045 Scenario 1:
+
+| curtailment cost | Bath | Na-ion | iron-air |
+|---:|---:|---:|---:|
+| $28.00 | 0 | 0 | 0 |
+| **$30.00** | **0** | 0 | 0 |
+| **$32.00** | **121 hours, 1,463 MW max overlap** | 0 | 0 |
+
+**Correct to within $2, and the double-counting concern was wrong.** That only Bath breaks — with
+Na-ion at $48.06 and iron-air at $70.08 nowhere near binding — confirms the per-type derivation
+rather than a generic solver instability.
+
+### Storage carries no VOM
+
+Gas has `CCGT_VOM_MWH` ($3.00) and `CT_VOM_MWH` ($5.00). **Storage has none** — only cycling costs,
+which represent *wear* (capex over cycle life), not the as-used operating cost a VOM captures. The
+two are additive and both per-MWh discharged.
+
+Any storage VOM raises the threshold: `(cycling + VOM) × 4` for Bath, so **$0.50 → $32, $2.00 →
+$38**. Enough to move where curtailment can be priced. **Not enough to close the gap** to the $100
+economic figure, which would need **$17.50/MWh** — implausible for pumped hydro, whose variable cost
+is essentially the RTE loss already priced.
+
+Recorded as issue #21 rather than fixed: the figures must be sourced deliberately, not estimated to
+hit a threshold, which is the tie-breaker error §13 warns against.
+
 ---
 
 ## 3. No import capability

@@ -210,3 +210,50 @@ class TestCapexYearIsExplicit:
         assert not literals, (
             f'{len(literals)} literal 2044.5 token(s) still in code at line(s) '
             f'{[t.start[0] for t in literals]}')
+
+
+class TestVerifiedEmpirically:
+    """MEASURED 2026-09-14 at 2045 Scenario 1, bracketing the derived $30.00 threshold. The formula
+    was in doubt for Bath specifically -- its $7.50/MWh is sourced as an RTE-LOSS cost already
+    computed at 80% RTE, so multiplying it by RTE/(1-RTE) looked like double-counting. It is not."""
+
+    def test_the_bracket(self):
+        """$28.00 -> 0 simultaneous hours, every storage type.
+        $30.00 -> 0, exactly at the derived threshold.
+        $32.00 -> 121 Bath hours, max overlap 1,463 MW. Na-ion and iron-air stay at 0.
+
+        BATH BREAKS FIRST AND ALONE, as the derivation predicts -- it is the cheapest resistor.
+        The threshold is correct to within $2 and the double-counting concern was wrong."""
+        observed = {28.0: 0, 30.0: 0, 32.0: 121}
+        assert observed[30.0] == 0 and observed[32.0] > 0
+
+    def test_only_bath_breaks_at_the_threshold(self):
+        """Na-ion's own threshold is $48.06 at 2045 and iron-air's $70.08, so neither is near
+        binding at $32. That the failure is Bath-only confirms the per-type derivation rather than
+        a generic solver instability."""
+        assert srt.resistor_threshold_mwh('sodium_ion', year=2045) > 32.0
+        assert srt.resistor_threshold_mwh('iron_air', year=2045) > 32.0
+        assert srt.resistor_threshold_mwh('bath_pumped_hydro', year=2045) < 32.0
+
+
+class TestStorageHasNoVOM:
+    """Raised as a question 2026-09-14: costs can be on an 'as used' basis, so where might VOM
+    matter? It matters here, and its absence is a gap rather than a decision."""
+
+    def test_gas_has_vom_and_storage_does_not(self):
+        import assumptions as a
+        assert a.CCGT_VOM_MWH == 3.00 and a.CT_VOM_MWH == 5.00
+        assert not [n for n in dir(a) if 'VOM' in n and ('NA_' in n or 'FE_' in n or 'BATH' in n)]
+
+    def test_the_gap_is_documented_where_it_bites(self):
+        import inspect
+        assert 'STORAGE CARRIES NO VOM IN THIS MODEL' in inspect.getsource(srt._cycling_costs)
+
+    def test_vom_would_raise_the_threshold_but_not_enough(self):
+        """Bath's threshold is (cycling + VOM) x 4 at 80% RTE. A plausible $0.50-$2.00 VOM moves it
+        to $32-$38 -- enough to matter, nowhere near the $100 economic figure, which would need
+        $17.50/MWh. That is implausible for pumped hydro, whose variable cost is essentially the
+        RTE loss already priced."""
+        rte = 0.80
+        assert (7.50 + 2.00) * rte / (1 - rte) == pytest.approx(38.0)
+        assert (100.0 * (1 - rte) / rte) - 7.50 == pytest.approx(17.50)

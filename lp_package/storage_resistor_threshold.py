@@ -50,8 +50,20 @@ import assumptions
 
 
 def _cycling_costs() -> Dict[str, float]:
-    """Discharge-side cycling cost per storage type, $/MWh, from the same formulas build_problem
-    uses. Read from lp_model rather than duplicated (Rule 6)."""
+    """Discharge-side per-MWh cost per storage type, $/MWh, from the same formulas build_problem
+    uses. Read from lp_model rather than duplicated (Rule 6).
+
+    STORAGE CARRIES NO VOM IN THIS MODEL -- a gap, not a finding. Gas has CCGT_VOM_MWH ($3.00) and
+    CT_VOM_MWH ($5.00); storage has only these cycling costs, which represent WEAR (capex amortised
+    over cycle life), not the as-used operating cost a VOM captures. Any real storage VOM would add
+    directly to these figures and raise every threshold, since both are per-MWh discharged.
+
+    IT WOULD NOT CLOSE THE GAP TO THE $100 ECONOMIC FIGURE. Bath's threshold is
+    (cycling + VOM) x 4 at 80% RTE, so reaching $100 needs a VOM of $17.50/MWh -- implausible for
+    pumped hydro, whose variable cost is essentially the RTE loss already priced here. A plausible
+    $0.50-$2.00 moves the threshold to $32-$38: enough to matter for where curtailment is priced,
+    nowhere near enough to make the economic figure representable.
+    """
     import lp_model as lp
     return {
         'sodium_ion': (lp.NA_ENERGY_CAPEX * 1000) / (lp.NA_CYCLE_LIFE * (1.0 - lp.NA_DOD_FLOOR)),
