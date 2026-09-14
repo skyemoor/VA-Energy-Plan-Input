@@ -331,6 +331,69 @@ def check_curtailment_cost_is_present_and_agrees():
     return True, f'curtailment cost ${a.CURTAILMENT_COST_MWH}/MWh, one source, hook and default agree'
 
 
+
+def check_modules_import_what_they_reference():
+    """Catches a name referenced in a module that the module never imports.
+
+    FOUND 2026-09-14, and only by a live run. driver.apply_slcr_constraint referenced
+    `assumptions.CURTAILMENT_COST_MWH` while driver.py had no `import assumptions` at all. Every
+    solve through run_solve raised NameError.
+
+    WHY THE TEST SUITE MISSED IT: 1,004 tests passed. The tests that touch apply_slcr_constraint
+    check its SIGNATURE and its source text, not its execution, and the tests that run real solves
+    are marked slow and deselected by default. A module-level import error would have been caught
+    at import; a function-level one only fires when that line runs.
+    """
+    import ast
+    pkg = os.path.join(REPO, 'lp_package')
+    problems = []
+    for fname in sorted(os.listdir(pkg)):
+        if not fname.endswith('.py'):
+            continue
+        src = read('lp_package', fname)
+        if not src:
+            continue
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            continue
+        imported = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported |= {(a.asname or a.name).split('.')[0] for a in node.names}
+            elif isinstance(node, ast.ImportFrom):
+                imported |= {(a.asname or a.name) for a in node.names}
+                if node.module:
+                    imported.add(node.module.split('.')[0])
+        # Every `X.something` where X names a sibling module must be imported -- UNLESS X is bound
+        # locally as a parameter, assignment or comprehension target.
+        #
+        # THE SHADOWING CASE IS REAL, NOT HYPOTHETICAL: lp_model.build_problem takes a parameter
+        # literally called `gas_merit_order`, which is also a module name. A check that ignored
+        # local bindings reported three false positives on it immediately. A false positive in this
+        # audit is expensive -- it runs hourly, and one that cries wolf trains the reader to skip it.
+        siblings = {f[:-3] for f in os.listdir(pkg) if f.endswith('.py')} - {fname[:-3]}
+        bound_locally = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                a = node.args
+                bound_locally |= {x.arg for x in
+                                  a.args + a.posonlyargs + a.kwonlyargs + ([a.vararg] if a.vararg
+                                  else []) + ([a.kwarg] if a.kwarg else [])}
+            elif isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                bound_locally.add(node.id)
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)
+                    and node.value.id in siblings and node.value.id not in imported
+                    and node.value.id not in bound_locally):
+                problems.append(f'{fname} references {node.value.id}.{node.attr} without importing '
+                                f'{node.value.id}')
+    if problems:
+        uniq = sorted(set(problems))
+        return False, '; '.join(uniq[:4]) + ('' if len(uniq) <= 4 else f' (+{len(uniq)-4} more)')
+    return True, 'every module imports the sibling modules it references'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -393,6 +456,7 @@ def check_claim_matches_code(doc_path, claim_substring, code_check, description)
 CHECKS = [
     ('no conflicting duplicate constants (Rule 6)', check_no_conflicting_duplicate_constants),
     ('no orphaned modules (Rule 1)', check_no_orphaned_modules),
+    ('modules import what they reference', check_modules_import_what_they_reference),
     ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 

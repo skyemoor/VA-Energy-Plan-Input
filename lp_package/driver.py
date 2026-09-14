@@ -1,6 +1,7 @@
 import numpy as np
 import json, time, sys
 from scipy import sparse
+import assumptions
 import lp_model as lp
 
 # ---------------- RPS Program requirement schedule, Va. Code SS56-585.5(C)(1)(a), Phase II Utilities
@@ -546,7 +547,28 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
                 print("  achieved share unchanged across two fracs -- capacity-cap-style saturation; stopping search", flush=True)
                 return frac, r, history
 
-        # BISECTION, replacing proportional extrapolation (2026-09-13).
+        # BRACKETED SECANT WITH BISECTION FALLBACK (2026-09-14), replacing pure bisection.
+        #
+        # Bisection is GUARANTEED but UNINFORMED: with no upper bracket it halves blindly. At 2030
+        # in a live run that took frac from 0.5900 to 0.2950 -- overshooting by as much as it
+        # started off (-0.1901 to +0.1893) -- and then spent six iterations walking back. Four
+        # checkpoints cost ~30 minutes, most of it convergence.
+        #
+        # achieved_share is monotone in frac, so this is ROOT-FINDING ON A MONOTONE FUNCTION, not
+        # descent on a surface with local minima: there is exactly one crossing and no basin to get
+        # trapped in. That is what makes a secant step safe to try -- and what makes the bracket a
+        # sufficient safety net when it is not.
+        #
+        # The secant step is taken ONLY when it falls inside the current bracket; otherwise
+        # bisection. That keeps bisection's guarantee while using the function's near-linearity
+        # when it helps. Pure proportional extrapolation with NO bracket is what failed on
+        # 2026-09-13 -- when it overshot, nothing pulled it back.
+        #
+        # EVIDENCE: on an interpolant through the 2040 run's own measured points, the hybrid saved
+        # 2-4 iterations from every start but one. On real solves it was confirmed to engage
+        # correctly (bisect while unbracketed, then a secant step to 0.1689 where bisection would
+        # have taken 0.1575) but a full timing comparison was not run -- each iteration is ~100 s.
+        # The saving is therefore PROJECTED, not measured end to end.
         #
         # THE OLD METHOD WAS frac = gas_target_share * (frac / achieved_share) -- a proportional
         # rescale assuming achieved_share moves linearly with frac. It does not. An overnight run
@@ -567,7 +589,19 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
             hi = frac          # achieved too high, so the answer is below the current frac
         else:
             lo = frac
-        if hi is None:
+
+        candidate = None
+        if len(history) >= 2:
+            (f0, a0, _), (f1, a1, _) = history[-2], history[-1]
+            if abs(a1 - a0) > 1e-9:
+                candidate = f1 + (gas_target_share - a1) * (f1 - f0) / (a1 - a0)
+
+        inside_bracket = (candidate is not None and 0.0 < candidate < 1.0
+                          and (lo is None or candidate > lo)
+                          and (hi is None or candidate < hi))
+        if inside_bracket:
+            frac = candidate
+        elif hi is None:
             # No upper bracket yet -- step up geometrically until achieved overshoots the target.
             frac = min(0.999, frac * 2.0)
         elif lo is None:

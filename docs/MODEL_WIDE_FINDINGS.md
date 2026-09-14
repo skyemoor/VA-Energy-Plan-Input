@@ -574,6 +574,49 @@ hit a threshold, which is the tie-breaker error §13 warns against.
 
 ---
 
+## 2D. `driver.py` referenced `assumptions` without importing it — every solve raised
+
+**Found 2026-09-14 by a live run, not by the test suite.** `apply_slcr_constraint` referenced
+`assumptions.CURTAILMENT_COST_MWH` while `driver.py` had **no `import assumptions` at all**. Every
+call through `run_solve` raised `NameError`.
+
+**1,004 tests passed.** The tests touching `apply_slcr_constraint` check its *signature* and its
+*source text*, not its execution; the tests that run real solves are marked slow and deselected by
+default. A module-level import error would fail at import — a function-level one only fires when
+that line runs.
+
+**Now audited:** a check parses every module and flags any `X.something` where `X` names a sibling
+module that is never imported. It found the real bug immediately when reintroduced.
+
+**It also reported three false positives on first run** — `lp_model.build_problem` takes a parameter
+literally called `gas_merit_order`, which is also a module name. The check now excludes locally
+bound names. A false positive here is expensive: the audit runs hourly, and one that cries wolf
+trains the reader to skip it.
+
+---
+
+## 2E. Convergence: bracketed secant with bisection fallback
+
+Bisection is **guaranteed but uninformed**. At 2030 in a live run it took `frac` from 0.5900 to
+0.2950 — overshooting by as much as it started off (−0.1901 → +0.1893) — then spent six iterations
+walking back. Four checkpoints cost **~30 minutes, mostly convergence**.
+
+`achieved_share` is **monotone in `frac`**, so this is *root-finding on a monotone function*, not
+descent on a surface with local minima: one crossing, no basin to get trapped in. That is what makes
+a secant step safe to try, and the bracket a sufficient safety net when it is not.
+
+**The secant step is taken only when it falls inside the current bracket**; otherwise bisection.
+Pure proportional extrapolation with *no* bracket is what failed on 2026-09-13 — when it overshot,
+nothing pulled it back.
+
+**Evidence:** on an interpolant through the 2040 run's own measured points, **2–4 iterations saved**
+from every start but one. On real solves the mechanism was confirmed to engage correctly — bisect
+while unbracketed, then a secant step to 0.1689 where bisection would have taken 0.1575 — but a full
+timing comparison was **not** run, since each iteration is ~100 s. **The saving is projected, not
+measured end to end.**
+
+---
+
 ## 3. No import capability
 
 `export` exists (capped at `EXPORT_CAP_MW`, earning `export_price_mwh`). **`import` has zero
