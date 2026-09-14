@@ -106,6 +106,9 @@ of the other.
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
 | **`Session_Handoff_2026-09-14.md`** | **START HERE** — results, corrections, the resistor threshold, the foresight technique, and what to run next |
 | `Session_Handoff_2026-09-13.md` | Prior handoff — superseded by the 2026-09-14 one above |
+| | |
+| **Appendices state the END PRODUCT.** What changed and why belongs in `Internal_Debugging_Log.md`. An appendix carrying a correction narrative is telling the reader about the process instead of the result — a whitepaper reader wants the finding, not its history. Where a result is not yet re-measured, the appendix says so plainly and points at the runner; it does not narrate the defect. | |
+| | |
 | **`appendices/Reorganized_Appendices_Draft.md`** | **The full appendix draft**, 275 KB. The repo previously held only a 61 KB truncation |
 | `appendices/Appendix_D_Tiered_Social_Cost.md` | Tier 1/2/3 framework — full methodology and sourcing (P.2 §9 points here) |
 | `appendices/Appendix_M_Reference_Literature.md` | Reference literature |

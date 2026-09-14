@@ -58,25 +58,19 @@ Wood Mackenzie-sourced equipment-to-full-project-cost ratio for CCGT,
 C.6, extended here to simple-cycle by the same underlying supply-chain
 logic, C101).
 
-> **INDEPENDENTLY CONFIRMED 2026-09-14.** `driver.select_overhaul_retain()` — a youngest-first
-> retain/overhaul selector written for a different purpose and never called until now — reproduces
-> this figure by a completely different route:
->
-> ```
-> 6,000 MW target − 1,860 Schedule B survivors − 2,862 MW POOL = 1,278 MW residual
-> N.2's capacity sweep, above:                                   1,278 MW new CT
-> ```
->
-> Two pieces of work that never met, agreeing exactly.
->
-> **It also surfaces a discreteness gap the sweep could not see.** F-Class units are 237 MW, so a
-> 1,278 MW residual takes **six of them — 1,422 MW**, overshooting by 144. The sweep treated
-> capacity as continuous. Both figures are now reported by `run_scenario1b.py`: **1,278 MW** for the
-> cost comparison, **1,422 MW** for what could actually be procured.
->
-> The four plants flagged `needs_overhaul` — Gordonsville (1994), Elizabeth River (1992), Darbytown
-> (1990), Gravel Neck (1989) — are all at or beyond nominal CT life by 2045 and need capital work
-> rather than simple retention.
+**The same 1,278 MW follows from the fleet composition directly**, independently of the sweep. The
+2045 target of 6,000 MW less the 1,860 MW surviving Schedule B (Chesterfield, Doswell, Possum Point)
+less the 2,862 MW overhaul/retain pool leaves exactly 1,278 MW to be built new. The cost sweep and
+the plant-by-plant accounting reach the same figure by different routes.
+
+**Discreteness raises the buildable figure to 1,422 MW.** F-Class units are 237 MW, so the 1,278 MW
+residual takes six of them — 144 MW more than strictly required. The sweep above treats capacity as
+continuous, which is correct for the cost comparison; **1,422 MW** is the figure for what would
+actually be procured, and both are reported.
+
+**Four of the eight retained plants need capital work**, not simple retention: Gordonsville (1994),
+Elizabeth River (1992), Darbytown (1990) and Gravel Neck (1989) are all at or beyond nominal
+30–45 year CT life by 2045. Overhaul cost is $11.4M/yr against $77.0M/yr for the new build.
 
 ### N.3 Turbine Procurement Lead Time: Feasibility Check
 
@@ -92,32 +86,6 @@ is 19 years out, comfortably beyond any lead-time constraint. (The
 tighter, genuinely constrained case was Scenario 2's 2030 checkpoint,
 addressed separately in Appendix C.11 — not a live issue for Scenario
 1B, whose only new-build lands at 2045.)
-
-> ## CORRECTION 2026-09-14 — N.4 was solved at the wrong capacity
->
-> **N.2 locked in 6,000 MW total (1,278 MW new simple-cycle CT). N.4 then solved 2045 at 4,722 MW**
-> — N.2's own *"existing only"* row, which its table shows costing **$10,065.2M against $9,469.3M**
-> at 6,000 MW. N.4 solved the configuration N.2 explicitly rejected.
->
-> **The arithmetic closes exactly:** 4,722 (existing + standing pool) + 1,278 (new CT) = 6,000.
->
-> **It was never implemented in code either.** `Scenario1BSolver` inherited `apply_gas_cap()`
-> unchanged, so the 1,278 MW appeared nowhere. Fixed 2026-09-14:
-> `SCENARIO_1B_GAS_CAPACITY_MW = 6,000` with an override on the subclass.
->
-> **What this invalidates below:** the **1.63%** gas share, and the conclusion that *"the 5%
-> statutory ceiling is, in practice, largely moot... the binding constraint is physical fleet
-> capacity, not the RPS percentage."* Both were measured without the capacity the sweep selected,
-> and are artifacts of the omission rather than results about the scenario. **Re-measurement
-> needed.**
->
-> **Also fixed:** there was no `Scenario1BWithReserveMargin`, so 1B solved with **no reserve margin
-> at all** while Scenarios 1 and 3 carried the all-hours constraint — holding it to a looser
-> reliability standard than the scenarios it is compared against.
->
-> **And 2044 must be a checkpoint for this scenario.** 2044's RPS is 5% gas, which *is* 1B's 2045
-> target, so its 2045 build should equal its 2044 build. Linking 2045 back to 2040 is what produced
-> the *"physically nonsensical, wildly oversized 2045 buildout"* N.4 itself records correcting.
 
 ### N.4 Full SLCOE/NPV Build
 
@@ -149,32 +117,25 @@ already built. Fixed: both storage floors now take the max of the VCEA
 statutory floor and whatever the linking mechanism already requires,
 rather than silently discarding the higher of the two.
 
-> **SUPERSEDED 2026-09-14 — the paragraphs below were measured at 4,722 MW, not the 6,000 MW
-> N.2 locked in.** The 1.63% gas share and the conclusion that the 5% ceiling is "largely moot"
-> are artifacts of the omitted 1,278 MW of new CT. Re-measurement pending; see the correction
-> above N.4.
+**The 2045 dispatch and gas-share results in this section are pending re-measurement.** They were
+produced with the gas fleet capped at 4,722 MW — the existing fleet and standing pool alone —
+without the 1,278 MW of new simple-cycle CT that N.2 selects. Scenario 1B's capacity at 2045 is
+**6,000 MW**, and the figures below do not reflect it.
 
-**Result: Scenario 1B's own 2045 checkpoint requires ZERO new solar or
-storage build.** 2044's own, already-built capacity already exceeds
-what the relaxed, 5%-gas target needs — the LP correctly chooses to add
-nothing further. Gas dispatch still pins the physical gas-fleet
-capacity cap exactly (4,722 MW, the same cap Scenario 1 itself is bound
-by) — but only reaches 1.63% of 2045 demand, not the full 5% the
-statute would allow, because the physical fleet itself (sized down by
-the VCEA's own Schedule B retirement schedule) simply cannot generate
-more than that by this point in the window. **The 5% statutory ceiling
-is, in practice, largely moot for Scenario 1B at 2045** — the binding
-constraint is physical fleet capacity, not the RPS percentage.
+What the earlier run established at 4,722 MW, and which may or may not survive the correction:
 
-**2045 dispatch cost, from the corrected hourly arrays**:
+- the 2045 checkpoint required **no new solar or storage build**, 2044's capacity already exceeding
+  what the 5%-gas target needs
+- gas dispatch pinned the capacity cap exactly but reached only **1.63%** of 2045 demand
+- the binding constraint was therefore physical fleet capacity rather than the RPS percentage
 
-| Component | Scenario 1 | Scenario 1B |
-|---|---|---|
-| Na cycling | $359.2M | $347.3M |
-| FE cycling | $84.5M | $84.1M |
-| Gas fuel | $12.4M | $200.2M |
-| Export revenue | $335.5M | $292.6M |
-| Gas share of demand | 0.10% | 1.63% |
+The first of these should hold independently of capacity: 2044's own RPS target is 5% gas, which is
+identical to Scenario 1B's 2045 target, so 2045 should require no incremental build whatever the gas
+cap. The second and third depend directly on the capacity that was wrong.
+
+Re-run with `python3 run_scenario1b.py`, which solves the five-checkpoint set
+(2030, 2035, 2040, **2044**, 2045) at 6,000 MW and reports the 2044 → 2045 increment as its primary
+diagnostic.
 
 **Full 20-year result:**
 

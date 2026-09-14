@@ -6410,3 +6410,90 @@ Original options considered, preserved for context:
 3. Something narrower than full migration -- e.g. only re-sort the clearest, most obviously
    misplaced entries (routine one-line updates that don't belong in a "major problem" log).
 
+
+## 126. Scenario 1B solved at a capacity Appendix N.2 had already rejected -- the sweep's own result was never implemented
+
+**Context:** auditing Scenario 1B before building its runner, prompted by a direct question --
+"iirc we needed to add a turbine the last time we did 1B, check the documentation". The
+recollection was right and the code did not reflect it.
+
+**What N.2 established.** A capacity sweep over capped gas capacities, costing each as LP objective
+PLUS externally-priced new-build capex, because the LP carries no capex penalty for gas within its
+own objective -- only marginal fuel cost -- and so had no reason to economize when first given free
+rein (it picked 17,704 MW). The sweep's minimum held at 6,000-7,000 MW across the entire
+$1,200-3,000/kW range tested, and N.2 locked in **6,000 MW total, 1,278 MW new simple-cycle CT**.
+
+**What N.4 then did.** Solved 2045 at **4,722 MW** -- which is N.2's own "existing only" row,
+costing $10,065.2M against $9,469.3M at 6,000 MW. It solved the configuration the sweep explicitly
+rejected.
+
+**And the code never had it either.** `Scenario1BSolver` overrides only `get_existing_new_mw`; it
+inherited `apply_gas_cap()` unchanged, returning `schedule_b_baseline_mw(year) + 2862` = 4,722 MW at
+2045. The 1,278 MW appeared nowhere in the repository.
+
+**The arithmetic closes exactly**, which is what confirmed the reading: 4,722 (existing + standing
+pool) + 1,278 (new CT) = 6,000. N.2's "new build" column is measured beyond 4,722, not beyond the
+1,860 MW of surviving plant.
+
+**Invalidated:** N.4's 1.63% gas share, and its conclusion that "the 5% statutory ceiling is, in
+practice, largely moot -- the binding constraint is physical fleet capacity, not the RPS
+percentage". Both were measured without the capacity the sweep selected. Appendix N now states the
+section as pending re-measurement rather than carrying a correction narrative.
+
+**Resolved:** `assumptions.SCENARIO_1B_GAS_CAPACITY_MW = 6000.0` with
+`SCENARIO_1B_NEW_CT_MW = 1278.0` and `SCENARIO_1B_NEW_CT_CAPEX_KW = 2000.0`, applied via an
+`apply_gas_cap()` override on `Scenario1BSolver` -- scenario-specific logic in the subclass rather
+than the base branching on scenario identity.
+
+**A near-miss worth recording.** Before the question was asked, I had planned to raise 1B's capacity
+by relaxing Schedule B's VCEA-driven retirements -- "don't retire anything needed by 2045" -- which
+would have reached a similar number by a *judgement* rather than by the sourced sweep. That is the
+wrong kind of answer, and it would have been indistinguishable from the right one in the output.
+
+
+## 127. Scenario 1B had no reserve-margin variant, and 2044 was not a checkpoint
+
+**Context:** same audit as #126.
+
+**No `Scenario1BWithReserveMargin` existed.** Scenarios 1 and 3 each have one carrying the all-hours
+constraint; 1B did not, so it solved with **no reserve margin at all** while being compared against
+scenarios that had one. The same defect Scenario 2 had.
+
+**2044's RPS target is 5% gas -- which IS Scenario 1B's 2045 target.** So 1B's 2045 build should
+equal its 2044 build, and the 2045 checkpoint should require no incremental capacity. N.4 itself
+records correcting an earlier attempt that linked 2045 back to 2040, skipping the shared 2041-2044
+window, and produced "a physically nonsensical, wildly oversized 2045 buildout" -- but the standard
+four-checkpoint set does exactly that.
+
+**Resolved:** `Scenario1BWithReserveMargin` added; `run_scenario1b.py` carries a five-checkpoint set
+(2030, 2035, 2040, **2044**, 2045) and reports the 2044 -> 2045 solar increment as its primary
+diagnostic, flagging a nonzero value with BOTH possible explanations -- broken linking, or the
+corrected capacity changing what 2045 needs -- rather than asserting either.
+
+
+## 128. select_overhaul_retain had never been called, and reproduces N.2's figure independently
+
+**Context:** a function-level audit of `driver.py`, which the module-level orphan check cannot see:
+`driver.py` is imported everywhere and is therefore never itself orphaned, but four public functions
+inside it had no external caller.
+
+**`select_overhaul_retain(shortfall_mw)`** is a youngest-first greedy selector over the eight-plant
+`POOL`, computing overhaul costs for retained plants and falling back to F-Class new build for any
+residual. Real, sourced machinery nobody had connected.
+
+**Wired into `Scenario1BSolver.retain_and_overhaul_plan()`, it reproduces N.2's locked figure by a
+completely different route:**
+
+    6,000 MW target - 1,860 Schedule B survivors - 2,862 MW POOL = 1,278 MW residual
+    N.2's capacity sweep, independently:                           1,278 MW new CT
+
+**It also surfaces a discreteness gap the sweep could not see.** F-Class units are 237 MW, so the
+1,278 MW residual takes six of them -- 1,422 MW, overshooting by 144. The sweep treated capacity as
+continuous. Both figures are now reported: 1,278 for the cost comparison N.2 ran, 1,422 for what
+could actually be procured.
+
+**A false alarm I raised and withdrew:** `cum_mw` returning 4,284 where the selected plants sum to
+2,862 looked like an accumulation bug. It is not -- `cum_mw` is TOTAL delivered capacity including
+the new build. That reads as an inconsistency until the newbuild term is noticed, so it is now
+stated at the function and asserted in a test.
+
