@@ -38,7 +38,7 @@ From the European study (PMC11665420), three ways long-term goals enter a model:
 | case | description | ours |
 |---|---|---|
 | **1** | No transition pathway modelled — optimise a **snapshot year** in which the goal is achieved | **"target-first", as a standalone 2045 solve** |
-| **2** | Transition optimised under **perfect foresight** — the optimiser knows all future goals | true backcasting equivalent; not implemented |
+| **2** | Transition optimised under **perfect foresight** — the optimiser knows all future goals | **assembler built 2026-09-14**, `lp_package/multi_period_problem.py` |
 | **3a** | **Myopic** foresight, goals imposed exogenously via an annual trajectory | **`solve_chain.py`** — our `gas_target_share` trajectory is exactly this |
 | 3b | Myopic, goals imposed via a carbon price | not used |
 
@@ -158,3 +158,48 @@ caveats.
   PMC13262050 — "dynamic myopic foresight", decisions locked in before values are revealed
 - Robinson, J. (1982) and Dreborg, K. (1996) — backcasting in futures studies, for the terminology
   distinction
+
+---
+
+## Case 2 implemented — and what the citations corrected
+
+**Checked 2026-09-14**, after a proposal to "solve 2045 first and work backwards" was put forward
+here. **That construction appears nowhere in the literature.** Perfect foresight means a **single
+simultaneous solve**:
+
+> *"optimizing all variables over the whole time frame in a **single run**, thus determining the
+> global optimum"* — PERSEUS-NET
+
+> *"perfect-foresight approaches are capable of finding a cost-minimal transformation pathway
+> across **all** expansion phases ... myopic approaches assume limited knowledge about the future"*
+> — arXiv 2009.07216
+
+### The assembly is small because the structure already suited it
+
+`build_problem` puts the eight build variables at **fixed positions 0-7 in every period**, so four
+periods stack block-diagonally and need only **8 x 3 = 24 linking rows**.
+
+| | one period | four periods |
+|---|---:|---:|
+| variables | 183,968 | **735,872** |
+| rows | 228,131 | **912,524** |
+| nonzeros | 727,090 | **2.9M** |
+
+### Salvage value is mandatory, not optional
+
+> *"The perfect foresight model is Type 1 **with salvage value**"* — Brown
+
+> a credit *"proportional to remaining technical lifetime, **ensuring late-horizon investments are
+> not penalized**"* — district-heating sequential investment optimisation
+
+Omit it and the optimiser treats every 2045 build as worthless the instant the horizon ends.
+Applied to **both** approaches by decision, so the comparison measures foresight rather than
+salvage treatment, and entering as a **negative cost on build variables** rather than a lump sum.
+
+### The validation that matters most
+
+There is **no other baseline** — the linked result *is* what is being measured. So the assembler is
+verified **without** linking, which makes the periods independent, against the standalone solves.
+
+**Measured on real 2030 and 2035 problems:** $3,059,895,769.79 and $5,581,690,229.81 standalone
+against an assembled $6,321,854,377.78, expected $6,321,854,377.78 — **1.45e-14 relative.**
