@@ -47,7 +47,8 @@ import driver as drv                                                      # noqa
 import lp_model as lp                                                     # noqa: E402
 import multi_period_problem as mp                                         # noqa: E402
 import paths                                                              # noqa: E402
-from levelised_cost import build_salvage_credit, undepreciated_value      # noqa: E402
+from levelised_cost import (BUILD_RESULT_KEYS, build_salvage_credit,       # noqa: E402
+                            undepreciated_value)
 
 CHECKPOINTS = (2030, 2035, 2040, 2045)
 
@@ -141,11 +142,11 @@ def run_myopic(klass, needs_distributed, verbose=True):
     return rows
 
 
-#: Result keys for the four utility build variables, IN THE SAME ORDER as the first four entries
-#: of _capex_by_build_var. The pairing is positional and nothing in the type system enforces it, so
-#: a reordering of either list would credit solar salvage against storage MW WITHOUT RAISING.
-#: Asserted in _assert_build_ordering below.
-_BUILD_RESULT_KEYS = ['S_mw', 'PNA_mw', 'ENA_mwh', 'EFE_mwh']
+#: Re-exported from levelised_cost (Rule 6.1), which owns the canonical ordering. A local copy
+#: existed here until 2026-09-14 and would have been free to drift from the one build_salvage_credit
+#: actually uses -- the pairing is positional, so a divergence would credit solar salvage against
+#: storage MW without raising.
+_BUILD_RESULT_KEYS = list(BUILD_RESULT_KEYS)
 
 
 def _assert_build_ordering():
@@ -164,22 +165,12 @@ def _assert_build_ordering():
             f'build ordering looks wrong: position 0 ({capex[0]:,.0f}) should be solar $/MW and '
             f'position 2 ({capex[2]:,.0f}) storage energy $/MWh, which differ by an order of '
             'magnitude. Check _capex_by_build_var against _BUILD_RESULT_KEYS.')
-    if _BUILD_RESULT_KEYS[0] != 'S_mw' or _BUILD_RESULT_KEYS[3] != 'EFE_mwh':
-        raise AssertionError('_BUILD_RESULT_KEYS reordered without updating _capex_by_build_var')
+    if list(BUILD_RESULT_KEYS) != ['S_mw', 'PNA_mw', 'ENA_mwh', 'EFE_mwh']:
+        raise AssertionError(
+            f'levelised_cost.BUILD_RESULT_KEYS reordered to {BUILD_RESULT_KEYS}; _capex_by_build_var '
+            'must be reordered to match, or salvage is credited against the wrong quantities.')
     return True
 
-
-def _build_value(result, position):
-    """Build variable value by position, from a solved checkpoint result.
-
-    USES S_mw, THE INCREMENT, NOT S_mw_total. Salvage credits what each VINTAGE built -- a 2035
-    build has 2035's remaining life, and crediting the cumulative total at every checkpoint would
-    count the same capacity four times. The row's own `solar_mw` field reports S_mw_total, which is
-    the right figure for the build trajectory and the wrong one here; the two differing is
-    deliberate.
-    """
-    return (float(result.get(_BUILD_RESULT_KEYS[position], 0.0))
-            if position < len(_BUILD_RESULT_KEYS) else 0.0)
 
 
 def run_perfect_foresight(klass, needs_distributed, verbose=True):

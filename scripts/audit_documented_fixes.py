@@ -442,6 +442,51 @@ def check_no_dormant_driver_functions():
     return True, f'{len(public)} public driver functions, dormant ones all accounted for'
 
 
+
+def check_no_dead_functions_in_runners():
+    """Functions in the top-level runners with no real call site.
+
+    THE PATTERN THIS CATCHES occurred twice in two days: removing or replacing a caller without
+    checking what it uniquely reached. Deleting run_solve_multi_duration orphaned
+    build_problem_multi_duration and two helpers, 178 lines; replacing the myopic salvage path with
+    build_salvage_credit orphaned _build_value.
+
+    COUNTS CODE ONLY. Comments and docstrings mention function names constantly -- a naive text
+    search reported four live callers for a function nothing called. tokenize separates them, which
+    is the fifth time in this project a check needed that to be trustworthy.
+    """
+    import ast
+    import io
+    import re
+    import tokenize
+    dead = []
+    for fname in sorted(f for f in os.listdir(REPO)
+                        if f.startswith(('run_', 'solve_')) and f.endswith('.py')):
+        src = read(fname)
+        if not src:
+            continue
+        try:
+            tree = ast.parse(src)
+            toks = [t.string for t in tokenize.generate_tokens(io.StringIO(src).readline)
+                    if t.type not in (tokenize.COMMENT, tokenize.STRING)]
+        except (SyntaxError, tokenize.TokenError):
+            continue
+        blob = ' '.join(toks)
+        for fn in tree.body:
+            if not isinstance(fn, ast.FunctionDef) or fn.name == 'main':
+                continue
+            # COUNT REFERENCES, NOT CALL SYNTAX. run_all.py registers its stage functions as bare
+            # names inside Stage objects -- `stage_demand_arrays,` with no parentheses -- so a
+            # check looking for `name(` reported all six as dead on its first run. A function
+            # passed as a value is used.
+            refs = len(re.findall(r'(?<![\w.])' + fn.name + r'(?![\w])', blob)) - 1
+            if refs <= 0:
+                dead.append(fname + ':' + fn.name)
+    if dead:
+        return False, 'function(s) with no call site: ' + ', '.join(dead) + '. Delete, or wire in.'
+    return True, 'no dead functions in the top-level runners'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -506,6 +551,7 @@ CHECKS = [
     ('no orphaned modules (Rule 1)', check_no_orphaned_modules),
     ('modules import what they reference', check_modules_import_what_they_reference),
     ('no undocumented dormant driver functions', check_no_dormant_driver_functions),
+    ('no dead functions in the runners', check_no_dead_functions_in_runners),
     ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 

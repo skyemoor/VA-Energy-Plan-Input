@@ -156,11 +156,17 @@ class TestBuildOrderingIsAsserted:
     def test_salvage_uses_the_increment_not_the_cumulative_total(self):
         """S_mw, not S_mw_total. Salvage credits what each VINTAGE built -- a 2035 build has 2035's
         remaining life -- and crediting the cumulative total at every checkpoint would count the
-        same capacity four times. The row's own solar_mw field reports S_mw_total, and the two
-        differing is deliberate."""
-        assert rfc._BUILD_RESULT_KEYS[0] == 'S_mw'
-        assert 'S_mw_total' in inspect.getsource(rfc.run_myopic)      # for the reported trajectory
-        assert 'NOT S_mw_total' in inspect.getsource(rfc._build_value)
+        same capacity four times. The reported solar_mw_total field is the right figure for the
+        build trajectory and the wrong one here; the two differing is deliberate.
+
+        MOVED 2026-09-14: this lived in run_foresight_comparison._build_value, which was orphaned
+        when build_salvage_credit replaced the myopic salvage path. The canonical ordering is now
+        levelised_cost.BUILD_RESULT_KEYS, used by both runners."""
+        from levelised_cost import BUILD_RESULT_KEYS
+        assert BUILD_RESULT_KEYS[0] == 'S_mw'
+        assert 'S_mw_total' in inspect.getsource(rfc.run_myopic)      # the reported trajectory
+        import levelised_cost as lc
+        assert 'CUMULATIVE' in inspect.getsource(lc.build_salvage_credit)
 
 
 class TestScopeIsStated:
