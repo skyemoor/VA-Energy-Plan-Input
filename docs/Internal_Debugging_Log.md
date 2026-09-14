@@ -6536,3 +6536,39 @@ literals: normalising whitespace is not enough, because the QUOTE CHARACTERS sur
 contains `binding ' 'constraint`. Adjacent literals must be joined first. Sixth instance in this
 project of a check needing source-vs-prose handling before it was trustworthy.
 
+
+## 130. The build_only return was placed before the constraint block it existed to deliver
+
+**Context:** the perfect-foresight path produced 41,718 MWh of unserved energy at 2030 where the
+myopic solve had none (#entry above). The fix was `run_solve(build_only=True)`, returning the fully
+constrained problem so the assembly could not diverge from what `run_solve` itself solves.
+
+**It did not work, because I put the return in the wrong place.** It sat straight after
+`apply_slcr_constraint`, which is BEFORE the VCEA storage floor block. The floors the parameter was
+added to deliver were still skipped: the NA power lower bound came back **0.0 against the 4,000 MW**
+the statute requires, and 2030 came back with **39,682 MWh** unserved.
+
+**41,718 -> 39,682 is the dangerous kind of partial fix.** Small enough to look like progress, which
+invites another guess instead of a re-check.
+
+**MY FIRST DIAGNOSIS WAS ALSO WRONG.** I confirmed `min_na_power_mw` defaults to `'vcea_default'`
+and concluded the floors must therefore be applied. The default being right says nothing about
+whether execution reaches it. Checking a parameter's default is not checking a bound.
+
+**AND THE COMMENT CLAIMED THE FLOORS WERE APPLIED.** I wrote that at the same time as the misplaced
+return, without inspecting the resulting problem. Only the code decides what is applied.
+
+**Resolved:** the return now sits immediately before `lp.solve_problem`, so the guarantee holds
+whatever is added above it. All six post-build steps precede it; only `return problem` lies between
+it and the solve.
+
+**One LP row gave the confirmation the source could not.** Comparing `build_only` against a full
+solve showed **245,647 rows against the 245,646** recorded before the fix -- the difference is the
+SLCR row, exactly what the misplaced return was skipping. The source reading had told me the return
+was "after apply_slcr", which was true and still wrong. Now asserted at 245,647 exactly, so a return
+that drifts above any constraint block fails on the row count rather than on a subtler symptom.
+
+**Generalised as Appendix P.2 §14:** an alternative solve path must be built from the same code, not
+reconstructed. The constraints are not all in the builder, and a path that calls the builder
+directly gets a problem missing every post-build constraint without the omission announcing itself.
+

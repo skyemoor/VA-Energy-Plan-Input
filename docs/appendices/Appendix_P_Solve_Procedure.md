@@ -690,6 +690,31 @@ mathematical guarantee, per the SLCR trial's own finding (Internal
 Debugging Log #20.7) that a mechanism's effectiveness can vary by
 checkpoint depending on which constraints are actually binding there.
 
+#### §14. Any alternative solve path must be built from the same code, not reconstructed
+
+A scenario solved through a different route — a multi-period assembly, a sweep harness, a
+diagnostic — must obtain its problem from the **same function that ordinarily solves it**, not by
+calling the problem builder and reapplying the constraints itself.
+
+**The constraints are not all in the builder.** The capacity cap, the VCEA short- and long-duration
+storage floors, the minimum storage duration, the reserve margin and the SLCR row are all applied
+*after* the build, by the solve function. A path that calls the builder directly gets a problem
+missing every one of them, and the omission does not announce itself: the solve succeeds, and the
+result is merely wrong.
+
+**The observable symptom is unserved energy that the ordinary path does not produce.** Without the
+minimum-duration floor the optimiser builds storage with power but almost no energy — capacity that
+discharges for minutes and cannot cover an evening — and then accepts unserved demand at the
+penalty price rather than build usable storage.
+
+**A partial reconstruction is worse than an obvious one**, because the error shrinks rather than
+disappears and reads as progress.
+
+**Requirement:** solve functions expose a build-only mode returning the problem exactly as it would
+be solved, placed immediately before the solve so it stays complete as constraints are added. A
+verification compares the constraint-row count of that mode against a full solve; a single missing
+row is a missing constraint.
+
 ### P.3 Scenario-Specific Requirements — Index
 
 Each scenario's own methodology creates requirements beyond the parts

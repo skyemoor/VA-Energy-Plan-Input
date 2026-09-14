@@ -386,3 +386,74 @@ python3 run_scenario1b.py
 
 **Watch on 1B:** the 2044 → 2045 solar increment should be **zero**, and the gas share should move
 off 1.63% now that the capacity is right.
+
+---
+
+# Addendum 2 — results in hand
+
+## Scenario 1 solved, and the trajectory is the finding
+
+| year | clean | statutory gas | solar cumulative | new | curt TWh |
+|---|---:|---:|---:|---:|---:|
+| 2030 | 55.4% | 59.0% | 8,702 MW | 8,702 | 0.0 |
+| 2035 | 66.7% | 41.0% | 28,393 MW | 19,907 | 2.3 |
+| 2040 | 82.2% | 21.0% | 64,114 MW | 36,424 | 12.5 |
+| **2045** | **100.0%** | 0% | **156,737 MW** | 94,209 | **142.1** |
+
+**92,622 MW built in 2045 alone against 64,114 MW cumulative through 2040** — 59.1% of the fleet in
+the final step. Every checkpoint converged; zero unserved throughout. 26 minutes.
+
+**Curtailment reaches 142.1 TWh against 202.2 TWh of demand** — the system generates ~344 TWh to
+serve 202.
+
+## Scenario 1B solved, and N.4's conclusion survives
+
+**At 6,000 MW gas reaches 4.27% of the statutory base and cannot reach 5%.** The search saturated:
+unchanged at 0.0427 across `frac` 0.1649, 0.2562, 0.5124 — a **tripling of the allowance**.
+
+**The 2045 checkpoint builds nothing.** 2044 already covers what the 5% target needs, which follows
+from 2044's own RPS target being 5% gas. The 626 MW fall in the cumulative fleet is exactly the
+0.5%/yr degradation (125,194 × 0.995 = 124,568).
+
+**So the binding constraint is physical fleet capacity, not the RPS percentage** — N.4's original
+finding, at 4.27% rather than the 1.63% it was measured at.
+
+## Three reporting defects, found only by reading a clean run
+
+**Two share bases, one ceiling.** The runner compared gas ÷ total demand against a ceiling defined
+on gas ÷ (demand − nuclear). Correct comparison: **4.27% against 5%**, not 3.66%. At 2030 the bases
+differ by **14 points**. Both now reported.
+
+**A zero-build test that could never pass** — it read the cumulative increment, which falls by
+degradation. Now reads `solar_mw_new`.
+
+**The objective is incremental, not a trajectory.** 1B's 2045 ($8.25B) sits below 2044 ($13.29B) on
+higher demand, because it builds nothing and is charged almost no capital while running a
+124,568 MW fleet.
+
+## The foresight solve, and a fix that failed quietly
+
+`build_only=True` returned **before** the VCEA floor block it existed to deliver. Unserved went
+**41,718 → 39,682 MWh** — the dangerous kind of partial fix, small enough to read as progress.
+
+**My first diagnosis was also wrong:** I confirmed the parameter *defaulted* to `'vcea_default'` and
+concluded the floors were applied. The default being right says nothing about whether execution
+reaches it.
+
+**One LP row gave the confirmation the source could not** — 245,647 against 245,646, the SLCR row.
+Source reading had said the return was *"after apply_slcr"*, which was true and still wrong.
+
+**Generalised as Appendix P.2 §14:** an alternative solve path must be built from the same code, not
+reconstructed.
+
+## Next
+
+```bash
+python3 run_foresight_comparison.py --myopic-from results/scenario1.json
+```
+
+Then the compliance sweep — 95% and 90% as **separate processes**, since `lp_model`'s capex
+constants are mutable module state that threads would corrupt silently.
+
+**1,076 tests, 14 audit checks.**
+
