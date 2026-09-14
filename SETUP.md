@@ -266,3 +266,30 @@ pathways differ"*, so endpoints may agree while pathways diverge. Published myop
 
 A **negative penalty is flagged, not reported** — myopic cheaper than foresight is impossible if
 both solve the same feasible set, so it means the two aren't comparable.
+
+## Scenario 1B
+
+```bash
+python3 run_scenario1b.py
+```
+
+**Five checkpoints — 2030, 2035, 2040, 2044, 2045.** Not four.
+
+**2044 is not optional.** Its own RPS target is 5% gas, which *is* 1B's 2045 target — so 1B's 2045
+build should equal its 2044 build. Linking 2045 back to 2040 and skipping the shared 2041–2044
+window is what produced the *"physically nonsensical, wildly oversized 2045 buildout"* Appendix N.4
+records correcting.
+
+| | Scenario 1 | **Scenario 1B** |
+|---|---|---|
+| target from 2045 | 0% gas | **5% gas** |
+| gas capacity at 2045 | 4,722 MW | **6,000 MW** |
+| new simple-cycle CT | — | **1,278 MW @ $2,000/kW** |
+
+**The new CT is costed externally**, not in the LP objective — the LP carries no capex penalty for
+gas, only marginal fuel cost, which is why N.2 swept capacities rather than letting it choose.
+Given free rein the uncapped LP picked 17,704 MW.
+
+**The diagnostic to watch** is the 2044 → 2045 solar increment. Same target both years, so it should
+be **zero**; a nonzero value means either the linking isn't carrying 2044 forward, or the corrected
+6,000 MW cap changed what 2045 needs relative to the 4,722 MW N.4 was written at.
