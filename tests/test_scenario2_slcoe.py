@@ -101,3 +101,68 @@ class TestCapexBand:
             with open(path) as f:
                 vals.append(json.load(f)['levelised']['slcoe_with_terminal_value'])
         assert (max(vals) - min(vals)) / min(vals) < 0.06
+
+
+class TestTierOneAndTwo:
+    """Appendix P.2 §9 requires Tier 1 and 2 "across all 20 years of a scenario-solve, not from a
+    subset of checkpoint years" -- the same full-window rule as §1."""
+
+    def test_tier_one_is_reported_as_two_separate_figures(self, run):
+        """Va. Code §56-598(2)(d) / §56-585.1(A)(6) require the statutory CO2-only concept and the
+        broader multi-gas total to be reported SEPARATELY, not combined into one. They are
+        different quantities: Virginia SCC is carbon-dioxide-only and tied to a specific statutory
+        purpose; aggregate GHG cost captures CO2, CH4 and N2O."""
+        t = run['levelised']['tiers']
+        assert 'virginia_scc_usd' in t and 'social_cost_ghg_usd' in t
+        assert t['social_cost_ghg_usd']['pv_usd'] > t['virginia_scc_usd']['pv_usd']
+
+    def test_measured_values(self, run):
+        """BASELINE LOCKED 2026-09-13, twenty-year PV at WACC 4.5%."""
+        t = run['levelised']['tiers']
+        assert t['virginia_scc_usd']['per_mwh'] == pytest.approx(73.71, abs=1.0)
+        assert t['social_cost_ghg_usd']['per_mwh'] == pytest.approx(81.15, abs=1.0)
+        assert t['health_impacts_usd']['per_mwh'] == pytest.approx(5.50, abs=0.3)
+
+    def test_social_cost_dwarfs_the_direct_cost(self, run):
+        """$81.15/MWh of climate cost against $32.82/MWh of direct cost -- the externality is
+        roughly 2.5x what appears on the bill. That is the finding, not a rounding note."""
+        d = run['levelised']
+        assert d['tiers']['social_cost_ghg_usd']['per_mwh'] > 2 * d['slcoe_with_terminal_value']
+
+    def test_total_societal_slcoe(self, run):
+        """Direct SLCOE + SC-GHG + health. Tier 3 excluded from the dollar total BY DESIGN -- no
+        sufficiently robust dollar-per-ton figure exists for air toxics, and inventing one would
+        create false precision. The broader SC-GHG is used here rather than the narrower CO2-only
+        Virginia SCC, since this line is meant to capture the full climate cost."""
+        d = run['levelised']
+        assert d['total_societal_slcoe'] == pytest.approx(119.47, abs=2.0)
+
+    def test_levelised_on_the_same_basis_as_the_financial_figure(self, run):
+        """Same discount rate, same base year, same twenty years -- so the per-MWh figures are
+        directly addable rather than merely adjacent."""
+        d = run['levelised']
+        for key in ('virginia_scc_usd', 'social_cost_ghg_usd', 'health_impacts_usd'):
+            implied = d['tiers'][key]['pv_usd'] / d['tiers'][key]['per_mwh']
+            assert implied == pytest.approx(d['pv_demand_mwh'], rel=0.01)
+
+
+class TestAgainstAppendixD:
+    """Appendix D carries prior figures for Scenario 2. Ours run 11-17% higher, and the reason
+    should be understood rather than assumed."""
+
+    def test_direction_and_magnitude_of_the_difference(self, run):
+        """Appendix D: SC-GHG $72.84/MWh, Virginia SCC $66.16, health $4.72.
+        Ours: $81.15, $73.71, $5.50 -- +11.4%, +11.4%, +16.5%.
+
+        The two climate tiers move by an identical 11.4%, which points at gas VOLUME rather than
+        at the emission factors or the SC-GHG schedule: a change in either of those would not
+        scale both gases by the same proportion. Health moves more (16.5%) because its NOx blend
+        depends on the existing/new MW split, which the merit-order and fleet corrections this
+        session also changed.
+
+        The most likely driver is this session's demand and solar corrections: Scenario 2's clean
+        share fell from 39.2% to 34.7% at 2045 once post-VCEA solar stopped being double-counted,
+        which means more gas burned across the window."""
+        t = run['levelised']['tiers']
+        assert t['social_cost_ghg_usd']['per_mwh'] / 72.84 == pytest.approx(1.114, abs=0.03)
+        assert t['virginia_scc_usd']['per_mwh'] / 66.16 == pytest.approx(1.114, abs=0.03)

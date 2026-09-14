@@ -49,6 +49,7 @@ import demand_basis                                                       # noqa
 import driver as drv                                                      # noqa: E402
 import lp_model as lp                                                     # noqa: E402
 import paths                                                              # noqa: E402
+import compute_tier123_final as tier123                                   # noqa: E402
 from levelised_cost import LevelisedCost, undepreciated_value             # noqa: E402
 
 FIRST_YEAR, FINAL_YEAR = 2026, 2045
@@ -83,6 +84,14 @@ def solve_year(year, weather, capex_basis):
 
     cost = solver.lifecycle_cost(ccgt_capex_basis=capex_basis)
     gas_mwh = sum(x[t * 14 + IDX['g']] for t in range(len(demand)))
+
+    # TIER 1 AND 2, per Appendix P.2 §9 -- which requires them "across all 20 years of a
+    # scenario-solve, not from a subset of checkpoint years", the same full-window rule as §1.
+    # Computed from THIS year's actual hourly gas dispatch, not from an annual total, because the
+    # NOx blend depends on the existing/new MW split at this year's own dispatch level.
+    g_hourly = np.array([x[t * 14 + IDX['g']] for t in range(len(demand))])
+    existing_mw, new_mw = drv.schedule_b_baseline_mw(year), assumptions.GAS_NEW_BUILD_POOL_MW
+    tiers = tier123.compute_year(year, g_hourly, existing_mw, new_mw)
     return {
         'year': year,
         'demand_mwh': float(demand.sum()),
@@ -96,6 +105,14 @@ def solve_year(year, weather, capex_basis):
         'total_annual_usd': float(cost.total_annual_usd),
         'annualised_capital_usd': float(cost.annualised_capital_usd),
         'fixed_om_usd': float(cost.fixed_om_usd),
+        # Tier 1 reported as TWO figures per Va. Code §56-598(2)(d) / §56-585.1(A)(6): the
+        # statutory CO2-only concept and the broader multi-gas total are different quantities and
+        # must not be combined into one.
+        'virginia_scc_usd': float(tiers['social_cost_of_carbon']),
+        'social_cost_ghg_usd': float(tiers['social_cost_of_ghg']),
+        'health_impacts_usd': float(tiers['health_impacts_cost']),
+        'co2_tons': float(tiers['co2_tons']),
+        'nox_tons': float(tiers['nox_tons']),
     }, cost
 
 
@@ -163,12 +180,36 @@ def main():
                               note=f'first built {first_seen.get(asset, "n/a")}, '
                                    f'life {ASSET_LIVES[asset]} yr')
 
+    # Tier 1/2 levelised on the same PV basis as the financial figure -- same discount rate, same
+    # base year, same 20 years -- so the per-MWh numbers are directly addable into a total
+    # societal SLCOE. Appendix D: "the genuine, full-20-year total for each scenario, not derived
+    # from the four-checkpoint table".
+    pv_demand = sum(r['demand_mwh'] * lc.discount_factor(r['year']) for r in stream)
+    tiers_pv = {}
+    for key, label in (('virginia_scc_usd', 'Virginia SCC (CO2 only, statutory)'),
+                       ('social_cost_ghg_usd', 'Social cost of GHG (CO2+CH4+N2O)'),
+                       ('health_impacts_usd', 'Health impacts (PM, SO2, NOx)')):
+        pv = sum(r[key] * lc.discount_factor(r['year']) for r in stream)
+        tiers_pv[key] = {'pv_usd': pv, 'per_mwh': pv / pv_demand, 'label': label}
+
     summary = lc.summary()
+    summary['tiers'] = tiers_pv
     print(f'\nPV cost      ${summary["pv_cost_usd"] / 1e9:>10,.2f}B', flush=True)
     print(f'PV demand     {summary["pv_demand_mwh"] / 1e6:>10,.1f} TWh', flush=True)
     print(f'PV terminal  ${summary["pv_terminal_value_usd"] / 1e9:>10,.2f}B', flush=True)
     print(f'\nSLCOE without terminal value  ${summary["slcoe_without_terminal_value"]:>7.2f}/MWh')
     print(f'SLCOE with terminal value     ${summary["slcoe_with_terminal_value"]:>7.2f}/MWh')
+    print('\nTier 1 and 2, levelised on the same PV basis (Appendix P.2 §9, Appendix D):')
+    for v in tiers_pv.values():
+        print(f'  {v["label"]:<38}${v["pv_usd"] / 1e9:>8,.3f}B   ${v["per_mwh"]:>6.2f}/MWh')
+    societal = (summary['slcoe_with_terminal_value']
+                + tiers_pv['social_cost_ghg_usd']['per_mwh']
+                + tiers_pv['health_impacts_usd']['per_mwh'])
+    print(f'  {"TOTAL SOCIETAL SLCOE":<38}{"":>9}   ${societal:>6.2f}/MWh')
+    print('  (direct SLCOE + SC-GHG + health; Tier 3 excluded from the dollar total by design;')
+    print('   the broader SC-GHG used here, not the narrower CO2-only Virginia SCC)')
+    summary['total_societal_slcoe'] = societal
+
     print(f'\nclean share {stream[0]["clean_share"]:.1%} ({FIRST_YEAR}) '
           f'-> {stream[-1]["clean_share"]:.1%} ({FINAL_YEAR})')
     print(f'Done in {(time.time() - t0) / 60:.1f} min')

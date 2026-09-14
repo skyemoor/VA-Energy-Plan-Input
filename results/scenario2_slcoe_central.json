@@ -13,7 +13,12 @@
       "objective_usd": 1435369461.5232446,
       "total_annual_usd": 1881444342.9077673,
       "annualised_capital_usd": 81476612.699784,
-      "fixed_om_usd": 364598268.68473876
+      "fixed_om_usd": 364598268.68473876,
+      "virginia_scc_usd": 5741820296.640057,
+      "social_cost_ghg_usd": 6235545099.068928,
+      "health_impacts_usd": 530391535.1079533,
+      "co2_tons": 20795948.011772066,
+      "nox_tons": 30137.843123367977
     },
     {
       "year": 2027,
@@ -27,7 +32,12 @@
       "objective_usd": 1615952495.5322206,
       "total_annual_usd": 2186135787.906212,
       "annualised_capital_usd": 177055050.29294616,
-      "fixed_om_usd": 393128242.0810449
+      "fixed_om_usd": 393128242.0810449,
+      "virginia_scc_usd": 6017629700.876714,
+      "social_cost_ghg_usd": 6544244094.060495,
+      "health_impacts_usd": 545669559.9660803,
+      "co2_tons": 21394979.085311927,
+      "nox_tons": 31005.969188606618
     },
     {
       "year": 2028,
@@ -41,7 +51,12 @@
       "objective_usd": 1813310408.330931,
       "total_annual_usd": 2497711777.47494,
       "annualised_capital_usd": 272633487.88610834,
-      "fixed_om_usd": 411767881.25790066
+      "fixed_om_usd": 411767881.25790066,
+      "virginia_scc_usd": 6329644311.712869,
+      "social_cost_ghg_usd": 6892865062.823241,
+      "health_impacts_usd": 563620904.9915407,
+      "co2_tons": 22098827.49385577,
+      "nox_tons": 32025.998326365505
     },
     {
       "year": 2029,
@@ -55,7 +70,12 @@
       "objective_usd": 2012185655.0581315,
       "total_annual_usd": 2857445367.5829015,
       "annualised_capital_usd": 374171952.6903631,
-      "fixed_om_usd": 471087759.83440703
+      "fixed_om_usd": 471087759.83440703,
+      "virginia_scc_usd": 6639865232.243122,
+      "social_cost_ghg_usd": 7240101717.37994,
+      "health_impacts_usd": 580779912.5424216,
+      "co2_tons": 22771609.401827004,
+      "nox_tons": 33001.005360774296
     },
     {
       "year": 2030,
@@ -69,7 +89,12 @@
       "objective_usd": 2255916855.358001,
       "total_annual_usd": 3384781978.2548866,
       "annualised_capital_usd": 612820839.840466,
-      "fixed_om_usd": 516044283.05641925
+      "fixed_om_usd": 516044283.05641925,
+      "virginia_scc_usd": 7091028739.467107,
+      "social_cost_ghg_usd": 7741751643.260355,
+      "health_impacts_usd": 598060693.1887035,
+      "co2_tons": 23895950.490972158,
+      "nox_tons": 33265.36859397899
     },
     {
       "year": 2031,
@@ -83,7 +108,12 @@
       "objective_usd": 2397461709.713702,
       "total_annual_usd": 3818441691.9851265,
       "annualised_capital_usd": 859969112.084573,
-      "fixed_om_usd": 561010870.186851
+      "fixed_om_usd": 561010870.186851,
+      "virginia_scc_usd": 7618911993.028142,
+      "social_cost_ghg_usd": 8330852782.153575,
+      "health_impacts_usd": 625577670.5259588,
+      "co2_tons": 25235969.85026221,
+      "nox_tons": 34409.56807851833
     },
     {
       "year": 2032,
@@ -97,7 +127,12 @@
       "objective_usd": 2576555700.0634356,
       "total_annual_usd": 4128735663.148363,
       "annualised_capital_usd": 961527168.1464198,
-      "fixed_om_usd": 590652794.9385078
+      "fixed_om_usd": 590652794.9385078,
+      "virginia_scc_usd": 8238297129.997692,
+      "social_cost_ghg_usd": 9021465523.266855,
+      "health_impacts_usd": 665065827.5366675,
+      "co2_tons": 26828932.621658493,
+      "nox_tons": 36581.59321779928
     },
     {
       "year": 2033,
@@ -111,7 +146,12 @@
       "objective_usd": 2772868926.6238685,
       "total_annual_usd": 4391690471.801182,
       "annualised_capital_usd": 1004673343.5585818,
-      "fixed_om_usd": 614148201.6187317
+      "fixed_om_usd": 614148201.6187317,
+      "virginia_scc_usd": 8890963527.102139,
+      "social_cost_ghg_usd": 9750108417.09246,
+      "health_impacts_usd": 692353788.7022028,
+      "co2_tons": 28475828.125725716,
+      "nox_tons": 37205.49639343598
     },
     {
       "year": 2034,
@@ -125,7 +165,12 @@
       "objective_usd": 2991627141.638149,
       "total_annual_usd": 4883615039.055813,
       "annualised_capital_usd": 1234669576.3011224,
-      "fixed_om_usd": 657318321.1165422
+      "fixed_om_usd": 657318321.1165422,
+      "virginia_scc_usd": 9649199247.932234,
+      "social_cost_ghg_usd": 10596240979.183994,
+      "health_impacts_usd": 732333991.0808003,
+      "co2_tons": 30401783.887604915,
+      "nox_tons": 38901.65838752522
     },
     {
       "year": 2035,
@@ -139,7 +184,12 @@
       "objective_usd": 3202988719.44163,
       "total_annual_usd": 5943694886.195639,
       "annualised_capital_usd": 2008560345.7919695,
-      "fixed_om_usd": 732145820.9620395
+      "fixed_om_usd": 732145820.9620395,
+      "virginia_scc_usd": 10491321976.548103,
+      "social_cost_ghg_usd": 11536410931.3647,
+      "health_impacts_usd": 783507633.4756489,
+      "co2_tons": 32526183.459081467,
+      "nox_tons": 41620.00763682305
     },
     {
       "year": 2036,
@@ -153,7 +203,12 @@
       "objective_usd": 3558586035.5216107,
       "total_annual_usd": 6613821580.865829,
       "annualised_capital_usd": 2296800280.487786,
-      "fixed_om_usd": 758435264.8564334
+      "fixed_om_usd": 758435264.8564334,
+      "virginia_scc_usd": 11562190157.086775,
+      "social_cost_ghg_usd": 12730385515.863802,
+      "health_impacts_usd": 849883535.993564,
+      "co2_tons": 35281682.81903367,
+      "nox_tons": 45145.902537734066
     },
     {
       "year": 2037,
@@ -167,7 +222,12 @@
       "objective_usd": 3956263019.829385,
       "total_annual_usd": 7220622911.501923,
       "annualised_capital_usd": 2489672484.8880215,
-      "fixed_om_usd": 774687406.7845169
+      "fixed_om_usd": 774687406.7845169,
+      "virginia_scc_usd": 12726310008.140652,
+      "social_cost_ghg_usd": 14029649085.327303,
+      "health_impacts_usd": 920949501.9763703,
+      "co2_tons": 38231883.36398527,
+      "nox_tons": 48920.93410162824
     },
     {
       "year": 2038,
@@ -181,7 +241,12 @@
       "objective_usd": 4397998659.754099,
       "total_annual_usd": 7748912986.924133,
       "annualised_capital_usd": 2571647085.1458073,
-      "fixed_om_usd": 779267242.0242276
+      "fixed_om_usd": 779267242.0242276,
+      "virginia_scc_usd": 13978223170.674883,
+      "social_cost_ghg_usd": 15428436570.234606,
+      "health_impacts_usd": 996101751.3938808,
+      "co2_tons": 41351720.04135514,
+      "nox_tons": 52913.02946999893
     },
     {
       "year": 2039,
@@ -195,7 +260,12 @@
       "objective_usd": 4803160495.602895,
       "total_annual_usd": 8120173931.495172,
       "annualised_capital_usd": 2544637260.3972664,
-      "fixed_om_usd": 772376175.4950101
+      "fixed_om_usd": 772376175.4950101,
+      "virginia_scc_usd": 15164842844.420086,
+      "social_cost_ghg_usd": 16757803240.35635,
+      "health_impacts_usd": 1064410873.4752612,
+      "co2_tons": 44187474.20866515,
+      "nox_tons": 56541.61719680899
     },
     {
       "year": 2040,
@@ -209,7 +279,12 @@
       "objective_usd": 5153511540.527763,
       "total_annual_usd": 8931333089.428267,
       "annualised_capital_usd": 2965211652.2949996,
-      "fixed_om_usd": 812609896.605504
+      "fixed_om_usd": 812609896.605504,
+      "virginia_scc_usd": 16184777419.408236,
+      "social_cost_ghg_usd": 17905212074.35354,
+      "health_impacts_usd": 1119169824.5814629,
+      "co2_tons": 46460712.673242964,
+      "nox_tons": 59450.41842075439
     },
     {
       "year": 2041,
@@ -223,7 +298,12 @@
       "objective_usd": 5474743014.5058565,
       "total_annual_usd": 9525171805.4534,
       "annualised_capital_usd": 3224790370.0777016,
-      "fixed_om_usd": 825638420.8698409
+      "fixed_om_usd": 825638420.8698409,
+      "virginia_scc_usd": 17121588132.71382,
+      "social_cost_ghg_usd": 18962662063.32644,
+      "health_impacts_usd": 1178959004.1856046,
+      "co2_tons": 48432443.795215994,
+      "nox_tons": 63446.04679614498
     },
     {
       "year": 2042,
@@ -237,7 +317,12 @@
       "objective_usd": 5708508087.50448,
       "total_annual_usd": 9870118718.899078,
       "annualised_capital_usd": 3329035753.290202,
-      "fixed_om_usd": 832574878.1043959
+      "fixed_om_usd": 832574878.1043959,
+      "virginia_scc_usd": 17746418152.858566,
+      "social_cost_ghg_usd": 19675876762.595078,
+      "health_impacts_usd": 1204401077.3605018,
+      "co2_tons": 49477621.59588785,
+      "nox_tons": 64815.21990523077
     },
     {
       "year": 2043,
@@ -251,7 +336,12 @@
       "objective_usd": 5892912429.149222,
       "total_annual_usd": 10087907274.584248,
       "annualised_capital_usd": 3362891229.772381,
-      "fixed_om_usd": 832103615.6626441
+      "fixed_om_usd": 832103615.6626441,
+      "virginia_scc_usd": 18257437972.88114,
+      "social_cost_ghg_usd": 20263645436.908726,
+      "health_impacts_usd": 1221506961.3307738,
+      "co2_tons": 50180343.03150722,
+      "nox_tons": 65735.77839031312
     },
     {
       "year": 2044,
@@ -265,7 +355,12 @@
       "objective_usd": 6067247518.424163,
       "total_annual_usd": 10246226883.412159,
       "annualised_capital_usd": 3372289414.462905,
-      "fixed_om_usd": 806689950.5250907
+      "fixed_om_usd": 806689950.5250907,
+      "virginia_scc_usd": 18723419085.15485,
+      "social_cost_ghg_usd": 20801952397.47658,
+      "health_impacts_usd": 1271676473.579586,
+      "co2_tons": 50741350.89620649,
+      "nox_tons": 70844.74132513699
     },
     {
       "year": 2045,
@@ -279,7 +374,12 @@
       "objective_usd": 6248915932.943725,
       "total_annual_usd": 10457750348.086773,
       "annualised_capital_usd": 3402946589.9303474,
-      "fixed_om_usd": 805887825.2127001
+      "fixed_om_usd": 805887825.2127001,
+      "virginia_scc_usd": 19235304239.05171,
+      "social_cost_ghg_usd": 21391763847.552288,
+      "health_impacts_usd": 1075480905.8708425,
+      "co2_tons": 51409568.91350376,
+      "nox_tons": 46268.612022153386
     }
   ],
   "levelised": {
@@ -299,7 +399,25 @@
       "gas": 9408088842.492287
     },
     "slcoe_with_terminal_value": 32.822711836402824,
-    "slcoe_without_terminal_value": 37.88297394826435
+    "slcoe_without_terminal_value": 37.88297394826435,
+    "tiers": {
+      "virginia_scc_usd": {
+        "pv_usd": 145779257208.73703,
+        "per_mwh": 73.70584638961547,
+        "label": "Virginia SCC (CO2 only, statutory)"
+      },
+      "social_cost_ghg_usd": {
+        "pv_usd": 160506102813.20102,
+        "per_mwh": 81.15172477251858,
+        "label": "Social cost of GHG (CO2+CH4+N2O)"
+      },
+      "health_impacts_usd": {
+        "pv_usd": 10874382111.498503,
+        "per_mwh": 5.49807670061344,
+        "label": "Health impacts (PM, SO2, NOx)"
+      }
+    },
+    "total_societal_slcoe": 119.47251330953483
   },
   "first_built": {
     "storage_na": 2026,
