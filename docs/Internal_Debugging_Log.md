@@ -6572,3 +6572,44 @@ that drifts above any constraint block fails on the row count rather than on a s
 reconstructed. The constraints are not all in the builder, and a path that calls the builder
 directly gets a problem missing every post-build constraint without the omission announcing itself.
 
+
+## 131. Two latent bugs in all_hours_reserve, found by auditing it against a second problem shape
+
+**Context:** Scenario 1's intermediate years need dispatch-only solves at a pinned build, with the
+reserve margin applied. I proposed a dispatch-specific constraint builder; that was challenged as
+inconsistent with our own process, and it was -- Appendix P.2 §14, added two commits earlier,
+requires an alternative solve path to be built from the same code, not reconstructed. It would have
+been the FOURTH parallel construction in this codebase, after the 20x curtailment divergence,
+run_solve_multi_duration's drift, and the perfect-foresight path skipping every post-build
+constraint. All three diverged silently.
+
+**Generalising the one function instead surfaced two bugs that were already there**, reachable by
+any existing caller passing a problem of the other shape:
+
+**(a) `problem.get('BUILD_SCALE', 1.0)` returns None, not 1.0**, when the key exists with a None
+value -- which is exactly what `build_dispatch_problem` sets. `-BUILD_SCALE` was therefore a
+TypeError. Fixed to `problem.get('BUILD_SCALE') or 1.0`.
+
+**(b) The distributed rows referenced `dist_na_discharge_mw` and `dist_fe_discharge_mw`
+unguarded** -- a KeyError for any problem without a distributed segment. The dispatch problem has
+none (NPH 14 against build_problem's 21).
+
+**And a third issue the generalisation itself created**, caught while writing it: with the
+distributed rows skipped, the four per-hour reserve variables would have been left FREE, letting the
+optimiser satisfy the margin with reserve held on storage that does not exist -- a reserve
+constraint that passes without reserve. They are pinned to zero.
+
+**The generalisation is small** because the shapes differ in one respect that matters: capacity is a
+decision VARIABLE in build_problem and a fixed INPUT in build_dispatch_problem, so the same physical
+statement moves the capacity term from a column coefficient to the right-hand side.
+
+**Verified:** the build path is unchanged to the row -- +78,840 rows and +35,040 variables, matching
+the figure locked before the change. The dispatch path does not bind at an adequate build (identical
+objective with and without) and makes a starved build INFEASIBLE, which is the property the
+intermediate years depend on: with the build pinned, an inadequate interpolation surfaces as
+infeasibility rather than as silently-accepted unserved energy.
+
+**A test assertion needed narrowing again:** counting margin expressions to prove there is only one
+caught the explanatory COMMENT restating the same inequality. Seventh instance of a check needing
+source-vs-prose handling.
+
