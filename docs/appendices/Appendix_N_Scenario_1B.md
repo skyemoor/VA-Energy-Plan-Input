@@ -58,6 +58,26 @@ Wood Mackenzie-sourced equipment-to-full-project-cost ratio for CCGT,
 C.6, extended here to simple-cycle by the same underlying supply-chain
 logic, C101).
 
+> **INDEPENDENTLY CONFIRMED 2026-09-14.** `driver.select_overhaul_retain()` — a youngest-first
+> retain/overhaul selector written for a different purpose and never called until now — reproduces
+> this figure by a completely different route:
+>
+> ```
+> 6,000 MW target − 1,860 Schedule B survivors − 2,862 MW POOL = 1,278 MW residual
+> N.2's capacity sweep, above:                                   1,278 MW new CT
+> ```
+>
+> Two pieces of work that never met, agreeing exactly.
+>
+> **It also surfaces a discreteness gap the sweep could not see.** F-Class units are 237 MW, so a
+> 1,278 MW residual takes **six of them — 1,422 MW**, overshooting by 144. The sweep treated
+> capacity as continuous. Both figures are now reported by `run_scenario1b.py`: **1,278 MW** for the
+> cost comparison, **1,422 MW** for what could actually be procured.
+>
+> The four plants flagged `needs_overhaul` — Gordonsville (1994), Elizabeth River (1992), Darbytown
+> (1990), Gravel Neck (1989) — are all at or beyond nominal CT life by 2045 and need capital work
+> rather than simple retention.
+
 ### N.3 Turbine Procurement Lead Time: Feasibility Check
 
 Confirmed current gas turbine lead times (C102-C105): 5-7 years for
@@ -128,6 +148,11 @@ relaxed 2045 target, where the VCEA floor sits below what 2044 has
 already built. Fixed: both storage floors now take the max of the VCEA
 statutory floor and whatever the linking mechanism already requires,
 rather than silently discarding the higher of the two.
+
+> **SUPERSEDED 2026-09-14 — the paragraphs below were measured at 4,722 MW, not the 6,000 MW
+> N.2 locked in.** The 1.63% gas share and the conclusion that the 5% ceiling is "largely moot"
+> are artifacts of the omitted 1,278 MW of new CT. Re-measurement pending; see the correction
+> above N.4.
 
 **Result: Scenario 1B's own 2045 checkpoint requires ZERO new solar or
 storage build.** 2044's own, already-built capacity already exceeds

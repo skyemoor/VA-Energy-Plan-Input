@@ -259,3 +259,130 @@ sits on the axis; then the gas-price band; then overlays.
   unsourced
 - **Residual value on a pathway** — a CT built 2035 and stranded 2045 is charged 10 years of a
   30-year annuity
+
+---
+
+# Addendum — later on 2026-09-14
+
+Eleven further commits. **1,062 tests, 14 audit checks** (was 9).
+
+## Scenario 1B — two defects, found by auditing before building
+
+**N.2 locked in 6,000 MW; N.4 solved at 4,722.** The capacity sweep selected 6,000 MW total
+(1,278 MW new simple-cycle CT) after costing each capped capacity as LP objective *plus*
+externally-priced capex. N.4 then solved at 4,722 MW — N.2's own *"existing only"* row, costing
+**$10,065.2M against $9,469.3M**. It solved the configuration the sweep rejected, and the 1,278 MW
+was never in the code at all.
+
+**The arithmetic closes exactly:** 4,722 (existing + pool) + 1,278 (new CT) = 6,000.
+
+**Invalidated:** N.4's **1.63%** gas share and its conclusion that *"the 5% statutory ceiling is
+largely moot."* Both marked superseded in Appendix N, at the section *and* in the body.
+
+**And 1B had no reserve-margin variant** — it solved with none while Scenarios 1 and 3 carried the
+all-hours constraint.
+
+**2044 is now a checkpoint.** Its RPS target is 5% gas, which *is* 1B's 2045 target, so 1B's 2045
+build should equal its 2044 build. Linking 2045 back to 2040 is what produced the *"wildly oversized
+2045 buildout"* N.4 records correcting.
+
+### An independent cross-check
+
+`select_overhaul_retain()` — written for another purpose, never called — reproduces N.2's figure:
+
+```
+6,000 target − 1,860 Schedule B survivors − 2,862 POOL = 1,278 MW
+N.2's capacity sweep, separately:                        1,278 MW
+```
+
+**And surfaces what the sweep couldn't see:** F-Class units are 237 MW, so 1,278 takes **six —
+1,422 MW**, overshooting by 144. Both now reported: 1,278 for cost, 1,422 for procurement.
+
+## The foresight solve failed, and the cause was a parallel construction
+
+**41,718 MWh unserved at 2030**, where the myopic solve had none on the same inputs.
+
+`run_perfect_foresight` called `build_problem` directly, skipping every post-build step `run_solve`
+performs — the capacity cap, the VCEA storage floors, and **`min_na_duration_hr=6.0`**. Without the
+duration floor the LP builds cheap power-only storage that can't sustain an evening, and accepts
+unserved at $100,000/MWh rather than build usable capacity.
+
+**Fixed by not reimplementing it.** `run_solve` gains `build_only=True`. Parallel construction is
+what caused the drift.
+
+## Convergence: measured, not projected
+
+The bracketed secant halved it. **23 iterations → 13, ~30 min → ~19 min.**
+
+| checkpoint | before | after |
+|---|---:|---:|
+| 2030 | 8 | **4** |
+| 2035 | 7 | **3** |
+| 2040 | 7 | 5 |
+
+*Root-finding on a monotone function, not gradient descent — one crossing, no local minima. That is
+what makes a secant step safe and the bracket a sufficient net.*
+
+## Salvage: two basis errors, both caught before publication
+
+**Capital versus annuity.** `build_problem` charges build variables as `CRF × capex × 1000` — an
+*annual* cost. Crediting raw capital made salvage **$6.50B against a $4.13B objective**. On the
+annuity basis it is **$0.32B**.
+
+**Different asset sets per runner.** `run_scenario1` credited solar only; the foresight runner
+credited four. At 2030 that is **$0.326B against $0.779B — 2.4×**, and the whole difference would
+have landed in the myopia penalty. One implementation now.
+
+## Dead code, and the pattern of creating it
+
+| removed | why |
+|---|---|
+| `run_solve_multi_duration` | no caller; lacked every `prior_*`, so it could not chain across checkpoints |
+| `build_problem_multi_duration` + 2 helpers | **orphaned by that deletion** — 178 lines |
+| `_build_value` | **orphaned by the salvage extraction** |
+| three demand-existence guards | checked for a file no longer read |
+
+**Twice in two days I removed a caller without checking what it uniquely reached.** Now audited.
+
+## One demand source
+
+Four runners read `VirginiaOnlyLoad`; four read the cached intermediate. **Byte-identical** where
+both exist — but **the cache only covers checkpoint years**, so those runners were silently
+checkpoint-only. All now read the source; `run_all` alone writes the cache.
+
+*Consequence worth deciding: the cached intermediates are now written and never read.*
+
+## Scenario 3's gas split
+
+`SocialCostRGGIMixin` refuses to default `get_existing_new_mw`, because *"reusing another scenario's
+own split is worse than an explicit failure."* **That guard cannot fire through inheritance** —
+`Scenario3Solver` inherits from `Scenario1Solver` and picked up Scenario 1's implementation silently.
+
+**Verified genuinely identical** (Scenario 3 doesn't override `apply_gas_cap`), now stated
+explicitly. **A formal ABC would not have caught it** — `abstractmethod` is satisfied by an
+inherited implementation.
+
+## Audit checks added this session
+
+| check | catches |
+|---|---|
+| modules import what they reference | `driver` used `assumptions` without importing it — **every solve raised** |
+| no undocumented dormant driver functions | four public functions with no caller |
+| no dead functions in the runners | orphans left by removing a caller |
+| one demand source in the runners | checkpoint-only runners |
+| scenarios state their own gas split | inheritance bypassing the mixin's guard |
+
+**Five of these needed narrowing before they were trustworthy** — false positives from docstring
+prose, from bare-name function references, from locally-bound parameter names. A check that cries
+wolf trains the reader to skip it.
+
+## Next
+
+```bash
+python3 run_scenario1.py                                          # ~19 min
+python3 run_foresight_comparison.py --myopic-from results/scenario1.json
+python3 run_scenario1b.py
+```
+
+**Watch on 1B:** the 2044 → 2045 solar increment should be **zero**, and the gas share should move
+off 1.63% now that the capacity is right.
