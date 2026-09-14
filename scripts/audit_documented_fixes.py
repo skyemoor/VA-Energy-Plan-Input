@@ -269,6 +269,56 @@ def check_no_export_revenue_in_objectives():
     return True, 'no unguarded export revenue in any objective (Appendix P.2 §8)'
 
 
+
+def check_curtailment_cost_is_present_and_agrees():
+    """Internal Debugging Log #20 set curtailment cost at $100/MWh "permanently", defending it as
+    "a defensible figure (same order of magnitude as gas cost and the export price), not another
+    arbitrary tie-breaker".
+
+    IT REGRESSED, and the failure mode is why this checks PRESENCE and not just agreement.
+    build_problem() carried NO curtailment cost at all by 2026-09-13 -- its only one came from
+    apply_slcr_constraint(curt_cost=5.0), twenty times too low -- while build_dispatch_problem()
+    still set 100.0 behind a comment claiming it "matches build_problem()'s own corrected default".
+    The comment described a value its counterpart no longer had. A check on agreement alone would
+    have passed if both were absent.
+    """
+    import importlib
+    import sys
+    sys.path.insert(0, os.path.join(REPO, 'lp_package'))
+    try:
+        a = importlib.import_module('assumptions')
+        d = importlib.import_module('driver')
+        cs_mod = importlib.import_module('checkpoint_solver')
+    except Exception as exc:                                              # noqa: BLE001
+        return False, f'could not import to check: {type(exc).__name__}'
+
+    import inspect
+    problems = []
+    if not hasattr(a, 'CURTAILMENT_COST_MWH'):
+        problems.append('assumptions.CURTAILMENT_COST_MWH is absent')
+    else:
+        want = a.CURTAILMENT_COST_MWH
+        solver_value = cs_mod.CheckpointSolver.curtailment_cost_mwh(
+            cs_mod.CheckpointSolver.__new__(cs_mod.CheckpointSolver))
+        if solver_value != want:
+            problems.append(f'CheckpointSolver hook returns {solver_value}, not {want}')
+        src = read('lp_package', 'lp_model.py') or ''
+        if 'CURTAILMENT_COST_MWH' not in src:
+            problems.append('lp_model.py does not reference the constant -- a hardcoded value has '
+                            'returned')
+        # driver's default is the fallback when no hook binds; it must not be the stale 5.0
+        # None is correct: the function resolves it to the constant. A LITERAL default is the
+        # failure -- that is how 5.0 persisted while build_dispatch_problem used 100.0.
+        default = inspect.signature(d.apply_slcr_constraint).parameters['curt_cost'].default
+        if default is not None:
+            problems.append(f'driver.apply_slcr_constraint has a literal default of {default} '
+                            'rather than None -- it must resolve to the constant, or a caller that '
+                            'does not bind the hook silently gets a different value')
+    if problems:
+        return False, '; '.join(problems) + '. See Internal Debugging Log #20.'
+    return True, f'curtailment cost ${a.CURTAILMENT_COST_MWH}/MWh, one source, hook and default agree'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -332,6 +382,7 @@ CHECKS = [
     ('no conflicting duplicate constants (Rule 6)', check_no_conflicting_duplicate_constants),
     ('no orphaned modules (Rule 1)', check_no_orphaned_modules),
     ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
+    ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 
     ('all_hours_reserve is wired in',
      lambda: check_module_is_actually_called(

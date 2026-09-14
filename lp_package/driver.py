@@ -140,7 +140,7 @@ def set_year_capex(year):
     lp.NA_CYCLE_LIFE = 10000 if year < 2035 else 15000
 
 
-def apply_slcr_constraint(problem, frac, curt_cost=5.0):
+def apply_slcr_constraint(problem, frac, curt_cost=None):
     """SLCR (storage loss coverage by renewables): modifies the RPS row so storage charge/
     discharge is correctly accounted for in the gas-allowance constraint, and sets curtailment
     cost to $5/MWh. Every one of this project's own "*_final.py" scripts applied this manually,
@@ -170,6 +170,12 @@ def apply_slcr_constraint(problem, frac, curt_cost=5.0):
     session: doing so produced 1.19M MWh of unserved energy and a wildly inflated objective, not
     a genuine test of the mechanism). Modifies problem['A_ub']/problem['c'] in place; returns the
     same problem dict for chaining."""
+    # DEFAULTS TO THE SOURCED CONSTANT, not a literal. This parameter previously defaulted to 5.0
+    # while build_dispatch_problem() used 100.0 behind a comment claiming the two matched -- twenty
+    # times apart, with this one wrong. Internal Debugging Log #20 set $100/MWh "permanently" and
+    # defended it as a price rather than a tie-breaker, which is what makes the gap matter: a
+    # shaping term could be netted out of an SLCOE, a price cannot.
+    curt_cost = assumptions.CURTAILMENT_COST_MWH if curt_cost is None else curt_cost
     IDX = problem['IDX']; NVAR_BUILD, NVAR_PER_HOUR = problem['hv_params']; T = problem['T']
     def hv(t, k): return NVAR_BUILD + t*NVAR_PER_HOUR + k
     for t in range(T):
@@ -198,7 +204,7 @@ def apply_slcr_constraint(problem, frac, curt_cost=5.0):
 def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capacity_cap_mw=None, return_hourly=False,
               min_na_power_mw='vcea_default', min_na_duration_hr=6.0, min_efe_power_mw='vcea_default',
               reserve_margin_hint=None, IRM=0.177, prior_solar_mw=0.0, prior_na_power_mw=0.0,
-              prior_na_energy_mwh=0.0, prior_ironair_energy_mwh=0.0, apply_slcr=True, slcr_curt_cost=5.0,
+              prior_na_energy_mwh=0.0, prior_ironair_energy_mwh=0.0, apply_slcr=True, slcr_curt_cost=None,
               enable_distributed_segment=False, distributed_solar_cf=None,
               distributed_share_of_total_solar=0.20, distributed_exogenous_price_mwh=None,
               prior_distributed_solar_mw=0.0, prior_distributed_na_power_mw=0.0,
@@ -471,6 +477,7 @@ def run_solve_multi_duration(year, frac, demand, exist_solar, solar_cf, wind_cf,
 
 
 def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf, nuclear, tol=0.003, max_iter=8,
+                  slcr_curt_cost=None,
                    capacity_cap_mw=None, start_frac=None, min_na_power_mw='vcea_default', min_na_duration_hr=6.0,
                    min_efe_power_mw='vcea_default', prior_solar_mw=0.0, prior_na_power_mw=0.0,
                    prior_na_energy_mwh=0.0, prior_ironair_energy_mwh=0.0,
@@ -504,6 +511,7 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
     for i in range(max_iter):
         t0 = time.time()
         r = run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capacity_cap_mw=capacity_cap_mw,
+            **({} if slcr_curt_cost is None else {"slcr_curt_cost": slcr_curt_cost}),
                       min_na_power_mw=min_na_power_mw, min_na_duration_hr=min_na_duration_hr,
                       min_efe_power_mw=min_efe_power_mw, prior_solar_mw=prior_solar_mw,
                       prior_na_power_mw=prior_na_power_mw, prior_na_energy_mwh=prior_na_energy_mwh,

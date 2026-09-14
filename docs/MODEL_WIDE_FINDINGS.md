@@ -378,6 +378,56 @@ conflicts remaining.
 
 ---
 
+## 2C. Curtailment cost regressed from $100/MWh to $5/MWh — every Scenario 1/1B/3 build affected
+
+**Found 2026-09-13.** Internal Debugging Log #20 set curtailment cost at **$100/MWh**
+*"permanently"*, defending it as *"a defensible figure (same order of magnitude as gas cost and the
+export price), **not another arbitrary tie-breaker**"* — replacing $1.00, itself replacing $0.01.
+
+**When first applied, curtailment fell from 141.8 million MWh to exactly zero at 2045**, with the
+LP rebalancing toward **−22.6% solar and +148% iron-air** rather than building extra power capacity.
+Net cost rose 29.3%.
+
+### The regression
+
+| | curtailment cost |
+|---|---|
+| `build_dispatch_problem` | **100.0**, hardcoded, commented *"matches build_problem()'s own corrected default"* |
+| `build_problem` | **none at all** — only `apply_slcr_constraint(curt_cost=5.0)` |
+
+**The comment described a value its counterpart no longer had.** The two paths were 20× apart, with
+the dispatch-only one correct.
+
+**The symptom was visible and unrecognised:** today's Scenario 1 at 2045 curtailed **161.5 million
+MWh** — *more* than the 141.8 the fix originally eliminated — with 165,875 MW of solar, which is the
+shape #20 says you get *without* the correction.
+
+### Fixed
+
+`assumptions.CURTAILMENT_COST_MWH = 100.0` as the single source. `build_dispatch_problem` references
+it. A **`curtailment_cost_mwh()` hook on `CheckpointSolver`** makes it overridable per scenario —
+the base class holds what is common, a subclass states its own — bound at all eight solver call
+sites. `converge_frac` now **accepts and forwards** it; previously it did not, so every convergence
+iteration used the fallback and only the final solve got the right value.
+
+Driver defaults are `None` and resolve to the constant, because a **literal** default is how the
+gap persisted.
+
+### Consequences
+
+**Every Scenario 1/1B/3 figure produced before this is superseded** — including this session's
+$25.38B and $125.52/MWh at 2045.
+
+**And the SLCOE curtailment-netting was wrong in principle.** I removed the curtailment penalty from
+Scenario 1's cost on the grounds it was *"a modelling device... not a cheque anyone writes."* #20
+says the opposite: it is a price, defended as one. Whether it matters in practice depends on what
+survives at $100/MWh — if curtailment goes to near zero the question dissolves.
+
+**Not yet measured.** The corrected solve exceeded a 295-second window where the $5 case took 181 s,
+which is itself informative: the corrected cost makes the problem materially harder.
+
+---
+
 ## 3. No import capability
 
 `export` exists (capped at `EXPORT_CAP_MW`, earning `export_price_mwh`). **`import` has zero

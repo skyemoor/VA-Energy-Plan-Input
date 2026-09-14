@@ -247,6 +247,26 @@ GAS_HEAT_RATE_CT_AERODERIVATIVE = 9.5    # = SIMPLE_CYCLE_HEAT_RATE; modern aero
 GAS_HEAT_RATE_CT_FLEET = 10.999          # EIA Table 8.2, 2024 gas turbine
 GAS_HEAT_RATE_STEAM = 10.337             # EIA Table 8.2, 2024 gas steam generator
 
+#: Cost applied to curtailed energy, $/MWh.
+#:
+#: SOURCED, NOT A TIE-BREAKER. Internal Debugging Log #20 set this at $100/MWh and defended it as
+#: "a defensible figure (same order of magnitude as gas cost and the export price), not another
+#: arbitrary tie-breaker" -- replacing an earlier $1.0/MWh, itself replacing $0.01. The distinction
+#: matters for cost accounting: a shaping term could legitimately be netted out of an SLCOE, a
+#: price cannot.
+#:
+#: WHAT IT DID WHEN FIRST APPLIED: curtailment fell from 141.8 million MWh to EXACTLY ZERO at 2045,
+#: with the LP rebalancing toward less solar overbuild (-22.6%) and substantially more iron-air
+#: (+148%) rather than building extra power capacity. Net cost rose 29.3%.
+#:
+#: IT HAD REGRESSED BY 2026-09-13. build_problem() carried no curtailment cost at all -- its only
+#: one came from apply_slcr_constraint(curt_cost=5.0), twenty times too low -- while
+#: build_dispatch_problem() still set 100.0 with a comment claiming it "matches build_problem()'s
+#: own corrected default". The comment described a value its counterpart no longer had. A 2045
+#: Scenario 1 solve then produced 161.5 million MWh of curtailment, MORE than the fix originally
+#: eliminated.
+CURTAILMENT_COST_MWH = 100.0
+
 # ============================================================================
 # COMPLIANCE SWEEP -- axis definition
 # ============================================================================

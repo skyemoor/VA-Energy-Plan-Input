@@ -60,6 +60,10 @@ class CheckpointSolver:
         self.sourced_annual_total_gwh = sourced_annual_total_gwh
         self.result = None  # populated by solve()
 
+    def _curtailment_kwargs(self):
+        """Passed to run_solve so the hook, not driver.py's default, decides the value."""
+        return {'slcr_curt_cost': self.curtailment_cost_mwh()}
+
     def _gas_merit_order_kwargs(self):
         """Merit-order kwargs for the driver, empty when no stack is set.
 
@@ -101,6 +105,23 @@ class CheckpointSolver:
         if np.any(np.isnan(self.demand)):
             raise ValueError(f"#14: NaNs found in {self.year} demand array.")
 
+    def curtailment_cost_mwh(self):
+        """Cost applied to curtailed energy, $/MWh. Override per scenario where the treatment
+        genuinely differs -- the base class holds what is common, a subclass states its own.
+
+        DEFAULTS TO THE SOURCED FIGURE rather than a local literal. Internal Debugging Log #20 set
+        $100/MWh and defended it as "a defensible figure (same order of magnitude as gas cost and
+        the export price), not another arbitrary tie-breaker". That distinction matters for cost
+        accounting: a shaping term could be netted out of an SLCOE; a price cannot.
+
+        IT HAD REGRESSED. build_problem() carried no curtailment cost at all by 2026-09-13 -- its
+        only one came from apply_slcr_constraint(curt_cost=5.0), twenty times too low -- while
+        build_dispatch_problem() still set 100.0 behind a comment claiming it matched
+        build_problem()'s default. This hook exists so the value has one owner that a scenario can
+        override deliberately, rather than a default buried two layers from the solver.
+        """
+        return assumptions.CURTAILMENT_COST_MWH
+
     def apply_gas_cap(self):
         """Schedule A/B existing-fleet baseline + the standing 2,862 MW new-build pool
         (Appendix A #4). Subclasses may override for a scenario-specific cap policy."""
@@ -137,7 +158,7 @@ class CheckpointSolver:
         cap = capacity_cap_mw if capacity_cap_mw is not None else self.apply_gas_cap()
         self.result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
-            self.nuclear, capacity_cap_mw=cap, return_hourly=return_hourly, **run_solve_kwargs)
+            self.nuclear, capacity_cap_mw=cap, return_hourly=return_hourly, **run_solve_kwargs, **self._curtailment_kwargs())
         self.verify_result()
         return self.result
 
@@ -281,11 +302,11 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
         frac, converge_result, history = drv.converge_frac(
             self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
             self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap,
-            start_frac=start_frac, **prior_kwargs)
+            start_frac=start_frac, **prior_kwargs, **self._curtailment_kwargs())
         self.converged_frac = frac
         self.result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
-            self.nuclear, capacity_cap_mw=cap, return_hourly=True, **prior_kwargs, **gas_kwargs)
+            self.nuclear, capacity_cap_mw=cap, return_hourly=True, **prior_kwargs, **gas_kwargs, **self._curtailment_kwargs())
         self.verify_result()
         # Store this checkpoint's own total solar (incremental + degraded prior) for the
         # NEXT checkpoint's own linking -- keeps the "total vs. incremental" distinction
@@ -415,12 +436,12 @@ class ReserveMarginMixin:
         frac, converge_result, history = drv.converge_frac(
             self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
             self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap,
-            start_frac=start_frac, **prior_kwargs, **dist_kwargs, **gas_kwargs)
+            start_frac=start_frac, **prior_kwargs, **dist_kwargs, **gas_kwargs, **self._curtailment_kwargs())
         self.converged_frac = frac
         result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
             self.nuclear, capacity_cap_mw=cap, return_hourly=True,
-            reserve_margin_hint=reserve_margin_hint, IRM=IRM, **prior_kwargs, **dist_kwargs)
+            reserve_margin_hint=reserve_margin_hint, IRM=IRM, **prior_kwargs, **dist_kwargs, **self._curtailment_kwargs())
         self.result = result
         self.verify_result()
         if prior_kwargs:
@@ -541,12 +562,12 @@ class Scenario3Solver(Scenario1Solver):
         frac, converge_result, history = drv.converge_frac(
             self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
             self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap,
-            start_frac=start_frac, **prior_kwargs, **dist_kwargs)
+            start_frac=start_frac, **prior_kwargs, **dist_kwargs, **self._curtailment_kwargs())
         self.converged_frac = frac
         self.result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
             self.nuclear, capacity_cap_mw=cap, return_hourly=True,
-            **prior_kwargs, **dist_kwargs, **gas_kwargs)
+            **prior_kwargs, **dist_kwargs, **gas_kwargs, **self._curtailment_kwargs())
         self.verify_result()
         prior_solar_degraded = prior_kwargs['prior_solar_mw']
         prior_dist_solar_degraded = prior_kwargs['prior_distributed_solar_mw']

@@ -723,7 +723,10 @@ def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_
         c[hv(t,IDX['unserved'])] = UNSERVED_PENALTY
         c[hv(t,IDX['nd'])] = na_cycling_cost
         c[hv(t,IDX['fd'])] = fe_cycling_cost
-        c[hv(t,IDX['curt'])] = 100.0  # matches build_problem()'s own corrected default (was 0.01)
+        c[hv(t,IDX['curt'])] = assumptions.CURTAILMENT_COST_MWH  # Rule 6: one source (was a
+        # hardcoded 100.0 here, with a comment claiming it matched build_problem() -- which by
+        # 2026-09-13 had no curtailment cost at all. The comment described a value its counterpart
+        # no longer had, so the two functions were 20x apart with this one correct.
 
     if verbose:
         print(f"Dispatch-only (Phase 2) problem: T={T} NVAR={NVAR} n_eq={n_eq_rows} n_ub={n_ub_rows}")
@@ -943,7 +946,10 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
         # way. Raised to Bath's own value ($100/MWh), a tie-break toward the physically sensible
         # solution among equally-optimal ones, not a distortion of anything real, per direct user
         # decision for consistency with Bath's own fix.
-        c[hv(t,IDX['curt'])] = 100.0  # matches build_problem()'s own corrected default (was 0.01)
+        c[hv(t,IDX['curt'])] = assumptions.CURTAILMENT_COST_MWH  # Rule 6: one source (was a
+        # hardcoded 100.0 here, with a comment claiming it matched build_problem() -- which by
+        # 2026-09-13 had no curtailment cost at all. The comment described a value its counterpart
+        # no longer had, so the two functions were 20x apart with this one correct.
 
     if verbose:
         print(f"Scenario2 dispatch problem: T={T} NVAR={NVAR} n_eq={n_eq_rows}")
