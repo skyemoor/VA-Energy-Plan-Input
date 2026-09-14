@@ -226,6 +226,7 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
               min_na_power_mw='vcea_default', min_na_duration_hr=6.0, min_efe_power_mw='vcea_default',
               reserve_margin_hint=None, IRM=0.177, prior_solar_mw=0.0, prior_na_power_mw=0.0,
               prior_na_energy_mwh=0.0, prior_ironair_energy_mwh=0.0, apply_slcr=True, slcr_curt_cost=None,
+              build_only=False,
               enable_distributed_segment=False, distributed_solar_cf=None,
               distributed_share_of_total_solar=0.20, distributed_exogenous_price_mwh=None,
               prior_distributed_solar_mw=0.0, prior_distributed_na_power_mw=0.0,
@@ -326,6 +327,19 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
     # session's own first attempt at fixing this did) produces an invalid, infeasible comparison.
     if apply_slcr:
         problem = apply_slcr_constraint(problem, frac, curt_cost=slcr_curt_cost)
+
+    if build_only:
+        # EVERY post-build step run_solve performs is now applied -- capacity cap, VCEA storage
+        # floors, the 6-hour minimum duration, reserve margin, SLCR. Returning here guarantees a
+        # caller assembling a multi-period problem gets EXACTLY what this function would have
+        # solved, rather than a reimplementation that can drift.
+        #
+        # ADDED 2026-09-14 after the perfect-foresight path, which called build_problem directly,
+        # produced 41,718 MWh of unserved energy at 2030 where the myopic solve had none. The cause
+        # was the VCEA storage floors and min_na_duration_hr=6.0, both applied HERE rather than in
+        # build_problem: without the duration floor the LP builds cheap power-only storage that
+        # cannot sustain a multi-hour evening.
+        return problem
     if min_na_power_mw is not None:
         # PNA_ is variable index 1, expressed in GW-equivalent units (BUILD_SCALE=1000).
         # Na battery is the short-duration (4-hr reference) resource here -- VCEA's short-duration
@@ -451,63 +465,6 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
                               dist_solar_gen=dist_solar_gen, dist_nc=dist_nc, dist_nd=dist_nd,
                               dist_nsoc=dist_nsoc, dist_fc=dist_fc, dist_fd=dist_fd,
                               dist_fsoc=dist_fsoc, dist_curt=dist_curt)
-    return out
-
-
-def run_solve_multi_duration(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capacity_cap_mw=None,
-                              return_hourly=False, min_total_storage_mw=None, durations=(4.0,6.0,8.0)):
-    """Same as run_solve() but using build_problem_multi_duration -- discrete 4/6/8hr sodium products,
-    all sharing the same NREL-derived per-unit costs (see na_power_energy_split). min_total_storage_mw
-    applies to the SUM of power capacity across all duration classes (VCEA's short-duration mandate
-    doesn't care which specific duration class satisfies it, only that it's <10hr).
-
-    NOT "SAME AS run_solve()" ANY MORE -- it has drifted, and an audit on 2026-09-14 found no caller
-    anywhere. run_solve has since gained ten parameters this lacks: every prior_* linking argument
-    (so a multi-duration solve CANNOT be chained across checkpoints), reserve_margin_hint,
-    slcr_curt_cost and return_raw_result. It also rebuilt the capex constants by hand rather than
-    calling set_year_capex, leaving sodium cycle life and CAPEX_YEAR bound to whatever ran last --
-    fixed, but the parameter gap remains.
-
-    USE run_solve() UNLESS the discrete-duration formulation is specifically wanted. If it is
-    wanted for real work, the missing parameters must be added first: without prior_* it cannot
-    participate in any multi-checkpoint scenario, which is every scenario this project runs."""
-    # WAS A PARTIAL HAND-ROLLED REBIND, corrected 2026-09-14. These three lines set SOLAR_CAPEX,
-    # FE_ENERGY_CAPEX and FE_RTE_CHARGE but NOT NA_POWER_CAPEX, NA_ENERGY_CAPEX, NA_CYCLE_LIFE or
-    # CAPEX_YEAR -- so sodium capex and cycle life silently kept whatever year ran last, and
-    # CAPEX_YEAR reported a year this function had not actually bound. set_year_capex does all of
-    # them, and is the single source for this.
-    set_year_capex(year)
-    problem = lp.build_problem_multi_duration(solar_cf, wind_cf, nuclear, exist_solar, demand, frac,
-                                                verbose=False, gas_price_mwh=lp.gas_cost_mwh(year, heat_rate=lp.SIMPLE_CYCLE_HEAT_RATE),
-                                                na_year=year, durations=durations)
-    IDX = problem['IDX']; NVAR_BUILD, NVAR_PER_HOUR = problem['hv_params']; T = problem['T']
-    def hv(t,k): return NVAR_BUILD + t*NVAR_PER_HOUR + k
-    if capacity_cap_mw is not None:
-        for t in range(T):
-            lo, hi = problem['bounds'][hv(t,IDX['g'])]
-            problem['bounds'][hv(t,IDX['g'])] = (lo, capacity_cap_mw)
-    if min_total_storage_mw is not None:
-        n = len(problem['P_'])
-        new_row = sparse.csr_matrix(([-1.0]*n, ([0]*n, problem['P_'])), shape=(1, len(problem['c'])))
-        problem['A_ub'] = sparse.vstack([problem['A_ub'], new_row]).tocsr()
-        problem['b_ub'] = np.concatenate([problem['b_ub'], [-min_total_storage_mw/problem['BUILD_SCALE']]])
-    res = lp.solve_problem(problem)
-    x = res.x; BS = problem['BUILD_SCALE']
-    S_mw = x[problem['S_']]*BS
-    dur_results = []
-    for i, d in enumerate(problem['durations']):
-        P = x[problem['P_'][i]]*BS; E = x[problem['E_'][i]]*BS
-        dur_results.append((d, P, E))
-    EFE_mwh = x[problem['EFE_']]*BS
-    g = np.array([x[hv(t,IDX['g'])] for t in range(T)])
-    unserved = np.array([x[hv(t,IDX['unserved'])] for t in range(T)])
-    curt = np.array([x[hv(t,IDX['curt'])] for t in range(T)])
-    gas_gwh = g.sum()/1000.0
-    nonnuclear_demand = (demand - nuclear).sum()
-    achieved_share = g.sum()/nonnuclear_demand
-    out = dict(status=res.status, success=res.success, obj=res.fun, S_mw=S_mw, dur_results=dur_results,
-               EFE_mwh=EFE_mwh, gas_gwh=gas_gwh, achieved_share=achieved_share, peak_g_mw=g.max(),
-               unserved_mwh=unserved.sum(), curt_mwh=curt.sum())
     return out
 
 

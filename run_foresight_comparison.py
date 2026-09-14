@@ -186,29 +186,34 @@ def run_perfect_foresight(klass, needs_distributed, verbose=True):
     """All four checkpoints in one simultaneous LP."""
     problems, demands = [], []
     for year in CHECKPOINTS:
-        solver, demand, _ = _solver(klass, year, needs_distributed)
+        solver, demand, w = _solver(klass, year, needs_distributed)
         solver.verify_input_data()
         drv.set_year_capex(year)
         prior_kwargs = solver._prior_kwargs()
         dist_kwargs = solver._distributed_kwargs() if hasattr(solver, '_distributed_kwargs') else {}
-        w = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
-        problem = lp.build_problem(
-            w['solar'], w['wind'], w['nuclear'], lp.exist_solar_mw(year) * w['solar'], demand,
-            drv.gas_target_share(year), verbose=False, **dist_kwargs)
-        # Per-period constraints run BEFORE assembly -- the assembler knows nothing about what
-        # they mean. Reserve margin and any scenario bounds apply here.
+        gas_kwargs = solver._gas_merit_order_kwargs()
         hook = solver._chain_hooks(solver._post_build_hook(),
                                    solver._all_hours_reserve_hook(0.177))
-        if hook is not None:
-            problem = hook(problem)
-        problem = drv.apply_slcr_constraint(problem, drv.gas_target_share(year),
-                                            curt_cost=solver.curtailment_cost_mwh())
+
+        # BUILT THROUGH run_solve(build_only=True), NOT build_problem DIRECTLY.
+        #
+        # An earlier version called build_problem and applied the hooks itself. That skipped every
+        # post-build step run_solve performs -- the capacity cap, the VCEA storage floors, and
+        # min_na_duration_hr=6.0 -- and produced 41,718 MWh of unserved energy at 2030 where the
+        # myopic solve had none. Without the duration floor the LP builds cheap power-only storage
+        # that cannot sustain a multi-hour evening.
+        #
+        # PRIOR_* IS DELIBERATELY NOT PASSED. Continuity between periods is what the linking rows
+        # do; passing prior floors as well would impose the myopic chain's own answer on the
+        # foresight solve and defeat the comparison.
+        problem = drv.run_solve(
+            year, drv.gas_target_share(year), demand,
+            lp.exist_solar_mw(year) * w['solar'], w['solar'], w['wind'], w['nuclear'],
+            capacity_cap_mw=solver.apply_gas_cap(), build_only=True, post_build_hook=hook,
+            slcr_curt_cost=solver.curtailment_cost_mwh(), **dist_kwargs, **gas_kwargs)
         problems.append(problem)
         demands.append(float(demand.sum()))
 
-    # A SINGLE AVERAGED FIGURE WAS WRONG: assemble() applies the credit to every build variable in
-    # the period, so averaging solar's credit with storage's gave each variable a number belonging
-    # to neither. Passed per build variable instead.
     salvage = [salvage_credit_per_mw(y, _capex_by_build_var(y)) for y in CHECKPOINTS]
     assembled = mp.assemble(problems, CHECKPOINTS, salvage_usd_by_period=salvage)
     if verbose:
@@ -240,6 +245,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--scenario', default='1', choices=sorted(SCENARIOS))
+    ap.add_argument('--myopic-from', default=None,
+                    help='reuse a saved run_scenario1.py result instead of re-solving the myopic '
+                         'side (~19 min). The saved run must use the same checkpoints and IRM.')
     ap.add_argument('--out', default='results')
     args = ap.parse_args()
     klass = SCENARIOS[args.scenario]
@@ -248,8 +256,22 @@ def main():
 
     print(f'Foresight comparison, scenario {args.scenario}. '
           'Five solves total; the foresight one is ~4x the size of a checkpoint.', flush=True)
-    print('\n=== MYOPIC (Case 3a): four checkpoints in sequence ===', flush=True)
-    myopic = run_myopic(klass, needs_dist)
+    if args.myopic_from:
+        with open(args.myopic_from) as f:
+            saved = json.load(f)
+        myopic = saved['checkpoints']
+        if [r['year'] for r in myopic] != list(CHECKPOINTS):
+            raise SystemExit(
+                f'{args.myopic_from} covers {[r["year"] for r in myopic]}, not {list(CHECKPOINTS)}. '
+                'The two sides must use the same checkpoints or the comparison is not like-for-like.')
+        print(f'\n=== MYOPIC: reusing {args.myopic_from} ===', flush=True)
+        for r in myopic:
+            print(f'  {r["year"]}  solar {r["solar_mw_total"]:>11,.0f} MW   '
+                  f'obj ${r["obj_usd"]/1e9:>6.2f}B   salvage ${r["salvage_usd"]/1e9:>5.2f}B',
+                  flush=True)
+    else:
+        print('\n=== MYOPIC (Case 3a): four checkpoints in sequence ===', flush=True)
+        myopic = run_myopic(klass, needs_dist)
 
     wacc, base = assumptions.WACC, assumptions.BASE_YEAR
     def df(y):

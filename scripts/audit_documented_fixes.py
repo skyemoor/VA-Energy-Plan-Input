@@ -402,8 +402,6 @@ DORMANT_BY_DESIGN = {
     'add_reserve_margin_constraint': 'peak-hour reserve; reached only by PeakHourReserveMarginMixin, '
                                      'retained for A/B against the all-hours standard',
     'find_hour_of_maximum_net_demand': 'same -- peak-hour path only',
-    'run_solve_multi_duration': 'discrete 4/6/8hr storage variant; lacks prior_* so it cannot chain '
-                                'across checkpoints. Documented as such at the definition',
     'select_overhaul_retain': 'gas retain/overhaul selector; wired into Scenario 1B 2026-09-14',
 }
 
