@@ -203,3 +203,27 @@ verified **without** linking, which makes the periods independent, against the s
 
 **Measured on real 2030 and 2035 problems:** $3,059,895,769.79 and $5,581,690,229.81 standalone
 against an assembled $6,321,854,377.78, expected $6,321,854,377.78 — **1.45e-14 relative.**
+
+### Salvage must be on an ANNUITY basis, not a capital one
+
+**Caught in a live run, 2026-09-14.** `build_problem` charges build variables as
+`CRF × capex × 1000` — an **annual** cost in $/MW-yr, not the capital outlay. Crediting salvage as
+raw undepreciated **capital** against an annuity-based objective makes it swamp the cost:
+
+| | |
+|---|---:|
+| 2030 objective | $4.13B |
+| salvage, capital basis *(wrong)* | **$6.50B** |
+| salvage, annuity basis | **$0.32B** |
+
+Multiplying by `CRF` puts the credit on the same basis as the charge. What it then represents is the
+**annual payment stream avoided** for the years beyond the horizon, which is the right quantity when
+every other term in the objective is annual.
+
+**And the credit is per build variable, not averaged.** `assemble()` applies it to every build
+variable in the period, so averaging solar's credit with storage's gives each variable a number
+belonging to neither — they have different capex bases.
+
+*A test written to catch this bug then made the same class of error itself, asserting
+`1.0 − 10×df` where the period's own cost is also discounted and the answer is `(1.0 − 10)×df`.
+Mixing discounted and undiscounted quantities is the recurring shape here.*

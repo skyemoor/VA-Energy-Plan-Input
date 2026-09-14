@@ -149,3 +149,36 @@ class TestReadingResultsBack:
         b = mp.builds_by_period(a, x)
         assert b[0]['utility_solar_mw'] == 0.0
         assert b[1]['utility_solar_mw'] == 14.0
+
+
+class TestPerVariableSalvage:
+    """Credits differ by technology -- solar, storage power and storage energy have different capex
+    bases. An earlier runner averaged them into one figure, giving every variable a number
+    belonging to none of them."""
+
+    def test_a_list_is_applied_per_variable(self):
+        """Note both terms carry the discount factor: the period's own cost is discounted to base
+        year first, and the salvage credit is subtracted from that. Writing `1.0 - 10*df` instead
+        of `(1.0 - 10)*df` was my first version of this assertion -- the same class of error as the
+        salvage basis bug it was written to catch, mixing discounted and undiscounted quantities."""
+        a = mp.assemble([fake_problem(), fake_problem()], [2030, 2035],
+                        salvage_usd_by_period=[[0.0] * 8, [10.0, 20.0] + [0.0] * 6])
+        df = 1 / (1 + a['wacc']) ** (2035 - a['base_year'])
+        assert a['c'][14] == pytest.approx((1.0 - 10.0) * df)
+        assert a['c'][15] == pytest.approx((1.0 - 20.0) * df)
+        assert a['c'][16] == pytest.approx(1.0 * df)
+
+    def test_a_scalar_still_applies_to_all(self):
+        a = mp.assemble([fake_problem(), fake_problem()], [2030, 2035],
+                        salvage_usd_by_period=[0.0, 5.0])
+        assert all(a['c'][14 + k] < 1.0 for k in range(8))
+
+    def test_a_wrong_length_list_raises(self):
+        with pytest.raises(ValueError, match='against 8 build variables'):
+            mp.assemble([fake_problem(), fake_problem()], [2030, 2035],
+                        salvage_usd_by_period=[[1.0] * 3, [1.0] * 8])
+
+    def test_a_negative_entry_in_a_list_raises(self):
+        with pytest.raises(ValueError, match='decommissioning liability'):
+            mp.assemble([fake_problem(), fake_problem()], [2030, 2035],
+                        salvage_usd_by_period=[[0.0] * 8, [-1.0] + [0.0] * 7])

@@ -25,6 +25,14 @@ class TestSalvageIsSymmetric:
     def test_myopic_side_computes_salvage(self):
         assert 'salvage' in inspect.getsource(rfc.run_myopic)
 
+    def test_salvage_is_passed_per_build_variable_not_averaged(self):
+        """An earlier version averaged four credits into one figure. assemble() applies the credit
+        to EVERY build variable in the period, so an average gives each variable a number belonging
+        to none of them -- solar, storage power and storage energy have different capex bases."""
+        src = inspect.getsource(rfc.run_perfect_foresight)
+        assert '/ 4 for y in CHECKPOINTS' not in src
+        assert 'salvage_credit_per_mw(y, _capex_by_build_var(y)) for y in CHECKPOINTS' in src
+
     def test_foresight_side_passes_salvage_into_the_objective(self):
         """Under perfect foresight it must sit INSIDE the objective, where it shapes what gets
         built. Brown: 'the perfect foresight model is Type 1 WITH salvage value'."""
@@ -37,11 +45,31 @@ class TestSalvageIsSymmetric:
 
 class TestSalvageArithmetic:
 
-    def test_a_2045_build_keeps_its_full_value(self):
-        """Zero of 25 years elapsed at the horizon."""
+    def test_the_credit_is_on_an_ANNUITY_basis(self):
+        """THE BASIS WAS WRONG FIRST TIME, caught in a live run. build_problem charges build
+        variables as CRF x capex x 1000 -- an ANNUAL cost in $/MW-yr, not the capital outlay.
+        Crediting raw undepreciated CAPITAL against an annuity-based objective made salvage swamp
+        the cost: $6.50B reported against a $4.13B objective at 2030, larger than the entire year.
+
+        Multiplying by CRF puts the credit on the same basis as the charge."""
+        import lp_model as lp
         capex = rfc._capex_by_build_var(2045)
         salv = rfc.salvage_credit_per_mw(2045, capex)
-        assert salv[0] == pytest.approx(capex[0])
+        assert salv[0] == pytest.approx(capex[0] * lp.CRF, rel=1e-9)
+
+    def test_a_2045_build_keeps_its_full_value(self):
+        """Zero of 25 years elapsed at the horizon -- so the credit is the full annuity."""
+        import lp_model as lp
+        capex = rfc._capex_by_build_var(2045)
+        salv = rfc.salvage_credit_per_mw(2045, capex)
+        assert salv[0] == pytest.approx(capex[0] * lp.CRF, rel=1e-9)
+
+    def test_salvage_is_small_relative_to_the_objective(self):
+        """The sanity check the live run failed. At 2030's measured 8,660 MW of solar the credit is
+        ~$0.32B against a $4.13B objective -- proportionate. It was $6.50B before the fix."""
+        import lp_model as lp
+        salv = rfc.salvage_credit_per_mw(2030, rfc._capex_by_build_var(2030))
+        assert salv[0] * 8_660 / 1e9 < 1.0
 
     def test_a_2030_build_keeps_ten_of_twenty_five(self):
         """25-year life, built 2030, horizon 2045: FIFTEEN years elapsed, TEN remaining.
@@ -52,7 +80,8 @@ class TestSalvageArithmetic:
         foresight comparison toward late building."""
         capex = rfc._capex_by_build_var(2030)
         salv = rfc.salvage_credit_per_mw(2030, capex)
-        assert salv[0] == pytest.approx(capex[0] * 10 / 25, rel=1e-6)
+        import lp_model as lp
+        assert salv[0] == pytest.approx(capex[0] * lp.CRF * 10 / 25, rel=1e-6)
 
     def test_nothing_strands(self):
         """Solar and storage built at any checkpoint still operate past 2045, so

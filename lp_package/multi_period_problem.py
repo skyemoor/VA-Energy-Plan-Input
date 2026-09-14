@@ -107,13 +107,24 @@ def assemble(problems: Sequence[Dict], years: Sequence[int],
         if len(salvage_usd_by_period) != len(problems):
             raise ValueError('salvage_usd_by_period must have one entry per period')
         for off, credit, y in zip(offsets, salvage_usd_by_period, years):
-            if credit < 0:
+            # PER BUILD VARIABLE, or one figure applied to all of them. A list is the correct form
+            # when the credits differ by technology -- solar, storage power and storage energy have
+            # different capex bases, and averaging them (as an earlier version of the runner did)
+            # gives every variable a number belonging to none of them.
+            credits = ([float(credit)] * nb if np.isscalar(credit)
+                       else [float(v) for v in credit])
+            if len(credits) != nb:
                 raise ValueError(
-                    f'salvage for {y} is negative ({credit}); a negative residual is a '
-                    'decommissioning liability and belongs in that period"s costs, not here.')
-            if credit:
-                df = 1.0 / (1.0 + wacc) ** (y - base_year)
-                c[off:off + nb] -= credit * df
+                    f'salvage for {y} has {len(credits)} entries against {nb} build variables. '
+                    'Pass one figure per build variable, or a single figure for all of them.')
+            if any(v < 0 for v in credits):
+                raise ValueError(
+                    f'salvage for {y} contains a negative value; a negative residual is a '
+                    'decommissioning liability and belongs in that period\'s costs, not here.')
+            df = 1.0 / (1.0 + wacc) ** (y - base_year)
+            for k, v in enumerate(credits):
+                if v:
+                    c[off + k] -= v * df
 
     A_eq = sparse.block_diag([p['A_eq'] for p in problems], format='csr')
     b_eq = np.concatenate([p['b_eq'] for p in problems])

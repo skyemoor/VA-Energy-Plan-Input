@@ -80,14 +80,26 @@ def _solver(klass, year, needs_distributed):
 
 
 def salvage_credit_per_mw(year, capex_by_build_var):
-    """Residual value per MW of each build variable, at the 2045 horizon.
+    """Residual value per MW of each build variable, at the 2045 horizon, **on an ANNUITY basis**.
 
-    Straight-line on remaining technical life, per the EC's present-value convention and NREL's
-    ATB note that "a technical life that is longer than the cost recovery period means residual
-    value may be left after costs have been recovered". Nothing here strands: solar and storage
-    built at any checkpoint still operate past 2045.
+    THE BASIS MATTERS AND I GOT IT WRONG FIRST TIME. build_problem charges build variables as
+    `CRF * capex * 1000` -- an ANNUAL cost in $/MW-yr, not the capital outlay. Crediting salvage
+    as raw undepreciated CAPITAL against an annuity-based objective made it swamp the cost: a live
+    2030 run reported $6.50B of salvage against a $4.13B objective, larger than the entire year.
+
+    Multiplying by CRF puts the credit on the same basis as the charge. What it then represents is
+    the ANNUAL payment stream avoided for the years beyond the horizon -- which is the right
+    quantity when every other term in the objective is also an annual figure.
+
+    Straight-line on remaining technical life, per the EC's present-value convention and NREL's ATB
+    note that "a technical life that is longer than the cost recovery period means residual value
+    may be left after costs have been recovered". Nothing strands: solar and storage built at any
+    checkpoint still operate past 2045. Gas WOULD strand at 100% compliance, but there is no gas
+    build variable.
     """
-    return [undepreciated_value(capex, year, CHECKPOINTS[-1], life, strands_at_horizon=False)
+    import lp_model as lp
+    return [undepreciated_value(capex, year, CHECKPOINTS[-1], life,
+                                strands_at_horizon=False) * lp.CRF
             for capex, life in zip(capex_by_build_var, _LIFE_BY_BUILD_VAR)]
 
 
@@ -109,8 +121,11 @@ def run_myopic(klass, needs_distributed, verbose=True):
         result = solver.solve_with_reserve_margin(IRM=0.177)
         result = dict(result)
         result['year'] = year
-        salvage = sum(salvage_credit_per_mw(year, _capex_by_build_var(year))[k]
-                      * _build_value(result, k) for k in range(4))
+        # Pairs each per-MW credit with its OWN build variable. _build_value returns the four
+        # utility build quantities in the same order as _capex_by_build_var's first four entries;
+        # a mismatch here would credit solar salvage against storage MW without raising.
+        per_mw = salvage_credit_per_mw(year, _capex_by_build_var(year))
+        salvage = sum(per_mw[k] * _build_value(result, k) for k in range(4))
         rows.append({'year': year, 'obj_usd': float(result['obj']),
                      'solar_mw': float(result.get('S_mw_total', result.get('S_mw', 0.0))),
                      'na_power_mw': float(result.get('PNA_mw', 0.0)),
@@ -156,7 +171,10 @@ def run_perfect_foresight(klass, needs_distributed, verbose=True):
         problems.append(problem)
         demands.append(float(demand.sum()))
 
-    salvage = [sum(salvage_credit_per_mw(y, _capex_by_build_var(y))[:4]) / 4 for y in CHECKPOINTS]
+    # A SINGLE AVERAGED FIGURE WAS WRONG: assemble() applies the credit to every build variable in
+    # the period, so averaging solar's credit with storage's gave each variable a number belonging
+    # to neither. Passed per build variable instead.
+    salvage = [salvage_credit_per_mw(y, _capex_by_build_var(y)) for y in CHECKPOINTS]
     assembled = mp.assemble(problems, CHECKPOINTS, salvage_usd_by_period=salvage)
     if verbose:
         print(f'  assembled {len(assembled["c"]):,} vars, {assembled["A_ub"].shape[0]:,} ub rows, '
