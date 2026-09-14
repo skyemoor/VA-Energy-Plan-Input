@@ -11,8 +11,9 @@ hit it.
 
 That is precisely the failure the flag was added to prevent, defeated by where it was attached.
 
-AND THERE ARE THREE CONVERGENCE PATHS. Fixing one left the others silently wrong -- which is how
-the original gap survived. The audit found only two of three bound after the first fix.
+AND THERE WERE THREE CONVERGENCE PATHS -- now four, with AllHoursReserveMixin. Fixing one left the
+others silently wrong, which is how the original gap survived. The audit found only two of three
+bound after the first fix.
 """
 import re
 
@@ -36,11 +37,13 @@ def _paths_with_verdict():
 
 class TestEveryConvergencePathCarriesIt:
 
-    def test_there_are_three_paths(self):
-        """If this changes, the check below may be scanning the wrong set."""
-        assert len(_paths_with_verdict()) == 3
+    def test_there_are_four_paths(self):
+        """If this changes, the check below may be scanning the wrong set. Was three; the fourth
+        is AllHoursReserveMixin.solve_with_reserve_margin, added 2026-09-14 -- and this test
+        catching it is exactly the point of counting."""
+        assert len(_paths_with_verdict()) == 4
 
-    def test_all_three_carry_the_verdict(self):
+    def test_all_paths_carry_the_verdict(self):
         unbound = [n for n, ok in _paths_with_verdict() if not ok]
         assert not unbound, f'convergence paths not carrying the verdict: {unbound}'
 

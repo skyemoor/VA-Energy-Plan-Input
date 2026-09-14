@@ -80,6 +80,28 @@ class CheckpointSolver:
         self.result['achieved_share'] = float(converge_result.get('achieved_share', 0.0))
         return self.result
 
+    def _post_build_hook(self):
+        """A callable applied to the freshly built problem before constraints, or None.
+
+        The base class has nothing to add. A scenario that needs structural bounds -- Scenario 3's
+        distributed segment -- OVERRIDES this rather than the base branching on scenario identity,
+        per project direction 2026-09-13. Mixins that add constraints chain onto whatever the
+        composing class returns, so both apply.
+        """
+        return None
+
+    @staticmethod
+    def _chain_hooks(*hooks):
+        """Composes post_build hooks left to right, skipping None. run_solve takes one callable."""
+        live = [h for h in hooks if h is not None]
+        if not live:
+            return None
+        def composed(problem):
+            for h in live:
+                problem = h(problem)
+            return problem
+        return composed
+
     def _curtailment_kwargs(self):
         """Passed to run_solve so the hook, not driver.py's default, decides the value."""
         return {'slcr_curt_cost': self.curtailment_cost_mwh()}
@@ -478,7 +500,94 @@ class ReserveMarginMixin:
         return self.result
 
 
-class Scenario1WithReserveMargin(ReserveMarginMixin, Scenario1Solver):
+class AllHoursReserveMixin:
+    """Applies the installed reserve margin in EVERY hour, not only at the peak-net-demand hour.
+
+    REPLACES ReserveMarginMixin, per Weather_Year_Robustness_Approaches_and_Findings_2026-08-23.md,
+    which lists the two as alternatives (1a peak-hour, 1c all-hours) and calls the all-hours
+    constraint "the real fix" and "current standard". The peak-hour version was found to have
+    left 769 hours short of margin while reporting zero unserved energy -- different tests, and
+    only the all-hours one is a guarantee.
+
+    SINGLE PASS, NO ITERATION. ReserveMarginMixin loops up to five times because the peak hour can
+    MOVE between solves, and it must find it again. An all-hours constraint has no peak hour to
+    find, so that loop is dead weight here and is not reproduced.
+
+    WIRED THROUGH run_solve's post_build_hook, which was added specifically for all_hours_reserve.py
+    -- its own comment names the module -- and had never been used. That is the ninth instance in
+    this project of a component built for a documented purpose and left unconnected.
+
+    MEASURED BEFORE WIRING: no solve-time cost (26.2 s against 27.5 s without, within noise) and a
+    +1.75% objective at 2030, so the constraint binds.
+
+    ON STRICTNESS: this applies the INSTALLED reserve margin at every hour. IRM is a planning
+    standard evaluated at peak, not an hourly operating requirement, so holding it in all 8,760
+    hours is stricter than PJM asks of anyone. Defensible as a conservative reliability floor; it
+    must be labelled MORE CONSERVATIVE THAN PJM, not as "the PJM reserve margin".
+    """
+
+    def _all_hours_reserve_hook(self, IRM):
+        """Builds the post_build_hook closure. Gas enters at the scenario's own existence cap --
+        apply_gas_cap() -- not the merit-order stack, because reserve margin is about capacity
+        available to be CALLED, and the two limits were shown (issue #18) to disagree."""
+        from all_hours_reserve import add_all_hours_reserve_margin_constraint
+        gas_cap = self.apply_gas_cap()
+        if gas_cap is None:
+            raise ValueError(
+                'AllHoursReserveMixin needs a finite gas cap from apply_gas_cap(); this scenario '
+                'returned None. Reserve margin cannot be computed against unbounded gas -- it '
+                'would trivially pass every hour.')
+        dist = self._distributed_kwargs() if hasattr(self, '_distributed_kwargs') else {}
+        dist_cf = dist.get('distributed_solar_cf')
+        if dist_cf is None:
+            import numpy as np
+            dist_cf = np.zeros(len(self.demand))
+        return lambda problem: add_all_hours_reserve_margin_constraint(
+            problem, self.nuclear, self.wind_cf, self.exist_solar, self.solar_cf, dist_cf,
+            gas_cap, self.demand, IRM=IRM)
+
+    def solve_with_reserve_margin(self, IRM=0.177, **solve_kwargs):
+        """Same interface as ReserveMarginMixin.solve_with_reserve_margin so the WithReserveMargin
+        classes and every runner keep working unchanged; the iteration arguments it accepted are
+        ignored here because there is nothing to iterate on."""
+        solve_kwargs.pop('max_iter', None)
+        # Chain onto whatever the composing scenario already applies (Scenario 3's distributed
+        # bounds), so both take effect. Order: scenario bounds first, then the reserve rows.
+        hook = self._chain_hooks(self._post_build_hook(), self._all_hours_reserve_hook(IRM))
+        self.verify_input_data()
+        cap = self.apply_gas_cap()
+        prior_kwargs = self._prior_kwargs() if hasattr(self, '_prior_kwargs') else {}
+        dist_kwargs = self._distributed_kwargs() if hasattr(self, '_distributed_kwargs') else {}
+        gas_kwargs = self._gas_merit_order_kwargs()
+        frac, converge_result, history = drv.converge_frac(
+            self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
+            self.wind_cf, self.nuclear, capacity_cap_mw=cap, post_build_hook=hook,
+            **prior_kwargs, **dist_kwargs, **gas_kwargs, **self._curtailment_kwargs(), **solve_kwargs)
+        self.converged_frac = frac
+        self.result = drv.run_solve(
+            self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
+            self.nuclear, capacity_cap_mw=cap, return_hourly=True, post_build_hook=hook,
+            **prior_kwargs, **dist_kwargs, **gas_kwargs, **self._curtailment_kwargs())
+        self._carry_convergence_verdict(converge_result)
+        self.result['reserve_margin_method'] = 'all_hours'
+        self.verify_result()
+        if prior_kwargs:
+            self.result['S_mw_total'] = self.result['S_mw'] + prior_kwargs.get('prior_solar_mw', 0.0)
+            self.result['year'] = self.year
+            if dist_kwargs:
+                self.result['dist_S_mw_total'] = (self.result['dist_S_mw']
+                                                  + prior_kwargs.get('prior_distributed_solar_mw', 0.0))
+            if hasattr(self, '_verify_monotonicity'):
+                self._verify_monotonicity(prior_kwargs)
+        return self.result
+
+
+#: The peak-hour mixin is retained under a name that says what it is, for A/B comparison against
+#: the all-hours standard. It is no longer what the WithReserveMargin classes use.
+PeakHourReserveMarginMixin = ReserveMarginMixin
+
+
+class Scenario1WithReserveMargin(AllHoursReserveMixin, Scenario1Solver):
     """Scenario 1, with the PJM reserve margin constraint applied -- the composition this
     project's own reserve-margin work (Appendix A #12/#13) has been building toward,
     now expressed as a mixin rather than a separate, hand-built constraint script per
@@ -568,6 +677,24 @@ class Scenario3Solver(Scenario1Solver):
                     distributed_exogenous_price_mwh=self.distributed_exogenous_price_mwh,
                     distributed_reserve_margin_credit_fraction=self.distributed_reserve_margin_credit_fraction)
 
+    def _post_build_hook(self):
+        """Scenario 3's structural bounds on the distributed segment.
+
+        distributed_physical_bounds.py HAD NEVER BEEN WIRED IN -- no importer since the commit
+        that added it (issue #20), so every Scenario 3 result ever produced ran without these. Its
+        own docstring records why they exist: a 2026-09-09 stress run built 1.43 TWh of DISTRIBUTED
+        iron-air, 60x the entire utility Na-ion fleet, because iron-air energy capex is 3.6x cheaper
+        and FE_DURATION=100 derives power as energy/100.
+
+        allow_distributed_iron_air=False by decision: the 4-hour canopy pairing convention the
+        siting analysis assumed does not admit 100-hour storage, and letting the LP choose silently
+        broke that convention.
+        """
+        from distributed_physical_bounds import add_distributed_physical_bounds
+        base = super()._post_build_hook()
+        mine = lambda p: add_distributed_physical_bounds(p, allow_distributed_iron_air=False)
+        return self._chain_hooks(base, mine)
+
     def converge_and_solve(self, start_frac=None, tol=0.003, max_iter=8):
         """OVERRIDDEN, not just extended via super() -- Scenario1Solver's own version calls
         drv.converge_frac()/drv.run_solve() with a fixed call signature that has no hook for the
@@ -580,15 +707,16 @@ class Scenario3Solver(Scenario1Solver):
         cap = self.apply_gas_cap()
         prior_kwargs = self._prior_kwargs()
         dist_kwargs = self._distributed_kwargs()
+        hook = self._post_build_hook()
         gas_kwargs = self._gas_merit_order_kwargs()
         frac, converge_result, history = drv.converge_frac(
             self.year, self.gas_target_share, self.demand, self.exist_solar, self.solar_cf,
-            self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap,
+            self.wind_cf, self.nuclear, tol=tol, max_iter=max_iter, capacity_cap_mw=cap, post_build_hook=hook,
             start_frac=start_frac, **prior_kwargs, **dist_kwargs, **self._curtailment_kwargs())
         self.converged_frac = frac
         self.result = drv.run_solve(
             self.year, frac, self.demand, self.exist_solar, self.solar_cf, self.wind_cf,
-            self.nuclear, capacity_cap_mw=cap, return_hourly=True,
+            self.nuclear, capacity_cap_mw=cap, post_build_hook=hook, return_hourly=True,
             **prior_kwargs, **dist_kwargs, **gas_kwargs, **self._curtailment_kwargs())
         self.verify_result()
         prior_solar_degraded = prior_kwargs['prior_solar_mw']
@@ -616,7 +744,7 @@ class Scenario3Solver(Scenario1Solver):
                                   f"{current:.1f} < prior checkpoint's {prior:.1f}")
 
 
-class Scenario3WithReserveMargin(ReserveMarginMixin, Scenario3Solver):
+class Scenario3WithReserveMargin(AllHoursReserveMixin, Scenario3Solver):
     """Scenario 3, with the PJM reserve margin constraint applied -- the same composition pattern
     as Scenario1WithReserveMargin above, now actually built (2026-09-09). This is the specific gap
     identified several turns into this session's own distributed-segment work: Scenario3Solver had

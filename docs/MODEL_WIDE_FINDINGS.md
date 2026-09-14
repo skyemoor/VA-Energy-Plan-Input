@@ -502,6 +502,26 @@ test that scans every `converge_frac` call site and fails if any enclosing metho
 A missing flag defaults to **not converged**: a result whose convergence is unknown is not a
 converged result.
 
+### The resistor threshold is year-dependent — and the import-time 2044.5 problem bit
+
+Found by a test-order failure, 2026-09-14. `driver.set_year_capex(year)` rebinds `NA_CYCLE_LIFE`
+(10,000 before 2035, 15,000 after) and the capex terms, so **sodium-ion's threshold moves with the
+checkpoint**:
+
+| basis | sodium-ion | iron-air | Bath |
+|---|---:|---:|---:|
+| `set_year_capex(2030)` | $119.54 | — | $30.00 |
+| **`set_year_capex(2045)`** | **$48.06** | **$70.08** | **$30.00** |
+| import-time (hardcoded 2044.5) | $48.87 | $72.13 | $30.00 |
+
+**Bath does not move** — its $7.50 is a literal — so it binds at every year and every conclusion
+stands. But the $48.87 quoted when the threshold was first derived was at the module's
+**import-time parameters, evaluated at a hardcoded 2044.5** — neither 2045 nor any checkpoint.
+That inconsistency was flagged in §2B above as an open item; this is it producing a wrong figure.
+
+Tests now pin `set_year_capex(2045)` explicitly and restore it afterwards, and assert the
+*derivation* rather than only a number.
+
 ---
 
 ## 3. No import capability

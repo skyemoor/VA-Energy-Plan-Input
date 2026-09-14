@@ -16,13 +16,18 @@ from scratch -- matches the documented approach exactly.
 import numpy as np
 from scipy import sparse
 
-IRM = 0.177
+_DEFAULT_IRM = 0.177
 CVOW_MW = 2587.2
 FE_DURATION = 100.0
 
 
 def add_all_hours_reserve_margin_constraint(problem, nuclear, wind_cf, exist_solar, solar_cf,
-                                             dist_solar_cf, gas_cap_mw, demand):
+                                             dist_solar_cf, gas_cap_mw, demand, IRM=None):
+    # IRM was a module-level literal (0.177) with no way to vary it per call. Made a parameter
+    # 2026-09-14 so the solver's own IRM argument reaches the constraint; defaults to the module
+    # value so existing behaviour is unchanged.
+    if IRM is None:
+        IRM = _DEFAULT_IRM
     IDX = problem['IDX']
     NB, NPH = problem['hv_params']
     T = problem['T']

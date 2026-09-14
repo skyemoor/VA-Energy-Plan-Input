@@ -477,7 +477,7 @@ def run_solve_multi_duration(year, frac, demand, exist_solar, solar_cf, wind_cf,
 
 
 def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf, nuclear, tol=0.003, max_iter=8,
-                  slcr_curt_cost=None,
+                  slcr_curt_cost=None, post_build_hook=None,
                    capacity_cap_mw=None, start_frac=None, min_na_power_mw='vcea_default', min_na_duration_hr=6.0,
                    min_efe_power_mw='vcea_default', prior_solar_mw=0.0, prior_na_power_mw=0.0,
                    prior_na_energy_mwh=0.0, prior_ironair_energy_mwh=0.0,
@@ -512,6 +512,7 @@ def converge_frac(year, gas_target_share, demand, exist_solar, solar_cf, wind_cf
         t0 = time.time()
         r = run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capacity_cap_mw=capacity_cap_mw,
             **({} if slcr_curt_cost is None else {"slcr_curt_cost": slcr_curt_cost}),
+            **({} if post_build_hook is None else {"post_build_hook": post_build_hook}),
                       min_na_power_mw=min_na_power_mw, min_na_duration_hr=min_na_duration_hr,
                       min_efe_power_mw=min_efe_power_mw, prior_solar_mw=prior_solar_mw,
                       prior_na_power_mw=prior_na_power_mw, prior_na_energy_mwh=prior_na_energy_mwh,

@@ -14,18 +14,58 @@ import lp_model as lp
 import storage_resistor_threshold as srt
 
 
+@pytest.fixture(autouse=True)
+def _at_2045():
+    """THE THRESHOLD IS YEAR-DEPENDENT, found 2026-09-14 by a test-order failure.
+
+    driver.set_year_capex(year) rebinds lp_model.NA_CYCLE_LIFE (10,000 before 2035, 15,000 after)
+    and the capex terms, so sodium-ion's threshold moves with whichever checkpoint was last set.
+    Bath's $7.50 is a literal and does not move -- so Bath binds at EVERY year, but any sodium
+    figure asserted here must state its year. Pinned to 2045, the year the figures were derived
+    at, and restored afterwards so this file does not poison others the way it was poisoned."""
+    import driver as drv
+    drv.set_year_capex(2045)
+    yield
+    drv.set_year_capex(2045)
+
+
 class TestTheDerivation:
     """cycling_cost x RTE / (1 - RTE) -- arithmetic on two sourced parameters, not a new deterrent.
     Appendix P.2 §13 catalogues seven rejected attempts; this invents nothing, it states where the
     EXISTING mechanism stops working."""
 
-    def test_sodium_ion(self):
-        """$5.43/MWh cycling at 90% RTE. Charge 100, discharge 90, absorb 10 -- 90 x $5.43 = $489
-        for 10 MWh absorbed."""
-        assert srt.resistor_threshold_mwh('sodium_ion') == pytest.approx(48.87, abs=0.5)
+    def test_sodium_ion_at_2045(self):
+        """Charge 100, discharge 90, absorb 10 -- 90 x cycling cost for 10 MWh absorbed.
 
-    def test_iron_air(self):
-        assert srt.resistor_threshold_mwh('iron_air') == pytest.approx(72.13, abs=0.5)
+        $48.06 at set_year_capex(2045). The $48.87 quoted when this was first derived was at the
+        module's IMPORT-TIME parameters, which are evaluated at a hardcoded 2044.5 -- neither 2045
+        nor any checkpoint. That inconsistency was already flagged in the constants audit
+        (MODEL_WIDE_FINDINGS 2B, 'GAS_COST_MWH and FE_RTE_CHARGE evaluated at a hardcoded 2044.5')
+        and this is it biting. Both figures sit well above Bath's $30, so the binding threshold
+        and every conclusion drawn from it are unchanged."""
+        assert srt.resistor_threshold_mwh('sodium_ion') == pytest.approx(48.06, abs=0.5)
+
+    def test_the_formula_holds_regardless_of_year(self):
+        """Asserts the DERIVATION rather than a number, so it cannot be broken by state."""
+        cyc = (lp.NA_ENERGY_CAPEX * 1000) / (lp.NA_CYCLE_LIFE * (1.0 - lp.NA_DOD_FLOOR))
+        expected = cyc * lp.NA_RTE_CHARGE / (1.0 - lp.NA_RTE_CHARGE)
+        assert srt.resistor_threshold_mwh('sodium_ion') == pytest.approx(expected, rel=1e-9)
+
+    def test_sodium_threshold_moves_with_the_checkpoint_year(self):
+        """The finding itself. Pre-2035 cycle life is 10,000, not 15,000, and the threshold rises
+        with it. Bath stays at $30 throughout, so the BINDING threshold does not change -- but a
+        derivation that quoted only sodium would have been wrong for early checkpoints."""
+        import driver as drv
+        drv.set_year_capex(2030)
+        early = srt.resistor_threshold_mwh('sodium_ion')
+        drv.set_year_capex(2045)
+        late = srt.resistor_threshold_mwh('sodium_ion')
+        assert early != pytest.approx(late, rel=0.01)
+        assert srt.resistor_threshold_mwh('bath_pumped_hydro') == pytest.approx(30.0, abs=0.5)
+
+    def test_iron_air_at_2045(self):
+        """$70.08 at set_year_capex(2045); $72.13 at the import-time 2044.5 parameters."""
+        assert srt.resistor_threshold_mwh('iron_air') == pytest.approx(70.08, abs=0.5)
 
     def test_bath_is_the_binding_constraint(self):
         """NOT sodium-ion, which is what the mechanism was first noticed on. Bath's $7.50/MWh at
