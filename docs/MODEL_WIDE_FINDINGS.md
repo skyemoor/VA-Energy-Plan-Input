@@ -423,8 +423,63 @@ Scenario 1's cost on the grounds it was *"a modelling device... not a cheque any
 says the opposite: it is a price, defended as one. Whether it matters in practice depends on what
 survives at $100/MWh — if curtailment goes to near zero the question dissolves.
 
-**Not yet measured.** The corrected solve exceeded a 295-second window where the $5 case took 181 s,
-which is itself informative: the corrected cost makes the problem materially harder.
+### Measured, and $100/MWh turned out to be unusable
+
+The corrected solve **failed verification**: `ValueError: 2045 has 4710 hours of simultaneous
+charge/discharge for Na storage.`
+
+**The mechanism is economic, not a solver artifact.** Charging 100 MWh and discharging 90 MWh in the
+same hour nets **10 MWh absorbed** — the round-trip loss — at a cost of 90 × the discharge cycling
+cost. Per MWh absorbed:
+
+```
+cycling_cost × RTE / (1 − RTE)
+```
+
+| storage type | cycling | RTE | threshold |
+|---|---:|---:|---:|
+| **Bath pumped hydro** | $7.50 | 0.80 | **$30.00/MWh** |
+| sodium-ion | $5.43 | 0.90 | $48.87/MWh |
+| iron-air | $18.03 | 0.80 | $72.13/MWh |
+
+**Bath is binding**, not sodium-ion — the LP uses whichever resistor is cheapest, so the lowest
+threshold governs. At $100/MWh, dumping through Bath's losses costs **a third** of curtailing.
+
+### The conflict is disclosed, not tuned away
+
+Two different questions, and conflating them would let model mechanics dictate economics:
+
+| | |
+|---|---|
+| **What does curtailment cost?** | Economic. #20 answered $100 on stated grounds. **Not refuted.** |
+| **Where does the LP misbehave?** | Model mechanics. **$30.00**, derived from sourced parameters. |
+
+`CURTAILMENT_COST_MWH = 25.0` is **model-constrained, not economically derived**, and labelled as
+such. `CURTAILMENT_COST_ECONOMIC_MWH = 100.0` is retained for disclosure so the gap between what
+curtailment costs and what the model can price is **visible rather than buried**.
+
+The model cannot represent a price above the threshold without structural complementarity, which
+P.2 §13 records as proven correct but impractical — ~470 s for one storage type over one month.
+
+### Measured at $25/MWh — verification passes
+
+| | $5/MWh | **$25/MWh** |
+|---|---:|---:|
+| Solar | 165,875 MW | **156,737 MW** |
+| Iron-air | 3.81 TWh | **4.77 TWh** |
+| Curtailment | 161.5 TWh | **142.1 TWh** |
+| Objective | $26.07B | **$29.10B** |
+
+**Direction matches #20's prediction** — less solar, more iron-air, less curtailment, higher cost —
+at smaller magnitude, as expected from $5→$25 rather than #20's $1→$100.
+
+**But curtailment does not reach zero.** #20 reported *"dropped to exactly zero"*; at $25 it falls
+12%. Either $100 was doing far more work than $25 can, **or #20's zero was achieved partly through
+the resistor behaviour we now reject** — curtailment relabelled as storage losses rather than
+eliminated. Open question, not a settled explanation.
+
+An import-time assertion now catches a raise above the threshold **without running a solve**. It
+failed loudly once, but only because a solve happened to be run.
 
 ---
 

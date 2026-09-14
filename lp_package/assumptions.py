@@ -265,7 +265,36 @@ GAS_HEAT_RATE_STEAM = 10.337             # EIA Table 8.2, 2024 gas steam generat
 #: own corrected default". The comment described a value its counterpart no longer had. A 2045
 #: Scenario 1 solve then produced 161.5 million MWh of curtailment, MORE than the fix originally
 #: eliminated.
-CURTAILMENT_COST_MWH = 100.0
+#: A CONFLICT IS DISCLOSED HERE RATHER THAN RESOLVED BY TUNING (2026-09-13).
+#:
+#: $100/MWh is ABOVE the price at which the LP prefers to dump surplus through storage round-trip
+#: losses rather than curtail it. The binding threshold is $30.00/MWh, set by Bath pumped hydro
+#: ($7.50/MWh cycling cost at 80% RTE -- the cheapest resistor in the system, below sodium-ion's
+#: $48.87 and iron-air's $72.13). Restoring $100 produced 4,710 hours of simultaneous Na-ion
+#: charge/discharge at 2045, caught by verify_result().
+#:
+#: THESE ARE TWO DIFFERENT QUESTIONS and conflating them would let model mechanics dictate
+#: economics:
+#:     what does curtailment COST?   economic. #20 answered $100 on stated grounds. Not refuted.
+#:     where does the LP MISBEHAVE?  model mechanics. $30.00, derived in
+#:                                   storage_resistor_threshold.py from sourced parameters.
+#:
+#: The model cannot represent a defensible price above the threshold without structural
+#: complementarity (binary variables), which Appendix P.2 §13 records as proven correct but
+#: impractical at this scale -- ~470 s for one storage type over one month.
+#:
+#: CURTAILMENT_COST_MWH IS THEREFORE MODEL-CONSTRAINED, NOT ECONOMICALLY DERIVED, and must be
+#: labelled as such wherever it affects a reported figure. It sits below the binding threshold with
+#: a margin, so a change to any cycling cost or RTE could invalidate it -- which the import-time
+#: assertion at the end of this module checks.
+CURTAILMENT_COST_MWH = 25.0
+
+#: The economically defensible figure, retained for disclosure. Internal Debugging Log #20 set this
+#: at $100/MWh as "a defensible figure (same order of magnitude as gas cost and the export price),
+#: not another arbitrary tie-breaker". It is NOT used in any solve, because the model cannot
+#: represent it -- see above. Reported so the gap between what curtailment costs and what the model
+#: can price is visible rather than buried.
+CURTAILMENT_COST_ECONOMIC_MWH = 100.0
 
 # ============================================================================
 # COMPLIANCE SWEEP -- axis definition
@@ -1126,3 +1155,23 @@ assert GAS_NEW_BUILD_VOM_MWH == CCGT_VOM_MWH, (
     f'GAS_NEW_BUILD_VOM_MWH ({GAS_NEW_BUILD_VOM_MWH}) has drifted from CCGT_VOM_MWH '
     f'({CCGT_VOM_MWH}). New-build gas is assumed to be a modern CCGT, so they must agree unless a '
     'reason is recorded here for them not to.')
+
+
+# ---------------------------------------------------------------------------
+# IMPORT-TIME ASSERTION: curtailment cost must stay below the resistor threshold
+# ---------------------------------------------------------------------------
+# Deferred to avoid a circular import at module load -- storage_resistor_threshold reads lp_model,
+# which reads this file. Called by the audit and by tests rather than at import.
+def assert_curtailment_below_resistor_threshold():
+    """Raises if the curtailment price would make storage-as-resistor economic.
+
+    A future raise of CURTAILMENT_COST_MWH, or a change to any cycling cost or round-trip
+    efficiency, can silently reintroduce thousands of hours of simultaneous charge/discharge. That
+    failed loudly once (verify_result caught 4,710 hours) but only because a solve was run; this
+    catches it without one.
+    """
+    import storage_resistor_threshold as srt
+    r = srt.check_curtailment_cost(CURTAILMENT_COST_MWH)
+    if not r['safe']:
+        raise AssertionError(r['note'])
+    return r

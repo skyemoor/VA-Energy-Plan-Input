@@ -155,6 +155,7 @@ UNCALLED_BY_DESIGN = {
     'large_ci_curtailment_feature.py':               'demand-side feature, not in the base scenarios',
     'supply_gap_analysis.py':                        'gap characterisation, run on solved results',
     'levelised_cost.py':                             'SLCOE assembly; wired when the annual stream exists',
+    'storage_resistor_threshold.py':                 'derivation + disclosure; checked by assumptions and the audit',
     'demand_shape_interpolation.py':                 'SUPERSEDED 2026-09-13 -- the source projections already flatten; retained for its sourced IRP series',
     # --- shared base layers of the siting derivations above. Unreachable from an entry point
     # because their only callers are themselves derivations, which is correct: the transitive
@@ -310,6 +311,14 @@ def check_curtailment_cost_is_present_and_agrees():
         # None is correct: the function resolves it to the constant. A LITERAL default is the
         # failure -- that is how 5.0 persisted while build_dispatch_problem used 100.0.
         default = inspect.signature(d.apply_slcr_constraint).parameters['curt_cost'].default
+        # The curtailment price must also stay below the storage-resistor threshold, or the LP
+        # dumps surplus through round-trip losses instead of curtailing. Checked here so a raise is
+        # caught WITHOUT running a solve -- it failed loudly once (4,710 hours, verify_result) but
+        # only because a solve happened to be run.
+        try:
+            a.assert_curtailment_below_resistor_threshold()
+        except AssertionError as exc:                                     # noqa: BLE001
+            problems.append(str(exc)[:200])
         if default is not None:
             problems.append(f'driver.apply_slcr_constraint has a literal default of {default} '
                             'rather than None -- it must resolve to the constant, or a caller that '

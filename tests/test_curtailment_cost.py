@@ -26,8 +26,17 @@ import lp_model as lp
 
 class TestOneSourceOfTruth:
 
-    def test_the_constant_exists_and_is_the_sourced_figure(self):
-        assert assumptions.CURTAILMENT_COST_MWH == 100.0
+    def test_the_constant_is_the_model_constrained_figure(self):
+        """BASELINE MOVED 2026-09-13, $100 -> $25, and the reason is a disclosed limitation rather
+        than a revised estimate. $100 sits ABOVE the $30/MWh storage-resistor threshold set by Bath
+        pumped hydro, so the LP dumps surplus through round-trip losses instead of curtailing --
+        4,710 hours of simultaneous Na-ion charge/discharge at 2045.
+
+        The economically defensible figure is retained separately as
+        CURTAILMENT_COST_ECONOMIC_MWH, because #20's defence of it was never refuted: the model
+        simply cannot represent it without structural complementarity."""
+        assert assumptions.CURTAILMENT_COST_MWH == 25.0
+        assert assumptions.CURTAILMENT_COST_ECONOMIC_MWH == 100.0
 
     def test_lp_model_references_the_constant_not_a_literal(self):
         """Both build_dispatch_problem sites previously hardcoded 100.0."""
@@ -63,7 +72,8 @@ class TestScenarioOverridable:
 
     def test_the_hook_reaches_run_solve(self):
         s = cs.CheckpointSolver.__new__(cs.CheckpointSolver)
-        assert cs.CheckpointSolver._curtailment_kwargs(s) == {'slcr_curt_cost': 100.0}
+        assert cs.CheckpointSolver._curtailment_kwargs(s) == {
+            'slcr_curt_cost': assumptions.CURTAILMENT_COST_MWH}
 
     def test_every_solver_call_site_binds_it(self):
         """converge_frac runs run_solve per iteration, so a call site that fails to bind would use
@@ -100,11 +110,14 @@ class TestScenarioOverridable:
 
 
 class TestItIsAPriceNotATieBreaker:
-    def test_it_is_the_same_order_as_gas_cost(self):
-        """#20's own defence of the figure. At 2045 gas marginal is ~$47/MWh; $100 is the same
-        order of magnitude, where $0.01 and $1.00 plainly were not."""
+    def test_the_economic_figure_is_the_same_order_as_gas_cost(self):
+        """#20's own defence, which applies to the ECONOMIC figure. At 2045 gas marginal is
+        ~$47/MWh; $100 is the same order of magnitude, where $0.01 and $1.00 plainly were not.
+
+        The value actually used ($25) is lower not because that defence failed but because the
+        model cannot represent $100 -- see test_the_constant_is_the_model_constrained_figure."""
         gas = lp.gas_cost_mwh(2045, heat_rate=lp.CCGT_HEAT_RATE)
-        assert 0.1 < gas / assumptions.CURTAILMENT_COST_MWH < 10.0
+        assert 0.1 < gas / assumptions.CURTAILMENT_COST_ECONOMIC_MWH < 10.0
 
     def test_the_regression_is_documented_at_the_constant(self):
         """Rule 10.3: a future reader must not restore a lower value as a 'reasonable' default."""
