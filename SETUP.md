@@ -239,3 +239,30 @@ without one on 2026-09-12.
 | build deltas marked `MATERIAL` | above 2%; below that is rounding |
 | `myopia penalty` | our **endpoint annual** cost gap, read against the literature's **cumulative NPC** range of 14–23%. **Not directly comparable** — the output says so |
 | `iron-air deferral` | whether the chain builds the whole long-duration fleet in the final checkpoint, which would be implausible against any real deployment rate |
+
+## Comparing foresight approaches
+
+```bash
+python3 run_foresight_comparison.py --scenario 1
+```
+
+Solves the same scenario two ways and reports the **myopia penalty**:
+
+| | |
+|---|---|
+| **Myopic** (Case 3a) | four checkpoints in sequence, each carrying the prior build forward as a floor |
+| **Perfect foresight** (Case 2) | all four in **one simultaneous LP**, linked by `build[a] ≤ build[a+1]` |
+
+**Five solves.** The foresight one is ~4× the size of a checkpoint — 735,872 variables — so expect
+30–60 minutes for it alone.
+
+**Salvage value applies to both sides.** In one and not the other, the comparison would measure
+salvage treatment rather than foresight.
+
+**The comparison is the discounted total, not the endpoint build** — the literature finds that
+*"intertemporal and myopic models lead to a similar final energy system; the transformation
+pathways differ"*, so endpoints may agree while pathways diverge. Published myopia penalties run
+**14–23% of cumulative NPC**.
+
+A **negative penalty is flagged, not reported** — myopic cheaper than foresight is impossible if
+both solve the same feasible set, so it means the two aren't comparable.
