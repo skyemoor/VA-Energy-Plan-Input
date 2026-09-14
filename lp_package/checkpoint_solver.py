@@ -407,6 +407,43 @@ class Scenario1BSolver(Scenario1Solver):
             return assumptions.SCENARIO_1B_GAS_CAPACITY_MW
         return super().apply_gas_cap()
 
+    def retain_and_overhaul_plan(self):
+        """Which plants the 2045 capacity target implies retaining, overhauling, or building new.
+
+        Wires driver.select_overhaul_retain(), which had no caller since it was written. It
+        reproduces Appendix N.2's locked figure by a completely different route:
+
+            6,000 MW target - 1,860 Schedule B survivors - 2,862 POOL = 1,278 MW residual
+            N.2's capacity sweep, independently:                        1,278 MW new CT
+
+        Two figures from unconnected work agreeing exactly is the strongest evidence available that
+        the 6,000 MW target is right.
+
+        REPORTS BOTH THE CONTINUOUS AND DISCRETE ANSWERS. F-Class units are 237 MW, so the 1,278 MW
+        residual takes six of them -- 1,422 MW, 144 MW more than needed. N.2's sweep treated
+        capacity as continuous; this is the buildable version. Which applies depends on whether the
+        question is cost (1,278) or procurement (1,422).
+        """
+        if self.year < 2045:
+            return None
+        survivors = drv.schedule_b_baseline_mw(self.year)
+        shortfall = assumptions.SCENARIO_1B_GAS_CAPACITY_MW - survivors
+        plan = drv.select_overhaul_retain(shortfall)
+        pool_mw = sum(p[1] for p in plan['selected'])
+        return {
+            'schedule_b_survivors_mw': survivors,
+            'shortfall_mw': shortfall,
+            'retained_pool_mw': pool_mw,
+            'retained_plants': [p[0] for p in plan['selected']],
+            'needing_overhaul': [p[0] for p in plan['selected'] if p[3]],
+            'residual_gap_mw': shortfall - pool_mw,
+            'new_build_units': len(plan['newbuild']),
+            'new_build_mw_discrete': plan['cum_mw'] - pool_mw,
+            'new_build_mw_continuous': assumptions.SCENARIO_1B_NEW_CT_MW,
+            'overhaul_annual_cost_usd': plan['overhaul_annual_cost'],
+            'newbuild_annual_cost_usd': plan['newbuild_annual_cost'],
+        }
+
     def __init__(self, year, demand, exist_solar, solar_cf, wind_cf, nuclear,
                  sourced_annual_total_gwh=None, prior_result=None, additional_peaker_mw=0.0):
         # BUG FIXED (2026-08-23): was `0.95 if year >= 2045`, contradicting this class's own
@@ -604,6 +641,20 @@ class AllHoursReserveMixin:
 
 #: The peak-hour mixin is retained under a name that says what it is, for A/B comparison against
 #: the all-hours standard. It is no longer what the WithReserveMargin classes use.
+#:
+#: IT IS THEREFORE DORMANT, and so are the two driver functions only it reaches --
+#: add_reserve_margin_constraint() and find_hour_of_maximum_net_demand(). An audit on 2026-09-14
+#: found both with no external caller, which is correct rather than a defect: nothing should be
+#: using the peak-hour constraint now that all-hours replaced it.
+#:
+#: WHY IT IS KEPT RATHER THAN DELETED. The A/B at 2045 gave IDENTICAL results -- at 100% compliance
+#: with 47 GW of storage the all-hours margin never binds -- but at 2030 the same constraint cost
+#: +1.75%. So the comparison will matter again at the sweep's lower compliance levels, where gas
+#: does the work and storage is smaller, and re-deriving the peak-hour path to run it would be
+#: worse than keeping it.
+#:
+#: The module-level orphan check in scripts/audit_documented_fixes.py works on MODULES, not
+#: functions, so it cannot see this. Stated here instead.
 PeakHourReserveMarginMixin = ReserveMarginMixin
 
 

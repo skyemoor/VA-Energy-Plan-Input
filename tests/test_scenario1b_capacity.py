@@ -95,3 +95,53 @@ class TestWhatThisInvalidates:
         N.4 solved the configuration N.2 explicitly rejected, so its 1.63% and its conclusion that
         'the 5% statutory ceiling is largely moot' both need re-measuring."""
         assert 4_722.0 < assumptions.SCENARIO_1B_GAS_CAPACITY_MW
+
+
+class TestRetainOverhaulPlanIsWired:
+    """driver.select_overhaul_retain had no caller since it was written -- real, sourced machinery
+    nobody had connected. The module-level orphan check could not see it, because driver.py is
+    imported everywhere and is never itself orphaned."""
+
+    def test_the_plan_is_available_from_2045(self):
+        assert _solver(2045).retain_and_overhaul_plan() is not None
+
+    def test_it_is_none_before_2045(self):
+        """Before 2045, 1B's capacity is Scenario 1's and there is nothing extra to retain."""
+        assert _solver(2044).retain_and_overhaul_plan() is None
+
+    def test_it_reproduces_N2s_locked_figure_independently(self):
+        """THE CROSS-CHECK THAT MATTERS. Two pieces of work that never met agree exactly:
+
+            6,000 target − 1,860 Schedule B survivors − 2,862 POOL = 1,278 MW residual
+            N.2's capacity sweep, by a different route entirely:     1,278 MW new CT
+
+        That is the strongest available evidence the 6,000 MW target is right."""
+        p = _solver(2045).retain_and_overhaul_plan()
+        assert p['residual_gap_mw'] == pytest.approx(assumptions.SCENARIO_1B_NEW_CT_MW)
+        assert p['residual_gap_mw'] == pytest.approx(1_278.0)
+
+    def test_both_continuous_and_discrete_are_reported(self):
+        """F-Class units are 237 MW, so a 1,278 MW residual takes six -- 1,422 MW, overshooting by
+        144. N.2's sweep treated capacity as continuous; this is the buildable version. Which
+        applies depends on whether the question is cost or procurement, so both are given."""
+        p = _solver(2045).retain_and_overhaul_plan()
+        assert p['new_build_mw_continuous'] == pytest.approx(1_278.0)
+        assert p['new_build_mw_discrete'] == pytest.approx(1_422.0)
+        assert p['new_build_units'] == 6
+
+    def test_the_four_oldest_plants_are_flagged_for_overhaul(self):
+        """Gordonsville 1994, Elizabeth River 1992, Darbytown 1990, Gravel Neck 1989 -- all
+        'near/beyond nominal 30-45yr CT life' per the POOL annotations, and all needing capital
+        work rather than simply being retained."""
+        p = _solver(2045).retain_and_overhaul_plan()
+        assert set(p['needing_overhaul']) == {'Gordonsville', 'Elizabeth River', 'Darbytown',
+                                              'Gravel Neck'}
+
+    def test_cum_mw_includes_newbuild_which_reads_as_an_inconsistency(self):
+        """select_overhaul_retain's cum_mw is TOTAL delivered capacity, not the selected plants:
+        2,862 MW of plant is reported as 4,284. That looks wrong until the newbuild term is
+        noticed, which is why the plan reports the components separately."""
+        import driver as drv
+        r = drv.select_overhaul_retain(4_140.0)
+        assert sum(x[1] for x in r['selected']) == pytest.approx(2_862.0)
+        assert r['cum_mw'] == pytest.approx(4_284.0)

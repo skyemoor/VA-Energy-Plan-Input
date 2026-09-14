@@ -67,8 +67,23 @@ def solve_checkpoint(year, weather, prior, irm):
     result['year'] = year
 
     gas_mwh = float(result.get('gas_mwh', 0.0))
-    if not gas_mwh and 'hourly' in result and 'g' in result['hourly']:
-        gas_mwh = float(np.sum(result['hourly']['g']))
+    g_hourly = None
+    if 'hourly' in result and 'g' in result['hourly']:
+        g_hourly = np.asarray(result['hourly']['g'], dtype=float)
+        if not gas_mwh:
+            gas_mwh = float(g_hourly.sum())
+
+    # TIER 1 AND 2 per Appendix P.2 §9, on the same per-year basis as the Scenario 2 runner, so the
+    # two scenarios' societal costs are comparable. Computed from THIS year's actual hourly gas
+    # dispatch, because the NOx blend depends on the existing/new MW split at this dispatch level.
+    tiers = {}
+    if g_hourly is not None:
+        t = tier123.compute_year(year, g_hourly, drv.schedule_b_baseline_mw(year),
+                                 assumptions.GAS_NEW_BUILD_POOL_MW)
+        tiers = {'virginia_scc_usd': float(t['social_cost_of_carbon']),
+                 'social_cost_ghg_usd': float(t['social_cost_of_ghg']),
+                 'health_impacts_usd': float(t['health_impacts_cost']),
+                 'co2_tons': float(t['co2_tons'])}
 
     # New CT beyond the inherited cap, costed externally. Zero before 2045, where 1B's capacity is
     # Scenario 1's.
@@ -94,6 +109,7 @@ def solve_checkpoint(year, weather, prior, irm):
         'unserved_mwh': float(result.get('unserved_mwh', 0.0)),
         'seconds': round(time.time() - t0, 1),
     }
+    row.update(tiers)
     return row, result
 
 
@@ -142,8 +158,35 @@ def main():
         print('  Still far below the ceiling -- the binding constraint is not the RPS percentage.',
               flush=True)
 
-    # Tier 1/2 at the final checkpoint, on the same per-year basis as the Scenario 2 runner.
-    _, result = rows[-1], None
+    # Retain/overhaul plan at the final checkpoint -- which plants the 6,000 MW target implies
+    # keeping, which need overhaul, and how much genuinely new capacity is left over.
+    w2 = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
+    d2 = demand_basis.VirginiaOnlyLoad(CHECKPOINTS[-1]).hourly_mw()
+    plan = cs.Scenario1BWithReserveMargin(
+        year=CHECKPOINTS[-1], demand=d2,
+        exist_solar=lp.exist_solar_mw(CHECKPOINTS[-1]) * w2['solar'],
+        solar_cf=w2['solar'], wind_cf=w2['wind'],
+        nuclear=w2['nuclear']).retain_and_overhaul_plan()
+    if plan:
+        print(f'\nretain / overhaul plan at {CHECKPOINTS[-1]}:', flush=True)
+        print(f'  Schedule B survivors      {plan["schedule_b_survivors_mw"]:>8,.0f} MW', flush=True)
+        print(f'  retained from pool        {plan["retained_pool_mw"]:>8,.0f} MW  '
+              f'({len(plan["retained_plants"])} plants, {len(plan["needing_overhaul"])} needing '
+              f'overhaul)', flush=True)
+        print(f'  residual gap              {plan["residual_gap_mw"]:>8,.0f} MW  '
+              f'<- matches N.2\'s independently-swept {plan["new_build_mw_continuous"]:,.0f} MW',
+              flush=True)
+        print(f'  new build, discrete units {plan["new_build_mw_discrete"]:>8,.0f} MW  '
+              f'({plan["new_build_units"]} F-Class -- 237 MW each overshoots by '
+              f'{plan["new_build_mw_discrete"] - plan["residual_gap_mw"]:,.0f} MW)', flush=True)
+        print(f'  overhaul ${plan["overhaul_annual_cost_usd"]/1e6:,.1f}M/yr, '
+              f'new build ${plan["newbuild_annual_cost_usd"]/1e6:,.1f}M/yr', flush=True)
+
+    if 'social_cost_ghg_usd' in final:
+        print(f'\nsocial cost at 2045: SC-GHG ${final["social_cost_ghg_usd"]/1e9:.3f}B   '
+              f'Virginia SCC ${final["virginia_scc_usd"]/1e9:.3f}B   '
+              f'health ${final["health_impacts_usd"]/1e9:.3f}B', flush=True)
+
     print(f'\nnew simple-cycle CT at 2045: {final["new_ct_mw"]:,.0f} MW, '
           f'${final["new_ct_capex_usd"]/1e9:.2f}B capital, '
           f'${final["new_ct_annualised_usd"]/1e9:.3f}B/yr annualised', flush=True)
@@ -157,7 +200,8 @@ def main():
                    'gas_capacity_mw': assumptions.SCENARIO_1B_GAS_CAPACITY_MW,
                    'new_ct_mw': assumptions.SCENARIO_1B_NEW_CT_MW,
                    'new_ct_capex_kw': assumptions.SCENARIO_1B_NEW_CT_CAPEX_KW,
-                   'solar_increment_2044_to_2045_mw': increment}, f, indent=2)
+                   'solar_increment_2044_to_2045_mw': increment,
+                   'retain_overhaul_plan': plan}, f, indent=2)
     print(f'\nWrote {path}', flush=True)
 
 

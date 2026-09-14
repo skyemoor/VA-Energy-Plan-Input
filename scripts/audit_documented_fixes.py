@@ -394,6 +394,56 @@ def check_modules_import_what_they_reference():
     return True, 'every module imports the sibling modules it references'
 
 
+
+#: Driver functions with no caller outside driver.py, each with a stated reason. A function that is
+#: dormant BY DESIGN is fine; one that is dormant by accident is the build-document-never-wire
+#: pattern at function granularity, which the module-level orphan check cannot see.
+DORMANT_BY_DESIGN = {
+    'add_reserve_margin_constraint': 'peak-hour reserve; reached only by PeakHourReserveMarginMixin, '
+                                     'retained for A/B against the all-hours standard',
+    'find_hour_of_maximum_net_demand': 'same -- peak-hour path only',
+    'run_solve_multi_duration': 'discrete 4/6/8hr storage variant; lacks prior_* so it cannot chain '
+                                'across checkpoints. Documented as such at the definition',
+    'select_overhaul_retain': 'gas retain/overhaul selector; wired into Scenario 1B 2026-09-14',
+}
+
+
+def check_no_dormant_driver_functions():
+    """Public driver functions with no external caller must be listed as dormant by design.
+
+    THE MODULE-LEVEL ORPHAN CHECK CANNOT SEE THIS. driver.py is imported everywhere, so it is never
+    orphaned -- but individual functions inside it can be, and four were found that way on
+    2026-09-14: two correctly dormant (the peak-hour reserve path, superseded by all-hours), one
+    drifted so far it could no longer chain across checkpoints, and one -- select_overhaul_retain --
+    that was real, sourced machinery nobody had connected.
+    """
+    import ast
+    import re
+    src = read('lp_package', 'driver.py')
+    if not src:
+        return False, 'driver.py not readable'
+    tree = ast.parse(src)
+    public = [f.name for f in tree.body
+              if isinstance(f, ast.FunctionDef) and not f.name.startswith('_')]
+    others = ([os.path.join('lp_package', f) for f in os.listdir(os.path.join(REPO, 'lp_package'))
+               if f.endswith('.py') and f != 'driver.py']
+              + [f for f in os.listdir(REPO) if f.endswith('.py')])
+    blob = ''
+    for rel in others:
+        blob += (read(rel) or '')
+    undocumented = []
+    for fn in public:
+        if re.search(rf'\b(?:drv|driver)\.{fn}\b', blob):
+            continue
+        if fn not in DORMANT_BY_DESIGN:
+            undocumented.append(fn)
+    if undocumented:
+        return False, ('driver function(s) with no external caller and no stated reason: '
+                       + ', '.join(sorted(undocumented))
+                       + '. Wire it in, or record why it is dormant in DORMANT_BY_DESIGN.')
+    return True, f'{len(public)} public driver functions, dormant ones all accounted for'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -457,6 +507,7 @@ CHECKS = [
     ('no conflicting duplicate constants (Rule 6)', check_no_conflicting_duplicate_constants),
     ('no orphaned modules (Rule 1)', check_no_orphaned_modules),
     ('modules import what they reference', check_modules_import_what_they_reference),
+    ('no undocumented dormant driver functions', check_no_dormant_driver_functions),
     ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 

@@ -103,7 +103,24 @@ NEWBUILD_UNITS = [
 ]
 
 def select_overhaul_retain(shortfall_mw):
-    """Youngest-first greedy: examine plants newest->oldest, stop once cumulative MW clears the shortfall."""
+    """Youngest-first greedy: examine plants newest->oldest, stop once cumulative MW clears the shortfall.
+
+    WIRED INTO SCENARIO 1B 2026-09-14, having had no caller since it was written. It independently
+    reproduces Appendix N.2's locked figure, which is a genuine cross-check between two pieces of
+    work that never met:
+
+        6,000 MW target  -  1,860 Schedule B survivors  -  2,862 POOL  =  1,278 MW residual
+        N.2's capacity sweep, by a completely different route:            1,278 MW new CT
+
+    `cum_mw` INCLUDES THE NEW BUILD, not just the selected plants -- it is the total capacity the
+    selection delivers. That reads as an inconsistency (2,862 of plant reported as 4,284) until the
+    newbuild term is noticed, so it is stated here.
+
+    DISCRETE UNITS OVERSHOOT. F-Class units are 237 MW, so a 1,278 MW residual takes six of them --
+    1,422 MW, 144 MW more than needed. N.2's sweep treated capacity as continuous and locked 1,278;
+    this selector is the buildable version of the same answer. Which to use depends on the question:
+    1,278 MW for the cost comparison N.2 ran, 1,422 MW if the point is what could actually be
+    procured."""
     selected = []
     cum = 0.0
     for name, mw, yr, needs_overhaul in POOL:
@@ -442,10 +459,24 @@ def run_solve_multi_duration(year, frac, demand, exist_solar, solar_cf, wind_cf,
     """Same as run_solve() but using build_problem_multi_duration -- discrete 4/6/8hr sodium products,
     all sharing the same NREL-derived per-unit costs (see na_power_energy_split). min_total_storage_mw
     applies to the SUM of power capacity across all duration classes (VCEA's short-duration mandate
-    doesn't care which specific duration class satisfies it, only that it's <10hr)."""
-    lp.SOLAR_CAPEX = lp.solar_capex(year)
-    lp.FE_ENERGY_CAPEX = lp.fe_capex_kwh(year)
-    lp.FE_RTE_CHARGE = lp.iron_air_rte(year)
+    doesn't care which specific duration class satisfies it, only that it's <10hr).
+
+    NOT "SAME AS run_solve()" ANY MORE -- it has drifted, and an audit on 2026-09-14 found no caller
+    anywhere. run_solve has since gained ten parameters this lacks: every prior_* linking argument
+    (so a multi-duration solve CANNOT be chained across checkpoints), reserve_margin_hint,
+    slcr_curt_cost and return_raw_result. It also rebuilt the capex constants by hand rather than
+    calling set_year_capex, leaving sodium cycle life and CAPEX_YEAR bound to whatever ran last --
+    fixed, but the parameter gap remains.
+
+    USE run_solve() UNLESS the discrete-duration formulation is specifically wanted. If it is
+    wanted for real work, the missing parameters must be added first: without prior_* it cannot
+    participate in any multi-checkpoint scenario, which is every scenario this project runs."""
+    # WAS A PARTIAL HAND-ROLLED REBIND, corrected 2026-09-14. These three lines set SOLAR_CAPEX,
+    # FE_ENERGY_CAPEX and FE_RTE_CHARGE but NOT NA_POWER_CAPEX, NA_ENERGY_CAPEX, NA_CYCLE_LIFE or
+    # CAPEX_YEAR -- so sodium capex and cycle life silently kept whatever year ran last, and
+    # CAPEX_YEAR reported a year this function had not actually bound. set_year_capex does all of
+    # them, and is the single source for this.
+    set_year_capex(year)
     problem = lp.build_problem_multi_duration(solar_cf, wind_cf, nuclear, exist_solar, demand, frac,
                                                 verbose=False, gas_price_mwh=lp.gas_cost_mwh(year, heat_rate=lp.SIMPLE_CYCLE_HEAT_RATE),
                                                 na_year=year, durations=durations)
