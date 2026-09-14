@@ -328,18 +328,6 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
     if apply_slcr:
         problem = apply_slcr_constraint(problem, frac, curt_cost=slcr_curt_cost)
 
-    if build_only:
-        # EVERY post-build step run_solve performs is now applied -- capacity cap, VCEA storage
-        # floors, the 6-hour minimum duration, reserve margin, SLCR. Returning here guarantees a
-        # caller assembling a multi-period problem gets EXACTLY what this function would have
-        # solved, rather than a reimplementation that can drift.
-        #
-        # ADDED 2026-09-14 after the perfect-foresight path, which called build_problem directly,
-        # produced 41,718 MWh of unserved energy at 2030 where the myopic solve had none. The cause
-        # was the VCEA storage floors and min_na_duration_hr=6.0, both applied HERE rather than in
-        # build_problem: without the duration floor the LP builds cheap power-only storage that
-        # cannot sustain a multi-hour evening.
-        return problem
     if min_na_power_mw is not None:
         # PNA_ is variable index 1, expressed in GW-equivalent units (BUILD_SCALE=1000).
         # Na battery is the short-duration (4-hr reference) resource here -- VCEA's short-duration
@@ -406,6 +394,21 @@ def run_solve(year, frac, demand, exist_solar, solar_cf, wind_cf, nuclear, capac
             wind_cf_at_peak, solar_cf_at_peak, IRM=IRM,
             distributed_solar_cf_at_peak=dist_solar_cf_at_peak,
             distributed_reserve_margin_credit_fraction=distributed_reserve_margin_credit_fraction)
+    if build_only:
+        # RETURNS THE PROBLEM EXACTLY AS IT WOULD BE SOLVED -- after the capacity cap, the VCEA
+        # storage floors, min_na_duration_hr, the reserve margin and SLCR. Placed IMMEDIATELY
+        # before the solve so that stays true no matter what is added above it.
+        #
+        # ADDED 2026-09-14 because the perfect-foresight path called build_problem directly and
+        # produced 41,718 MWh of unserved energy at 2030 where the myopic solve had none.
+        #
+        # AND PLACED WRONG FIRST TIME: the initial version returned straight after
+        # apply_slcr_constraint, which sits BEFORE the VCEA floor block -- so the floors it was
+        # written to deliver were still skipped, the NA power lower bound came back 0.0 against the
+        # 4,000 MW the statute requires, and 2030 still came back with 39,682 MWh unserved. The
+        # comment claimed the floors were applied; only the code decides that.
+        return problem
+
     res = lp.solve_problem(problem)
     IDX = problem['IDX']; hv_params = problem['hv_params']; T = problem['T']
     NVAR_BUILD, NVAR_PER_HOUR = hv_params
