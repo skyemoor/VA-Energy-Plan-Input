@@ -210,3 +210,43 @@ def add_all_hours_reserve_margin_constraint(problem, nuclear, wind_cf, exist_sol
     new_problem['bounds'] = bounds_full
     new_problem['_reserve_var_offset'] = NVAR
     return new_problem
+
+
+def margin_shortfall_hours(problem, x, nuclear, wind_cf, exist_solar, solar_cf, built_solar_mw,
+                           na_power_mw, fe_power_mw, gas_ceiling_mw, demand, bath_mw=None,
+                           irm=None):
+    """Hours where available capacity falls short of (1 + irm) x demand, given a solved dispatch.
+
+    A READ-ONLY CROSS-CHECK (Rule 4), not a substitute for the constraint. Against a solve that HAD
+    the constraint applied it should return empty; against one that did not, it reports how far
+    short the dispatch actually was, and in which hours.
+
+    WHY IT MATTERS BEYOND CHECKING. When a pinned-build year comes back INFEASIBLE -- which is how
+    an inadequate interpolated build announces itself in the annual stream -- the solver says only
+    "infeasible". This says which hours and by how much, which is the difference between a finding
+    and a dead end.
+
+    STORAGE CONTRIBUTES min(rated_power, soc[t]) -- the "actually available" standard, not rated
+    power assumed full. A battery at 10% charge cannot deliver its nameplate.
+
+    PORTED 2026-09-14 from scenario2_all_hours_reserve.py, which was deleted. THE ORIGINAL OMITTED
+    BATH -- the same gap the constraint itself had until the day before -- so a shortfall it
+    reported was overstated by whatever Bath could have delivered. Bath is included here, defaulting
+    to the model's BATH_MW.
+    """
+    IDX = problem['IDX']
+    _, NPH = problem['hv_params']
+    bath_mw = BATH_MW if bath_mw is None else bath_mw
+    irm = _DEFAULT_IRM if irm is None else irm
+    short = []
+    for t in range(len(demand)):
+        nsoc = x[t * NPH + IDX['nsoc']]
+        fsoc = x[t * NPH + IDX['fsoc']]
+        bsoc = x[t * NPH + IDX['bsoc']] if 'bsoc' in IDX else 0.0
+        avail = (nuclear[t] + gas_ceiling_mw + CVOW_MW * wind_cf[t] + exist_solar[t]
+                 + built_solar_mw * solar_cf[t]
+                 + min(na_power_mw, nsoc) + min(fe_power_mw, fsoc) + min(bath_mw, bsoc))
+        need = (1.0 + irm) * demand[t]
+        if avail < need:
+            short.append((t, need - avail))
+    return short

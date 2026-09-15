@@ -68,10 +68,11 @@ def _cycling_costs() -> Dict[str, float]:
     return {
         'sodium_ion': (lp.NA_ENERGY_CAPEX * 1000) / (lp.NA_CYCLE_LIFE * (1.0 - lp.NA_DOD_FLOOR)),
         'iron_air': (lp.FE_ENERGY_CAPEX * 1000) / (lp.FE_CYCLE_LIFE * lp.FE_DOD),
-        # Bath's $7.50/MWh is a literal in build_problem, sourced to DOE/PNNL (Mongird et al. 2020)
-        # PSH-specific RTE-loss cost at 80% RTE. Mirrored here rather than imported because it is
-        # not a module-level constant there; the cross-check below asserts they agree.
-        'bath_pumped_hydro': 7.50,
+        # Bath's DOE/PNNL (Mongird et al. 2020) PSH-specific RTE-loss cost at 80% RTE. Read from
+        # assumptions since 2026-09-14 -- it was previously mirrored here as a literal because it
+        # was a literal in build_problem too, which meant two copies of a sourced figure free to
+        # drift apart.
+        'bath_pumped_hydro': assumptions.BATH_DISCHARGE_COST_MWH,
     }
 
 
@@ -192,10 +193,9 @@ def cross_check_bath_cycling_cost():
     import inspect
     import lp_model as lp
     src = inspect.getsource(lp.build_problem)
-    expected = _cycling_costs()['bath_pumped_hydro']
-    if f"c[hv(t,IDX['bd'])] = {expected}" not in src:
+    if "c[hv(t,IDX['bd'])] = BATH_DISCHARGE_COST_MWH" not in src:
         raise AssertionError(
-            f'Bath discharge cost in build_problem no longer matches {expected} as mirrored in '
-            'storage_resistor_threshold._cycling_costs(). The resistor threshold would be computed '
-            'from a stale figure.')
+            'build_problem no longer charges Bath discharge at BATH_DISCHARGE_COST_MWH. The '
+            'resistor threshold is computed from that constant, so a divergence here would compute '
+            'it from a figure the model does not use.')
     return True

@@ -193,14 +193,25 @@ class TestScenario2BathWiring:
         code = [ln for ln in src.split('\n') if not ln.strip().startswith('#')]
         assert '\n'.join(code).count('BATH_M') == 5      # 3 x BATH_MW, 2 x BATH_MWH
 
-    def test_scenario2s_own_reserve_module_is_marked_superseded(self):
-        """It holds TWO reserve variables per hour where the generalised constraint holds five, and
-        credits nothing for Bath -- the same gap all_hours_reserve had. Its stated justification
-        (a different problem shape) no longer holds: measured, build_scenario2_problem and
-        build_dispatch_problem are both NVAR_BUILD=0, NPH=14, BUILD_SCALE=None with the same keys."""
-        import scenario2_all_hours_reserve as m
-        assert 'SUPERSEDED 2026-09-14' in m.__doc__
-        assert 'MISSING BATH' in m.__doc__
+    def test_scenario2s_own_reserve_module_is_gone(self):
+        """DELETED 2026-09-14. It held TWO reserve variables per hour where the generalised
+        constraint holds five, and credited nothing for Bath. Its stated justification -- a
+        different problem shape -- expired when all_hours_reserve was generalised: measured,
+        build_scenario2_problem and build_dispatch_problem are both NVAR_BUILD=0, NPH=14,
+        BUILD_SCALE=None with the same keys."""
+        import importlib
+        with pytest.raises(ModuleNotFoundError):
+            importlib.import_module('scenario2_all_hours_reserve')
+
+    def test_its_unique_diagnostic_was_ported_not_lost(self):
+        """It had TWO functions and only one was superseded. margin_shortfall_hours reports WHICH
+        hours fall short and by how much -- which is what turns an "infeasible" from the annual
+        stream into a finding rather than a dead end. Ported with Bath added, which the original
+        omitted."""
+        import all_hours_reserve as ahr
+        import inspect
+        assert hasattr(ahr, 'margin_shortfall_hours')
+        assert 'min(bath_mw, bsoc)' in inspect.getsource(ahr.margin_shortfall_hours)
 
     def test_the_slcoe_runner_calls_neither_reserve_module(self):
         """Scenario 2 has no reserve constraint by design, so nothing published depends on either

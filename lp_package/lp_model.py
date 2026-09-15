@@ -18,6 +18,9 @@ import assumptions  # noqa: E402
 from assumptions import (  # noqa: E402
     BATH_MW,
     BATH_MWH,
+    BATH_DISCHARGE_COST_MWH,
+    BATH_DISCHARGE_TOKEN_SCENARIO2_MWH,
+    INIT_SOC_FRAC,
     BATH_RTE_CHARGE,
     BUILD_YEAR,
     CCGT_CRF,
@@ -580,7 +583,7 @@ def _add_ses_aliases(index_map):
 
 
 def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_frac,
-                            S_mw, PNA_mw, ENA_mwh, EFE_mwh, init_soc_frac=0.5, verbose=True,
+                            S_mw, PNA_mw, ENA_mwh, EFE_mwh, init_soc_frac=INIT_SOC_FRAC, verbose=True,
                             gas_price_mwh=None, include_export=False):
     """
     Phase 2: dispatch-only cross-test. Build sizes (S_mw, PNA_mw, ENA_mwh, EFE_mwh) are FIXED constants
@@ -756,7 +759,7 @@ def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_
 def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
                               vcea_solar_mw, ccgt_mw, na_power_mw, na_duration_hr,
                               fe_power_mw, fe_duration_hr, gas_price_mwh, ccgt_vom_mwh,
-                              init_soc_frac=0.5, verbose=True):
+                              init_soc_frac=INIT_SOC_FRAC, verbose=True):
     """
     Scenario 2: dispatch-only, all capacities FIXED (no build variables, no RPS gas-percentage cap).
     Gas capped only by CCGT's hard MW nameplate. VCEA solar/wind target treated as solar-equivalent
@@ -946,7 +949,7 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
         # life figure exists for Bath (existing infrastructure, not a new-build decision), so this
         # is a disclosed, nominal token -- not a claimed "true" cycling cost -- sized similarly to
         # Na's own rate (~$5-6/MWh) purely to break the degeneracy, not to represent real economics.
-        c[hv(t,IDX['bd'])] = 100.0
+        c[hv(t,IDX['bd'])] = BATH_DISCHARGE_TOKEN_SCENARIO2_MWH
         # RAISED (this session, same entry, following the SoC-floor relaxation and direct KKT/
         # reduced-cost check): the SoC-floor relaxation (final SoC >= 50% rather than == 50%)
         # did NOT resolve Na's own simultaneous dispatch -- the LP still chose to land exactly on
@@ -975,7 +978,7 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
 
 
 def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_frac,
-                   init_soc_frac=0.5, verbose=True, gas_price_mwh=None, include_export=False,
+                   init_soc_frac=INIT_SOC_FRAC, verbose=True, gas_price_mwh=None, include_export=False,
                    export_price_mwh=37.80,
                    prior_solar_mw=0.0, prior_na_power_mw=0.0, prior_na_energy_mwh=0.0,
                    prior_ironair_energy_mwh=0.0,
@@ -1634,7 +1637,7 @@ def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_f
         # matching this model's own BATH_RTE_CHARGE exactly. Directly addresses the residual simultaneous
         # charge/discharge Bath was still showing (Na and iron-air already went to zero once given a real
         # discharge-side cost; Bath was the only type left without one).
-        c[hv(t,IDX['bd'])] = 7.50
+        c[hv(t,IDX['bd'])] = BATH_DISCHARGE_COST_MWH
 
         # NEW (2026-09-09): distributed segment. Inert (contributes 0) when enable_distributed_segment=
         # False, since the corresponding decision variables are all pinned to (0, 0) by the bounds above

@@ -226,6 +226,37 @@ STOR_FOM_PCT = 0.025   # %/yr of capex
 BATH_MW = 1808.0
 BATH_MWH = 14464.0
 
+#: Bath discharge cost in build_problem, $/MWh. SOURCED: DOE/PNNL (Mongird et al. 2020) PSH-specific
+#: RTE-loss cost computed at 80% RTE, matching BATH_RTE_CHARGE exactly. Added to address residual
+#: simultaneous charge/discharge that Bath alone was still showing once Na and iron-air had real
+#: discharge-side costs.
+#:
+#: IT SETS BATH'S STORAGE-RESISTOR THRESHOLD, which is why it matters beyond dispatch:
+#: 7.50 x 0.80/0.20 = $30.00/MWh, the binding cap on what curtailment can be priced at across the
+#: whole model. See storage_resistor_threshold.py.
+BATH_DISCHARGE_COST_MWH = 7.50
+
+#: Bath discharge cost in build_scenario2_problem, $/MWh. A DISCLOSED NOMINAL TOKEN, not a cost.
+#:
+#: Scenario 2 lacks the cycling-cost machinery build_problem has, so it needs its own term to break
+#: dispatch degeneracy. No sourced capex or cycle-life figure exists for Bath -- it is existing
+#: infrastructure, not a new-build decision -- so this represents no real economics. It was raised to
+#: 100.0 after a KKT/reduced-cost check, having originally been sized near Na's ~$5-6/MWh rate.
+#:
+#: DELIBERATELY DIFFERENT FROM BATH_DISCHARGE_COST_MWH, which is sourced. Two names rather than one
+#: because they are different quantities serving different purposes, and merging them would either
+#: import a token into build_problem or a sourced cost into a degeneracy-breaker.
+#:
+#: A SIDE EFFECT WORTH KNOWING: at 100.0 Bath's resistor threshold in Scenario 2 is $400/MWh rather
+#: than $30, so Scenario 2 is far from the curtailment-pricing constraint that binds elsewhere.
+BATH_DISCHARGE_TOKEN_SCENARIO2_MWH = 100.0
+
+#: Storage state of charge at hour 0, as a fraction of energy capacity. Applies to Bath, sodium-ion
+#: and iron-air alike. Half-full is a neutral start for a cyclical year -- the final-hour SoC is
+#: constrained back to it -- but it is an ASSUMPTION rather than a measurement, and a year beginning
+#: at a different fill would dispatch differently in its first weeks.
+INIT_SOC_FRAC = 0.5
+
 #: Existing utility-scale batteries in Virginia, MW. EIA-860 (2025), all status OP:
 #: Scott Solar Farm 40.0, Dry Bridge Storage 20.0, Danville BESS 1 10.5, Martinsville BESS 10.1.
 #:

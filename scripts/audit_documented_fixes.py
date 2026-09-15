@@ -174,7 +174,6 @@ UNCALLED_BY_DESIGN = {
     'arlington_parking_lot_sqft.py':                 'siting derivation; result filed in assumptions',
     'fairfax_parking_lot_sqft.py':                   'siting derivation; result filed in assumptions',
     'fairfax_ci_rooftop_solar_estimate.py':          'siting derivation; result filed in assumptions',
-    'scenario2_all_hours_reserve.py':                'opt-in reserve test; measured 0.00% cost, never binds',
 }
 
 
