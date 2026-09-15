@@ -489,45 +489,41 @@ Supplements the regional practice section above.
 ● **Washington State** — $10.7M across the 2024 and 2025 budgets for a dual-use
   pilot with grants and technical assistance.
 
-### Modelling tools examined, 2026-09-14 — and why none is usable yet
+### Modelling tools examined, 2026-09-14 — and why the shade term stays a citation
 
 **Ovaitt, S. and Mirletz, B.**, *NREL's Tools for AgriPV Modeling*,
-NREL/PR-5K00-90300. Describes three tools. The deck states that System Advisor
-Model offers AgriPV features — "spatial albedo variations as input,"
-"AgriPV-tailored modules... captured with transparency factor (%) input," and
-"easy yearly spatial ground output" — "also accessible through pySAM."
+NREL/PR-5K00-90300, describes System Advisor Model features that would let the
+shade term be modelled rather than cited: spatial albedo input, an AgriPV
+transparency factor, and "easy yearly spatial ground output."
 
-**Those features are not present in shipped SAM.** Checked 2026-09-14 against
-version 2026.7.3 on both Linux and Windows: none of the three appears in the
-user interface. The deck appears to describe development work rather than a
-released capability. **This is recorded as a checked negative** so it is not
-rediscovered; the SAM route is closed until NREL ships it.
+**Nothing is labelled "AgriPV" in shipped SAM 2026.7.3** on either Linux or
+Windows — but **the underlying capability is there**. The Detailed PV model
+accepts transmission fraction, bifaciality and ground clearance height, and
+reports both **irradiance incident on the ground within the array** and
+irradiance absorbed by the ground. Incident ground irradiance against the same
+site's unshaded global horizontal is the shade fraction, and it depends on array
+geometry rather than on any particular module, so it could be computed for this
+project's own row pitch and clearance on Virginia irradiance files.
 
-**bifacial_radiance** is the more capable tool for the question in any case —
-a validated backward ray-tracer computing irradiance at any point in the scene,
-with customisation of albedo, tilt, pitch, clearance height and module spacing,
-support for partial module transparency, and validation against a 75 kW
-single-axis tracker field. Package version 0.5.3 installs cleanly. **It requires
-the RADIANCE binaries**, which are a separate compiled distribution and are not
-available in this project's environment.
+**It is deliberately not being done.** Two runs — conventional tracking at
+5.9 acres/MW and reinforced mount at 9.8 — would yield two numbers to check
+against the literature's 30–40% pasture band. That is a worthwhile exercise and
+it is out of scope here: this analysis asks whether Virginia can meet its
+statutory targets and at what cost, not what fraction of light reaches a
+pasture. **The shade term rests on the cited field results**, which is what the
+limitations below record.
 
-**The narrow use, if either becomes available.** Not a pipeline change: the
-generation profiles are already PySAM PVWatts, validated, and feeding
-everything. What is needed is **two numbers** — a ground irradiance fraction for
-sheep-height conventional tracking and one for cattle-height reinforced mounting
-at its wider row pitch. Those are per-configuration constants, not hourly
-series, so a one-off run suffices. They would then meet the shade thresholds the
-literature already gives: Oregon State's 30–40% band for pasture, and the Purdue
-spatiotemporal shadow work for crops.
+**The bifacial energy pathway is separately immaterial** and was examined and set
+aside: rear-side radiation before losses is under 2%, and the detailed module
+inputs are available only for specific panels from two manufacturers. Modelling
+it would represent a particular product rather than Virginia's fleet, for an
+effect too small to move any result here.
 
-**Why it matters.** Every acreage, shade and yield figure in this appendix is a
-**stated assumption or a borrowed field result**, applied to Virginia by
-analogy — Indiana corn, Oregon pasture, New York grazing. A ground irradiance
-fraction computed on Virginia irradiance at our own row geometry would convert
-the shade term from an assumption into a modelled quantity. It would not resolve
-the agronomy, which still requires a crop model: Purdue needed APSIM alongside
-their shadow model, and the shade distribution is an input to yield, not an
-answer.
+**bifacial_radiance** — NREL's validated backward ray-tracer, computing
+irradiance at any point in a scene — installs cleanly at version 0.5.3 but
+requires the RADIANCE binaries, a separate compiled distribution not available
+in this project's environment. Recorded for completeness; the scope decision
+above applies regardless.
 
 ### Still to read
 
