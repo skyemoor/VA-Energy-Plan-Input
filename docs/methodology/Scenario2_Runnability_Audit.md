@@ -17,9 +17,13 @@
 > **Demand has roughly doubled since the VCEA was written, while the statutory MW targets did not
 > change.** The statutory build was sized against a much smaller system.
 >
-> **This falls far below the 75–100% sweep range.** The baseline cannot be plotted on that axis as
-> designed — the sweep must extend downward, or the chart must show Scenario 2 as an off-scale
-> reference. That is a structural consequence for the restructuring, not a detail.
+> **This fell far below the sweep range as originally designed.** The baseline could not be plotted
+> on a 75–100% axis — either the sweep extended downward, or the chart showed Scenario 2 as an
+> off-scale reference.
+>
+> **Resolved: the sweep runs 35–100%.** Extending the lower bound puts Scenario 2 **on** the curve
+> rather than beside it, which is what lets "what does the statutory minimum buy, and what would
+> more buy" read as one comparison instead of two claims. Density still concentrates at the top.
 
 **Original audit, 2026-09-13.** Scenario 2 is the whitepaper's **baseline** — Dominion's approach of building only
 the solar and storage assets named in the Code. Before it can be plotted as the reference point on

@@ -121,11 +121,19 @@ area. Every Scenario 3 capacity figure depends on it.
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Compliance sweep, 75–100% | **not started** | S1 step 2 |
+| 1 | Compliance sweep, 35–100% | **not started** | S1 step 2 |
 | 2 | Gas price band across the sweep | **not started** | sweep |
 | 3 | Siting overlay (utility / 20% distributed / 85% agrivoltaic) | **not started** | #14, S3 |
 | 4 | Data-centre demand axis | **not started** | deferred by decision |
 | 5 | Final chart: annualised cost vs compliance level | **not started** | all of the above |
+
+**The sweep runs to 35%, not 75%.** Scenario 2 achieves **34.7%** clean at 2045, so a sweep stopping
+at 75% would leave the reference case off its own axis — plotted as a detached point with nothing
+to read it against. Extending the lower bound puts Scenario 2 **on** the curve, which is what makes
+"what does the statutory minimum buy, and what would more buy" a single readable comparison rather
+than two separate claims.
+
+Density still concentrates at the top: 100, 95, 90, 85, 80, 75, then coarser steps down to 35.
 
 ---
 
