@@ -189,6 +189,28 @@ BATH_MWH = 24000.0
 #: idealised one. Nothing is added to 2026 beyond what is already built or permitted with
 #: interconnection.
 EXISTING_BATTERY_MW = 80.6
+
+#: Storage assumed present at the 2026 interpolation anchor, MW. NOT A PHYSICAL FIGURE.
+#:
+#: MEASURED 2026-09-14: a 2026 holding the actual 80.6 MW is INFEASIBLE against a 17.7% all-hours
+#: reserve margin, as are 250, 500 and 750 MW. 1,000 MW is feasible. The threshold sits between 750
+#: and 1,000.
+#:
+#: WHY THE MODEL SAYS SHORT WHERE VIRGINIA IS NOT. Two boundaries, both deliberate elsewhere and
+#: both binding here:
+#:
+#:   NO IMPORTS. Virginia is inside PJM and imports freely; this model serves the DOM zone from its
+#:   own resources. In a year before much has been built, that is the whole difference.
+#:
+#:   THE MARGIN IS HOURLY. IRM is a PLANNING standard evaluated at peak, not an operating
+#:   requirement in all 8,760 hours. Holding it every hour is stricter than PJM asks of anyone --
+#:   stated where the all-hours constraint is defined, and it bites hardest at the thinnest year.
+#:
+#: So this is a MODELLING-STRUCTURE FIGURE, not a claim that Virginia needs 1,000 MW of batteries in
+#: 2026. It exists so 2026 can anchor the interpolation for 2027-2029. It affects only the anchor:
+#: 2030 onward carry their own solved builds, and a sensitivity at 750 or 1,250 MW would move the
+#: first four years' dispatch and nothing else.
+SCENARIO1_ANCHOR_STORAGE_MW = 1000.0
 BATH_RTE_CHARGE = 0.80
 NA_RTE_CHARGE = 0.90
 NA_CYCLE_LIFE = 15000   # default/fallback; driver.set_year_capex() overrides per checkpoint year

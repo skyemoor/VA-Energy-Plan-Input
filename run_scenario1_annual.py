@@ -175,16 +175,34 @@ def main():
             f'--irm {args.irm} against {saved["irm"]} in {args.checkpoints}. The interpolated years '
             'must hold the same margin as the checkpoints they interpolate between.')
 
-    # 2026 ZERO-BUILD VIRTUAL CHECKPOINT -- see the module docstring. Without it 2026-2029 have no
-    # earlier anchor and would have to extrapolate backwards from 2030.
-    anchors = {FIRST_YEAR: {k: 0.0 for k in BUILD_KEYS}}
+    # 2026 VIRTUAL CHECKPOINT. Without it 2026-2029 have no earlier anchor and would have to
+    # extrapolate backwards from 2030.
+    #
+    # IT IS NOT ZERO-BUILD, and the first version was. Zero storage makes 2026 INFEASIBLE against
+    # the 17.7% all-hours reserve margin, as do the actual 80.6 MW of existing batteries and every
+    # level up to 750 MW. That is not a Virginia shortfall: it is two model boundaries meeting at
+    # the thinnest year -- no imports, in a state that sits inside PJM and imports freely, and an
+    # HOURLY margin where IRM is a planning standard evaluated at peak. See
+    # assumptions.SCENARIO1_ANCHOR_STORAGE_MW.
+    #
+    # Solar stays at zero: existing solar is passed separately as exist_solar (5,300 MW at 2026),
+    # so the anchor's solar figure is NEW build beyond it, which is genuinely nil.
+    anchors = {FIRST_YEAR: {
+        'solar_mw_total': 0.0,
+        'na_power_mw': assumptions.SCENARIO1_ANCHOR_STORAGE_MW,
+        'na_energy_mwh': assumptions.SCENARIO1_ANCHOR_STORAGE_MW * 6.0,
+        'fe_energy_mwh': 0.0,
+    }}
     anchors.update({y: {k: r[k] for k in BUILD_KEYS} for y, r in solved.items()})
 
     weather = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
     print(f'Scenario 1 annual stream {FIRST_YEAR}-{FINAL_YEAR}', flush=True)
     print(f'  checkpoints from {args.checkpoints}: {sorted(solved)}', flush=True)
-    print(f'  {FIRST_YEAR} anchored at zero build; {len(range(FIRST_YEAR, FINAL_YEAR + 1)) - len(solved)}'
-          ' years interpolated and dispatch-solved\n', flush=True)
+    print(f'  {FIRST_YEAR} anchored at {assumptions.SCENARIO1_ANCHOR_STORAGE_MW:,.0f} MW storage, '
+          'zero new solar -- a modelling-structure figure, not a physical one; the actual fleet is '
+          f'{assumptions.EXISTING_BATTERY_MW:,.1f} MW', flush=True)
+    print(f'  {len(range(FIRST_YEAR, FINAL_YEAR + 1)) - len(solved)} years interpolated and '
+          'dispatch-solved\n', flush=True)
     print(f'{"year":<6}{"":>3}{"clean":>8}{"statutory":>11}{"solar":>12}{"curt TWh":>10}'
           f'{"obj $B":>9}', flush=True)
 

@@ -41,9 +41,9 @@ class TestInterpolation:
         for year, build in CHECKPOINTS.items():
             assert ann.interpolate_build(year, anchors)['solar_mw_total'] == build['solar_mw_total']
 
-    def test_2026_is_a_zero_build_virtual_checkpoint(self, anchors):
-        """The first real checkpoint is 2030, so 2026-2029 have no earlier pair. Anchoring at zero
-        gives them one, and matches Scenario 1's build genuinely starting from the existing fleet."""
+    def test_2026_carries_no_new_solar(self, anchors):
+        """Existing solar is passed separately as exist_solar -- 5,300 MW at 2026 -- so the anchor's
+        solar figure is NEW build beyond it, which is genuinely nil."""
         assert ann.interpolate_build(2026, anchors)['solar_mw_total'] == 0.0
 
     def test_it_interpolates_between_the_NEAREST_pair(self, anchors):
@@ -127,3 +127,62 @@ class TestBothShareBasesAndTheOmission:
     def test_an_irm_mismatch_against_the_checkpoints_raises(self):
         """The interpolated years must hold the same margin as the checkpoints they sit between."""
         assert 'must hold the same margin' in inspect.getsource(ann.main)
+
+
+class TestThe2026Anchor:
+    """IT IS NOT ZERO-BUILD, and the first version was.
+
+    MEASURED 2026-09-14: 2026 is INFEASIBLE against the 17.7% all-hours reserve margin at zero
+    storage, at the actual 80.6 MW of existing batteries, and at 250, 500 and 750 MW. 1,000 MW is
+    feasible. The threshold sits between 750 and 1,000."""
+
+    def test_the_anchor_storage_is_a_named_assumption(self):
+        import assumptions
+        assert assumptions.SCENARIO1_ANCHOR_STORAGE_MW == 1000.0
+
+    def test_it_is_labelled_as_a_modelling_figure_not_a_physical_one(self):
+        """It is not a claim that Virginia needs 1,000 MW of batteries in 2026."""
+        import inspect
+        import re
+        src = re.sub(r'\s*\n\s*#?:?\s*', ' ', inspect.getsource(__import__('assumptions')))
+        assert 'NOT A PHYSICAL FIGURE' in src
+        assert 'MODELLING-STRUCTURE FIGURE' in src
+
+    def test_both_model_boundaries_are_named(self):
+        """The model says short where Virginia is not, for two reasons that are deliberate
+        elsewhere and bind here: no imports, in a state inside PJM that imports freely; and an
+        HOURLY margin where IRM is a planning standard evaluated at peak."""
+        import inspect
+        import re
+        src = re.sub(r'\s*\n\s*#?:?\s*', ' ', inspect.getsource(__import__('assumptions')))
+        assert 'NO IMPORTS' in src
+        assert 'THE MARGIN IS HOURLY' in src
+
+    def test_the_actual_fleet_is_recorded_alongside_it(self):
+        """80.6 MW from EIA-860, so the gap between the modelling figure and reality is visible
+        rather than buried."""
+        import assumptions
+        assert assumptions.EXISTING_BATTERY_MW == 80.6
+        assert assumptions.SCENARIO1_ANCHOR_STORAGE_MW > assumptions.EXISTING_BATTERY_MW
+
+    def test_it_affects_only_the_first_four_years(self):
+        """2030 onward carry their own solved builds, so a sensitivity at 750 or 1,250 MW would
+        move 2026-2029's dispatch and nothing else."""
+        import assumptions
+        a = {2026: {'solar_mw_total': 0.0,
+                    'na_power_mw': assumptions.SCENARIO1_ANCHOR_STORAGE_MW,
+                    'na_energy_mwh': assumptions.SCENARIO1_ANCHOR_STORAGE_MW * 6.0,
+                    'fe_energy_mwh': 0.0}}
+        a.update(CHECKPOINTS)
+        assert ann.interpolate_build(2030, a)['na_power_mw'] == CHECKPOINTS[2030]['na_power_mw']
+
+    def test_the_ramp_is_monotonic_from_the_anchor(self):
+        import assumptions
+        a = {2026: {'solar_mw_total': 0.0,
+                    'na_power_mw': assumptions.SCENARIO1_ANCHOR_STORAGE_MW,
+                    'na_energy_mwh': assumptions.SCENARIO1_ANCHOR_STORAGE_MW * 6.0,
+                    'fe_energy_mwh': 0.0}}
+        a.update(CHECKPOINTS)
+        vals = [ann.interpolate_build(y, a)['na_power_mw'] for y in range(2026, 2031)]
+        assert vals == sorted(vals)
+        assert vals[0] == 1000.0
