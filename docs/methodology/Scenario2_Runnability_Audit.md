@@ -27,6 +27,34 @@ the compliance sweep, it has to run. This records what was found tracing it.
 
 ---
 
+## Storage is built, paid for, and never operates
+
+**Measured at 2045: zero charge, zero discharge, zero curtailment** — sodium-ion, iron-air and Bath
+alike, in all 8,760 hours.
+
+**There is nothing to store.** Solar delivers 41.3 TWh against 202.2 TWh of demand, and
+solar-plus-nuclear exceeds demand in **14 hours of 8,760**. With 16,100 MW of solar against a
+29,000 MW peak, every kilowatt-hour it produces is consumed as it is made. Charging would mean
+burning gas at noon to discharge at 6pm and losing a tenth to round-trip efficiency — strictly worse
+than burning the same gas at 6pm.
+
+**The statutory mandates are mismatched.** § 56-585.5(E) requires 16,000 MW short-duration and
+4,000 MW long-duration storage; the paired solar target is far too small to fill it. That storage
+carries roughly **$3.4B/yr of annualised capital by 2045** and never cycles.
+
+### Two model boundaries push the same way
+
+**No imports** (P.2 §15) and **a flat annual gas price** (P.2 §16). Real MID-ATL/APS prices show a
+**$45.92 night-to-evening spread** — $41.75 at 00–05 against $87.67 at 16–20 — against a sodium-ion
+cycling cost of $5.43/MWh. On that spread storage is comfortably economic **with no surplus at all**.
+
+**So the idle storage is partly an artifact of the model offering it nothing to do.** The
+mandate-mismatch finding stands on the energy balance, which no price shape changes. The
+**$3.4B/yr of stranded capital does not stand alone** — it needs the caveat, because a model with
+unit commitment would have that storage earning against the spread.
+
+---
+
 ## It uses a different solve path entirely
 
 `Scenario2Solver.solve()` calls **`lp.build_scenario2_problem()`**, not `build_problem()`. It does
