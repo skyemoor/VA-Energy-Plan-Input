@@ -194,10 +194,26 @@ STOR_FOM_PCT = 0.025   # %/yr of capex
 #: figure for dispatch and for reserve margin is Dominion's SHARE, not the plant.
 #:
 #: CHANGED TO 1,808 ON 2026-09-14. The figure above records the plant-total reconciliation for
-#: reference; what the model uses is the 1,808 MW Dominion can actually dispatch. The 40% held by
-#: Allegheny Generating Company is not Dominion's to schedule, and crediting it would give the DOM
-#: zone capacity it does not control -- in dispatch bounds and, since the reserve-margin work
-#: earlier the same day, in capacity adequacy too.
+#: reference; what the model uses is the 1,808 MW Dominion can actually dispatch.
+#:
+#: OWNERSHIP. Dominion OPERATES the station but owns 60%. The 40% minority share has moved through
+#: mergers and now sits with FirstEnergy's Allegheny Generating Company and LS Power / Bath County
+#: Energy -- which is why the Annual Report footnote names only Allegheny while the current split is
+#: broader. Entitlements: Dominion ~1,802 MW, minority owners ~1,201 MW.
+#:
+#: IT IS AN ENTITLEMENT, NOT A TRANSMISSION LIMIT, and the distinction matters for how this
+#: constraint is justified. The station is fully integrated into PJM, and its output is dispatched
+#: against joint entitlements and regional reliability across several states. Dominion cannot
+#: unilaterally route or monopolise the plant -- but the binding limit is CONTRACTUAL, not a
+#: restriction imposed by AEP or any transmission owner. So 1,808 MW is the right bound for a DOM-
+#: zone LSE model for a reason that has nothing to do with wires.
+#:
+#: Crediting the full plant would give the DOM zone capacity it does not control -- in dispatch
+#: bounds and, since the reserve-margin work earlier the same day, in capacity adequacy too.
+#:
+#: Sources: Dominion 2024 Annual Report footnote (3); 2025 IRP Update Figure 3.1.1.1; Dominion's own
+#: Bath County Pumped Storage Station pages; FERC notice at 91 FR (2026-07124) naming Virginia
+#: Electric and Power Company, Allegheny Generating Company and the LS Power entity together.
 #:
 #: BATH_MWH FOLLOWS THE SAME SHARE, not a separate measurement: 24,000 x (1,808/3,000) = 14,464,
 #: preserving the 8-hour duration. An undivided interest is a share of the whole works -- reservoir,

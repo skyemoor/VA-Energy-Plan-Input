@@ -131,6 +131,31 @@ class TestBathIsDominionsShare:
         ahr_src = open(os.path.join(os.path.dirname(drv.__file__), 'all_hours_reserve.py')).read()
         assert 'rhs.append(BATH_MW)' in ahr_src
 
+    def test_the_ownership_split_is_recorded(self):
+        """Dominion operates but owns 60%. The 40% minority share has moved through mergers and now
+        sits with FirstEnergy's Allegheny Generating Company AND LS Power / Bath County Energy --
+        which is why the Annual Report footnote names only Allegheny while the current split is
+        broader. A reader checking that footnote alone would get an out-of-date picture."""
+        import os
+        import re
+        raw = open(os.path.join(os.path.dirname(drv.__file__), 'assumptions.py')).read()
+        src = re.sub(r'\n#:?\s*', ' ', raw)
+        assert 'LS Power' in src
+        assert 'FirstEnergy' in src
+
+    def test_it_is_recorded_as_an_entitlement_not_a_transmission_limit(self):
+        """THE DISTINCTION THAT MATTERS for how the bound is justified. Bath is fully integrated
+        into PJM and dispatched against joint entitlements and regional reliability, so Dominion
+        cannot monopolise it -- but the binding limit is CONTRACTUAL, not imposed by AEP or any
+        transmission owner. A reader assuming a wires constraint might expect it to relax with grid
+        upgrades. It would not."""
+        import os
+        import re
+        raw = open(os.path.join(os.path.dirname(drv.__file__), 'assumptions.py')).read()
+        src = re.sub(r'\n#:?\s*', ' ', raw)
+        assert 'ENTITLEMENT, NOT A TRANSMISSION LIMIT' in src
+        assert 'nothing to do with wires' in src
+
     def test_the_change_is_documented_with_both_sources(self):
         import os
         import re

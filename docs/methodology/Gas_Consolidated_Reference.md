@@ -208,6 +208,31 @@ Pumped Storage at the same **1,808 MW** net summer.
 
 3,003 × 0.60 = 1,802.
 
+### Ownership, and why the limit is contractual rather than physical
+
+**Dominion operates the station but owns 60%.** The 40% minority share has moved through mergers and
+now sits with **FirstEnergy's Allegheny Generating Company** and **LS Power / Bath County Energy** —
+which is why the Annual Report footnote names only Allegheny while the current split is broader.
+
+| | entitlement |
+|---|---:|
+| Dominion Energy (60%) | **~1,802 MW** |
+| Minority owners (40%) | ~1,201 MW |
+
+**The binding limit is an entitlement, not a transmission constraint**, and the distinction matters
+for how the model's bound is justified. Bath is fully integrated into PJM, and its output is
+dispatched against joint entitlements and regional reliability across several states — Dominion
+cannot unilaterally route or monopolise the plant. But **nothing about that is imposed by AEP or any
+transmission owner**: the limit is contractual.
+
+So 1,808 MW is the correct bound for a DOM-zone LSE model for a reason that has nothing to do with
+wires. A reader who assumed it was a transmission limit might expect it to relax with grid upgrades.
+It would not.
+
+**Sources:** Dominion 2024 Annual Report footnote (3); 2025 IRP Update Figure 3.1.1.1; Dominion's
+Bath County Pumped Storage Station pages; FERC notice 2026-07124 naming Virginia Electric and Power
+Company, Allegheny Generating Company and the LS Power entity together.
+
 **Changed 2026-09-14.** This model serves the DOM zone, so what matters is what Dominion can
 dispatch:
 
