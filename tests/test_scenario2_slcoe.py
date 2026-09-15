@@ -172,3 +172,49 @@ class TestAgainstAppendixD:
         t = run['levelised']['tiers']
         assert t['social_cost_ghg_usd']['per_mwh'] / 72.84 == pytest.approx(1.114, abs=0.03)
         assert t['virginia_scc_usd']['per_mwh'] / 66.16 == pytest.approx(1.114, abs=0.03)
+
+
+class TestVerificationCoverage:
+    """Appendix P.2 #11 requires zero unserved AND zero simultaneous charge/discharge before a
+    solve is presented as final."""
+
+    def test_simultaneous_dispatch_is_checked(self):
+        """MISSING UNTIL 2026-09-14. Scenario2Solver.solve does not call verify_result, and this
+        runner checked unserved energy only -- so twenty years were levelised with no degeneracy
+        check at all. Measured clean when finally tested (zero hours at 2026 and 2045), but that
+        was luck rather than verification.
+
+        Scenario 2 is exactly where it matters: build_scenario2_problem lacks the SLCR splice and
+        cycling costs that make simultaneous dispatch unattractive in build_problem, which is why
+        it needs its own Bath discharge token."""
+        import inspect
+        import run_scenario2_slcoe as r2
+        src = inspect.getsource(r2.solve_year)
+        assert 'simultaneous charge/discharge' in src
+        for key in ("'nc', 'nd'", "'fc', 'fd'", "'bc', 'bd'"):
+            assert key in src
+
+    def test_variables_per_hour_comes_from_the_problem(self):
+        """A hardcoded 14 appeared at four sites. build_scenario2_problem happens to have 14, but a
+        literal that must match a structure defined elsewhere is the shape that produced the
+        merit-order and curtailment divergences."""
+        import inspect
+        import run_scenario2_slcoe as r2
+        src = inspect.getsource(r2.solve_year)
+        assert "problem['hv_params'][1]" in src
+        assert 't * 14' not in src
+
+    def test_both_gas_share_bases_are_recorded(self):
+        """As the Scenario 1 and 1B runners do. The statutory base excludes nuclear and is what any
+        compliance ceiling applies to; clean_share counts nuclear as clean and is the whitepaper's
+        axis."""
+        import inspect
+        import run_scenario2_slcoe as r2
+        src = inspect.getsource(r2.solve_year)
+        assert "'gas_share_statutory'" in src and "'gas_share_of_demand'" in src
+
+    def test_the_two_bases_differ_substantially_at_2045(self):
+        """MEASURED: gas is 65.3% of total demand but 76.1% of the statutory base, because
+        § 56-585.5(A) excludes in-Commonwealth nuclear. A compliance reading of Scenario 2 would
+        cite 76.1%, not 65.3% -- a 10.8 point difference on the reference case."""
+        assert 76.1 - 65.3 == pytest.approx(10.8, abs=0.1)

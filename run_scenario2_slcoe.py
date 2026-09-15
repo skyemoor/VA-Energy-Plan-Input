@@ -74,8 +74,34 @@ def solve_year(year, weather, capex_basis):
     if not result['success']:
         raise RuntimeError(f'{year}: solve failed with status {result["status"]}')
 
-    x, IDX = result['raw'].x, result['problem']['IDX']
-    unserved = sum(x[t * 14 + IDX['unserved']] for t in range(len(demand)))
+    problem = result['problem']
+    x, IDX = result['raw'].x, problem['IDX']
+    # SIMULTANEOUS CHARGE/DISCHARGE, all three storage types. Appendix P.2 #11 requires this
+    # alongside the unserved check, and it was MISSING here until 2026-09-14: Scenario2Solver.solve
+    # does not call verify_result, and this runner only checked unserved energy -- so twenty years
+    # were levelised with no degeneracy check at all.
+    #
+    # The results were clean when finally measured (zero hours at 2026 and 2045), but that was luck
+    # rather than verification, and Scenario 2 is exactly where it matters: build_scenario2_problem
+    # lacks the SLCR splice and cycling costs that make simultaneous dispatch unattractive in
+    # build_problem, which is why it needs its own Bath discharge token in the first place.
+    # VARIABLES PER HOUR FROM THE PROBLEM, not a literal. This file used a hardcoded 14 at four
+    # sites; build_scenario2_problem happens to have 14, but a literal that must match a structure
+    # defined elsewhere is the shape that produced the merit-order and curtailment divergences.
+    nph = problem['hv_params'][1]
+    for charge_key, discharge_key, label in (('nc', 'nd', 'Na'), ('fc', 'fd', 'iron-air'),
+                                             ('bc', 'bd', 'Bath')):
+        if charge_key not in IDX or discharge_key not in IDX:
+            continue
+        ch = np.array([x[t * nph + IDX[charge_key]] for t in range(len(demand))])
+        di = np.array([x[t * nph + IDX[discharge_key]] for t in range(len(demand))])
+        n = int(np.sum((ch > 1e-6) & (di > 1e-6)))
+        if n:
+            raise RuntimeError(
+                f'{year}: {n} hours of simultaneous charge/discharge for {label} storage. '
+                'Appendix P.2 #11 requires zero before a solve is presented as final.')
+
+    unserved = sum(x[t * nph + IDX['unserved']] for t in range(len(demand)))
     if unserved > 1.0:
         # Appendix P.2 #11: verification before any solve is presented as final.
         raise RuntimeError(
@@ -83,21 +109,27 @@ def solve_year(year, weather, capex_basis):
             'and a year with unserved energy has failed verification -- its cost is not meaningful.')
 
     cost = solver.lifecycle_cost(ccgt_capex_basis=capex_basis)
-    gas_mwh = sum(x[t * 14 + IDX['g']] for t in range(len(demand)))
+    gas_mwh = sum(x[t * nph + IDX['g']] for t in range(len(demand)))
 
     # TIER 1 AND 2, per Appendix P.2 #9 -- which requires them "across all 20 years of a
     # scenario-solve, not from a subset of checkpoint years", the same full-window rule as #1.
     # Computed from THIS year's actual hourly gas dispatch, not from an annual total, because the
     # NOx blend depends on the existing/new MW split at this year's own dispatch level.
-    g_hourly = np.array([x[t * 14 + IDX['g']] for t in range(len(demand))])
+    g_hourly = np.array([x[t * nph + IDX['g']] for t in range(len(demand))])
     existing_mw, new_mw = drv.schedule_b_baseline_mw(year), assumptions.GAS_NEW_BUILD_POOL_MW
     tiers = tier123.compute_year(year, g_hourly, existing_mw, new_mw)
     return {
         'year': year,
         'demand_mwh': float(demand.sum()),
         'gas_mwh': float(gas_mwh),
+        # BOTH BASES, as the Scenario 1 and 1B runners report. gas_share_statutory is
+        # gas / (demand - nuclear), the § 56-585.5(A) base that EXCLUDES nuclear and that any
+        # compliance ceiling applies to; clean_share counts nuclear as clean and is the
+        # whitepaper's own compliance axis. They differ by 14 points at 2030.
         'clean_share': float(1.0 - gas_mwh / demand.sum()),
-        'peak_gas_mw': float(max(x[t * 14 + IDX['g']] for t in range(len(demand)))),
+        'gas_share_of_demand': float(gas_mwh / demand.sum()),
+        'gas_share_statutory': float(gas_mwh / (demand - weather['nuclear']).sum()),
+        'peak_gas_mw': float(max(x[t * nph + IDX['g']] for t in range(len(demand)))),
         'new_solar_mw': float(result['vcea_new_build_mw']),
         'na_power_mw': float(result['na_power_mw']),
         'fe_power_mw': float(result['fe_power_mw']),
