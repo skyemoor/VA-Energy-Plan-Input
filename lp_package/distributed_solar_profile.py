@@ -35,6 +35,40 @@ The gain lands in the three months where Virginia's peaks fall, where grid outag
 where wholesale price differentials are widest. The loss lands in June and July, which have the most
 surplus and the lowest marginal value.
 
+NO DOUBLE-COUNTING BETWEEN THE TWO STATUTORY TRANCHES — AN ASSUMPTION, NOT A STATUTORY READING
+
+Two provisions require small generation, and they overlap:
+
+    § 56-585.5(C)(2)   4.5%/5% of RPS from resources of 1 MW OR LESS -- an ENERGY obligation met
+                       with RECs, at least 25% low-income qualifying, remainder on or adjacent to
+                       public schools.
+    § 56-585.5(D)(2)   1,100 MW of the 16,100 MW at NO MORE THAN 3 MW per project, 65% third-party
+                       owned -- a CAPACITY procurement obligation.
+
+A 0.9 MW project satisfies both size limits. **The statute does not say whether one project may
+count toward both**, and this model assumes it MAY NOT: the two obligations are treated as
+additive, and the profile here serves C.2 only.
+
+WHY THAT DIRECTION. Assuming no double-counting builds more, not less, so it is conservative in the
+direction that matters for a whitepaper arguing the clean case is affordable -- it cannot be accused
+of understating what compliance requires. If the Commission permits a project to satisfy both, the
+combined obligation falls by up to 1,100 MW and every scenario's cost is slightly overstated.
+
+D.2's 1,100 MW TRANCHE IS NOT MODELLED HERE. It sits inside the 16,100 MW the scenarios already
+build, on the utility solar profile -- 22.52% capacity factor, consistent with single-axis tracking,
+which is the right assumption for commercially developed ground mount at 1-3 MW. Applying this
+module's fixed rooftop profile to it would understate its output by nearly half.
+
+NET METERING IS A COMPENSATION MECHANISM, NOT A REQUIREMENT, and appears nowhere in § 56-585.5. It
+determines what a distributed owner is PAID for exported energy, not how much distributed capacity
+must exist. So it does not change the MW this module sizes, and it is absent here by design: it
+belongs to Scenario 3's DER owner economics, where who builds and on what terms is the question.
+
+For the record, since it moves during the modelled period: the SCC's NEM 2.0 proceeding cuts the
+export credit for new Dominion customers from about $0.14/kWh to about $0.09553, or roughly $0.063
+if SRECs transfer to the utility. Customers interconnected before the order are grandfathered. That
+changes DER owner returns substantially and the system's energy balance not at all.
+
 NO PAIRED STORAGE. The DER expansion text sets no storage requirement or goal for distributed
 resources; the storage obligation rests with the utility under the separate mandate of
 § 56-585.5(E). Distributed storage appears in Scenario 3, which expands beyond the statutory

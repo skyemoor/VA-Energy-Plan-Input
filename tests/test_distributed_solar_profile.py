@@ -103,3 +103,55 @@ class TestMeasuredProfiles:
         should produce. A single site would vary more."""
         vals = list(self.MEASURED.values())
         assert (max(vals) - min(vals)) / min(vals) < 0.08
+
+
+class TestTheTwoStatutoryTranchesAreDistinct:
+    """C.2 and D.2 both require small generation and they overlap. Getting them confused would
+    either double-build or halve the obligation."""
+
+    def test_they_differ_in_every_dimension(self):
+        """C.2: 4.5%/5% of RPS, ENERGY, resources <=1 MW, met with RECs.
+        D.2: 1,100 MW of the 16,100, CAPACITY, projects <=3 MW, 65% third-party.
+
+        A 3 MW project counts toward D.2 and not toward C.2."""
+        assert 'ENERGY obligation' in dsp.__doc__
+        assert 'CAPACITY procurement obligation' in dsp.__doc__
+
+    def test_no_double_counting_is_an_assumption_not_a_reading(self):
+        """The statute does not say whether one project may satisfy both size limits. This model
+        assumes it may NOT, and says so -- a reviewer will ask, and 'the statute is silent' is a
+        better answer than an unexamined default."""
+        import re
+        doc = re.sub(r'\s+', ' ', dsp.__doc__)
+        assert 'AN ASSUMPTION, NOT A STATUTORY READING' in doc
+        assert 'does not say whether one project may count toward both' in doc
+
+    def test_the_direction_of_the_assumption_is_stated(self):
+        """Assuming no double-counting builds MORE, so it cannot be accused of understating what
+        compliance requires. If the Commission permits one project to satisfy both, the obligation
+        falls by up to 1,100 MW and every scenario's cost is slightly overstated."""
+        import re
+        assert 'conservative in the direction that matters' in re.sub(r'\s+', ' ', dsp.__doc__)
+
+    def test_d2s_tranche_is_explicitly_out_of_scope_here(self):
+        """It sits inside the 16,100 MW on the UTILITY profile -- 22.52% capacity factor,
+        consistent with single-axis tracking, right for commercially developed ground mount at
+        1-3 MW. Applying this module's fixed rooftop profile would understate it by nearly half."""
+        assert 'NOT MODELLED HERE' in dsp.__doc__
+        assert '22.52%' in dsp.__doc__
+
+
+class TestNetMeteringIsOutOfScope:
+    """NEM appears nowhere in § 56-585.5."""
+
+    def test_it_is_recorded_as_compensation_not_requirement(self):
+        """It determines what a distributed owner is PAID for exported energy, not how much
+        distributed capacity must exist -- so it does not change the MW this module sizes."""
+        assert 'COMPENSATION MECHANISM, NOT A REQUIREMENT' in dsp.__doc__
+
+    def test_the_nem_2_figures_are_recorded_since_they_move_in_period(self):
+        """Export credit for new Dominion customers falls from ~$0.14/kWh to ~$0.09553, or ~$0.063
+        with SREC transfer, with pre-order interconnections grandfathered. Large for DER owner
+        returns, nil for the system energy balance."""
+        assert '0.09553' in dsp.__doc__
+        assert 'grandfathered' in dsp.__doc__
