@@ -6748,3 +6748,86 @@ The last row is there because both were cited as corroboration during this work 
 VA_gas_capacity_schedules.md was re-read -- a document that had already dismissed them in those
 terms. The catalogue exists so the next reader does not repeat that.
 
+
+## 136. Scenario 2 re-run on the corrected Bath capacity -- a two-cent move that led somewhere
+
+**Run 2026-09-14** after BATH_MW moved to Dominion's 1,808 MW share. SLCOE $32.82 -> **$32.80/MWh**,
+capex band $32.30-$33.51, societal total $119.48/MWh.
+
+**Removing 1,192 MW of capacity moved the result by two cents**, which needed explaining rather than
+accepting. The explanation is that **Scenario 2's storage never operates**: zero charge, zero
+discharge and zero curtailment for sodium-ion, iron-air and Bath alike, in all 8,760 hours of 2045.
+The two cents come from reserve adequacy, not dispatch.
+
+**There is nothing to store.** Solar delivers 41.3 TWh against 202.2 TWh of demand, and solar plus
+nuclear exceeds demand in **14 hours of 8,760**. Charging would mean burning gas at midday to
+discharge in the evening and losing a tenth to round-trip efficiency -- strictly worse than burning
+the same gas in the evening.
+
+**I first suspected the degeneracy token was pricing Bath out.** It was not: sodium-ion at $5.43/MWh
+does not discharge either. Nothing charges, so nothing can discharge. The token also does no work at
+2045 -- with zero charge hours there is no simultaneous dispatch to break; it mattered at 2026, where
+the 5 hours were found.
+
+**THE FINDING IS SPLIT DELIBERATELY.** The mandate mismatch -- the Code pairing 20,000 MW of storage
+with a solar target too small to fill it -- stands on the energy balance, which no price shape
+changes. The **$3.4B/yr of stranded capital does NOT stand alone**: real PJM Mid-Atlantic prices show
+a $45.92 overnight-to-peak spread against a $5.43/MWh cycling cost, so a model with unit commitment
+would have that storage earning. These results cannot distinguish "the mandate is mismatched" from
+"the model offers storage nothing to do", and the claim says so.
+
+**A merit order would not fix it either**, which is the obvious next thought: CCGT at 6.4 MMBtu/MWh
+is cheaper than CT at 11.0 in every hour, so a merit order alone reproduces a flat price. The spread
+comes from minimum up/down times and start costs.
+
+
+## 137. The section symbol reserved for Virginia Code citations
+
+**Project convention set 2026-09-14.** Using it for our own numbered items is distracting, and its
+meaning should be unambiguous: seeing it should tell a reader "this is statute". Numbered items use
+#.
+
+**404 uses replaced across 61 files.** Virginia Code citations were preserved by matching title
+prefixes -- 56-, 45.2-, 10.1-, 58.1-, 2.2-, 67-.
+
+**THE FIRST PASS WALKED FOUR DIRECTORIES AND MISSED THE TOP LEVEL**, leaving 8 in the runners. A test
+caught it, not the sweep -- and the runners are where a reader meets the convention first. The audit
+check covers the top level for that reason. Fifteenth check.
+
+
+## 138. The compliance sweep constant still held the old range after the documents were corrected
+
+**Found 2026-09-14** while correcting the sweep range in the dashboard and the Scenario 2 audit.
+Both documents were updated; `assumptions.COMPLIANCE_SWEEP_LEVELS` was not, and still read
+`(0.75 ... 1.00)`. A sweep run from it would have matched neither document.
+
+**The same shape as the gas-schedule and curtailment-cost cases**: a figure corrected in prose while
+the constant that governs behaviour stayed where it was. Documents do not run.
+
+**Now eleven levels, 0.30 to 1.00.** The floor is 0.30 rather than 0.35 so Scenario 2, at 34.7%
+clean, sits INSIDE the range rather than at its edge -- a point at the very end of an axis reads as
+a boundary rather than a result, and leaves no room to show that compliance below the statutory
+minimum costs more than it saves. Density stays at the top: eleven solves rather than the fifteen a
+uniform 5% step would need.
+
+
+## 139. Scenario completion dashboard, and prior whitepaper figures treated as superseded
+
+**Added 2026-09-14.** One row per step per scenario, with the issue numbers blocking each. **A step
+counts as done only when its RESULT exists on current code and constants**, not when the code to
+produce it exists -- which is why Scenario 1 and 1B both show complete, audited solvers and
+superseded pathways.
+
+**#24 is on the critical path**: it gates the re-run three scenarios need, and the compliance sweep
+depends on Scenario 1.
+
+**PRIOR WHITEPAPER FIGURES ARE SUPERSEDED, NOT RECONCILED.** The existing Scenario 2 section says
+13.1 CCGT units at 15.8 GW, a 65% capacity factor, and operational cost rising from $48 to over
+$112/MWh. None derives from this model, and the gas fleet structure has since been rebuilt against
+Dominion's 2024 Annual Report -- so Gas_Consolidated_Reference.md is the reference and the older
+figures are simply out.
+
+**I first drafted this as "conflicts to reconcile"**, which was the wrong framing: it implied the two
+sets of figures were competing claims about the same thing, when one predates the data structure the
+other is built on.
+

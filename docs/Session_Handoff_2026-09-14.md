@@ -457,3 +457,78 @@ constants are mutable module state that threads would corrupt silently.
 
 **1,076 tests, 14 audit checks.**
 
+---
+
+# Addendum 3 — Scenario 2 complete
+
+## The result
+
+| | |
+|---|---:|
+| **SLCOE, with terminal value** | **$32.80/MWh** |
+| without terminal value | $37.86/MWh |
+| capex band | $32.30 – $33.51 |
+| **Total societal** | **$119.48/MWh** |
+
+Clean share **47.4% (2026) → 34.7% (2045)**, peaking near 2030–31.
+
+**Scenario 2 is complete for its primary purpose** — solver, pathway, twenty-year stream, SLCOE,
+capex band, social cost, whitepaper section. Its remaining steps are sensitivities.
+
+## The finding
+
+**The mandated storage never operates.** Zero charge, zero discharge, zero curtailment for all three
+storage types in all 8,760 hours of 2045. Solar delivers 41.3 TWh against 202.2 TWh of demand and
+exceeds it, with nuclear, in **14 hours**.
+
+**The mandate mismatch stands** on the energy balance. **The $3.4B/yr of stranded capital does
+not stand alone** — real PJM prices show a $45.92 overnight-to-peak spread against a $5.43/MWh
+cycling cost, so a model with unit commitment would have that storage earning. The two explanations
+are indistinguishable in these results.
+
+## Bath County, corrected
+
+**`BATH_MW` 3,000 → 1,808**, `BATH_MWH` 24,000 → 14,464. Dominion **operates** the station but owns
+**60%**; the 40% sits with FirstEnergy's Allegheny Generating Company and LS Power / Bath County
+Energy.
+
+**It is an entitlement, not a transmission limit** — so a reader should not expect it to relax with
+grid upgrades.
+
+**Every Scenario 1, 1B and 3 figure predates this** and needs re-running.
+
+## An investigation that correctly changed nothing
+
+The retain-pool figures looked wrong against EIA-860 — Gravel Neck at 170 against 368. **They are
+gas capability on dual-fuel plants**: 170 gas + 198 oil = 368, matching to the megawatt.
+
+**Three errors of method**, recorded in build log 132: I treated gridinfo and Global Energy Monitor
+as independent corroboration when our own schedule document had already dismissed them as EIA
+re-serves; I read a documented assumption as an error; and I claimed "every source agrees against
+us" when the one independent source quotes a combined figure.
+
+**A change to `GAS_NEW_BUILD_POOL_MW` — reaching every scenario — was nearly proposed on that basis.**
+
+## Conventions and tooling
+
+**The section symbol is now reserved for Virginia Code citations.** 404 uses replaced across 61
+files. My first pass missed the top level; a test caught it.
+
+**`docs/Scenario_Completion_Dashboard.md`** — where each scenario stands, step by step, with
+blocking issues. **#24 is on the critical path.**
+
+**Sweep extended to 30–100%**, eleven levels. The constant still held the old range after both
+documents were corrected — documents do not run.
+
+**15 audit checks**, up from 9 at the start of the session.
+
+## Next
+
+```bash
+# after #24 is settled
+python3 run_scenario1.py && python3 run_scenario1_annual.py
+python3 run_scenario1b.py
+```
+
+**1,138 tests, 15 audit checks.**
+
