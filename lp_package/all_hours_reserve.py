@@ -14,6 +14,8 @@ sparse.hstack, new rows via sparse.vstack) rather than rebuilding lp_model.py's 
 from scratch -- matches the documented approach exactly.
 """
 import numpy as np
+
+from lp_model import BATH_MW
 from scipy import sparse
 
 _DEFAULT_IRM = 0.177
@@ -85,11 +87,20 @@ def add_all_hours_reserve_margin_constraint(problem, nuclear, wind_cf, exist_sol
         return NB + t * NPH + k
 
     NVAR = NB + T * NPH
-    # 4 new per-hour reserve variables: na_reserve, fe_reserve, dist_na_reserve, dist_fe_reserve
-    def new_var(t, which):  # which in 0..3
-        return NVAR + t * 4 + which
+    # 5 new per-hour reserve variables: na, fe, dist_na, dist_fe, BATH.
+    #
+    # BATH WAS ABSENT UNTIL 2026-09-14. It is 3,000 MW of dispatchable existing storage, fully
+    # modelled for dispatch -- charge and discharge bounded at BATH_MW, state of charge at
+    # BATH_MWH, with SOC continuity and a cyclical end condition -- but it contributed NOTHING to
+    # reserve margin, so every reserve-constrained solve in this project understated available
+    # capacity by 3,000 MW in every hour. Found while diagnosing a 2026 infeasibility whose worst
+    # hour was 3,900 MW short.
+    _N_RESERVE_VARS = 5
 
-    NVAR_NEW = NVAR + T * 4
+    def new_var(t, which):  # which in 0..4
+        return NVAR + t * _N_RESERVE_VARS + which
+
+    NVAR_NEW = NVAR + T * _N_RESERVE_VARS
 
     UTILITY_SOLAR_MW, SODIUM_ION_POWER_MW, SODIUM_ION_ENERGY_MWH, IRON_AIR_ENERGY_MWH = 0, 1, 2, 3
     DISTRIBUTED_SOLAR_MW, DISTRIBUTED_SODIUM_ION_POWER_MW = 4, 5
@@ -100,6 +111,7 @@ def add_all_hours_reserve_margin_constraint(problem, nuclear, wind_cf, exist_sol
 
     for t in range(T):
         nar, fer, dnar, dfer = new_var(t, 0), new_var(t, 1), new_var(t, 2), new_var(t, 3)
+        bar = new_var(t, 4)
 
         # nd[t] + na_reserve[t] <= PNA_mw -- capacity as a COLUMN when it is a decision variable,
         # as a right-hand-side CONSTANT when it is fixed. Same physical statement either way.
@@ -147,20 +159,30 @@ def add_all_hours_reserve_margin_constraint(problem, nuclear, wind_cf, exist_sol
         # -na_reserve -fe_reserve -dist_na_reserve -dist_fe_reserve
         #   -BUILD_SCALE*solar_cf[t]*UTILITY_SOLAR_MW -BUILD_SCALE*dist_solar_cf[t]*DISTRIBUTED_SOLAR_MW
         #   <= nuclear[t] + gas_cap_mw + CVOW_MW*wind_cf[t] + exist_solar[t] - (1+IRM)*demand[t]
+        # BATH. Existing capacity, so the power limit is a constant on the right-hand side in BOTH
+        # problem shapes -- unlike Na and Fe, whose capacity is a decision variable in build_problem.
+        #   bd[t] + bath_reserve[t] <= BATH_MW
+        rows += [row, row]; cols += [hv(t, IDX['bd']), bar]
+        data += [1.0, 1.0]; rhs.append(BATH_MW); row += 1
+        #   bath_reserve[t] - bsoc[t] <= 0   -- reserve cannot exceed stored energy
+        rows += [row, row]; cols += [bar, hv(t, IDX['bsoc'])]; data += [1.0, -1.0]
+        rhs.append(0.0); row += 1
+
         base_rhs = (nuclear[t] + gas_cap_mw + CVOW_MW*wind_cf[t] + exist_solar[t]
                     - (1+IRM)*demand[t])
         if fixed:
             # Built solar is a known constant, so its contribution moves to the right-hand side.
             built = (fixed['utility_solar_mw'] * solar_cf[t]
                      + fixed.get('distributed_solar_mw', 0.0) * dist_solar_cf[t])
-            rows += [row]*4
-            cols += [nar, fer, dnar, dfer]
-            data += [-1.0, -1.0, -1.0, -1.0]
+            rows += [row]*5
+            cols += [nar, fer, dnar, dfer, bar]
+            data += [-1.0, -1.0, -1.0, -1.0, -1.0]
             rhs.append(base_rhs + built)
         else:
-            rows += [row]*6
-            cols += [nar, fer, dnar, dfer, UTILITY_SOLAR_MW, DISTRIBUTED_SOLAR_MW]
-            data += [-1.0, -1.0, -1.0, -1.0, -BUILD_SCALE*solar_cf[t], -BUILD_SCALE*dist_solar_cf[t]]
+            rows += [row]*7
+            cols += [nar, fer, dnar, dfer, bar, UTILITY_SOLAR_MW, DISTRIBUTED_SOLAR_MW]
+            data += [-1.0, -1.0, -1.0, -1.0, -1.0,
+                     -BUILD_SCALE*solar_cf[t], -BUILD_SCALE*dist_solar_cf[t]]
             rhs.append(base_rhs)
         row += 1
 
@@ -168,17 +190,17 @@ def add_all_hours_reserve_margin_constraint(problem, nuclear, wind_cf, exist_sol
     A_new = sparse.coo_matrix((data, (rows, cols)), shape=(n_new_rows, NVAR_NEW)).tocsr()
 
     A_ub_old = problem['A_ub']
-    zero_pad = sparse.csr_matrix((A_ub_old.shape[0], T*4))
+    zero_pad = sparse.csr_matrix((A_ub_old.shape[0], T*_N_RESERVE_VARS))
     A_ub_left = sparse.hstack([A_ub_old, zero_pad], format='csr')
     A_ub_full = sparse.vstack([A_ub_left, A_new], format='csr')
     b_ub_full = np.concatenate([problem['b_ub'], rhs])
 
     A_eq_old = problem['A_eq']
-    zero_pad_eq = sparse.csr_matrix((A_eq_old.shape[0], T*4))
+    zero_pad_eq = sparse.csr_matrix((A_eq_old.shape[0], T*_N_RESERVE_VARS))
     A_eq_full = sparse.hstack([A_eq_old, zero_pad_eq], format='csr')
 
-    c_full = np.concatenate([problem['c'], np.zeros(T*4)])
-    bounds_full = list(problem['bounds']) + [(0, None)] * (T*4)
+    c_full = np.concatenate([problem['c'], np.zeros(T*_N_RESERVE_VARS)])
+    bounds_full = list(problem['bounds']) + [(0, None)] * (T*_N_RESERVE_VARS)
 
     new_problem = dict(problem)
     new_problem['A_ub'] = A_ub_full

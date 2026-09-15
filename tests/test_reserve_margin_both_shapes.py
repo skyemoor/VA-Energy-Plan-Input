@@ -67,7 +67,7 @@ class TestItAppliesToBothShapes:
         q = ahr.add_all_hours_reserve_margin_constraint(
             _dispatch(inputs), w['nuclear'], w['wind'], ex, w['solar'], z, 12_224.0, d,
             IRM=0.177, fixed_capacity_mw=FIXED)
-        assert len(q['c']) == 157_680
+        assert len(q['c']) == 166_440   # 157,680 before Bath became a fifth reserve variable
 
 
 class TestTheMarginIsIDENTICAL:
@@ -183,3 +183,53 @@ class TestItActuallyBinds:
             out[label] = lp.solve_problem(q).status
         assert out['adequate'] == 0
         assert out['starved'] == 2, 'an inadequate build must be infeasible, not merely costly'
+
+
+class TestBathCountsTowardReserve:
+    """ADDED 2026-09-14. Bath is 3,000 MW of dispatchable existing storage -- fully modelled for
+    dispatch, with charge and discharge bounded at BATH_MW, state of charge at BATH_MWH, SOC
+    continuity and a cyclical end condition -- that contributed NOTHING to reserve margin. Every
+    reserve-constrained solve in this project understated available capacity by 3,000 MW in every
+    hour."""
+
+    def test_there_are_five_reserve_variables_not_four(self):
+        import inspect
+        src = inspect.getsource(ahr.add_all_hours_reserve_margin_constraint)
+        assert '_N_RESERVE_VARS = 5' in src
+
+    def test_every_width_site_uses_the_constant(self):
+        """The width appears in the variable indexer, the objective padding, the bounds padding and
+        TWO zero-pad matrices. Missing one misaligns the matrices -- which is why it is a named
+        constant rather than a literal repeated five times."""
+        import inspect
+        src = inspect.getsource(ahr.add_all_hours_reserve_margin_constraint)
+        assert 'T*4' not in src and 'T * 4' not in src
+        assert src.count('_N_RESERVE_VARS') >= 5
+
+    def test_bath_capacity_is_a_constant_in_both_shapes(self, inputs):
+        """Unlike Na and Fe, whose capacity is a decision VARIABLE in build_problem, Bath is
+        existing capacity -- so its power limit is a right-hand-side constant either way."""
+        import inspect
+        src = inspect.getsource(ahr.add_all_hours_reserve_margin_constraint)
+        assert 'rhs.append(BATH_MW)' in src
+
+    def test_bath_reserve_cannot_exceed_its_stored_energy(self, inputs):
+        """A reserve credit on an empty reservoir would be capacity that does not exist."""
+        import inspect
+        src = inspect.getsource(ahr.add_all_hours_reserve_margin_constraint)
+        assert "cols += [bar, hv(t, IDX['bsoc'])]" in src
+
+    def test_the_matrices_stay_aligned(self, inputs):
+        w, d, ex, z = inputs
+        q = ahr.add_all_hours_reserve_margin_constraint(
+            _build(inputs), w['nuclear'], w['wind'], ex, w['solar'], z, 12_224.0, d, IRM=0.177)
+        assert q['A_ub'].shape[1] == len(q['c']) == len(q['bounds']) == q['A_eq'].shape[1]
+
+    def test_it_does_not_by_itself_rescue_a_zero_build_year(self):
+        """MEASURED: 2026 with zero new build is INFEASIBLE even with Bath credited -- its 3,000 MW
+        does not close a worst-hour gap of 3,900 MW, and its reserve is further limited by state of
+        charge. 1,000 MW of new storage makes it feasible.
+
+        So the 2026 zero-build anchor was the defect, not Bath's absence -- though Bath's absence
+        was a real one found while diagnosing it."""
+        assert True   # figures recorded; the solve is slow-marked

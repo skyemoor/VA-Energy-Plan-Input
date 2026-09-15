@@ -64,15 +64,21 @@ class TestEveryPostBuildStepIsApplied:
         assert problem_2030['bounds'][nb + idx][1] == pytest.approx(12224.0)
 
     def test_the_reserve_margin_rows_are_present(self, problem_2030):
-        """The all-hours hook adds 78,840 rows and 35,040 variables per period."""
-        assert problem_2030['A_ub'].shape[0] > 240_000
-        assert len(problem_2030['c']) == 219_008
+        """The all-hours hook adds 96,360 rows and 43,800 variables per period.
+
+        WAS 78,840 / 35,040 until 2026-09-14, when Bath County pumped storage was added as a FIFTH
+        per-hour reserve variable. It had been absent: 3,000 MW of dispatchable existing storage,
+        fully modelled for dispatch, contributing nothing to reserve margin."""
+        assert problem_2030['A_ub'].shape[0] > 260_000
+        assert len(problem_2030['c']) == 227_768
 
     def test_the_row_count_matches_what_the_solve_consumes(self, problem_2030):
-        """245,647, not 245,646. The one-row difference is the SLCR row, and its absence is exactly
-        what the misplaced return caused -- an audit comparing build_only against a full solve
-        caught the discrepancy before the source inspection did."""
-        assert problem_2030['A_ub'].shape[0] == 245_647
+        """263,167 with Bath's reserve rows; 245,647 before them.
+
+        The count is asserted exactly because a one-row difference once revealed a real defect: the
+        misplaced build_only return was skipping the SLCR row, and comparing build_only against a
+        full solve caught it before source inspection did."""
+        assert problem_2030['A_ub'].shape[0] == 263_167
 
     def test_the_curtailment_cost_is_the_solver_hook_value(self, problem_2030):
         import assumptions

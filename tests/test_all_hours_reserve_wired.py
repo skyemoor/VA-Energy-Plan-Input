@@ -87,8 +87,10 @@ class TestMeasuredAtTheEndpoint:
     """A/B on Scenario 1 at 2045, 2026-09-14, everything else fixed."""
 
     def test_hook_genuinely_modifies_the_problem(self):
-        """Verified before trusting the A/B: 35,040 variables and 78,840 rows added. Without this
-        check an identical result could mean the hook was silently not applied."""
+        """Verified before trusting the A/B: 43,800 variables and 96,360 rows added. Without this
+        check an identical result could mean the hook was silently not applied.
+
+        Was 35,040 / 78,840 until Bath became a fifth reserve variable on 2026-09-14."""
         w = np.load(__import__('paths').weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
         import paths
         d = np.load(paths.intermediate('demand_2045fy_va_only.npy'))
@@ -100,7 +102,7 @@ class TestMeasuredAtTheEndpoint:
         p = lp.build_problem(w['solar'], w['wind'], w['nuclear'],
                              lp.exist_solar_mw(2045) * w['solar'], d, 0.0, verbose=False)
         p2 = hook(p)
-        assert p2['A_ub'].shape[0] - p['A_ub'].shape[0] == 78_840
+        assert p2['A_ub'].shape[0] - p['A_ub'].shape[0] == 96_360   # 78,840 before Bath
 
     def test_identical_at_100_percent_because_it_never_binds(self):
         """Peak-hour and all-hours gave IDENTICAL results to the cent: 156,737 MW solar, 46,968 MW

@@ -168,8 +168,27 @@ STOR_FOM_PCT = 0.025   # %/yr of capex
 # ============================================================================
 # STORAGE OPERATING PARAMETERS
 # ============================================================================
+#: Bath County pumped storage, MW. An EVEN 3,000 BALANCING CONFLICTING SOURCES:
+#:
+#:     Dominion 2025 IRP Update, Appendix 3A(iv-v)   6 turbines x 477 MW = 2,862 MW
+#:     EIA-860 (2025), 9 units in Virginia                          3,109.3 MW
+#:     Commonly cited figure, and this project's other references        3,000 MW
+#:
+#: The EIA figure counts units beyond the six the IRP directs; the IRP figure is turbine nameplate
+#: rather than plant rating. 3,000 sits between them and matches what every other reference in this
+#: project uses, so it is retained rather than moved to either endpoint. Stated as an assumption,
+#: not a measurement.
 BATH_MW = 3000.0
 BATH_MWH = 24000.0
+
+#: Existing utility-scale batteries in Virginia, MW. EIA-860 (2025), all status OP:
+#: Scott Solar Farm 40.0, Dry Bridge Storage 20.0, Danville BESS 1 10.5, Martinsville BESS 10.1.
+#:
+#: IMMATERIAL BUT REAL. 80.6 MW against a system peaking near 17,000 MW is far too small to change
+#: any result, and it is recorded so the 2026 starting point is the actual fleet rather than an
+#: idealised one. Nothing is added to 2026 beyond what is already built or permitted with
+#: interconnection.
+EXISTING_BATTERY_MW = 80.6
 BATH_RTE_CHARGE = 0.80
 NA_RTE_CHARGE = 0.90
 NA_CYCLE_LIFE = 15000   # default/fallback; driver.set_year_capex() overrides per checkpoint year
