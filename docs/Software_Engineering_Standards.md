@@ -238,6 +238,8 @@ Anything the modeler has stated as direction other than the above -- the catch-a
 4. If there is a substantive problem solved, enter the issues, options considered and their tradeoffs, and the solution that worked in the debugging-log
 5. Update the Virginia grid analysis tracker updated.xlsx
 
+### Rule 14 Follow PEP 8 – Style Guide for Python Code
+1. Always use PEP 8 – Style Guide for Python Code
 
 ## Practical checklist before considering any code change complete
 - Does this logic already exist somewhere else in the class hierarchy? If yes, extend/override, don't duplicate. (Rule 1)
