@@ -78,7 +78,13 @@ class GoesAggregatedFormat(NSRDBFileFormat):
     the same required-column set is present under the same names."""
 
     def matches(self, filepath):
-        return 'nsrdb-goes-aggregated' in os.path.basename(filepath).lower()
+        # BOTH SPELLINGS. NREL's download names carry hyphens (nsrdb-goes-aggregated); this
+        # project's own copies are camel-cased with the separators stripped
+        # (nsrdbGOESaggregatedv400). Normalising before the test accepts either, rather than
+        # renaming read-only project inputs -- and rather than guessing, which Rule 5 forbids and
+        # the error below still enforces for anything genuinely unrecognised.
+        name = os.path.basename(filepath).lower().replace('-', '')
+        return 'nsrdbgoesaggregated' in name
 
 
 class Psm322Format(NSRDBFileFormat):
@@ -88,7 +94,8 @@ class Psm322Format(NSRDBFileFormat):
     column name rather than position."""
 
     def matches(self, filepath):
-        return 'psm3-2-2' in os.path.basename(filepath).lower()
+        name = os.path.basename(filepath).lower().replace('-', '').replace('_', '')
+        return 'psm322' in name
 
 
 class UnrecognizedTmyFormat(NSRDBFileFormat):
@@ -133,7 +140,15 @@ class NSRDBLocationData:
         self.data_dir = data_dir
 
     def _find_format_and_file(self, year):
+        # TWO LAYOUTS SUPPORTED. The original is one directory per location, files named *_<year>.csv.
+        # This project's sources are FLAT in a single directory, prefixed by site --
+        # Sterling_lat_39_03336_..._2016.csv. Added 2026-09-14 rather than reshuffling the data,
+        # because the files are read-only project inputs and a copy would be a second source of
+        # truth for the same measurements.
         candidates = glob.glob(os.path.join(self.data_dir, f'*_{year}.csv'))
+        if not candidates:
+            flat_dir = os.path.dirname(self.data_dir.rstrip(os.sep))
+            candidates = glob.glob(os.path.join(flat_dir, f'{self.name}_*_{year}.csv'))
         real_candidates = []
         for filepath in candidates:
             fmt = next((f for f in _KNOWN_FORMATS if f.matches(filepath)), None)
@@ -203,3 +218,57 @@ if __name__ == '__main__':
         for yr in (2012, 2020):
             df = loc.load_year(yr)
             print(f"{name:<12}{yr:<6}{len(df):<7}{df['ghi'].mean():<10.1f}{df['ghi'].max():<9.1f}")
+
+
+def fixed_tilt_hourly_kw(location_name, year, nameplate_kw, tilt_degrees, azimuth_degrees=180.0,
+                         system_losses_pct=14.0):
+    """Hourly AC output, kW, for a FIXED-TILT array at one NSRDB location and calendar year.
+
+    THE SHARED PVWATTS CALL. Extracted here 2026-09-14 from loudoun_solar_hourly_profile, so that
+    module and distributed_solar_profile both depend on the DATA LAYER rather than on each other --
+    statewide work should not import a county module to reach PySAM.
+
+    `array_type = 0` is fixed open rack. Tracking is deliberately not offered: every caller models
+    fixed arrays, and a tracking option here would invite someone to compare a tracking capacity
+    factor against a fixed one. Virginia utility solar runs 22-25% on single-axis tracking and a
+    fixed array does not, which is a comparison that has already been made in error once.
+
+    Returns an array of exactly 8,760 hourly values and RAISES otherwise, rather than padding or
+    truncating: a length mismatch means the timestamps have shifted, and silently realigning them
+    would corrupt every hour-of-day and seasonal result downstream.
+    """
+    import numpy as np
+    import PySAM.Pvwattsv8 as pvwatts
+
+    if location_name not in LOCATIONS:
+        raise ValueError(f'unknown NSRDB location {location_name!r}; known: {sorted(LOCATIONS)}')
+    loc = LOCATIONS[location_name]
+    weather = loc.load_year(year)
+
+    model = pvwatts.new()
+    model.SolarResource.solar_resource_data = {
+        'lat': loc.latitude, 'lon': loc.longitude, 'tz': -5, 'elev': 100,
+        'year': [year] * 8760,
+        'month': weather['datetime'].dt.month.tolist(),
+        'day': weather['datetime'].dt.day.tolist(),
+        'hour': weather['datetime'].dt.hour.tolist(),
+        'minute': [0] * 8760,
+        'dn': weather['dni'].tolist(), 'df': weather['dhi'].tolist(),
+        'gh': weather['ghi'].tolist(),
+        'wspd': weather['wind_speed'].tolist(),
+        'tdry': weather['temperature'].tolist(),
+    }
+    model.SystemDesign.system_capacity = nameplate_kw
+    model.SystemDesign.dc_ac_ratio = 1.0 / (1 - system_losses_pct / 100.0)
+    model.SystemDesign.losses = system_losses_pct
+    model.SystemDesign.array_type = 0
+    model.SystemDesign.tilt = tilt_degrees
+    model.SystemDesign.azimuth = azimuth_degrees
+    model.execute()
+
+    gen_kw = np.array(model.Outputs.ac) / 1000.0
+    if len(gen_kw) != 8760:
+        raise ValueError(
+            f'{location_name} {year}: PySAM returned {len(gen_kw)} hours, expected 8760 -- '
+            'refusing to silently misalign timestamps.')
+    return gen_kw

@@ -175,8 +175,9 @@ class SolarSiteProfile:
         project's own existing Sterling SAM-export convention exactly (verified
         directly against the original export's own stated parameters) -- only tilt
         varies between call sites of this classmethod."""
-        import PySAM.Pvwattsv8 as pvwatts
         import numpy as np
+        import pandas as pd
+
         import nsrdb_data as nd
 
         years = years or AVAILABLE_YEARS
@@ -184,31 +185,14 @@ class SolarSiteProfile:
         for location_name, (lat, lon) in nsrdb_locations.items():
             for year in years:
                 weather = nd.LOCATIONS[location_name].load_year(year)
-                model = pvwatts.new()
-                model.SolarResource.solar_resource_data = {
-                    'lat': lat, 'lon': lon, 'tz': -5, 'elev': 100,
-                    'year': [year] * 8760,
-                    'month': weather['datetime'].dt.month.tolist(),
-                    'day': weather['datetime'].dt.day.tolist(),
-                    'hour': weather['datetime'].dt.hour.tolist(),
-                    'minute': [0] * 8760,
-                    'dn': weather['dni'].tolist(), 'df': weather['dhi'].tolist(),
-                    'gh': weather['ghi'].tolist(),
-                    'wspd': weather['wind_speed'].tolist(),
-                    'tdry': weather['temperature'].tolist(),
-                }
-                model.SystemDesign.system_capacity = nameplate_kw
-                model.SystemDesign.dc_ac_ratio = 1.0 / (1 - system_losses_pct / 100.0)
-                model.SystemDesign.losses = system_losses_pct
-                model.SystemDesign.array_type = 0
-                model.SystemDesign.tilt = tilt_degrees
-                model.SystemDesign.azimuth = 180
-                model.execute()
-                gen_kw = np.array(model.Outputs.ac) / 1000.0
-                if len(gen_kw) != 8760:
-                    raise ValueError(
-                        f"{location_name} {year}: PySAM returned {len(gen_kw)} hours, "
-                        f"expected 8760 -- refusing to silently misalign timestamps.")
+                # THE PVWATTS CALL MOVED TO nsrdb_data 2026-09-14, so this module and
+                # distributed_solar_profile both depend on the data layer rather than on each
+                # other -- statewide work should not import a county module to reach PySAM.
+                # Nothing about Loudoun's own assumptions changed: same fixed array, same tilt
+                # default, same 8,760-hour check inside the shared function.
+                gen_kw = nd.fixed_tilt_hourly_kw(
+                    location_name, year, nameplate_kw=nameplate_kw, tilt_degrees=tilt_degrees,
+                    system_losses_pct=system_losses_pct)
                 per_location_hourly.append(pd.DataFrame({
                     'timestamp': weather['datetime'], 'kw': gen_kw,
                     'location': location_name, 'year': year,
