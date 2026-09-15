@@ -209,36 +209,35 @@ land presumed converted to solar-only use.
 
 ## Land-Use Footprint, Including Storage
 
-### Why this analysis uses 5–7 acres/MW, and what the larger Virginia figures mean
+### Why this analysis uses 5–7 acres/MW
 
-The evidence on solar land use spans a wide range, and the spread is mostly a
-question of what is being measured rather than genuine disagreement. At the low
-end, the U.S. Geological Survey's grazing study at an operating 18 MW New York
-facility covers 21.85 hectares — about **3.0 acres/MW** of fenced site. The
-Solar Energy Industries Association publishes **5 to 7 acres/MW** of generating
-capacity, and the 2025 *Frontiers in Sustainable Food Systems* study of 28
-grazed commercial sites across the northeastern United States adopts 6 acres/MW
-as its costing reference on precisely that basis. The American Solar Grazing
-Association's 2024 census — 113,050 sheep on 129,000 acres representing 18,000
-to 26,000 MW — implies **5.0 to 7.2 acres/MW**, independently reproducing the
-SEIA range from operational data. Against these, Virginia's own operating
-agrivoltaic projects look far larger: Skipjack Solar Center occupies 2,200 acres
-for 175 MWdc and Crystal Hill Solar 620 acres for 65 MW, giving **9.5 to 12.6
-acres/MWdc**. Those are whole-parcel figures in direct current, and they include
-setbacks, vegetative buffers, access roads, interconnection yards and
-undeveloped parcel remainder — none of which the generating-capacity basis
-counts, and all of which a county board sees on a site plan. The two bases are
-not in conflict; they answer different questions, and a reader who has seen one
-will not recognise the other. **This analysis adopts SEIA's 5–7 acres/MW**,
-moving up from the 4–6 range it previously carried. The reason is defensibility
-rather than a belief that 4–6 was wrong: 5–7 is an industry body's published
-figure a reviewer can look up and check, where 4–6 was assembled here. It also
-moves in the conservative direction — both ends rise, every acreage figure in
-this appendix grows by a quarter, and an analysis arguing that Virginia can site
-well over 150 GW of solar should not be the one minimising how much land that
-takes. The whole-parcel figures are carried alongside rather than discarded,
-because they are what appears in permitting, and the gap between them is better
-explained here than discovered by a supervisor mid-hearing.
+The evidence on solar land use converges tightly once the measurement basis is
+held constant. The Solar Energy Industries Association publishes **5 to 7
+acres/MW** of generating capacity. The 2025 *Frontiers in Sustainable Food
+Systems* study of 28 grazed commercial sites across the northeastern United
+States adopts 6 acres/MW as its costing reference on that basis. The American
+Solar Grazing Association's 2024 census — 113,050 sheep on 129,000 acres
+representing 18,000 to 26,000 MW — implies **5.0 to 7.2 acres/MW**,
+independently reproducing the SEIA range from operational data across more than
+500 sites. At the low end, the U.S. Geological Survey's study of an operating
+18 MW New York facility covers 21.85 hectares, about 3.0 acres/MW of fenced
+site, which is a denser configuration than the range assumes rather than a
+contradiction of it.
+
+**This analysis adopts SEIA's 5–7 acres/MW**, moving up from the 4–6 range it
+previously carried. The reason is defensibility rather than a belief that 4–6
+was wrong: 5–7 is an industry body's published figure that a reviewer can look
+up and check, where 4–6 was assembled here. It also moves in the conservative
+direction — both ends rise, every acreage figure in this appendix grows by
+roughly a quarter, and an analysis arguing that Virginia can site well over
+150 GW of solar should not be the one minimising how much land that takes.
+
+*A note on permitting figures.* Individual project filings sometimes quote
+whole-parcel acreage in direct current, which includes setbacks, vegetative
+buffers, access roads, interconnection yards and undeveloped parcel remainder.
+Those figures run roughly twice the generating-capacity basis and are not
+comparable to it. Where this analysis reports land use, it is on the
+generating-capacity basis throughout.
 
 **Storage is added on top of the SEIA figure, not assumed within it.** SEIA's
 range describes generating capacity and makes no provision for co-located
@@ -270,6 +269,153 @@ as an add-on rate, storage adds roughly 0.10-0.24 acres for every
 megawatt of solar, bringing "firmed" (solar-plus-storage) land use to
 approximately 5.1-7.2 acres per MW — a real but comparatively modest addition, on the order of
 2.5-4% more land than solar requires on its own.
+
+## Evidence Reviewed, 2026-09-14
+
+Added in a session that examined whether agrivoltaics should apply to every
+scenario rather than Scenario 3 alone. Findings are grouped by what they settle.
+
+### Single-axis tracking is agrivoltaic-compatible
+
+This closes a question the modelling basis had flagged as open, and the earlier
+premise was wrong rather than merely incomplete. The basis had held that only
+vertical bifacial or elevated tilted racking were viable, and that the standard
+tracking acreage figures therefore did not apply.
+
+● **Gupta, Gruss, Cammarano, Tuinstra, Gitau and Agrawal**, *Optimizing corn
+  agrivoltaic farming through farmscale experimentation and modeling*, Cell
+  Reports Sustainability. Purdue. Corn growth data collected from neighbouring
+  unshaded regions and regions with **east–west sun-tracking PV**. An analytical
+  shadow model and an APSIM crop model, calibrated on unshaded data, reproduced
+  the measured shaded yield using hourly per-row light intensity. The design
+  levers varied are panel height, row pitch, tracking angle, and tracking versus
+  anti-tracking by time of day and growth stage. Key finding: **yield is
+  determined by spatiotemporal shadow distribution, not total radiation alone**
+  — which is why view-factor methods remain inadequate for this purpose.
+● **Anti-tracking is established practice**, cited in the same work from the
+  Montpellier (INRAé) group, which manipulated ground shadow to raise
+  photosynthetically active radiation on lettuce by anti-tracking during morning
+  and evening. A critical-time anti-tracking algorithm for yield preservation
+  during specific growth periods is also cited.
+● **Grazing needs no tractor clearance at all**, so the elevation premium does
+  not attach to it. Roughly three-quarters of US agrivoltaic project area
+  employs grazing, and more than 230 of approximately 250 US livestock projects
+  in 2025 are sheep.
+
+The 88% elevated-tilted LCOE premium and the 35% vertical-bifacial specific
+yield penalty remain real **for those configurations**. They are alternatives,
+not the only options, and are no longer treated as a blanket caution.
+
+### Grazing evidence, optimistic and cautionary together
+
+These must be cited as a pair. They are not contradictory — they measure
+different quantities at different array densities — but the first alone would
+misrepresent the record.
+
+● **Andrew, A.**, *Lamb growth and pasture production in agrivoltaic production
+  system*, Oregon State University Honors College thesis, 2020. Corvallis,
+  spring 2019 and 2020. Pasture under panels **maintained higher carrying
+  capacity toward summer** than open pasture. Reports that **land productivity
+  could be increased up to 200%** by combining sheep grazing and solar
+  generation on the same land. Notes that shade tolerance governs: with
+  appropriate forage species and shade in the **30–40%** range, pasture growth
+  should not be significantly affected.
+● **U.S. Geological Survey**, *Co-location of sheep grazing and solar energy
+  production yields agrotechnological synergies*. Two grazing seasons at an
+  operational 21.85 ha, 18 MW facility on a former old field in New York.
+  **"Shade from solar panels negatively affected herbage yield."** Identifies an
+  **optimal stocking rate of 8 sheep per hectare** for sufficient herbage yield
+  and quality, flock health, and preventing overgrowth that would shade panels.
+  Found no significant difference between fallow and planted legume plots,
+  suggesting regrowth from native seed banks may be an economical alternative to
+  seeding.
+● **Florentino et al.**, *Forages for grazing solar panels*, JDS Communications
+  7:112–118, 2026. A **50 kW site produced less forage biomass** than a 30 kW
+  site and an unshaded control, "primarily due to reduced sunlight." Notes prior
+  literature reporting forage crops in agrivoltaic sites yielding **at least 90%
+  of control, or greater during a drought year**.
+● **Frontiers in Sustainable Food Systems**, 2025. Sheep grazing as vegetation
+  management, northeastern USA. In-situ data from **28 grazed and 3 non-grazed
+  commercial sites, 2022–2024**, sampled both in open space and directly under
+  panels. Most common prior land use was cropland, including hay and corn.
+
+### Scale and prevalence
+
+● **American Solar Grazing Association, 2024 US Census**: approximately
+  **113,050 sheep grazing 129,000 acres across more than 500 solar sites**,
+  representing an estimated 18,000–26,000 MW — about **7–11% of installed US
+  solar capacity**.
+● **Europe**: over 80% of catalogued agrivoltaic projects larger than 5 MW
+  incorporate livestock (SolarPower Europe, 2024).
+● **Global deployment** grew from 5 MW in 2012 to 14 GW in 2021 (Lincoln
+  Institute of Land Policy).
+
+### A quantified societal benefit, and it is small
+
+● **Lincoln Institute of Land Policy**, *The Rise of Dual-Use Solar*. Life-cycle
+  assessment focused on grazing finds agrivoltaics produces **3.9% less
+  emissions and 0.5% less energy demand** than conventional photovoltaic systems
+  and sheep grazing conducted separately.
+
+This is the only quantified figure identified that maps cleanly onto a National
+Standard Practice Manual impact category. It is worth stating precisely because
+it is modest: the case for agrivoltaics rests on **land** — the NSPM's "Other
+Environmental" category explicitly names it — not on emissions or public health,
+where an agrivoltaic megawatt and a conventional megawatt are identical.
+
+### Virginia's 2026 statutory definition
+
+Signed **17 June 2026**, making Virginia the **fourth state** with a dedicated
+agrivoltaics statute. Defines agrivoltaics as the "intentional co-location of
+agricultural production and solar energy generation on the same land," and
+requires a qualifying project to:
+
+● be "designed to prioritize and sustain agricultural productivity while
+  simultaneously integrating renewable energy generation"
+● allow agriculture to continue **over the life of the solar project**
+● be **part of a commercial agricultural operation**
+● include "provisions for decommissioning to protect the land's agricultural
+  resources and productivity"
+● "ensure flexibility for farmers to adapt to market conditions and support
+  operational needs"
+
+A companion measure limits blanket county prohibitions while preserving
+case-by-case local review.
+
+### Virginia operations and demonstrations
+
+● **Skipjack Solar Center** — 175 MWdc, sheep grazing. Virginia's largest
+  agrivoltaic project.
+● **Crystal Hill Solar**, Halifax County — 65 MW with grazing lambs and a
+  ten-hive apiary of roughly 500,000 bees, operated by Urban Grid, with research
+  intended to inform planting and siting elsewhere.
+● **Piedmont Environmental Council, Roundabout Meadows Community Farm**, Loudoun
+  County — Virginia's first **crop-based** agrivoltaic demonstration, 42 panels.
+  The farm's well pumps, produce cooler and greenhouse have run on solar and
+  battery alone on multiple days, including through a grid outage. Chosen as
+  crop-based rather than grazing because "it fits better with what most farmers
+  in the area are doing now: raising vegetables."
+● **Richdale Farms**, Wythe County — 600 hair sheep on a 154-acre tract, with
+  panels positioned high enough for grazing and topsoil retained for forage.
+● Approximately **1,500 sheep** graze under Virginia panels currently.
+● **Virginia Commonwealth University** research projects Virginia's large-scale
+  solar footprint could reach **over 3% of former cropland by 2035**.
+
+### Regional policy context
+
+Supplements the regional practice section above.
+
+● **Maryland** — property tax exemption for agrivoltaic systems, with land
+  assessed as agricultural. A Montgomery County focus-group study (*Energy
+  Policy*, 2025) found no consensus definition of agrivoltaics locally, but a
+  **strong preference for crop or grazing systems over pollinator habitat**.
+● **New Jersey** — Rutgers Agrivoltaics Program with SolarEdge, informing the
+  NJBPU's three-year, **200 MW Dual-Use Solar Energy Pilot Program**. Three
+  sites, each a different mounting method; the Rutgers Animal Farm site uses
+  **vertically mounted bifacial panels for forage crops and beef cattle
+  grazing** (170 kWdc, grid-connected).
+● **Washington State** — $10.7M across the 2024 and 2025 budgets for a dual-use
+  pilot with grants and technical assistance.
 
 ## Limitations and Open Questions
 

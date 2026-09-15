@@ -59,7 +59,6 @@ therefore reports the lease component separately from any production value.
 
 SOURCED INPUTS (see the appendix for full citations)
   land use, single-axis tracking      5-7 acres/MW   (SEIA, generating-capacity basis)
-  whole-parcel, VA operating projects 9.5-12.6 acres/MWdc
   storage add-on at project targets   0.10-0.24 acres/MW of solar
   firmed solar-plus-storage           5.1-7.2 acres/MW
   Virginia lease rates                $1,200-2,500/acre/year
@@ -83,19 +82,11 @@ AGRIVOLTAIC_SHARE_OF_TOTAL_SOLAR = 0.85
 #:   site 156,737 MW of solar, OVERSTATING the footprint is the conservative direction -- the
 #:   analysis cannot be accused of minimising it.
 #:
-#: THIS IS THE GENERATING-CAPACITY BASIS, NOT THE PARCEL BASIS. Virginia's operating agrivoltaic
-#: projects sit at 9.5-12.6 acres/MW on a whole-parcel, MWdc basis -- Skipjack 175 MWdc on 2,200
-#: acres, Crystal Hill 65 MW on 620. Those are not inconsistent with SEIA; they measure a different
-#: thing, including setbacks, buffers, access and undeveloped parcel remainder, and they are what a
-#: county board sees when a project comes before it. See the appendix, which carries both.
+#: GENERATING-CAPACITY BASIS THROUGHOUT. Individual project filings sometimes quote whole-parcel
+#: acreage in MWdc, which includes setbacks, buffers, access and undeveloped remainder and runs
+#: roughly twice this figure. Those are not comparable and are not used here.
 ACRES_PER_MW_LOW = 5.0
 ACRES_PER_MW_HIGH = 7.0
-
-#: Whole-parcel acres per MWdc, as Virginia's operating projects are permitted and reported. Carried
-#: alongside the generating-capacity basis because the two differ by roughly a factor of two and a
-#: reader who has seen one will not recognise the other.
-PARCEL_ACRES_PER_MWDC_LOW = 9.5
-PARCEL_ACRES_PER_MWDC_HIGH = 12.6
 
 #: Storage land-use add-on per MW of solar, at this project's own VCEA-target sodium-ion and
 #: iron-air mix. Sodium-ion uses a lithium-ion proxy (no chemistry-specific figure found); iron-air
