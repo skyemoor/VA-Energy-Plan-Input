@@ -162,6 +162,21 @@ class NSRDBLocationData:
         if len(real_candidates) == 0:
             raise FileNotFoundError(f"No real (non-TMY) data file found for {self.name}, year {year}")
         if len(real_candidates) > 1:
+            # DISAMBIGUATE ON THE REGISTRY'S OWN COORDINATE before giving up. King George has two
+            # files for 2013 and 2014 -- 38.31/-77.33 at 30-minute resolution and 38.33/-77.34 at
+            # 60-minute -- and the registry names the second. Matching the coordinate in the
+            # filename is not guessing: it is using the identity the location was registered with.
+            #
+            # Added 2026-09-14. The refuse-to-guess error below still stands for anything this does
+            # not resolve, which is the case it was written for.
+            lat_tag = f"{abs(self.latitude):.5f}".replace('.', '_')
+            lon_tag = f"{abs(self.longitude):.5f}".replace('.', '_')
+            matched = [(fmt, fp) for fmt, fp in real_candidates
+                       if lat_tag in os.path.basename(fp) and lon_tag in os.path.basename(fp)]
+            if len(matched) == 1:
+                real_candidates = matched
+
+        if len(real_candidates) > 1:
             raise ValueError(
                 f"{self.name}, year {year}: multiple candidate files "
                 f"{[f for _, f in real_candidates]} -- ambiguous, refusing to silently pick one.")
