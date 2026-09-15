@@ -59,6 +59,11 @@ build, on the utility solar profile -- 22.52% capacity factor, consistent with s
 which is the right assumption for commercially developed ground mount at 1-3 MW. Applying this
 module's fixed rooftop profile to it would understate its output by nearly half.
 
+BOTH PROFILES COME FROM SAM PVWATTS WITH DEFAULT LOSSES -- the utility one run by the project author
+on NSRDB inputs, this one through nsrdb_data.fixed_tilt_hourly_kw. Same tool, same loss assumptions;
+the 22.52% against 15.26% gap is single-axis tracking against a fixed array, not a tooling
+difference.
+
 NET METERING IS A COMPENSATION MECHANISM, NOT A REQUIREMENT, and appears nowhere in § 56-585.5. It
 determines what a distributed owner is PAID for exported energy, not how much distributed capacity
 must exist. So it does not change the MW this module sizes, and it is absent here by design: it

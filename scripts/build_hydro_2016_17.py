@@ -9,6 +9,12 @@ King George), each normalized by its own file's peak; CVOW wind normalized by 2,
 nameplate; April-March hydrological-year splicing.
 
 Source selection, per direct user decision (2026-09-09): solar uses the
+The `hourlyinsolation` family is SAM PVWatts output with all default losses, run by the
+project author on NSRDB inputs for each site -- single-axis tracking, which is why these
+profiles reach a 22.52% capacity factor against 15.26% for the fixed 45-degree distributed
+array in distributed_solar_profile.py. Same tool, different array type; the difference is
+not a tooling artifact. Provenance recorded 2026-09-14.
+
 `...hourlyinsolation{year}.csv` file family, not the alternative `..._psm322_60_{year}.csv`
 family -- the insolation family is already-simulated power output (Time stamp + "System
 power generated | (kW)"), structurally identical to the hourlyresults.csv convention both
