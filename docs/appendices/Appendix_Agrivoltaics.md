@@ -489,26 +489,52 @@ Supplements the regional practice section above.
 ● **Washington State** — $10.7M across the 2024 and 2025 budgets for a dual-use
   pilot with grants and technical assistance.
 
-### Still to read
+### Modelling tools examined, 2026-09-14 — and why none is usable yet
 
-Identified and not yet reviewed. Recorded here so the next session does not have
-to rediscover them.
+**Ovaitt, S. and Mirletz, B.**, *NREL's Tools for AgriPV Modeling*,
+NREL/PR-5K00-90300. Describes three tools. The deck states that System Advisor
+Model offers AgriPV features — "spatial albedo variations as input,"
+"AgriPV-tailored modules... captured with transparency factor (%) input," and
+"easy yearly spatial ground output" — "also accessible through pySAM."
+
+**Those features are not present in shipped SAM.** Checked 2026-09-14 against
+version 2026.7.3 on both Linux and Windows: none of the three appears in the
+user interface. The deck appears to describe development work rather than a
+released capability. **This is recorded as a checked negative** so it is not
+rediscovered; the SAM route is closed until NREL ships it.
+
+**bifacial_radiance** is the more capable tool for the question in any case —
+a validated backward ray-tracer computing irradiance at any point in the scene,
+with customisation of albedo, tilt, pitch, clearance height and module spacing,
+support for partial module transparency, and validation against a 75 kW
+single-axis tracker field. Package version 0.5.3 installs cleanly. **It requires
+the RADIANCE binaries**, which are a separate compiled distribution and are not
+available in this project's environment.
+
+**The narrow use, if either becomes available.** Not a pipeline change: the
+generation profiles are already PySAM PVWatts, validated, and feeding
+everything. What is needed is **two numbers** — a ground irradiance fraction for
+sheep-height conventional tracking and one for cattle-height reinforced mounting
+at its wider row pitch. Those are per-configuration constants, not hourly
+series, so a one-off run suffices. They would then meet the shade thresholds the
+literature already gives: Oregon State's 30–40% band for pasture, and the Purdue
+spatiotemporal shadow work for crops.
+
+**Why it matters.** Every acreage, shade and yield figure in this appendix is a
+**stated assumption or a borrowed field result**, applied to Virginia by
+analogy — Indiana corn, Oregon pasture, New York grazing. A ground irradiance
+fraction computed on Virginia irradiance at our own row geometry would convert
+the shade term from an assumption into a modelled quantity. It would not resolve
+the agronomy, which still requires a crop model: Purdue needed APSIM alongside
+their shadow model, and the shade distribution is an input to yield, not an
+answer.
+
+### Still to read
 
 ● **American Solar Grazing Association webinar deck** (2023) —
   `solargrazing.org/wp-content/uploads/2023/07/ASGA-webinar.pdf`. ASGA is the
-  source behind the 2024 census figures already cited; the deck should carry
-  grazier-side economics and operational practice that the census summary does
-  not.
-● **NREL/TP-5D00-91195** — `docs.nrel.gov/docs/fy24osti/91195.pdf`. A free
-  due-diligence tool with **AgriPV features, available through PySAM**. This
-  project already uses PySAM for its solar profiles, so an AgriPV-aware model
-  would let shade fraction, row pitch and ground clearance be varied directly
-  rather than assumed — which is what the Purdue work shows the crop answer
-  actually depends on, and what no figure adopted here currently represents.
-
-The second is the more consequential: every acreage and yield figure in this
-appendix is a **stated assumption** rather than a modelled result, and an AgriPV
-tool in a toolchain this analysis already runs would change that.
+  source behind the 2024 census figures cited above; the deck should carry
+  grazier-side economics and operational practice the census summary does not.
 
 ## Limitations and Open Questions
 
