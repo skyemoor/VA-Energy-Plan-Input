@@ -107,18 +107,16 @@ neutral and should not be read as neutral.
 
 ---
 
-## Conflicts with the existing draft text
+## On the prior draft text
 
-The current whitepaper section carries figures that predate the modelling and disagree with it.
-Flagged rather than silently replaced:
+The existing whitepaper section for Scenario 2 predates the modelling and the gas-fleet rebuild. Its
+figures — 13.1 CCGT units at 15.8 GW, a 65% average capacity factor, operational cost rising from
+$48/MWh to over $112/MWh — do not derive from this model and are **superseded, not reconciled**.
 
-| existing text | modelled |
-|---|---|
-| "13.1 CCGT units (15.8 GW total)" | **22,479 MW** peak gas at 2045 |
-| "average 65% capacity factor" | not a model input; gas capacity is an *output* of the statutory build |
-| "levelized operational cost of CCGT from $48/MWh in 2026 to over $112/MWh by 2045" | **$18.39/MWh (2026) → $51.72/MWh (2045)** total system cost per MWh served |
+**`docs/methodology/Gas_Consolidated_Reference.md` is the fleet reference**, rebuilt against
+Dominion's 2024 Annual Report. Gas capacity in Scenario 2 is an **output** of the statutory build,
+not an input: 22,479 MW at the 2045 peak.
 
-The gas price trajectory in the existing text ($3.50/MMBtu in 2026 rising to $11.50 by 2050, on
-Marcellus/Utica depletion) is a **separate axis** the model treats as a sensitivity band rather than
-a single path. It should be reconciled against the Deloitte MEDIUM / HIGH / EIA cases before either
-figure is published.
+The prior draft's gas-price trajectory — $3.50/MMBtu in 2026 rising to $11.50 by 2050 on
+Marcellus/Utica depletion — describes a **single path** where this work treats gas price as a
+sensitivity band (Deloitte MEDIUM and HIGH, EIA). That band has not yet been run.
