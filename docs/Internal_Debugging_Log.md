@@ -564,6 +564,18 @@ insufficient penalty size -- the two problems are structurally unconnected regar
 
 ---
 
+> **CROSS-REFERENCE, added 2026-09-14.** Entry 20.2 tested whether a curtailment penalty could
+> **cure** simultaneous charge/discharge, and ruled it out on zero hour-overlap. Entry #131 found
+> the **opposite direction**: raising the curtailment cost to $100/MWh *caused* 4,710 hours of it.
+>
+> The mechanism is storage-as-resistor — charging and discharging together to absorb energy through
+> round-trip losses, which costs `cycling × RTE/(1−RTE)` per MWh absorbed and undercuts curtailment
+> above a computable threshold. **$30/MWh, set by Bath.**
+>
+> These are not the same experiment. 20.2 asked whether pricing curtailment fixes degeneracy; #131
+> establishes that pricing it too high creates degeneracy. **Do not read 20.2 as covering both
+> directions.**
+
 ## 20.3 Netting (option 5) — verification was correct in principle, implementation revealed the theory doesn't survive contact with the actual scale involved
 
 **Issue:** Direct concern raised that option 5 (post-processing netting) might not yield an optimal
