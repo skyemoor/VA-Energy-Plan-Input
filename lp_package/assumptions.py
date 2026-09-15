@@ -178,6 +178,20 @@ STOR_FOM_PCT = 0.025   # %/yr of capex
 #: rather than plant rating. 3,000 sits between them and matches what every other reference in this
 #: project uses, so it is retained rather than moved to either endpoint. Stated as an assumption,
 #: not a measurement.
+#:
+#: BUT THIS IS THE WHOLE PLANT, AND DOMINION OWNS 60% OF IT. Confirmed 2026-09-14 from two
+#: independent Dominion documents:
+#:
+#:     2024 Annual Report (SEC, dei-ars-12312024.pdf), "Virginia Power Utility Generation":
+#:       Hydro -- Bath County, Warm Springs, VA -- 1,808 MW net summer capability, footnote (3),
+#:       which is the standing exclusion of the "40% undivided interest owned by Allegheny
+#:       Generating Company, a subsidiary of Allegheny Energy, Inc."
+#:
+#:     2025 IRP Update, Figure 3.1.1.1 "2024 Capacity Resource Mix by Unit Type":
+#:       Pumped Storage -- 1,808 MW net summer, 7.8% of the resource mix.
+#:
+#: 3,003 x 0.60 = 1,802, within rounding of 1,808. THIS MODEL SERVES THE DOM ZONE, so the relevant
+#: figure for dispatch and for reserve margin is Dominion's SHARE, not the plant. See issue #23.
 BATH_MW = 3000.0
 BATH_MWH = 24000.0
 

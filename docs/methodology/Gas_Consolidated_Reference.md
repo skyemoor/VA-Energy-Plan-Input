@@ -63,6 +63,61 @@ own topics. Check all of them before adding new gas material — this note was i
 | `research/new_peaker_ccgt_costs_by_size.md` | **new-build capex by size tier**, and the overhaul-vs-new-build rule |
 | `Gas_Merit_Order.md` | heat rate tiers and EIA sourcing — largely subsumed here |
 
+### The retain-pool MW figures are GAS capability, not plant total
+
+**Resolved 2026-09-14** against Dominion's **2024 Annual Report** (SEC, `dei-ars-12312024.pdf`),
+*Virginia Power Utility Generation*, Net Summer Capability. Every retain-pool figure matches that
+table's **Gas** column exactly.
+
+**Gravel Neck and Darbytown are dual-fuel and appear twice** — once under Gas, once under Oil:
+
+| plant | our pool | AR gas | AR oil | total | EIA-860 net summer |
+|---|---:|---:|---:|---:|---:|
+| Gravel Neck | **170** | 170 | 198 | 368 | **368** |
+| Darbytown | **168** | 168 | 168 | 336 | 340 |
+| Elizabeth River | 327 | 327 | — | 327 | 325 |
+| Gordonsville | 218 | 218 | — | 218 | 218 |
+| Remington | 619 | 619 | — | 619 | — |
+
+So EIA-860's net summer is **gas plus oil**, and Dominion's own Power Stations page quotes the same
+combined figure. Gordonsville and Elizabeth River match directly because they are **not dual-fuel** —
+which is exactly why they appeared inconsistent with the other two.
+
+**The apparent 0.46 ratio was a fuel split, not a capacity discrepancy.** A change to `GAS_POOL_MW` —
+a constant reaching every scenario's `apply_gas_cap()` — was nearly proposed on the strength of it.
+
+### The "zero generation since Dec 2024" reading was too pessimistic
+
+The EIA monthly series for these plants **ends** at December 2024; it does not fall to zero there.
+
+| | Jul 2024 | Oct 2024 | Dec 2024 |
+|---|---:|---:|---:|
+| Gravel Neck | 40,380 | 19,780 | 1,999 |
+| Darbytown | 42,561 | 18,562 | 13,916 |
+| Elizabeth River | 4,145 | 1,915 | 561 |
+
+Darbytown's 42,561 MWh on a 336 MW plant is a 17% capacity factor — ordinary peaker duty. The
+near-zero months are seasonal and recur every February and December in prior years.
+
+**EIA-860 (2025 vintage, postdating that cutoff) lists every Gravel Neck and Darbytown unit as `OP`.**
+The third of the three hypotheses recorded in `VA_gas_capacity_schedules.md` — a reporting gap
+specific to smaller plants — is the one the evidence supports.
+
+**Elizabeth River is the genuine exception**: all three units are `SB` (standby), and output had
+already fallen to a fraction of 2023 levels through 2024.
+
+### Bath County is 1,808 MW to Dominion, not 3,000
+
+The same Annual Report table lists **Bath County — 1,808 MW**, footnote (3): the *"40% undivided
+interest owned by Allegheny Generating Company."* The 2025 IRP Update's Figure 3.1.1.1 gives
+Pumped Storage at the same **1,808 MW** net summer.
+
+3,003 × 0.60 = 1,802. **This model serves the DOM zone**, so Dominion's share is the relevant
+figure — see issue #23. `BATH_MW = 3,000` is currently the whole plant, in dispatch bounds and in
+reserve margin.
+
+---
+
 **Lead on the unresolved CT split:** `new_peaker_ccgt_costs_by_size.md` distinguishes a small tier
 (20–50 MW) described as *fast-deployment, aeroderivative* from medium (100–250 MW) and larger
 frame-scale tiers. Dominion's CT fleet — Ladysmith 782, Remington 619, Elizabeth River 327, Gravel

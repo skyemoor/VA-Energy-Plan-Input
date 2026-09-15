@@ -6613,3 +6613,80 @@ infeasibility rather than as silently-accepted unserved energy.
 caught the explanatory COMMENT restating the same inequality. Seventh instance of a check needing
 source-vs-prose handling.
 
+
+## 132. The retain-pool figures are gas capability on dual-fuel plants -- an investigation that correctly changed nothing
+
+**Context:** the 2025 IRP Appendix 3A(iv-v) generator table was provided to source `BATH_MW`. Reading
+it, the retain pool's MW figures appeared not to reconcile: Gravel Neck at 170 against an IRP
+nameplate of 391.6, Darbytown at 168 against 368.4 -- ratios of 0.43 and 0.46, where Gordonsville
+(0.73) and Elizabeth River (0.84) looked like plausible net-summer deratings.
+
+**RESOLVED by Dominion's 2024 Annual Report** (SEC, dei-ars-12312024.pdf), Virginia Power Utility
+Generation, Net Summer Capability. Gravel Neck and Darbytown are DUAL-FUEL and appear TWICE in that
+table -- once under Gas, once under Oil:
+
+    plant             pool   AR gas   AR oil   total   EIA-860 net summer
+    Gravel Neck        170      170      198     368                  368
+    Darbytown          168      168      168     336                  340
+    Elizabeth River    327      327        -     327                  325
+    Gordonsville       218      218        -     218                  218
+    Remington          619      619        -     619                    -
+
+Every pool figure matches the GAS column exactly. EIA-860's net summer is gas PLUS oil, as is
+Dominion's own Power Stations page. Gordonsville and Elizabeth River match directly because they are
+not dual-fuel, which is exactly why they looked inconsistent with the other two.
+
+**A change to GAS_POOL_MW was nearly proposed on the strength of the apparent discrepancy** -- a
+constant reaching every scenario's apply_gas_cap().
+
+**THREE ERRORS OF METHOD WORTH RECORDING:**
+
+**(a) I treated gridinfo.com and Global Energy Monitor as independent corroboration.**
+VA_gas_capacity_schedules.md had already dismissed both in terms: "third-party databases that draw
+on the same underlying EIA data and share the identical Dec 2024 cutoff -- not independent
+confirmation." I searched before reading the document that anticipated the search.
+
+**(b) I read a documented assumption as an error.** The schedule's conservative treatment of these
+plants is flagged there as "an assumption under genuine uncertainty, not a confirmed fact". I
+re-derived it from scratch and concluded the numbers had drifted.
+
+**(c) I said "every source agrees against us" when the only genuinely independent source --
+Dominion's own Power Stations page -- quotes a combined gas-plus-oil figure that says nothing about
+the gas split.**
+
+**A SEPARATE QUESTION ALSO RESOLVED, in the opposite direction from the schedule's reading.** The
+EIA monthly series ENDS at December 2024; it does not fall to zero there. Darbytown generated 42,561
+MWh in July 2024 and 13,916 MWh in December; Gravel Neck 40,380 MWh in July. That is ordinary peaker
+duty at a 17% capacity factor, and the near-zero months recur every February and December in prior
+years. EIA-860 (2025 vintage, postdating the cutoff) lists every unit at both plants as OP. Of the
+three hypotheses the schedule records, the reporting-gap one is what the evidence supports.
+Elizabeth River is the genuine exception: all three units SB, output already a fraction of 2023.
+
+
+## 133. Bath County is 1,808 MW to Dominion, not 3,000 -- and reserve margin had just been given the full plant
+
+**Found 2026-09-14** while sourcing BATH_MW, from two independent Dominion documents:
+
+    2024 Annual Report, Virginia Power Utility Generation:
+      Hydro -- Bath County, Warm Springs, VA -- 1,808 MW net summer, footnote (3), the standing
+      exclusion of the "40% undivided interest owned by Allegheny Generating Company, a subsidiary
+      of Allegheny Energy, Inc."
+
+    2025 IRP Update, Figure 3.1.1.1 "2024 Capacity Resource Mix by Unit Type":
+      Pumped Storage -- 1,808 MW net summer, 7.8% of the resource mix.
+
+3,003 x 0.60 = 1,802, within rounding of 1,808.
+
+**THIS MODEL SERVES THE DOM ZONE**, so Dominion's share is the relevant figure. BATH_MW is used in
+dispatch bounds -- bounds[bc] and bounds[bd] at (0, BATH_MW) in both build_problem and
+build_dispatch_problem -- and, since entry #131 two commits earlier, in reserve margin. So the model
+currently gives Bath roughly 1,200 MW more than Dominion controls, in every hour, for both energy
+and capacity.
+
+**Sharpened by timing:** the reserve-margin addition was made to correct an UNDERSTATEMENT of 3,000
+MW and may have introduced an overstatement of 1,200 in the same place.
+
+**Filed as issue #23 rather than changed**, because it moves every scenario's dispatch and not only
+reserve. BATH_MWH = 24,000 presumably needs the same treatment, which should be confirmed rather
+than assumed proportional.
+

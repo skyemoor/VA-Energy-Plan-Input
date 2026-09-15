@@ -78,6 +78,38 @@ def schedule_b_baseline_mw(year):
     return 1860.0  # 2045 VCEA-driven drop (Chesterfield+Doswell+Possum Point only)
 
 # ---------------- 8-plant overhaul/retain pool, youngest-first (commissioning date desc) ----------------
+#
+# THE MW FIGURES ARE GAS-FIRED CAPABILITY, NOT PLANT TOTAL. Sourced from Dominion Energy's 2024
+# Annual Report (SEC, dei-ars-12312024.pdf), "Virginia Power Utility Generation" table, Net Summer
+# Capability. Every figure below matches that table's GAS column exactly.
+#
+# WHY THAT LOOKS WRONG AGAINST OTHER SOURCES, and is not. Gravel Neck and Darbytown are DUAL-FUEL
+# and appear TWICE in the table -- once under Gas, once under Oil:
+#
+#     plant             POOL   10-K gas   10-K oil   total   EIA-860 net summer
+#     Gravel Neck        170        170        198     368                  368
+#     Darbytown          168        168        168     336                  340
+#     Elizabeth River    327        327          0     327                  325
+#     Gordonsville       218        218          0     218                  218
+#     Remington          619        619          0     619                    -
+#
+# So EIA-860's net summer figure is gas PLUS oil, and Dominion's own Power Stations web page quotes
+# the same combined number (Gravel Neck 368 MW, Darbytown 340 MW). Gordonsville and Elizabeth River
+# match POOL directly because they are not dual-fuel -- which is precisely why they looked
+# inconsistent with the other two.
+#
+# INVESTIGATED AT LENGTH ON 2026-09-14 AND FOUND TO NEED NO CHANGE. The 0.46 ratio between POOL and
+# EIA-860 at these two plants was read as a capacity discrepancy, and a change to GAS_POOL_MW --
+# a constant reaching every scenario's apply_gas_cap() -- was nearly proposed on that basis. It is
+# a gas/oil split on dual-fuel units and nothing more.
+#
+# A SEPARATE QUESTION, ALSO RESOLVED: VA_gas_capacity_schedules.md records these plants showing zero
+# generation since Dec 2024, cause unconfirmed, and treats them conservatively as unavailable. The
+# EIA monthly series shows why that reading was too pessimistic: Darbytown generated 42,561 MWh in
+# July 2024 and 13,916 MWh in December 2024, Gravel Neck 40,380 MWh in July. DECEMBER 2024 IS THE
+# END OF THE DATASET, NOT THE END OF OPERATION -- and EIA-860 (2025 vintage, postdating that cutoff)
+# lists every unit at both plants as OP. Elizabeth River is the genuine exception: all three units
+# are SB (standby), and its output had already fallen to a fraction of 2023 levels through 2024.
 # (name, MW, commission_year, needs_overhaul)
 # "needs_overhaul": plants with documented low EOH (well below 48,000-100,000 mid-life window) => no capital
 # work; older plants with no EOH data (1989-1994 commissioning, near/beyond nominal 30-45yr CT life) => treated
