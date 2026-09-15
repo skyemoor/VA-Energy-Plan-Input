@@ -30,8 +30,13 @@ for year in (2030, 2035, 2040):
     na_mw = drv.vcea_short_duration_floor_mw(year)
     fe_mw = drv.vcea_long_duration_floor_mw(year)
     # CCGT sized per Appendix C.2: worst hourly gap, zero storage credit
+    # BATH FROM THE CONSTANT, not a literal. This read 3000.0 while run_all.py and
+    # compare_scenario2_capacity_standards.py both passed lp.BATH_MW, so when BATH_MW moved to
+    # Dominion's 1,808 MW share on 2026-09-14 this script alone kept the old figure -- 1,192 MW of
+    # capacity the model no longer credits. Every other input on these four lines already comes
+    # from a function; only Bath was hardcoded.
     cmp = compare_capacity_standards(demand, nuclear, exist, solar_cf, wind_cf,
-            sol_mw, na_mw, fe_mw, bath_county_mw=3000.0)
+            sol_mw, na_mw, fe_mw, bath_county_mw=lp.BATH_MW)
     ccgt = cmp['appendix_c2_gas_mw_zero_storage_credit_no_margin']
     drv.set_year_capex(year)
     p = lp.build_scenario2_problem(solar_cf, wind_cf, nuclear, exist, demand,

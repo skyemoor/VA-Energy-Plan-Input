@@ -138,3 +138,50 @@ class TestBathIsDominionsShare:
         src = re.sub(r'\n#:?\s*', ' ', raw)
         assert 'Allegheny Generating Company' in src
         assert 'CHANGED TO 1,808' in src
+
+
+class TestScenario2BathWiring:
+    """Audit of the Scenario 2 path after BATH_MW moved to 1,808, 2026-09-14."""
+
+    def test_the_hardcoded_bath_literal_is_gone(self):
+        """scripts/rerun_scenario2_virginia_only.py passed bath_county_mw=3000.0 as a LITERAL while
+        run_all.py and compare_scenario2_capacity_standards.py both passed lp.BATH_MW. It alone
+        would have kept 3,000 after the change -- 1,192 MW the model no longer credits. Every other
+        input on those lines already came from a function."""
+        import os
+        import re
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        for rel in ('scripts/rerun_scenario2_virginia_only.py',
+                    'run_all.py',
+                    'scripts/compare_scenario2_capacity_standards.py'):
+            src = open(os.path.join(root, rel)).read()
+            for line in src.split('\n'):
+                if 'bath_county_mw=' in line and not line.strip().startswith('#'):
+                    assert not re.search(r'bath_county_mw\s*=\s*\d', line), f'{rel}: {line.strip()}'
+
+    def test_build_scenario2_problem_uses_the_constant_throughout(self):
+        """Four live uses -- charge bound, discharge bound, a hard bc+bd <= BATH_MW constraint, and
+        BATH_MWH for state of charge and initial fill. All follow the constant."""
+        import inspect
+        import lp_model as lp
+        src = inspect.getsource(lp.build_scenario2_problem)
+        code = [ln for ln in src.split('\n') if not ln.strip().startswith('#')]
+        assert '\n'.join(code).count('BATH_M') == 5      # 3 x BATH_MW, 2 x BATH_MWH
+
+    def test_scenario2s_own_reserve_module_is_marked_superseded(self):
+        """It holds TWO reserve variables per hour where the generalised constraint holds five, and
+        credits nothing for Bath -- the same gap all_hours_reserve had. Its stated justification
+        (a different problem shape) no longer holds: measured, build_scenario2_problem and
+        build_dispatch_problem are both NVAR_BUILD=0, NPH=14, BUILD_SCALE=None with the same keys."""
+        import scenario2_all_hours_reserve as m
+        assert 'SUPERSEDED 2026-09-14' in m.__doc__
+        assert 'MISSING BATH' in m.__doc__
+
+    def test_the_slcoe_runner_calls_neither_reserve_module(self):
+        """Scenario 2 has no reserve constraint by design, so nothing published depends on either
+        module -- which is why the superseded one could be marked rather than removed."""
+        import os
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        src = open(os.path.join(root, 'run_scenario2_slcoe.py')).read()
+        assert 'scenario2_all_hours_reserve' not in src
+        assert 'scenario2_reserve_margin' not in src

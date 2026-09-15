@@ -3,6 +3,30 @@ scenario2_all_hours_reserve.py
 
 All-hours reserve margin for Scenario 2, written for Scenario 2's own problem structure.
 
+SUPERSEDED 2026-09-14 -- READ THIS BEFORE USING OR EXTENDING THIS MODULE.
+
+The separation below was justified by a structural difference that NO LONGER EXISTS.
+all_hours_reserve.add_all_hours_reserve_margin_constraint was generalised to serve problems with no
+build block, taking capacities through `fixed_capacity_mw` and putting them on the right-hand side.
+Measured against build_scenario2_problem, the two shapes are now identical:
+
+                        build_scenario2_problem   build_dispatch_problem
+    NVAR_BUILD                                0                        0
+    NPH                                      14                       14
+    BUILD_SCALE                            None                     None
+    nd, fd, nsoc, fsoc, bd, bsoc          all present          all present
+
+The generalised constraint applies to a Scenario 2 problem cleanly -- 105,123 rows, 166,440
+variables, matrices aligned.
+
+AND THIS MODULE IS MISSING BATH. It holds two reserve variables per hour where the generalised one
+holds five, and credits nothing for Bath County's 1,808 MW of dispatchable pumped storage -- the
+same gap all_hours_reserve had until it was fixed. A parallel implementation that drifts is exactly
+what Appendix P.2 §14 forbids, and this is the drift.
+
+NOT DELETED YET because it carries tests and is not on the SLCOE path, so nothing published depends
+on it. Use all_hours_reserve with fixed_capacity_mw instead. Do not extend this file.
+
 WHY THIS IS SEPARATE FROM all_hours_reserve.py
 
 The general version cannot be applied here, and forcing it would be worse than complex -- it would
