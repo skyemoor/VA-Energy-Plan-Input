@@ -6831,3 +6831,33 @@ figures are simply out.
 sets of figures were competing claims about the same thing, when one predates the data structure the
 other is built on.
 
+
+## 140. Scenario 2's result is superseded by two scenario-definition changes, not by any defect
+
+**Recorded 2026-09-14.** Scenario 2 solved cleanly at **$32.80/MWh** SLCOE with terminal value,
+$37.86 without, a $32.30-$33.51 capex band and $119.48/MWh societal total, clean share falling
+47.4% (2026) to 34.7% (2045). A same-day code review confirmed the arithmetic and added the
+verification it had been missing.
+
+**Nothing about that run is wrong.** What changed is the specification it solved.
+
+**(a) THE STATUTORY DISTRIBUTED CARVE-OUT IS UNBUILT.** Va. Code 56-585.5(C)(2), as raised by the
+Distributed Generation Expansion Act (HB 628 / SB 175, 2026), requires 4.5% of RPS for 2026-2030
+and 5% for 2031-2045 from resources of 1 MW or less. That is **7,565 MW by 2045 -- 47% of the entire
+16,100 MW statutory solar target** -- and no scenario builds any of it. It displaces gas, so clean
+share rises above 34.7% and the SLCOE moves.
+
+**(b) AGRIVOLTAIC SITING SHOULD APPLY TO EVERY SCENARIO.** It was carried by Scenario 3 alone, which
+gave Scenario 3 a benefit stream the others were denied by construction -- a fairness objection
+Dominion could reasonably raise. It is also unphysical: agrivoltaics is a SITING choice, and
+Scenario 1's 156,737 MW has to go somewhere, overwhelmingly agricultural land. Modelling the same
+land as dual-use in one scenario and bare ground in another is a difference in accounting, not in
+the world.
+
+**ORDER MATTERS.** The carve-out goes first because it changes the BUILD; agrivoltaics is an overlay
+applied to whatever build results, changing cost and land but not compliance. Reversed, the overlay
+would have to be redone once the carve-out moved the build.
+
+**The dashboard is the status; this is the history.** Scenario 2's steps 4-8 are marked superseded
+there without the narrative, so a reader checking where things stand does not have to read why.
+

@@ -26,34 +26,29 @@ rest with gas. No reserve-margin constraint by design.
 | # | step | status | blockers |
 |---|---|---|---|
 | 1 | Solver wired and verified | **done** | — |
-| 2 | Four-checkpoint pathway | **done** | — |
-| 3 | Twenty-year annual stream | **done** | — |
-| 4 | SLCOE, central case | **done** — $32.80/MWh | — |
-| 5 | Capex sensitivity band | **done** — $32.30–$33.51 | — |
-| 6 | Social + health cost, all 20 years | **done** — $119.48/MWh societal | — |
-| 7 | Whitepaper section drafted | **superseded** | see below |
-| 8 | Statutory distributed carve-out | **not started** | profile built; not wired |
+| 2 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 3 | Agrivoltaic siting, applied evenly | **not started** | — |
+| 4 | Four-checkpoint pathway | **superseded** | steps 2, 3 |
+| 5 | Twenty-year annual stream | **superseded** | steps 2, 3 |
+| 6 | SLCOE + capex band | **superseded** | steps 2, 3 |
+| 7 | Social + health cost | **superseded** | steps 2, 3 |
+| 8 | Whitepaper section | **superseded** | steps 2, 3 |
 | 9 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
 | 10 | Unit commitment sensitivity | **blocked** | #17 |
 
-> ### SUPERSEDED 2026-09-14 — the statutory distributed carve-out
->
-> Va. Code § 56-585.5(C)(2), as raised by the **Distributed Generation Expansion Act (HB 628 /
-> SB 175, 2026)**, requires **4.5% of RPS (2026–2030) and 5% (2031–2045)** from sub-1 MW
-> behind-the-meter resources. **No scenario currently builds any.**
->
-> | year | share | energy | MW at 15.26% CF |
-> |---|---:|---:|---:|
-> | 2026 | 4.5% | 4.60 TWh | 3,445 |
-> | 2030 | 4.5% | 5.31 TWh | 3,970 |
-> | 2045 | **5.0%** | **10.11 TWh** | **7,565** |
->
-> **7,565 MW at 2045 is 47% of the entire 16,100 MW statutory solar target**, arriving as
-> distributed capacity nothing currently models. It displaces gas, so Scenario 2's clean share
-> **rises above 34.7%** and its SLCOE moves.
->
-> **Steps 1–7 must be re-run.** The $32.80/MWh figure and the drafted whitepaper section both
-> predate this.
+**Two changes to the scenario definition supersede the completed run.** The
+$32.80/MWh SLCOE is a clean result on a specification we have since revised, not a wrong
+result — see build log 140.
+
+● **The distributed carve-out is statutory and unbuilt.** 4.5% of RPS (2026–2030) and 5%
+  (2031–2045) from resources ≤1 MW, per § 56-585.5(C)(2) as raised by HB 628 / SB 175.
+  **7,565 MW by 2045**, which is 47% of the 16,100 MW solar target. It displaces gas, so
+  clean share rises above 34.7% and cost moves.
+● **Agrivoltaic siting should apply to every scenario, not Scenario 3 alone.** It changes
+  cost and land, not compliance.
+
+**Order matters:** carve-out first, since it changes the build; agrivoltaics second, as an
+overlay on whatever build results.
 
 ### Findings carried forward
 
@@ -77,8 +72,9 @@ rest with gas. No reserve-margin constraint by design.
 | 4 | SLCOE | **not started** | depends on step 3 |
 | 5 | Social + health cost, all 20 years | **not started** | depends on step 3 |
 | 6 | Myopic vs perfect-foresight comparison | **blocked** | #22 |
-| 7 | Statutory distributed carve-out | **not started** | profile built; not wired |
-| 8 | Whitepaper section | **not started** | depends on step 4 |
+| 7 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 8 | Agrivoltaic siting, applied evenly | **not started** | — |
+| 9 | Whitepaper section | **not started** | step 4 |
 
 **Step 2 is the gate.** The prior run predates Bath County's correction to Dominion's 1,808 MW
 share, which moves every dispatch result. #24 asks whether `checkpoint_solver`'s remaining parallel
@@ -102,8 +98,9 @@ constructions are still justified — worth settling in the same pass, since bot
 | 4 | Twenty-year annual stream | **not started** | no runner yet |
 | 5 | SLCOE | **not started** | depends on step 4 |
 | 6 | Social + health cost | **partial** — per checkpoint only | depends on step 4 |
-| 7 | Statutory distributed carve-out | **not started** | profile built; not wired |
-| 8 | Whitepaper section | **not started** | depends on step 5 |
+| 7 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 8 | Agrivoltaic siting, applied evenly | **not started** | — |
+| 9 | Whitepaper section | **not started** | step 5 |
 
 **Same gate as Scenario 1.** Step 4 has no runner: `run_scenario1_annual.py` is Scenario 1 specific
 and would need the five-checkpoint set and 1B's 2045 capacity.
@@ -126,8 +123,9 @@ and would need the five-checkpoint set and 1B's 2045 capacity.
 | 4 | SLCOE | **not started** | depends on step 3 |
 | 5 | DER owner economics | **blocked** | #5, #15 |
 | 6 | Transmission-deferral assessment | **not started** | #4 |
-| 7 | Social + health cost | **not started** | depends on step 3 |
-| 8 | Whitepaper section | **not started** | depends on step 4 |
+| 7 | Social + health cost | **not started** | step 3 |
+| 8 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 9 | Whitepaper section | **not started** | step 4 |
 
 **Least advanced, and #14 is the substantive blocker**: the distributed siting cap rests on a
 per-capita basis that has been discredited and needs re-deriving on commercial and industrial floor
@@ -139,26 +137,12 @@ area. Every Scenario 3 capacity figure depends on it.
 
 ## The distributed profile — built, not yet wired
 
-`lp_package/distributed_solar_profile.py`, 2026-09-14. Five sites averaged — Sterling, Arlington,
-King George, Richmond, Chesapeake — at **45° due south, fixed**, on the same April–March hydro-year
-boundaries as every other weather input.
+`lp_package/distributed_solar_profile.py`. Five sites averaged — Sterling, Arlington, King George,
+Richmond, Chesapeake — at **45° due south, fixed**, on April–March hydro-year boundaries. Design
+year CF **0.1526**; eight-year range 0.1420–0.1526, so the robustness run sees ~7% less than the
+design-year solve assumes. No paired storage: the DER expansion text requires none.
 
-| hydro year | CF | | hydro year | CF |
-|---|---:|---|---|---:|
-| 2012-13 | 0.1499 | | 2016-17 *(design)* | **0.1526** |
-| 2013-14 | 0.1524 | | 2017-18 | 0.1521 |
-| 2014-15 | 0.1497 | | 2018-19 | **0.1420** |
-| 2015-16 | 0.1501 | | 2019-20 | 0.1465 |
-
-**The design year is the best of the eight.** The robustness run will see less distributed output
-than the design-year solve assumes — 0.1420 against 0.1526.
-
-**45° is not a yield sacrifice.** Against 15°, measured at Sterling 2016: December **+31.5%**,
-January **+29.9%**, June −17.5%, and the **year +1.3%**. The December-to-June ratio moves from 0.45
-to 0.71 — a far more even year, with the gain landing where peaks, outages and price spreads are.
-
-**No paired storage.** The DER expansion text sets none for distributed resources; the obligation
-rests with the utility under § 56-585.5(E).
+Derivation and evidence in build log 135; tilt reasoning in `distributed_solar_profile.__doc__`.
 
 ---
 
