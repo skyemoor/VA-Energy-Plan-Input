@@ -11,7 +11,8 @@ third-party database is superseded by it and should not be carried forward.
 
 ## Legend
 
-● **done** — result produced on current code and constants
+● **done** — result produced on current code, constants and scenario definition
+● **re-check** — result may still hold, but an input to it has changed
 ● **ready** — code complete and audited, not yet run
 ● **blocked** — cannot proceed until the listed issues are resolved
 ● **not started**
@@ -25,7 +26,7 @@ rest with gas. No reserve-margin constraint by design.
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver wired and verified | **done** | — |
+| 1 | Solver wired and verified | **superseded** | steps 2, 3 |
 | 2 | Statutory distributed carve-out | **not started** | profile built, not wired |
 | 3 | Agrivoltaic siting, applied evenly | **not started** | — |
 | 4 | Four-checkpoint pathway | **superseded** | steps 2, 3 |
@@ -66,8 +67,8 @@ overlay on whatever build results.
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver wired, all-hours reserve applied | **done** | — |
-| 2 | Four-checkpoint pathway | **superseded** — needs re-run | #24 |
+| 1 | Solver wired, all-hours reserve applied | **superseded** | steps 7, 8 |
+| 2 | Four-checkpoint pathway | **superseded** | #24, steps 7, 8 |
 | 3 | Twenty-year annual stream | **ready** | depends on step 2 |
 | 4 | SLCOE | **not started** | depends on step 3 |
 | 5 | Social + health cost, all 20 years | **not started** | depends on step 3 |
@@ -92,9 +93,9 @@ constructions are still justified — worth settling in the same pass, since bot
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver and reserve variant | **done** | — |
-| 2 | Capacity sweep result implemented (6,000 MW) | **done** | — |
-| 3 | Five-checkpoint pathway incl. 2044 | **superseded** — needs re-run | #24 |
+| 1 | Solver and reserve variant | **superseded** | steps 7, 8 |
+| 2 | Capacity sweep result implemented (6,000 MW) | **re-check** | steps 7, 8 |
+| 3 | Five-checkpoint pathway incl. 2044 | **superseded** | #24, steps 7, 8 |
 | 4 | Twenty-year annual stream | **not started** | no runner yet |
 | 5 | SLCOE | **not started** | depends on step 4 |
 | 6 | Social + health cost | **partial** — per checkpoint only | depends on step 4 |
@@ -117,7 +118,7 @@ and would need the five-checkpoint set and 1B's 2045 capacity.
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver, reserve variant, distributed bounds | **done** | — |
+| 1 | Solver, reserve variant, distributed bounds | **superseded** | step 8 |
 | 2 | Four-checkpoint pathway | **not started** | #14, #24 |
 | 3 | Twenty-year annual stream | **not started** | depends on step 2 |
 | 4 | SLCOE | **not started** | depends on step 3 |
