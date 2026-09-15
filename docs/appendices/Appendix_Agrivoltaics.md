@@ -209,7 +209,42 @@ land presumed converted to solar-only use.
 
 ## Land-Use Footprint, Including Storage
 
-Solar's land-use footprint is well-established in this project at 4-6
+### Why this analysis uses 5–7 acres/MW, and what the larger Virginia figures mean
+
+The evidence on solar land use spans a wide range, and the spread is mostly a
+question of what is being measured rather than genuine disagreement. At the low
+end, the U.S. Geological Survey's grazing study at an operating 18 MW New York
+facility covers 21.85 hectares — about **3.0 acres/MW** of fenced site. The
+Solar Energy Industries Association publishes **5 to 7 acres/MW** of generating
+capacity, and the 2025 *Frontiers in Sustainable Food Systems* study of 28
+grazed commercial sites across the northeastern United States adopts 6 acres/MW
+as its costing reference on precisely that basis. The American Solar Grazing
+Association's 2024 census — 113,050 sheep on 129,000 acres representing 18,000
+to 26,000 MW — implies **5.0 to 7.2 acres/MW**, independently reproducing the
+SEIA range from operational data. Against these, Virginia's own operating
+agrivoltaic projects look far larger: Skipjack Solar Center occupies 2,200 acres
+for 175 MWdc and Crystal Hill Solar 620 acres for 65 MW, giving **9.5 to 12.6
+acres/MWdc**. Those are whole-parcel figures in direct current, and they include
+setbacks, vegetative buffers, access roads, interconnection yards and
+undeveloped parcel remainder — none of which the generating-capacity basis
+counts, and all of which a county board sees on a site plan. The two bases are
+not in conflict; they answer different questions, and a reader who has seen one
+will not recognise the other. **This analysis adopts SEIA's 5–7 acres/MW**,
+moving up from the 4–6 range it previously carried. The reason is defensibility
+rather than a belief that 4–6 was wrong: 5–7 is an industry body's published
+figure a reviewer can look up and check, where 4–6 was assembled here. It also
+moves in the conservative direction — both ends rise, every acreage figure in
+this appendix grows by a quarter, and an analysis arguing that Virginia can site
+well over 150 GW of solar should not be the one minimising how much land that
+takes. The whole-parcel figures are carried alongside rather than discarded,
+because they are what appears in permitting, and the gap between them is better
+explained here than discovered by a supervisor mid-hearing.
+
+**Storage is added on top of the SEIA figure, not assumed within it.** SEIA's
+range describes generating capacity and makes no provision for co-located
+batteries, so this analysis adds its own storage footprint separately.
+
+Solar's land-use footprint in this analysis is therefore 5-7
 acres/MW for single-axis tracking. Adding utility-scale storage — sized
 to this project's own established VCEA-target mix of sodium-ion
 (short-duration) and iron-air (long-duration) storage — adds
@@ -230,10 +265,10 @@ ultimately stores.
 
 At this project's own full-buildout storage targets, combined sodium-ion
 and iron-air storage requires roughly 1,600-3,900 acres — against solar's
-own 64,400-96,600 acres at the same scale. Expressed as an add-on rate,
-storage adds roughly 0.10-0.24 acres for every megawatt of solar,
-bringing "firmed" (solar-plus-storage) land use to approximately 4.1-6.2
-acres per MW — a real but comparatively modest addition, on the order of
+own 80,500-112,700 acres at the same scale on the SEIA basis. Expressed
+as an add-on rate, storage adds roughly 0.10-0.24 acres for every
+megawatt of solar, bringing "firmed" (solar-plus-storage) land use to
+approximately 5.1-7.2 acres per MW — a real but comparatively modest addition, on the order of
 2.5-4% more land than solar requires on its own.
 
 ## Limitations and Open Questions
@@ -251,10 +286,32 @@ resolved:
 - Sodium-ion's land-use figures rely on a lithium-ion proxy in the
   absence of chemistry-specific data.
 - Crop and vegetable compatibility findings are drawn from research
-  conducted outside Virginia; no Virginia-specific field trial results
-  were identified for this appendix, though the climate and crop overlap
-  with tested regions (particularly Delaware's Eastern Shore work) is
-  direct.
+  conducted outside Virginia; no Virginia-specific field *trial* results
+  were identified, though the climate and crop overlap with tested
+  regions (particularly Delaware's Eastern Shore work) is direct.
+  Virginia now has operating agrivoltaic sites — Skipjack (175 MWdc,
+  sheep), Crystal Hill (65 MW, sheep and apiary) — and a crop-based
+  demonstration at the Piedmont Environmental Council's Loudoun County
+  community farm, but these are operations and demonstrations rather
+  than controlled trials.
+- **Shade reduces herbage yield, and the optimistic and cautionary
+  findings must be cited together.** Oregon State's grazing study reports
+  land productivity rising up to 200% by combining sheep and solar on the
+  same land; the U.S. Geological Survey's New York study finds that
+  "shade from solar panels negatively affected herbage yield" and
+  identifies an optimal stocking rate of 8 sheep per hectare. A 2026
+  *JDS Communications* study found a 50 kW site produced less forage
+  biomass than both a 30 kW site and an unshaded control, "primarily due
+  to reduced sunlight." These are not contradictory — they measure
+  different quantities at different densities — but quoting the 200%
+  figure without the density constraint would misrepresent the evidence.
+- Virginia's 2026 agrivoltaics statute requires a qualifying project to
+  sustain agricultural productivity **over the life of the project** and
+  to form part of a **commercial agricultural operation**. Whether
+  standard-density single-axis tracking satisfies that test is a
+  statutory question this appendix does not resolve, and it is the
+  residual risk to the land-use figures above — not the acreage itself,
+  which is settled.
 - The lease-income argument (2026-08-19 refinement, prompted directly):
   even where crop-yield evidence is thin or genuinely mixed (see corn/
   soybean, and the Turkey tomato nuance below), a locked-in per-acre

@@ -58,9 +58,10 @@ rather than income LEVEL, and variance reduction is what mitigates farm failure.
 therefore reports the lease component separately from any production value.
 
 SOURCED INPUTS (see the appendix for full citations)
-  land use, single-axis tracking      4-6 acres/MW
+  land use, single-axis tracking      5-7 acres/MW   (SEIA, generating-capacity basis)
+  whole-parcel, VA operating projects 9.5-12.6 acres/MWdc
   storage add-on at project targets   0.10-0.24 acres/MW of solar
-  firmed solar-plus-storage           4.1-6.2 acres/MW
+  firmed solar-plus-storage           5.1-7.2 acres/MW
   Virginia lease rates                $1,200-2,500/acre/year
   national comparison                 $500-700/acre/year
 """
@@ -69,9 +70,32 @@ from dataclasses import dataclass
 #: 85% of TOTAL solar capacity. A stated allocation assumption -- see module docstring.
 AGRIVOLTAIC_SHARE_OF_TOTAL_SOLAR = 0.85
 
-#: Acres per MW, single-axis tracking. Project-established, stable across revisions.
-ACRES_PER_MW_LOW = 4.0
-ACRES_PER_MW_HIGH = 6.0
+#: Acres per MW, single-axis tracking, PANEL/GENERATING-CAPACITY BASIS.
+#:
+#: MOVED TO SEIA'S PUBLISHED 5-7 ON 2026-09-14, from a project-assembled 4-6. Two reasons, and
+#: neither is that the old range was wrong:
+#:
+#:   DEFENSIBILITY. 5-7 acres/MW is the industry body's own figure, which a reviewer can look up.
+#:   4-6 was a range this project assembled. The northeastern grazing study in Frontiers uses 6 as
+#:   its cost reference on exactly the SEIA basis.
+#:
+#:   DIRECTION. Both ends rise, so every land-use figure grows. For an analysis arguing Virginia can
+#:   site 156,737 MW of solar, OVERSTATING the footprint is the conservative direction -- the
+#:   analysis cannot be accused of minimising it.
+#:
+#: THIS IS THE GENERATING-CAPACITY BASIS, NOT THE PARCEL BASIS. Virginia's operating agrivoltaic
+#: projects sit at 9.5-12.6 acres/MW on a whole-parcel, MWdc basis -- Skipjack 175 MWdc on 2,200
+#: acres, Crystal Hill 65 MW on 620. Those are not inconsistent with SEIA; they measure a different
+#: thing, including setbacks, buffers, access and undeveloped parcel remainder, and they are what a
+#: county board sees when a project comes before it. See the appendix, which carries both.
+ACRES_PER_MW_LOW = 5.0
+ACRES_PER_MW_HIGH = 7.0
+
+#: Whole-parcel acres per MWdc, as Virginia's operating projects are permitted and reported. Carried
+#: alongside the generating-capacity basis because the two differ by roughly a factor of two and a
+#: reader who has seen one will not recognise the other.
+PARCEL_ACRES_PER_MWDC_LOW = 9.5
+PARCEL_ACRES_PER_MWDC_HIGH = 12.6
 
 #: Storage land-use add-on per MW of solar, at this project's own VCEA-target sodium-ion and
 #: iron-air mix. Sodium-ion uses a lithium-ion proxy (no chemistry-specific figure found); iron-air
@@ -958,8 +982,8 @@ FSA_SOURCE_CAVEAT = (
 #      against a substantial decline in solar power." Sacrificing generation to recover yield is a
 #      poor trade at these magnitudes -- which matters for a scenario whose purpose is energy.
 #
-# WHAT IT DOES NOT RESOLVE. The paper does not state acres/MW or MW/ha directly, so the gap flagged
-# in AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED remains open -- but 9.1 m row spacing at constant total
+# WHAT IT DOES NOT RESOLVE DIRECTLY. The paper does not state acres/MW or MW/ha -- but 9.1 m row
+# spacing at constant total
 # power is a far more favourable anchor than the vertical route's 11.3-13.7 m, and suggests the
 # tracking configuration is the one to cost. Site is Indiana (Purdue), humid continental -- closer
 # to Virginia than northern Colorado's semi-arid climate, though still not a match.
@@ -1000,14 +1024,27 @@ TILTED_BIFACIAL_SPECIFIC_YIELD_KWH_PER_KWP = 1_962        # same pilot, 10-degre
 ELEVATED_TILTED_LCOE_PREMIUM_FRACTION = 0.88              # vs conventional ground-mount
 VERTICAL_BIFACIAL_ROW_SPACING_M_FOR_90PCT_YIELD = (11.3, 13.7)   # University of Turku
 
-AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED = (
-    'ACRES_PER_MW_LOW/HIGH (4-6) are STANDARD SINGLE-AXIS TRACKING figures. Both viable '
-    'agrivoltaic configurations are less land-efficient: vertical bifacial yields ~35% less per '
-    'kWp and needs 11.3-13.7 m row spacing to retain 90% of crop yield, while elevated tilted '
-    'racking preserves energy density but adds ~88% to LCOE. Every acreage figure derived from '
-    '4-6 acres/MW is therefore a LOWER BOUND for agrivoltaic siting, and the land-use fit and '
-    'farmland-share percentages are correspondingly optimistic. An agrivoltaic-specific acres/MW '
-    'figure is needed and is not yet held; a guess would be worse than carrying the gap.')
+#: RESOLVED 2026-09-14. The flag this replaces held that the tracking acreage figures did not apply
+#: to agrivoltaics, because the only viable configurations were vertical bifacial or elevated tilted
+#: racking. THAT PREMISE WAS WRONG: single-axis tracking is a third configuration, and it is the one
+#: with farm-scale validation behind it.
+AGRIVOLTAIC_ACRES_PER_MW_RESOLUTION = (
+    'SINGLE-AXIS TRACKING IS AGRIVOLTAIC-COMPATIBLE and is the dominant deployed configuration, so '
+    'ACRES_PER_MW_LOW/HIGH apply directly rather than as a lower bound. Evidence: the Purdue corn '
+    'study (Cell Reports Sustainability) measured a farm-scale site with east-west sun-tracking PV '
+    'against unshaded controls, varying panel height, row pitch and tracking angle, and validated '
+    'an APSIM crop model against it; anti-tracking during morning and evening to raise crop PAR is '
+    'established practice, cited there from the Montpellier lettuce work. Sheep grazing, which is '
+    'roughly three-quarters of US agrivoltaic project area and more than 230 of ~250 US livestock '
+    'projects, needs no tractor clearance at all, so the elevation premium does not attach to it. '
+    'The 88% elevated-tilted LCOE premium and the 35% vertical-bifacial yield penalty remain real '
+    'for THOSE configurations and are retained above; they are alternatives, not the only options.')
+
+#: Retained for the configurations it genuinely describes. Not a blanket caution on agrivoltaics.
+AGRIVOLTAIC_NON_TRACKING_PENALTIES_APPLY_ONLY_TO_THOSE_CONFIGURATIONS = (
+    'ELEVATED_TILTED_LCOE_PREMIUM_FRACTION and the vertical-bifacial yield gap describe elevated '
+    'tilted racking and vertical bifacial respectively. Neither applies to single-axis tracking '
+    'with grazing, which is what the deployed fleet overwhelmingly is.')
 
 
 # ============================================================================
@@ -1208,9 +1245,11 @@ def indicated_configuration(crop: str) -> str:
 # STATED LIMITS. The ~zero delta assumes (a) siting on shade-tolerant forage, (b) single-axis
 # tracking at standard density, (c) that fencing and access for grazing are within normal O&M
 # scope. It does NOT hold for row crops, for elevated racking, or where machinery access forces
-# vertical. And AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED still applies: if standard-density tracking
-# proves insufficient to qualify as agrivoltaic under Va. Code § 10.1-1197.5, the land term rises
-# and with it the delta. RISK DOWNGRADED 2026-09-11: an earlier draft argued clause (i), 'designed
+# vertical. The residual risk is STATUTORY rather than physical: if standard-density tracking proves
+# insufficient to qualify as agrivoltaic under Virginia's 2026 definition -- which requires a project
+# to sustain agricultural productivity over its life and form part of a commercial agricultural
+# operation -- the land term rises and with it the delta. The acreage question itself is settled
+# (see AGRIVOLTAIC_ACRES_PER_MW_RESOLUTION); qualification is not. RISK DOWNGRADED 2026-09-11: an earlier draft argued clause (i), 'designed
 # to prioritize and sustain agricultural productivity', might exclude conventional arrays. The
 # better reading is that the counterfactual is conventional solar development, which removes the
 # land from agriculture entirely -- against which any configuration keeping land in production does

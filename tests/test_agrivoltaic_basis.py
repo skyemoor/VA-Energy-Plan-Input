@@ -192,9 +192,12 @@ class TestVirginiaLandUseFit:
 
     def test_all_three_denominators_are_reported(self):
         r = ag.land_use_fit(ag.footprint(173_780.7))
-        assert r.share_of_all_farmland[0] == pytest.approx(0.083, abs=0.005)
-        assert r.share_of_cropland[0] == pytest.approx(0.210, abs=0.005)
-        assert r.share_of_forage_land[0] == pytest.approx(0.200, abs=0.005)  # was 0.217 on the derived hay figure
+        # MOVED 2026-09-14 when acres/MW went from a project-assembled 4-6 to SEIA's published 5-7.
+        # Every share rises by 25% because the numerator does -- which is the point: overstating
+        # the footprint is the conservative direction for an analysis arguing the land is there.
+        assert r.share_of_all_farmland[0] == pytest.approx(0.103, abs=0.005)   # was 0.083 at 4 ac/MW
+        assert r.share_of_cropland[0] == pytest.approx(0.261, abs=0.005)       # was 0.210
+        assert r.share_of_forage_land[0] == pytest.approx(0.248, abs=0.005)    # was 0.200
 
     def test_cropland_share_is_the_hard_number_and_is_not_hidden(self):
         """21-32% of Virginia's cropland is what an opponent would reach for. It must be
@@ -237,7 +240,7 @@ class TestVirginiaLandUseFit:
     def test_correction_moved_the_finding_favourably(self):
         """20.0-30.4% of forage land, against 21.7-33.1% under the understated derivation."""
         r = ag.land_use_fit(ag.footprint(173_780.7))
-        assert r.share_of_forage_land[1] == pytest.approx(0.304, abs=0.005)
+        assert r.share_of_forage_land[1] == pytest.approx(0.353, abs=0.005)  # was 0.304 at 6 ac/MW
 
     def test_top_crops_list_is_flagged_as_partial(self):
         """It omits cotton, peanuts, tobacco, vegetables and orchards, so it must not be summed
@@ -505,18 +508,29 @@ class TestMountingConfigurationAndTheAcresPerMWGap:
         lo, hi = ag.VERTICAL_BIFACIAL_ROW_SPACING_M_FOR_90PCT_YIELD
         assert lo > 11 and hi < 14
 
-    def test_acres_per_mw_gap_is_recorded_not_patched(self):
-        """4-6 acres/MW is a standard-tracking figure. Substituting a guess for agrivoltaic
-        configurations would be worse than carrying the gap explicitly."""
-        g = ag.AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED
-        assert 'STANDARD SINGLE-AXIS TRACKING' in g
-        assert 'LOWER BOUND' in g
-        assert 'a guess would be worse than carrying the gap' in g
+    def test_the_acreage_question_is_resolved_not_flagged(self):
+        """RESOLVED 2026-09-14. The old flag held that the tracking acreage figures did not apply to
+        agrivoltaics, because the only viable configurations were vertical bifacial or elevated
+        tilted racking. THAT PREMISE WAS WRONG -- single-axis tracking is a third configuration, and
+        it is the one with farm-scale validation (Purdue corn study, east-west sun-tracking PV
+        against unshaded controls, APSIM validated).
 
+        Sheep grazing is roughly three-quarters of US agrivoltaic project area and needs no tractor
+        clearance, so the elevation premium does not attach to it at all."""
+        g = ag.AGRIVOLTAIC_ACRES_PER_MW_RESOLUTION
+        assert 'SINGLE-AXIS TRACKING IS AGRIVOLTAIC-COMPATIBLE' in g
+        assert not hasattr(ag, 'AGRIVOLTAIC_ACRES_PER_MW_IS_UNRESOLVED')
+
+    def test_the_configuration_penalties_are_retained_but_scoped(self):
+        """The 88% elevated-tilted premium and the 35% vertical-bifacial yield gap remain real for
+        THOSE configurations. They are alternatives, not a blanket caution on agrivoltaics."""
+        assert ag.ELEVATED_TILTED_LCOE_PREMIUM_FRACTION == 0.88
+        assert 'Neither applies to single-axis tracking' in \
+            ag.AGRIVOLTAIC_NON_TRACKING_PENALTIES_APPLY_ONLY_TO_THOSE_CONFIGURATIONS
     def test_acres_per_mw_constants_are_unchanged_pending_a_real_figure(self):
         """The gap is documented, not silently corrected -- every downstream figure stays
         reproducible against what was published."""
-        assert ag.ACRES_PER_MW_LOW == 4.0 and ag.ACRES_PER_MW_HIGH == 6.0
+        assert ag.ACRES_PER_MW_LOW == 5.0 and ag.ACRES_PER_MW_HIGH == 7.0
 
 
 class TestPurdueCornFarmScaleTrial:
@@ -565,7 +579,7 @@ class TestPurdueCornFarmScaleTrial:
     def test_acres_per_mw_gap_remains_open(self):
         """The paper does not state acres/MW, so the gap stands -- but 9.1 m is a better anchor."""
         src = open(ag.__file__).read()
-        assert 'does not state acres/MW or MW/ha directly' in src
+        assert 'does not state acres/MW or MW/ha' in src
 
 
 class TestBifacialFundamentals:
