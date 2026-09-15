@@ -606,6 +606,28 @@ def check_section_symbol_only_in_va_code_citations():
     return True, 'section symbol appears only in Virginia Code citations'
 
 
+
+def check_scenarios_declare_gas_retirement_schedule():
+    """Every scenario solver must declare its own gas retirement schedule.
+
+    Schedules A and B differ by 5,531 MW at 2045, and which applies depends on whether the scenario
+    gives gas plants a market -- a scenario property, not a fact about the fleet.
+
+    SCENARIO 2 INHERITED SCHEDULE B SILENTLY for its entire life, modelling a retirement premised on
+    a scenario it was not running: Schedule B has three plants closing FOR LACK OF MARKET while
+    Scenario 2 runs gas at a 68% capacity factor. Checks __dict__ rather than the MRO, for the same
+    reason check 14 does -- inheritance is what allowed the defect.
+    """
+    import checkpoint_solver as cs
+    missing = [n for n in ('Scenario1Solver', 'Scenario1BSolver', 'Scenario2Solver',
+                           'Scenario3Solver')
+               if 'gas_retirement_schedule' not in vars(getattr(cs, n))]
+    if missing:
+        return False, ('scenario(s) inherit a gas retirement schedule instead of declaring one: '
+                       + ', '.join(missing))
+    return True, 'all four scenarios declare their own gas retirement schedule'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -674,6 +696,7 @@ CHECKS = [
     ('one demand source in the runners', check_one_demand_source),
     ('section symbol only in VA Code citations', check_section_symbol_only_in_va_code_citations),
     ('scenarios state their own gas split', check_scenarios_state_their_own_gas_split),
+    ('scenarios declare their gas retirement schedule', check_scenarios_declare_gas_retirement_schedule),
     ('no export revenue in objectives (Appendix P.2 #8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 

@@ -45,6 +45,29 @@ class CheckpointSolver:
     own standing requirements (Appendix P.2 #11/#13/#14) before it can be
     treated as final."""
 
+    def gas_retirement_schedule(self):
+        """Which retirement world this scenario is in: 'A' physical, 'B' VCEA-driven.
+
+        A TEMPLATE METHOD WITH NO DEFAULT, deliberately. The two schedules differ by 5,531 MW at
+        2045, and which applies depends on whether the scenario gives gas plants a market -- a
+        scenario property, not a fact about the fleet.
+
+        Scenario 2 inherited Schedule B silently for its entire life and was modelling a
+        retirement premised on a scenario it was not running: Schedule B has Brunswick County,
+        Potomac Energy Center and Greensville retiring FOR LACK OF MARKET, while Scenario 2 runs
+        gas at a 68% capacity factor supplying 132 TWh. An inherited default is what allowed that,
+        so there is none.
+        """
+        raise NotImplementedError(
+            f'{type(self).__name__} must declare its gas retirement schedule. '
+            "Return 'A' for physical retirement on plant age, market-indifferent, or 'B' for "
+            'VCEA-driven retirement where plants close for lack of market in a clean grid.')
+
+    def gas_baseline_mw(self, year=None):
+        """Existing gas capacity in `year` under this scenario's own declared schedule."""
+        return drv.gas_baseline_mw(self.year if year is None else year,
+                                   self.gas_retirement_schedule())
+
     def __init__(self, year, demand, exist_solar, solar_cf, wind_cf, nuclear,
                  sourced_annual_total_gwh=None):
         self.year = year
@@ -303,6 +326,12 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
     accept prior_* kwargs specifically so linking and convergence could be combined in one
     call (previously required bypassing run_solve() entirely -- see Internal Debugging Log)."""
 
+    def gas_retirement_schedule(self):
+        """SCHEDULE B. Scenario 1 reaches 100% clean at 2045, so Brunswick County, Potomac Energy
+        Center and Greensville genuinely have no market -- which is the world Schedule B describes
+        and the scenario it was written for."""
+        return 'B'
+
     def __init__(self, year, demand, exist_solar, solar_cf, wind_cf, nuclear,
                  gas_target_share, sourced_annual_total_gwh=None, prior_result=None):
         super().__init__(year, demand, exist_solar, solar_cf, wind_cf, nuclear,
@@ -386,6 +415,12 @@ class Scenario1BSolver(Scenario1Solver):
     2045-and-beyond checkpoints allows 5% gas rather than the ~0.08% 'true 100% clean'
     target -- the entire class body is this one override, versus a fully duplicated
     solve_2045_1b_*.py script under the pre-refactor pattern."""
+
+    def gas_retirement_schedule(self):
+        """SCHEDULE B. At 5% gas from 2045 the fleet needs very little, so it retires as in a VCEA
+        world with enough retained to cover the following year -- which is exactly what
+        SCENARIO_1B_GAS_CAPACITY_MW and the overhaul/retain pool represent."""
+        return 'B'
 
     def apply_gas_cap(self):
         """6,000 MW from 2045, the figure Appendix N.2's capacity sweep locked in.
@@ -687,6 +722,11 @@ class Scenario3Solver(Scenario1Solver):
     checkpoint's own solve is complete. Rooftop-WMA and canopy-WMA share ONE combined distributed
     pool (direct user decision, to avoid an overly complex LP) -- not modeled as separate LP segments."""
 
+    def gas_retirement_schedule(self):
+        """SCHEDULE B, as Scenario 1: the same 100% clean terminal year, reached by different
+        siting."""
+        return 'B'
+
     def __init__(self, year, demand, exist_solar, solar_cf, wind_cf, nuclear, gas_target_share,
                  distributed_solar_cf, distributed_exogenous_price_mwh,
                  sourced_annual_total_gwh=None, prior_result=None, policy=None,
@@ -870,6 +910,18 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
     are all Scenario-1-specific concepts that don't apply here. Wraps
     lp_model.build_scenario2_problem() directly, per that function's own, separate
     calling convention (Appendix C)."""
+
+    def gas_retirement_schedule(self):
+        """SCHEDULE A -- CORRECTED 2026-09-14, having inherited B silently until then.
+
+        Schedule B has three plants retiring FOR LACK OF MARKET. Scenario 2 runs gas at a 68%
+        capacity factor supplying 132 TWh of 202 TWh demand: the most valuable market those plants
+        will ever see. They do not close for want of one.
+
+        The correction is worth 5,531 MW at 2045 -- 7,391 against 1,860 -- and Schedule A also
+        carries 2041 and 2044 retirement steps the old flat baseline ignored, so the intermediate
+        years were overstated too."""
+        return 'A'
 
     def __init__(self, year, demand, exist_solar, solar_cf, wind_cf, nuclear,
                  vcea_solar_mw, sourced_annual_total_gwh=None, peak_gas_mw=None):

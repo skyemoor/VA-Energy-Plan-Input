@@ -333,9 +333,9 @@
       "fixed_om_usd": 825638420.8698409,
       "virginia_scc_usd": 17121588132.71382,
       "social_cost_ghg_usd": 18962662063.32644,
-      "health_impacts_usd": 1178959004.1856046,
+      "health_impacts_usd": 1176242339.8179827,
       "co2_tons": 48432443.795215994,
-      "nox_tons": 63446.04679614498
+      "nox_tons": 63120.60838268228
     },
     {
       "year": 2042,
@@ -354,9 +354,9 @@
       "fixed_om_usd": 832574878.1043959,
       "virginia_scc_usd": 17746418152.858566,
       "social_cost_ghg_usd": 19675876762.595078,
-      "health_impacts_usd": 1204401077.3605018,
+      "health_impacts_usd": 1201625787.0581465,
       "co2_tons": 49477621.59588785,
-      "nox_tons": 64815.21990523077
+      "nox_tons": 64482.75849274956
     },
     {
       "year": 2043,
@@ -375,9 +375,9 @@
       "fixed_om_usd": 832103615.6626441,
       "virginia_scc_usd": 18257437972.88114,
       "social_cost_ghg_usd": 20263645436.908726,
-      "health_impacts_usd": 1221506961.3307738,
+      "health_impacts_usd": 1218692254.0976403,
       "co2_tons": 50180343.03150722,
-      "nox_tons": 65735.77839031312
+      "nox_tons": 65398.595090369854
     },
     {
       "year": 2044,
@@ -396,9 +396,9 @@
       "fixed_om_usd": 806689950.5250907,
       "virginia_scc_usd": 18723419085.15485,
       "social_cost_ghg_usd": 20801952397.47658,
-      "health_impacts_usd": 1271676473.579586,
+      "health_impacts_usd": 1259325053.9488902,
       "co2_tons": 50741350.89620649,
-      "nox_tons": 70844.74132513699
+      "nox_tons": 69365.12299004455
     },
     {
       "year": 2045,
@@ -452,12 +452,12 @@
         "label": "Social cost of GHG (CO2+CH4+N2O)"
       },
       "health_impacts_usd": {
-        "pv_usd": 10878671150.91295,
-        "per_mwh": 5.500245234644229,
+        "pv_usd": 10868970518.623713,
+        "per_mwh": 5.4953406046777795,
         "label": "Health impacts (PM, SO2, NOx)"
       }
     },
-    "total_societal_slcoe": 119.48215490810226
+    "total_societal_slcoe": 119.47725027813581
   },
   "first_built": {
     "storage_na": 2026,

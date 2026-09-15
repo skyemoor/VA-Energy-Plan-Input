@@ -116,7 +116,11 @@ def solve_year(year, weather, capex_basis):
     # Computed from THIS year's actual hourly gas dispatch, not from an annual total, because the
     # NOx blend depends on the existing/new MW split at this year's own dispatch level.
     g_hourly = np.array([x[t * nph + IDX['g']] for t in range(len(demand))])
-    existing_mw, new_mw = drv.schedule_b_baseline_mw(year), assumptions.GAS_NEW_BUILD_POOL_MW
+    # SCHEDULE A, from the solver's own declaration. This read schedule_b_baseline_mw until
+    # 2026-09-14 -- the VCEA-driven schedule, whose premise is that plants retire FOR LACK OF
+    # MARKET. Scenario 2 runs gas at a 68% capacity factor supplying 132 TWh, so they do not.
+    existing_mw = drv.gas_baseline_mw(year, solver.gas_retirement_schedule())
+    new_mw = assumptions.GAS_NEW_BUILD_POOL_MW
     tiers = tier123.compute_year(year, g_hourly, existing_mw, new_mw)
     return {
         'year': year,

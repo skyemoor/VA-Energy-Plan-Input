@@ -72,10 +72,64 @@ def vcea_long_duration_floor_mw(year):
     return 2000.0 + (4000.0 - 2000.0) * frac
 
 # ---------------- Gas fleet capacity schedule (Schedule B, VA_gas_capacity_schedules.md) ----------------
-def schedule_b_baseline_mw(year):
-    if year <= 2044:
+#: The two retirement futures, per Gas_Consolidated_Reference.md. They are IDENTICAL through 2040
+#: and diverge on WHY a plant closes, which is a scenario property rather than a fact about the
+#: fleet -- so a scenario must declare which world it is in.
+GAS_RETIREMENT_SCHEDULES = ('A', 'B')
+
+
+def gas_baseline_mw(year, schedule):
+    """Existing gas capacity available in `year`, MW, under retirement schedule A or B.
+
+    SCHEDULE A -- PHYSICAL RETIREMENT on plant age, market-indifferent:
+
+        2026-2040   9,362 MW   all confirmed or presumed-operating plants
+        2041-2043   8,740 MW   Bear Garden retires (2041)
+        2044-2045   7,391 MW   Warren County retires (2044)
+
+    SCHEDULE B -- VCEA-DRIVEN, identical to A through 2044, then:
+
+        2045        1,860 MW   Chesterfield + Doswell + Possum Point only; Brunswick County,
+                               Potomac Energy Center and Greensville (3,774 MW) retire FOR LACK
+                               OF MARKET in a terminal-year grid that has no work for them.
+
+    WHY THIS BECAME A PARAMETER (2026-09-14). `schedule_b_baseline_mw` was the only implementation
+    and every scenario used it by default, including SCENARIO 2 -- where Schedule B's premise is
+    false. Scenario 2 runs gas at a 68% capacity factor supplying 132 TWh, which is the most
+    valuable market those plants will ever see; they do not retire for lack of it. Scenario 2 was
+    therefore modelling a retirement premised on a scenario it was not running, and the 2045 gap it
+    showed was largely an artifact of that.
+
+    Schedule A also carries 2041 and 2044 steps that the old step function ignored entirely, so
+    Scenario 2's intermediate years were overstated by 622 MW from 2041 and 1,971 MW from 2044.
+
+    Scenario 1B stays on SCHEDULE B despite burning some gas: at 5% it needs very little, so the
+    fleet retires as in a VCEA world with enough retained to cover the following year. That
+    retention is what SCENARIO_1B_GAS_CAPACITY_MW and the overhaul/retain pool represent.
+    """
+    if schedule not in GAS_RETIREMENT_SCHEDULES:
+        raise ValueError(
+            f'unknown gas retirement schedule {schedule!r}; expected one of '
+            f'{GAS_RETIREMENT_SCHEDULES}. A scenario must declare which retirement world it is '
+            'in -- the schedules differ by 5,531 MW at 2045 and the difference is a scenario '
+            'property, not a fact about the fleet.')
+    if year <= 2040:
         return 9362.0
-    return 1860.0  # 2045 VCEA-driven drop (Chesterfield+Doswell+Possum Point only)
+    if schedule == 'B':
+        return 9362.0 if year <= 2044 else 1860.0
+    if year <= 2043:
+        return 8740.0      # Bear Garden retires 2041
+    return 7391.0          # Warren County retires 2044
+
+
+def schedule_b_baseline_mw(year):
+    """Schedule B, retained for callers that legitimately want it.
+
+    KEPT RATHER THAN REMOVED because Scenarios 1, 1B and 3 all genuinely use Schedule B, and
+    renaming a correct call site adds churn without adding safety. New code should call
+    gas_baseline_mw(year, schedule) so the choice is visible.
+    """
+    return gas_baseline_mw(year, 'B')
 
 # ---------------- 8-plant overhaul/retain pool, youngest-first (commissioning date desc) ----------------
 #
