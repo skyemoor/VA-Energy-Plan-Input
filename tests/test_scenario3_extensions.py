@@ -55,7 +55,7 @@ class TestUtilityScaleLandUseSplit:
         result = s3b.utility_scale_land_use_mw(total_solar_mw)
         utility_scale_mw = total_solar_mw * s3b.UTILITY_SHARE
         # Independent baseline: this project's own established 90%-of-non-urban figure
-        # (Scenario3_Scope_and_Gaps.md §5.4/C.1), computed here via a separate
+        # (Scenario3_Scope_and_Gaps.md #5.4/C.1), computed here via a separate
         # multiplication, not by re-calling the function under test.
         expected_agrivoltaic = utility_scale_mw * 0.90
         assert abs(result['agrivoltaic_mw'] - expected_agrivoltaic) < 1e-6

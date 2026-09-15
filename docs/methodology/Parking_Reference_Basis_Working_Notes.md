@@ -313,7 +313,7 @@ filter discards genuine parking rather than excluding noise.
 
 ### The normalizer: parking scales with commercial floorspace
 
-Fairfax was condemned in §3 for reporting 0.65% of land area as parking against Richmond's 7.82%
+Fairfax was condemned in #3 for reporting 0.65% of land area as parking against Richmond's 7.82%
 and Arlington's 6.08%. Land area is the wrong denominator — it conflates undeveloped land,
 development intensity, and structured-versus-surface parking into a single number, and those vary
 enormously between Loudoun's farmland, Fairfax's suburbs and Arlington's urban core.
@@ -327,28 +327,28 @@ Normalized against **C&I building footprint** — what parking physically scales
 
 3.75× is the expected range for surface-parked suburban development. 0.80× is the signature of a
 jurisdiction that parks vertically — Rosslyn-Ballston, Crystal City. **Fairfax is normal and
-Arlington is the outlier**, the reverse of the §3 reading.
+Arlington is the outlier**, the reverse of the #3 reading.
 
 ### Why this normalizer is the right one
 
 1. **It is causal, not correlative.** Parking is built to serve floorspace. Population and land
    area are proxies at best; a jurisdiction's commercial parking serves its economic catchment
-   (see §4), and its land area includes however much farmland it happens to contain.
+   (see #4), and its land area includes however much farmland it happens to contain.
 2. **It discriminates structured from surface parking** — which is exactly what matters for canopy
    solar, since a deck yields only its top level of footprint.
 3. **It is computable from data already held**: C&I footprint exists for Loudoun, Fairfax,
    Arlington, Prince William and Chesapeake.
 
 This supersedes both the per-capita method encoded in `population_extrapolation.py` and the
-land-area and daytime-population alternatives proposed in §4.
+land-area and daytime-population alternatives proposed in #4.
 
 ### Corrections to the earlier sections of this note
 
-- **§3 is withdrawn.** Fairfax is usable. Its two errors are fixed above.
-- **§5's table is superseded.** Fairfax returns to the basis as the surface-parked suburban
+- **#3 is withdrawn.** Fairfax is usable. Its two errors are fixed above.
+- **#5's table is superseded.** Fairfax returns to the basis as the surface-parked suburban
   reference — the type the eight-jurisdiction survey found nowhere else.
-- **§4's normalizer proposals are superseded** by parking-per-C&I-footprint.
-- **§6 stands.** Richmond remains sound.
+- **#4's normalizer proposals are superseded** by parking-per-C&I-footprint.
+- **#6 stands.** Richmond remains sound.
 - **The Arlington reinstatement recommendation stands**, and is now better supported: at 0.80× it
   is a genuine structured-parking datum rather than merely "too dense".
 
@@ -378,7 +378,7 @@ floorspace, with the ratio conditioned on whether a jurisdiction parks on the su
 
 ---
 
-## 10. Fairfax corrected — and the diagnosis in §3 was wrong (2026-09-11)
+## 10. Fairfax corrected — and the diagnosis in #3 was wrong (2026-09-11)
 
 Section 3 concluded Fairfax's parking extract was "coverage-limited — not usable as an anchor."
 **That was wrong**, and the reasoning that produced it was wrong in an instructive way. Fairfax is
@@ -435,7 +435,7 @@ discards genuine parking rather than excluding noise.
 Previously reported: 1,298 acres. **Canopy potential 516.2 – 645.2 MW**, against 377.0 – 471.3 —
 a **37% correction**.
 
-### Why the §3 diagnosis failed: land area is the wrong normalizer
+### Why the #3 diagnosis failed: land area is the wrong normalizer
 
 Fairfax was condemned on reporting 0.65% of land area as parking against Richmond's 7.82% and
 Arlington's 6.08%. But land area conflates undeveloped acreage, development intensity, and
@@ -584,7 +584,7 @@ without them.
 | **Fairfax** | **1,777** | **516.2 – 645.2** | **sound, surface-parked suburban** |
 | Arlington | 1,086 | — | sound, structured/transit-served |
 
-All figures carry the §12 limitation: no site survey, no shading deduction, upper bounds on the
+All figures carry the #12 limitation: no site survey, no shading deduction, upper bounds on the
 physical resource rather than deliverable capacity.
 
 ---
@@ -650,7 +650,7 @@ Fairfax's four-vintage mixture.
 
 Distributed figures should be presented as **floors with stated vintages**, not as current
 capability, and cross-jurisdiction comparison should be avoided or explicitly caveated. This sits
-alongside the §12 shading limitation: both push the same direction, and together they mean the
+alongside the #12 shading limitation: both push the same direction, and together they mean the
 distributed resource is understated by an amount this analysis cannot quantify.
 
 ### Decision, 2026-09-11

@@ -3,7 +3,7 @@ test_reserve_margin_both_shapes.py
 
 One reserve-margin implementation, two problem shapes.
 
-WHY ONE AND NOT TWO. Appendix P.2 §14 requires an alternative solve path to be built from the same
+WHY ONE AND NOT TWO. Appendix P.2 #14 requires an alternative solve path to be built from the same
 code, not reconstructed. The three parallel constructions this project has had each diverged
 SILENTLY: build_dispatch_problem's curtailment cost sat 20x below build_problem's behind a comment
 claiming they matched; run_solve_multi_duration lost every prior_* parameter and could no longer

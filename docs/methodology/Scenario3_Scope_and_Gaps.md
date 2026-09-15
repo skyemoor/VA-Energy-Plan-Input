@@ -16,7 +16,7 @@ missing.*
 
 *This section exists because modeling was actually carried out against a specific, final set of
 choices — not because every open question in this document has been resolved. It answers "what did
-the work that's already been done actually assume," coalescing §§6-8 (this session's own research)
+the work that's already been done actually assume," coalescing ##6-8 (this session's own research)
 with the parallel session's own executed build, into one place. This addresses Scenario 3's own
 part (a)/(b) specifically — how rooftop and parking-lot canopy owners get compensated for FERC
 2222-enabled market participation. It does not cover part (c) (agrivoltaics) or part (d) (retail
@@ -24,7 +24,7 @@ day-ahead/real-time rate design), which remain separately scoped elsewhere in th
 
 ### 0.1 The selected structure
 
-**Option 3 (hybrid)**, resolved in §8.1 and never revisited: the existing base wholesale-equivalent
+**Option 3 (hybrid)**, resolved in #8.1 and never revisited: the existing base wholesale-equivalent
 case stays unchanged; a new, clearly-labeled **"Recommended Program"** tier sits alongside it as one
 consolidated, decision-ready combination; the individual sensitivities (LSRV alone, and a separate
 revenue-volatility floor mechanism) are retained underneath as reference, not folded in. This is the
@@ -32,18 +32,18 @@ structure actual modeling was run against.
 
 ### 0.2 The selected component set, with final values — tracing each one to its last, corrected form
 
-Several components were revised mid-stream in the parallel session (documented in §8.2); the table
+Several components were revised mid-stream in the parallel session (documented in #8.2); the table
 below is the *final* version of each, not an intermediate one that was later corrected:
 
 | Component | Final selected value | Where it's grounded here |
 |---|---|---|
-| Energy | Undiscounted wholesale-equivalent rate — $63.00/MWh ($45 EIA average LMP × 1.40 DOM-zone premium, no midday-surplus discount) | §8.2 — a midday-surplus discount describes raw unmanaged export, not a well-timed storage-backed owner's own dispatch; corrected from an earlier, discounted version. **1.40 factor sourced 2026-09-02, from `Notes_from_Previous_session.docx`**: Dominion's real, structural ~40% premium over the RTO average — a year-round relationship, deliberately chosen over a rejected seasonal-spike figure (a winter-only $128.35/MWh IMM number) for exactly that reason. **Not double-counted with the Locational (LSRV) row below** — direct user question, checked against source: the parallel session explicitly confirmed LSRV was built as a separate sensitivity, never merged into this base energy rate ("present only in the sensitivity... not in the base case at all"), and stated directly that the locational adder is "a genuine additional stream on top of wholesale compensation," addressing a different gap (wholesale-vs-retail compensation level) than what the premium itself addresses (Dominion-zone vs. RTO-average pricing) |
-| Capacity — storage | PJM-ELCC-derated, same schedule as the base case (not undiminished) | §8.2 — reliability sizing must reflect real, PJM-measured availability regardless of tariff design; corrected from an earlier "undiminished" version that conflated energy value with capacity accreditation |
+| Energy | Undiscounted wholesale-equivalent rate — $63.00/MWh ($45 EIA average LMP × 1.40 DOM-zone premium, no midday-surplus discount) | #8.2 — a midday-surplus discount describes raw unmanaged export, not a well-timed storage-backed owner's own dispatch; corrected from an earlier, discounted version. **1.40 factor sourced 2026-09-02, from `Notes_from_Previous_session.docx`**: Dominion's real, structural ~40% premium over the RTO average — a year-round relationship, deliberately chosen over a rejected seasonal-spike figure (a winter-only $128.35/MWh IMM number) for exactly that reason. **Not double-counted with the Locational (LSRV) row below** — direct user question, checked against source: the parallel session explicitly confirmed LSRV was built as a separate sensitivity, never merged into this base energy rate ("present only in the sensitivity... not in the base case at all"), and stated directly that the locational adder is "a genuine additional stream on top of wholesale compensation," addressing a different gap (wholesale-vs-retail compensation level) than what the premium itself addresses (Dominion-zone vs. RTO-average pricing) |
+| Capacity — storage | PJM-ELCC-derated, same schedule as the base case (not undiminished) | #8.2 — reliability sizing must reflect real, PJM-measured availability regardless of tariff design; corrected from an earlier "undiminished" version that conflated energy value with capacity accreditation |
 | Capacity — solar | PJM's declining ELCC schedule, unchanged from the base case | Same principle, solar side — never revised |
-| Locational | LSRV-style adder — real NY-sourced rate (§7.4), 90% qualifying urban/suburban share, 10-year term, referenced directly rather than duplicated | §7.4 — NY's own LSRV design maps closely onto this project's own 90%-urban/suburban siting assumption. **Caveat, not a double-counting issue**: this rate is NY's own imported figure, not a Virginia-specific avoided-cost study identifying a real constrained Dominion substation (§7.2, §12 item 9) — defensible in mechanism, not yet proven for Virginia specifically |
-| Environmental | Virginia's own real, current D-REC spot price — $22.25/MWh | §7.3 — no Code change needed, real and tradable today; NY's E-Value and the $65-70 upside projection were both considered and set aside in favor of this |
-| Event-based | NY DRV-style, converted to a real annual-equivalent rate using actual local hourly load data — $50.59/kW-yr | §7.4 — chosen over MA's ConnectedSolutions ($250/kW-yr, rejected for a twice-replicated 50/50 winter/summer seasonal mismatch) and over Dominion's own PTR (rejected for an automated-battery-vs-manual-program mechanism mismatch, §8.5); DRV and PTR's near-identical computed rates were treated as a cross-validation signal, not a coincidence |
-| Transmission-avoidance | A new incentive, 25% of the utility's own avoided transmission-interconnection cost, explicitly built as a transfer (not new value) — 75% retained as ratepayer savings, shown explicitly on the ratepayer-side accounting | §8.4 — justified by an affordability priority; the split itself is a policy choice, not a derived number |
+| Locational | LSRV-style adder — real NY-sourced rate (#7.4), 90% qualifying urban/suburban share, 10-year term, referenced directly rather than duplicated | #7.4 — NY's own LSRV design maps closely onto this project's own 90%-urban/suburban siting assumption. **Caveat, not a double-counting issue**: this rate is NY's own imported figure, not a Virginia-specific avoided-cost study identifying a real constrained Dominion substation (#7.2, #12 item 9) — defensible in mechanism, not yet proven for Virginia specifically |
+| Environmental | Virginia's own real, current D-REC spot price — $22.25/MWh | #7.3 — no Code change needed, real and tradable today; NY's E-Value and the $65-70 upside projection were both considered and set aside in favor of this |
+| Event-based | NY DRV-style, converted to a real annual-equivalent rate using actual local hourly load data — $50.59/kW-yr | #7.4 — chosen over MA's ConnectedSolutions ($250/kW-yr, rejected for a twice-replicated 50/50 winter/summer seasonal mismatch) and over Dominion's own PTR (rejected for an automated-battery-vs-manual-program mechanism mismatch, #8.5); DRV and PTR's near-identical computed rates were treated as a cross-validation signal, not a coincidence |
+| Transmission-avoidance | A new incentive, 25% of the utility's own avoided transmission-interconnection cost, explicitly built as a transfer (not new value) — 75% retained as ratepayer savings, shown explicitly on the ratepayer-side accounting | #8.4 — justified by an affordability priority; the split itself is a policy choice, not a derived number |
 
 ### 0.3 The result actually produced, and what's not yet included in it
 
@@ -52,10 +52,10 @@ Running the base case plus this full component set: **rooftop NPV +$1,053/kW, pa
 negative for both segments). Parking-lot's own result is the more sensitive of the two, given its
 higher capex and higher discount rate relative to rooftop.
 
-**Explicitly not included in this figure**: the revenue-volatility floor mechanism (§8.8, Section K
+**Explicitly not included in this figure**: the revenue-volatility floor mechanism (#8.8, Section K
 in the parallel session's own model) is a real, tested, structurally-verified addition — but it was
 built and left with a **placeholder value factor of 1.0**, meaning it currently contributes nothing
-beyond the base case. A real value factor (bounded between 1.0 and roughly 2.0-2.9x per §8.8's own
+beyond the base case. A real value factor (bounded between 1.0 and roughly 2.0-2.9x per #8.8's own
 Loudoun-data analysis, net of forecast-error and cannibalization discounts neither session has yet
 applied) was never assigned. If adopted, this would sit as an *additional*, separate layer on top of
 the $1,053/$355 figures above, not already folded into them.
@@ -70,8 +70,8 @@ reusable. The $1,053/$355 NPV figures specifically are not — they were produce
 different model (annual, formula-chain-based) than this project's own (hourly LP), and would need to
 be recomputed against this project's own methodology before being cited as this project's own result.
 
-**Adopted, direct user instruction, 2026-09-02**: Option 3's structure (§8.1) and the full "Recommended
-Program" component list (§8.3, including the 25/75 avoided-transmission-cost transfer split as part of
+**Adopted, direct user instruction, 2026-09-02**: Option 3's structure (#8.1) and the full "Recommended
+Program" component list (#8.3, including the 25/75 avoided-transmission-cost transfer split as part of
 that adopted set) are now this project's own Scenario 3 DER-compensation design — resolving decision
 (1) below. This is a structural/mechanism adoption, not a numerical one: the component list, the rate
 sourcing, and the reasoning behind each choice are now settled for this project's own Scenario 3. The
@@ -82,9 +82,9 @@ concrete next step needed before this project has its own real NPV result under 
 **What still needs to happen**: ~~(1) an explicit decision to adopt Option 3's structure for this
 project's own Scenario 3, rather than a different structural choice~~ **(resolved above)**; ~~(2) the
 25/75 transmission-avoidance split re-decided (or explicitly re-affirmed) as this project's own policy
-choice, not inherited automatically~~ **(resolved above, adopted as part of the §8.3 set)**; (3) a real
+choice, not inherited automatically~~ **(resolved above, adopted as part of the #8.3 set)**; (3) a real
 value factor decided for the floor mechanism, or the mechanism set aside — **still open**, and
-explicitly not part of what was just adopted (§0.3: the floor mechanism sits as an additional,
+explicitly not part of what was just adopted (#0.3: the floor mechanism sits as an additional,
 separate layer on top of the Recommended Program figures, not folded into them); (4) the whole stack
 re-run against this project's own capex/discount-rate/demand conventions to get a genuinely
 this-project NPV figure, rather than citing the parallel session's own $1,053/$355 — **now the
@@ -224,7 +224,7 @@ only on its compensation piece (D.3).
 | South-facing-shallow-tilt vs. east-west-density-optimized layout | **Open.** Materially changes where in the sourced range (a few percent penalty vs. 10-15%) the true figure sits. Not resolved — 0.81 is a single point estimate spanning both. |
 | Agrivoltaic capacity factor | **Sourced, confirmed by you directly**: energy-equivalent to standard ground-mount. No new CF sourcing needed — only land-use and lease-income treatment differ. |
 | "Firmed storage" — how distributed storage is sized/dispatched | **Open, structurally unresolved — this is a real gap, not a citation gap.** Scenario 1's own principle is "no standalone storage," and Scenario 3's own definition pairs each distributed segment with its own firmed storage — but *how* that storage is sized and dispatched hasn't been decided: is it part of the same central LP optimization (the solver decides how much Na-power/iron-air to co-locate with the distributed solar), or sized/dispatched independently, given it would actually be owned by DER owners/aggregators rather than centrally dispatched by the utility? This affects the LP formulation directly, not just an input assumption. |
-| Distribution-system upgrade cost for hosting high DER penetration (reverse-flow capacity) | **Sourced this session — a real, general benchmark, not Dominion-specific engineering.** See §2.1 (unit cost, $/kW) and §2.2 (how many circuits are actually affected). This project's own hourly LP and Appendix A had zero treatment of this cost anywhere before this session; the existing $200/kW LBNL-sourced figure (§8.4) is transmission-interconnection cost for utility-scale solar specifically, a genuinely different cost from this one. |
+| Distribution-system upgrade cost for hosting high DER penetration (reverse-flow capacity) | **Sourced this session — a real, general benchmark, not Dominion-specific engineering.** See #2.1 (unit cost, $/kW) and #2.2 (how many circuits are actually affected). This project's own hourly LP and Appendix A had zero treatment of this cost anywhere before this session; the existing $200/kW LBNL-sourced figure (#8.4) is transmission-interconnection cost for utility-scale solar specifically, a genuinely different cost from this one. |
 
 ### 2.1 Distribution-system upgrade cost for high DER penetration — a real, general benchmark, not yet in this project's own model
 
@@ -259,7 +259,7 @@ of hosted distributed-solar nameplate capacity — a round figure sitting betwee
 "standard low case" ($420/kW) and the middle of the PNAS California range ($240-800/kW, midpoint
 $520/kW), deliberately below the California-specific high-end figures (>$1,300/kW), since Virginia's
 own distribution system, while facing real Northern Virginia-specific congestion (already documented
-extensively in §7.4/§8.7), is not assumed to face California's specific combination of wildfire-driven
+extensively in #7.4/#8.7), is not assumed to face California's specific combination of wildfire-driven
 undergrounding costs and mature, already-saturated urban circuits that plausibly drive that state's
 own figures higher. **This is a disclosed, reasoned mid-range estimate, not a precise or
 Dominion-verified number** — the range above (roughly $240-1,300+/kW depending on source and
@@ -267,10 +267,10 @@ location) should be carried forward explicitly as the real uncertainty band, not
 precision.
 
 **How this would apply to Scenario 3's own build, mechanically**: unlike the transmission-interconnection
-cost (§8.4, applied to the full utility-scale 80% share), this cost applies specifically to the
+cost (#8.4, applied to the full utility-scale 80% share), this cost applies specifically to the
 rooftop+canopy (10%+10%) distributed share, and specifically to the portion Scenario 3 already
 assumes is sited in urban/high-demand areas (the same 90% qualifying share already used for the LSRV
-locational adder, §7.4) — since that is precisely where distribution circuits are most likely to
+locational adder, #7.4) — since that is precisely where distribution circuits are most likely to
 already be running close to their own existing hosting capacity, making new DER additions more likely
 to trigger upgrades than DER sited on lightly-loaded rural circuits. **Not yet decided**: whether this
 should be built as a utility-side cost (added to Scenario 3's own system SLCOE, parallel to how the
@@ -293,7 +293,7 @@ Scenario 3 builds — only on the portion that pushes a given circuit's own DER 
 existing hosting capacity, which this project has no way to determine circuit-by-circuit without
 real Dominion hosting-capacity-map data (per the DOE's own "U.S. Atlas of Electric Distribution
 System Hosting Capacity Maps" — as of the source checked, Virginia did not appear among the 26
-states with at least one utility publishing such a map). **This claim is corrected in §2.2 below**:
+states with at least one utility publishing such a map). **This claim is corrected in #2.2 below**:
 a direct follow-up search found Dominion does in fact operate a real, public, interactive hosting-
 capacity tool — the DOE Atlas source apparently predates it, or Dominion's own tool wasn't captured
 in that particular DOE compilation. Applying the $500/kW figure to Scenario 3's *entire*
@@ -302,14 +302,14 @@ conservative (upper-bound) simplification for now, refined by the circuit-count 
 
 ### 2.2 Estimating how many distribution circuits actually need upgrading — a genuinely separate question from the per-kW cost
 
-**The question this section answers, and why it's distinct from §2.1**: §2.1 established a $/kW cost
+**The question this section answers, and why it's distinct from #2.1**: #2.1 established a $/kW cost
 for upgrading a circuit that has hit its own hosting-capacity limit — but applying that rate to
 Scenario 3's *entire* distributed-solar build assumes every circuit hosting distributed solar needs
 an upgrade, which isn't physically true. This section estimates what share of Dominion's own
-distribution system that upgrade need actually applies to — narrowing §2.1's own disclosed
+distribution system that upgrade need actually applies to — narrowing #2.1's own disclosed
 upper-bound simplification, not replacing it.
 
-**A correction to §2.1, found directly in this session's own follow-up research**: Dominion does in
+**A correction to #2.1, found directly in this session's own follow-up research**: Dominion does in
 fact operate a real, public "Hosting Capacity Tool" — an interactive map covering its full Virginia
 and North Carolina service territory, color-coded by available hosting capacity down to individual
 line sections and, on a separate residential map, individual transformers. This is a genuine,
@@ -341,7 +341,7 @@ reviewed) before treating it as authoritative.
    substation (not Dominion-specific, disclosed as such) yields an estimated **1,880-3,760 total
    Dominion distribution circuits**.
 2. **Urban/suburban share**: applying this project's own already-established 90% qualifying-share
-   assumption (the same figure used for LSRV siting eligibility, §7.4) as a rough proxy — not a
+   assumption (the same figure used for LSRV siting eligibility, #7.4) as a rough proxy — not a
    precise geographic mapping — yields **~1,690-3,380 urban/suburban circuits**.
 3. **Data-center-dedicated exclusion, directly motivated by your own observation**: 371 operating
    Virginia data centers as of August 2026 (a real, current, sourced count), combined with the
@@ -356,16 +356,16 @@ reviewed) before treating it as authoritative.
    dedicated) excludes an estimated **190-330 circuits**, leaving **~1,360-3,200 remaining
    urban/suburban, non-data-center circuits**.
 4. **Applying the PNAS California feeder study's own real, sourced 67%-of-feeders-need-upgrades
-   finding** (§2.1's own source, reused here for its second, genuinely relevant number — not just
+   finding** (#2.1's own source, reused here for its second, genuinely relevant number — not just
    its $/kW figure) as a proxy for what share of these remaining circuits would actually be pushed
    past hosting capacity at Scenario 3's own DER penetration level: **~910-2,140 Dominion circuits**,
    midpoint **~1,530** — roughly **half of Dominion's own total estimated distribution circuits**
    (54% of the 1,880-3,760 total range).
 
-**An illustrative, combined total-cost figure**, purely to show how §2.1 and this section's own
+**An illustrative, combined total-cost figure**, purely to show how #2.1 and this section's own
 estimate compose (not a recommended final number): assuming each affected circuit hosts roughly
 2-5 MW of distributed solar (a disclosed placeholder, not independently sourced to a specific study)
-and applying §2.1's own $500/kW figure yields a total distribution-upgrade cost of roughly
+and applying #2.1's own $500/kW figure yields a total distribution-upgrade cost of roughly
 **$0.9-5.4 billion** — a genuinely wide range, honestly reflecting that four separate, each
 individually-uncertain ranges (feeders-per-substation, data-center-dedicated share, the PNAS
 proxy-applicability assumption, and MW-hosted-per-circuit) compound together rather than converging.
@@ -642,7 +642,7 @@ tenants.
 | C&I / government (incl. schools) | The entity itself | The entity itself |
 
 **Participation pathway follows directly from B.1.d/B.1.e's own existing
-D.1 rule** (Scenario3_Scope_and_Gaps.md §1, D.1): owners under 100 kW go
+D.1 rule** (Scenario3_Scope_and_Gaps.md #1, D.1): owners under 100 kW go
 through a DER Aggregator; owners at or above 100 kW can participate
 directly. In practice this means:
 - **Residential rooftop (single-family and townhouse)**: near-universally
@@ -678,7 +678,7 @@ classification needs more granularity.
 
 ### 5.2.2 DERA compensation research — Dominion's own, already-filed VPP tariff (direct research, 2026-08-23)
 
-Direct follow-up to §5.2.1's own flagged research item: "a residential DER will invariably go through a DERA to participate, so we have to investigate DERA compensation approaches." This section is the result of that research — and it turned up something more directly useful than any out-of-state comparison: **Dominion has already filed the actual, real, Virginia-specific tariff this project needs**, not a hypothetical.
+Direct follow-up to #5.2.1's own flagged research item: "a residential DER will invariably go through a DERA to participate, so we have to investigate DERA compensation approaches." This section is the result of that research — and it turned up something more directly useful than any out-of-state comparison: **Dominion has already filed the actual, real, Virginia-specific tariff this project needs**, not a hypothetical.
 
 **Legal framework — Virginia's own Community Energy Act (HB 2346/SB 1100, enacted May 2, 2025, Va. Code §56-585.1:16)**: requires Dominion to petition the SCC for a VPP pilot (up to 450 MW) by December 1, 2025 (done — Docket PUR-2025-00211), and a customer/aggregator participation tariff by November 15, 2026. The statute explicitly contemplates both direct and aggregator-mediated enrollment, and requires the SCC to weigh "lessons learned" against FERC Order 2222 implementation directly — confirming the state and federal frameworks are meant to work together, not as competing pathways. Pilot concludes July 1, 2028; a permanent program follows.
 
@@ -697,7 +697,7 @@ Direct follow-up to §5.2.1's own flagged research item: "a residential DER will
 
 **A real, disclosed gap, not glossed over**: the BYOD program's own actual $/kW or $/MWh pay-for-performance rate is not disclosed in the tariff filing itself — only that it "varies" by customer segment. Whether Dominion has since published a rate schedule (the tariff itself is due November 15, 2026, per the statute — this December 2025 filing pre-dates that final rate-setting step) is not yet checked. **For modeling purposes, the Residential Battery Storage Pilot's own concrete, sourced figure ($1,000 enrollment + $294/year) is the best currently-available Dominion-specific proxy** for what a residential battery-storage DER owner earns through a utility-mediated pathway — though it is a direct-Dominion program, not strictly the third-party-aggregator BYOD rate, so should be labeled as a proxy, not treated as identical.
 
-**Confirms the double-compensation/NEM rule found in §D.1's own research directly, in Dominion's own filing language**: "net metering customers may participate but will not receive duplicate incentives for exported energy" (Residential Battery Storage Pilot eligibility terms) — the FERC-level NEM-vs-wholesale prohibition already researched this session is not just a PJM/FERC abstraction; Dominion's own tariff explicitly enforces it at the program level.
+**Confirms the double-compensation/NEM rule found in #D.1's own research directly, in Dominion's own filing language**: "net metering customers may participate but will not receive duplicate incentives for exported energy" (Residential Battery Storage Pilot eligibility terms) — the FERC-level NEM-vs-wholesale prohibition already researched this session is not just a PJM/FERC abstraction; Dominion's own tariff explicitly enforces it at the program level.
 
 **General third-party aggregator market context (Voltus and peers), for scale/plausibility-checking Dominion's own figures against**: Voltus (the named example) operates as a pure-play DER aggregation platform — owns no generation, pays customers a revenue share from wholesale capacity/energy/ancillary-services payments it earns on their behalf ("Voltus earns money for the capacity or energy provided by the residential aggregation and shares it with you and your customers"). Reported 2025 PJM-wide figures: $240M paid to customers across 8.1 GW of aggregated flexible capacity. Exact revenue-share percentage is not publicly disclosed (varies by OEM/hardware-partner contract, per its own B2B2C model with partners like Resideo/Honeywell). Academic literature on aggregator business models documents two common structures directly: (1) aggregator retains a flat ~20% of the customer's own total value created, or (2) aggregator passes through 100% of value but charges a separate flat platform fee instead — **useful as bounding assumptions if Dominion's own BYOD rate remains unpublished**, not as a substitute for it.
 
@@ -816,7 +816,7 @@ direction, not yet implemented.
 2026-08-24, confirmed as next item to pick up 2026-08-24 end-of-session)*. Structurally a D.2 item, not a Category A item — electric
 school buses sit idle for large stretches (including the entire summer,
 when Dominion's own DLC events cluster most heavily per this project's
-own §STR/EV-event-history research), and their batteries could actively
+own #STR/EV-event-history research), and their batteries could actively
 *discharge* back to the grid during events, not merely pause charging
 (DLC-style, A.2). That discharge behavior is the same supply-side
 mechanism type as B.1.d/B.1.e battery dispatch above, just a different
@@ -1443,7 +1443,7 @@ land treatment (open, no decision yet).
 
 • **D.3 compensation structure** — ~~genuinely deferred by direct
   instruction, not an oversight~~ **resolved, 2026-09-02: adopted as
-  this project's own design (see §0.4); the remaining open piece is
+  this project's own design (see #0.4); the remaining open piece is
   re-running the adopted structure against this project's own
   hourly-LP methodology, not the structural choice itself**.
 • **A.2 incentive-based DR** — confirmed in scope, mechanism and
@@ -1603,7 +1603,7 @@ session.
 **Quantified rate, and a direct match to this project's own siting assumption** (from a parallel
 session's own follow-up research, not independently re-verified here): LSRV currently runs
 $2.56-3.07/kW-month (~$31-37/kW-year) on top of energy and capacity value. This maps closely onto
-Scenario 3's own, already-established assumption (§2) that 90% of rooftop/parking-lot DG sits "in
+Scenario 3's own, already-established assumption (#2) that 90% of rooftop/parking-lot DG sits "in
 or near urban or suburban high-demand areas" — precisely the siting profile NY's own LSRV zones are
 built around. A usable, directly-sourced quantitative benchmark for this project's own locational-
 payment layer, not just a structural analogy.
@@ -1627,7 +1627,7 @@ capacity, decarbonization compliance. **Locational Net Benefits Analysis (LNBA)*
 ACC. **Distribution Investment Deferral Framework (DIDF)**: PG&E/SCE/SDG&E competitively procure
 DER specifically to defer identified capital projects — the same underlying locational-deferral
 concept as NY's own LSRV, structurally different in how it reaches individual owners (see below).
-**Distribution Resources Planning (DRP)**, required under CA Public Utilities Code §769 — utilities
+**Distribution Resources Planning (DRP)**, required under CA Public Utilities Code #769 — utilities
 must identify optimal DER siting locations.
 
 **An important distinction, not fully captured in this document's own first pass**: California has
@@ -1769,7 +1769,7 @@ establishes empirically.
 
 **EV charger managed-charging program**: $40/year flat incentive (plus signup bonus) for allowing
 Dominion to cycle a customer's EV charger during peak periods — literally Direct Load Control by
-FERC's own definition (§7.5 below), not a price signal. For a typical 7-11kW charger, this works out
+FERC's own definition (#7.5 below), not a price signal. For a typical 7-11kW charger, this works out
 to roughly $3.60-5.70/kW-yr — 40-70x smaller than the $250/kW-yr ConnectedSolutions-style ceiling
 used as an aggressive upper bound elsewhere in this research. A second real Dominion anchor
 (alongside PTR) suggesting the utility's own current practice sits far below out-of-state maximum
@@ -1840,7 +1840,7 @@ is a decision still on the table rather than made.
 
 ### 7.4 DRV / ConnectedSolutions / Dominion PTR — quantified on a common basis using real DOM-zone data
 
-Resolving which of the three "same underlying thing" programs (§7.2) actually returns the most
+Resolving which of the three "same underlying thing" programs (#7.2) actually returns the most
 revenue required converting all three onto a common $/kW-year basis using real Dominion-zone hourly
 load data, not qualitative comparison. The key structural finding, more important than which number
 is biggest: **ConnectedSolutions-style compensation pays a flat rate on average kW performance
@@ -1869,7 +1869,7 @@ program uncritically — a directly-relevant caution for Scenario 3's own market
 
 FERC's own official demand-response taxonomy splits this exactly: **Direct Load Control (DLC)** —
 "the program sponsor remotely shuts down or cycles a customer's electrical equipment... on short
-notice" (Dominion's EV charger program, §7.1, is DLC by this definition) — versus **price-based
+notice" (Dominion's EV charger program, #7.1, is DLC by this definition) — versus **price-based
 rate/tariff** — "terms and conditions under which customers can choose their energy consumption
 pattern based on price." This directly bears on Scenario 3's own retail day-ahead/real-time rate
 design (part d of the scenario's own definition) — that design is squarely a price-signal mechanism,
@@ -1898,7 +1898,7 @@ mechanism, not a price signal) pulling 6,000+ MW off-grid, not through voluntary
 Making that "guaranteed" curtailment work required suspending EPA air-quality permit limits so
 backup diesel generators could run beyond normal legal limits (~3.25 GW from units operating outside
 permits) — the real cost structure of DLC-based reliability isn't zero, it substitutes a visible
-market payment for an externalized, uncompensated local health cost (quantified in §7.6).
+market payment for an externalized, uncompensated local health cost (quantified in #7.6).
 
 ### 7.6 A three-category grid-stress risk taxonomy, and the quantified externality cost of DLC-with-backup-generation
 
@@ -2018,7 +2018,7 @@ confirmed via search, would need direct verification for a formal citation.
    specific to this paper's execution: LCOE/LCOS-style metrics work well for supply resources because
    a MWh of generation is roughly fungible across hours; DR's value proposition is the opposite — it
    is specifically valuable *because of* when and where it's available relative to system stress,
-   exactly the point of the hourly coincidence and risk-taxonomy work in §7.6. The paper adapts a
+   exactly the point of the hourly coincidence and risk-taxonomy work in #7.6. The paper adapts a
    "value factor" (borrowed from variable-renewable-energy cost literature) as a partial mitigation,
    but collapsing DR into a single scalar $/MWh-equivalent number still risks losing the temporal/
    locational richness this project's own analysis has been building toward. If LCODR is ever pulled
@@ -2028,9 +2028,9 @@ confirmed via search, would need direct verification for a formal citation.
 ## 8. Scenario 3 compensation structure — a resolved design, and the reasoning behind it (from the same parallel session)
 
 **Adopted as this project's own Scenario 3 DER-compensation design, direct user instruction,
-2026-09-02** (see §0.4 for the full adoption status): the structure (§8.1) and the "Recommended
-Program" component list (§8.3), including the 25/75 avoided-transmission-cost split, are settled.
-Not yet resolved by this adoption: the floor mechanism's own value factor (§8.8), and re-running the
+2026-09-02** (see #0.4 for the full adoption status): the structure (#8.1) and the "Recommended
+Program" component list (#8.3), including the 25/75 avoided-transmission-cost split, are settled.
+Not yet resolved by this adoption: the floor mechanism's own value factor (#8.8), and re-running the
 adopted structure against this project's own hourly-LP methodology to produce a this-project NPV
 figure — the $1,053/$355 figures below remain the parallel session's own annual-model result, not
 this project's.
@@ -2083,13 +2083,13 @@ behavior it's actually describing before being applied to a new revenue line.
 
 | Component | Choice made | Reasoning |
 |---|---|---|
-| Energy | Undiscounted wholesale-equivalent base rate (no midday-surplus discount — see §8.2) | Reflects a well-timed, storage-backed owner's real dispatch behavior, not raw unmanaged export |
-| Capacity — storage | PJM-ELCC-derated, same as the base case (not undiminished — see §8.2) | Reliability sizing must reflect real, PJM-measured availability regardless of tariff design |
+| Energy | Undiscounted wholesale-equivalent base rate (no midday-surplus discount — see #8.2) | Reflects a well-timed, storage-backed owner's real dispatch behavior, not raw unmanaged export |
+| Capacity — storage | PJM-ELCC-derated, same as the base case (not undiminished — see #8.2) | Reliability sizing must reflect real, PJM-measured availability regardless of tariff design |
 | Capacity — solar | PJM's declining ELCC schedule, unchanged | Same principle, solar side |
-| Locational | LSRV-style adder (already built as its own sensitivity; referenced directly, not duplicated) | Real NY precedent, quantified rate (§7.4) |
-| Environmental | Virginia's own real, current D-REC spot price (§7.3) | No import needed — real, current Virginia law |
-| Event-based | NY DRV-style, converted to an annual-equivalent rate using real local hourly load data (§7.4) — not MA's ConnectedSolutions | DRV and Dominion's own real PTR rate independently converged on a similar figure, a genuine cross-validation signal; ConnectedSolutions was structurally mismatched to a real, twice-replicated 50/50 winter/summer peak split (§7.4) that a summer-only program would be blind to |
-| Transmission-avoidance | A new, explicitly-designed transfer mechanism (§8.4) | Real, additive mechanism found while reasoning about Scenario 3's own structure — see below |
+| Locational | LSRV-style adder (already built as its own sensitivity; referenced directly, not duplicated) | Real NY precedent, quantified rate (#7.4) |
+| Environmental | Virginia's own real, current D-REC spot price (#7.3) | No import needed — real, current Virginia law |
+| Event-based | NY DRV-style, converted to an annual-equivalent rate using real local hourly load data (#7.4) — not MA's ConnectedSolutions | DRV and Dominion's own real PTR rate independently converged on a similar figure, a genuine cross-validation signal; ConnectedSolutions was structurally mismatched to a real, twice-replicated 50/50 winter/summer peak split (#7.4) that a summer-only program would be blind to |
+| Transmission-avoidance | A new, explicitly-designed transfer mechanism (#8.4) | Real, additive mechanism found while reasoning about Scenario 3's own structure — see below |
 
 ### 8.4 Avoided-transmission-cost as a DER-owner benefit — a real mechanism, built as an explicit transfer
 
@@ -2122,7 +2122,7 @@ split this project's own Scenario 3 ultimately adopts.
 
 ### 8.5 Dominion's own current DER-adjacent programs — a real, current finding that no in-territory mechanism cleanly fits automated battery dispatch
 
-Beyond the Peak Time Rebate and EV charger program already documented (§7.1), the parallel session
+Beyond the Peak Time Rebate and EV charger program already documented (#7.1), the parallel session
 checked Dominion's Smart Thermostat Rewards program specifically to test whether it — being genuinely
 automated Direct Load Control, unlike PTR's manual/behavioral design — might be a better mechanism
 match for a battery's automated dispatch. It isn't usable for this purpose either: compensation is a
@@ -2132,7 +2132,7 @@ worth carrying forward: Virginia currently has no real, in-territory program tha
 (matching a battery's actual dispatch mechanism) and capacity-scaled (economically meaningful for a
 real asset)** — PTR is automatable-in-principle but structurally a manual/behavioral program; Smart
 Thermostat Rewards is genuinely automated DLC but not capacity-scaled. This is the same underlying
-gap already noted (§7.1) — Dominion's own VPP battery pilot rate isn't public yet — observed
+gap already noted (#7.1) — Dominion's own VPP battery pilot rate isn't public yet — observed
 independently from a different angle.
 
 ### 8.6 Three distinct commercial pathways for DER wholesale/quasi-wholesale participation, and Virginia's own PJM DER-aggregation size thresholds
@@ -2160,7 +2160,7 @@ not one**, with different availability timing:
 | True PJM wholesale market (DERA) | Direct energy/capacity/ancillary-services bidding via an aggregated 100kW+ resource, under FERC Order 2222 | Not until Feb 2028 (energy/ancillary) / 2028-29 BRA (capacity) |
 
 The already-operating VPP program is using the private-bilateral pathway specifically — a hyperscaler
-with its own acute outage-cost exposure (directly evidenced by the Ashburn near-miss, §7.6) may
+with its own acute outage-cost exposure (directly evidenced by the Ashburn near-miss, #7.6) may
 plausibly pay more for firm local capacity than any regulated tariff, since its willingness-to-pay
 reflects its own outage cost, not a public-interest rate-setting process. **Worth an explicit decision
 for this project's own Scenario 3**: whether the FERC 2222 market-participation language in the
@@ -2208,7 +2208,7 @@ captured premium below this ceiling; (2) no state-of-charge constraint was model
 assumes the battery is always full entering the peak window regardless of that day's actual solar
 generation or charging opportunity; (3) **cannibalization at scale** — if every DG owner dispatches
 into the same daily peak window, that additional supply itself compresses the peak price (the same
-"price cannibalism" risk the LCODR paper, §7.8, flags directly) — realized value factor at Scenario
+"price cannibalism" risk the LCODR paper, #7.8, flags directly) — realized value factor at Scenario
 3's own eventual DG penetration is very likely lower than what today's much-lower-penetration data
 shows. Honest read: the true, realistic value factor sits somewhere between 1.0 (flat-average, the
 current assumption) and the ~2.0-2.9x idealized ceiling — probably meaningfully above 1.0, but not
@@ -2236,7 +2236,7 @@ independent of whatever real premium eventually gets assigned to it.
 
 ## 9. Virginia Energy Plan Input.docx, Appendices B/C — NoVA price-spread mechanics, NY VDER Capacity Alternatives, and physical DER siting potential
 
-*(A separately-uploaded document, not part of the parallel-session transcripts documented in §§6-8.
+*(A separately-uploaded document, not part of the parallel-session transcripts documented in ##6-8.
 Appendix A ("Direct Transfer Trip (DTT) Considerations") and Appendix D ("Approaches by other
 utilities") both exist in the same document and were not read as part of this pass — Appendix D in
 particular, given its title, may be directly relevant to a similar "lessons learned" question and is
@@ -2250,7 +2250,7 @@ Congestion Component turns positive during high-demand hours (transmission from 
 hubs becomes constrained), while its Marginal Loss Component is also elevated, since NoVA imports
 power over long distances rather than generating locally. This mechanism-level explanation is
 consistent with, and gives cleaner language for, the same effect already found and quantified in
-this project's own real Loudoun/Tysons/Richmond node data (§8.7).
+this project's own real Loudoun/Tysons/Richmond node data (#8.7).
 
 **A quantified benchmark worth noting as a contrast, not a contradiction**: this document gives a
 *typical* on-peak NoVA-vs-rest-of-state spread of $10-30+/MWh, versus near-zero (<$1-2/MWh) off-peak
@@ -2269,19 +2269,19 @@ untested here, a genuine candidate if GridStatus's own access limitation is ever
 "Dominion Louisa" (central/southern benchmark) and "Dominion Clifton" (northern benchmark), alongside
 this project's own already-used Loudoun/Tysons/Richmond nodes.
 
-### 9.2 Value Stacking DER Compensation — mostly confirmatory of this project's own §7-8 findings, with two genuinely new, concrete policy mechanisms
+### 9.2 Value Stacking DER Compensation — mostly confirmatory of this project's own #7-8 findings, with two genuinely new, concrete policy mechanisms
 
 Much of this section restates ground already covered in detail elsewhere in this document — NY's own
 DRV (10-year lock) and Environmental Value (25-year lock), the double-counting-avoidance logic behind
-stacking distribution-level and wholesale-level value (§7.2's own market-defensibility tiering covers
-the same ground with more rigor), and the "avoid revenue shock" lesson this project's own §8.8 floor
+stacking distribution-level and wholesale-level value (#7.2's own market-defensibility tiering covers
+the same ground with more rigor), and the "avoid revenue shock" lesson this project's own #8.8 floor
 mechanism was built specifically to address — confirmatory, not new, though useful as independent
 corroboration that these are the right lessons to be drawing from NY's experience.
 
 **A genuinely new, useful detail: NY's own VDER capacity value has three distinct, separately-named
 "Capacity Alternatives," not one flat rate.** This document names "Capacity Alternative 2" as NY's
 own fixed peak-window compensation design, and "Capacity Alternative 3" as NY's own performance-based,
-single-hour/critical-event tier — this project's own existing $86/kW-yr ICAP figure (§7.4/original
+single-hour/critical-event tier — this project's own existing $86/kW-yr ICAP figure (#7.4/original
 research) is specifically Alternative 3, not a generic "NY capacity rate." Worth being precise about
 this distinction if this project's own Scenario 3 work ever cites NY's capacity value again — there
 are at least two other named alternatives with different designs, not variations on the same number.
@@ -2292,7 +2292,7 @@ are at least two other named alternatives with different designs, not variations
    tool — the specific, named NY lesson behind this recommendation is that early VDER tariffs were
    complex enough that mid-sized commercial customers and regional banks struggled to underwrite
    projects against them. A concrete, buildable policy recommendation worth carrying into this
-   project's own policy-relevant observations (§8's own existing list, or the executive/technical
+   project's own policy-relevant observations (#8's own existing list, or the executive/technical
    summaries) if a similar tool is ever proposed for Virginia.
 2. **"Wholesale-bypass" riders**: allowing C&I customers already enrolled in a utility's own
    interruptible-load program to opt into a rider that strips out the wholesale-capacity component of
@@ -2387,12 +2387,12 @@ genuinely clever make-whole mechanism: rather than simply denying that revenue, 
 ~20-year compensation period is extended to reflect the number of suspended hours, balancing market-
 signal fidelity against long-term revenue certainty rather than trading one for the other outright.
 
-**A real, quantified confirmation of the cannibalization risk already flagged in §8.8**: over 90% of
+**A real, quantified confirmation of the cannibalization risk already flagged in #8.8**: over 90% of
 German solar capacity remains under legacy fixed-price protection, and as captured market value falls
 for the unprotected share (the "solar cannibalization" effect, driven by high solar penetration
 compressing midday prices precisely when solar itself produces most), the support gap for that share
 widens — a real, large-scale, currently-unfolding version of the same forecast-error/cannibalization
-discount this project's own §8.8 flagged as needed but not yet applied to its own 2.0-2.9x idealized
+discount this project's own #8.8 flagged as needed but not yet applied to its own 2.0-2.9x idealized
 ceiling.
 
 ### 10.3 California's own, formally-published "six key lessons" and a specific, named technical barrier
@@ -2405,12 +2405,12 @@ was named by every interviewee as a real barrier, with some calling it possibly 
 worth flagging directly to Virginia/PJM stakeholders as a specific, technical design choice to watch
 for, not just a generic "administrative complexity" concern.
 
-**A formal, Order-2222-level confirmation of the double-counting risk already discussed in §8.2/§8.4**:
+**A formal, Order-2222-level confirmation of the double-counting risk already discussed in #8.2/#8.4**:
 an LBNL report states plainly that "Order 2222 allows RTO/ISOs to limit the participation of resources
 in wholesale markets if a DER aggregation is receiving compensation for the same services as part of
 another program" — this is not just a theoretical modeling concern this project has been reasoning
 through; it is an explicit provision PJM itself could invoke. ComEd's own real, filed VPP tariff
-(§10.8) independently builds in exactly this exclusion, confirming it is standard, expected practice.
+(#10.8) independently builds in exactly this exclusion, confirming it is standard, expected practice.
 
 **A sobering, multi-decade timeline lesson**: California's own demand-side DER integration effort has
 been underway "with limited success" since 2007 — nearly two decades — and was explicitly insufficient
@@ -2430,12 +2430,12 @@ technical-assistance funding, timeline flexibility aligned to project schedules)
 adoptable precedents. **A direct structural precedent for treating canopy differently, with two
 distinct mechanisms**: SMART's own adders reward preferred siting (rooftop, canopy, brownfield)
 while a separate "greenfield subtractor" actively penalizes ground-mounted development on undeveloped
-land — two different levers for the same underlying goal, not redundant (already noted in §7.2, now
+land — two different levers for the same underlying goal, not redundant (already noted in #7.2, now
 with the working-group-level implementation detail behind it).
 
 ### 10.5 Maryland's own, very current (May 2026) comprehensive VPP order — a concrete regulatory-process template
 
-Beyond what was already documented in §7 from the parallel session, this session's own search
+Beyond what was already documented in #7 from the parallel session, this session's own search
 surfaced a real, six-provision PSC order (May 2026) worth citing as a template for Virginia's own
 Order 2222 implementation process: (1) a Data Exchange Work Group for third-party data access, (2) a
 DER registry accessible to aggregators, (3) required interconnection-tool alignment across BGE/
@@ -2443,12 +2443,12 @@ Delmarva/Pepco, (4) periodic utility registration-status reporting, (5) an expli
 accelerate DERMS deployment timelines despite pressure to do so, and (6) aggregator cybersecurity
 non-compliance reporting. **Worth flagging specifically**: item (5) is a real, disclosed example of a
 regulator deliberately choosing a slower, more deliberate pace over a faster one under real pressure —
-directly consistent with the multi-year-timeline lesson in §10.3.
+directly consistent with the multi-year-timeline lesson in #10.3.
 
 **A separately useful, quantified Maryland finding**: a state-commissioned study (CEIR-20) valued the
 distribution-level line-loss-reduction benefit of aggregate distributed solar at up to $6/MWh — a
 real, sourced, small additional value-stream component not currently part of this project's own
-Recommended Program component list (§0.2), worth considering as an addition.
+Recommended Program component list (#0.2), worth considering as an addition.
 
 ### 10.6 Washington's own useful framing concept and a real-world scale benchmark
 
@@ -2460,7 +2460,7 @@ roughly 15,000 MW of clean energy resources, of which ~3,660 MW (about 24%) is p
 demand-side/distributed resources — a real utility's own long-range distributed-share target, useful
 context alongside this project's own 20% (10%+10%) Scenario 3 assumption.
 
-### 10.7 New York's own additional detail beyond what §6-8 already cover
+### 10.7 New York's own additional detail beyond what #6-8 already cover
 
 **A real, dated inflection point worth citing directly**: New York's own PSC 2019 adjustments to
 VDER, which stabilized values that had been allowed to fluctuate in the program's earlier years, are
@@ -2473,10 +2473,10 @@ this widely-cited, government-published tool has real, acknowledged shortcomings
 degradation model (real degradation follows a curve), a fixed RTE assumption held constant for the
 project's full life (real RTE also degrades), and reliance on historical LSRV call-period data rather
 than the forward-looking optimization a real operator would use to maximize LSRV-DRV coincidence.
-Worth citing directly if Virginia ever builds an analogous calculator tool (§8.5's own recommendation)
+Worth citing directly if Virginia ever builds an analogous calculator tool (#8.5's own recommendation)
 — learn from NY's disclosed gaps rather than reproducing them.
 
-**A useful refinement to the "Capacity Alternative" structure already noted in §9.2**: ICAP Alt 2
+**A useful refinement to the "Capacity Alternative" structure already noted in #9.2**: ICAP Alt 2
 (a fixed peak-window design) yields higher revenue than Alt 1 across all NYISO zones; Alt 3
 (performance-based, single-hour/critical-event) is specifically limited to standalone BESS projects,
 not available to solar or hybrid systems — a real eligibility distinction worth knowing if any of
@@ -2506,7 +2506,7 @@ and this project's own already-adopted event-based component. Worth flagging as 
 real-world range, not a rate to adopt, but useful for bounding how wide the genuinely-observed
 spectrum is.
 
-**The same double-counting exclusion already discussed in §10.3, independently confirmed in a real,
+**The same double-counting exclusion already discussed in #10.3, independently confirmed in a real,
 filed tariff**: ComEd's own proposed VPP explicitly excludes customers already enrolled in an
 "incompatible" program rewarding similar behavior (e.g., a peak-time rebate or A/C-cycling program) —
 direct, filed-tariff-level confirmation this is standard practice, not a theoretical concern.
@@ -2539,24 +2539,24 @@ Narrowing all of the above to genuine open decisions or sourcing gaps
 (excluding items already sourced, and excluding the LMP-data item, which
 is a processing task rather than something to fill in):
 
-1. ~~**DER compensation structure** — no longer fully open. §8.1-8.3 document a resolved structural approach (hybrid: base case + a "Recommended Program" tier + retained individual sensitivities) and a specific, reasoned component list, from the parallel session. Adopting this design (or deliberately choosing differently) for this project's own Scenario 3 is now a concrete yes/no/adjust decision, not a blank-slate one.~~ **Resolved, direct user instruction, 2026-09-02: adopted as this project's own Scenario 3 design (see §0.4).** The floor mechanism's own value factor (§8.8/§0.3) remains a separate, still-open decision — not resolved by this adoption. The concrete remaining step is re-running the adopted structure against this project's own hourly-LP methodology to get a real, this-project NPV figure (§0.4, item 4).
+1. ~~**DER compensation structure** — no longer fully open. #8.1-8.3 document a resolved structural approach (hybrid: base case + a "Recommended Program" tier + retained individual sensitivities) and a specific, reasoned component list, from the parallel session. Adopting this design (or deliberately choosing differently) for this project's own Scenario 3 is now a concrete yes/no/adjust decision, not a blank-slate one.~~ **Resolved, direct user instruction, 2026-09-02: adopted as this project's own Scenario 3 design (see #0.4).** The floor mechanism's own value factor (#8.8/#0.3) remains a separate, still-open decision — not resolved by this adoption. The concrete remaining step is re-running the adopted structure against this project's own hourly-LP methodology to get a real, this-project NPV figure (#0.4, item 4).
 2. **Elasticity value for price-responsive demand** — three options presented, none chosen.
-3. **Rooftop-vs-canopy CF treatment** — same ratio or distinct? §6.3/§7 give real precedent for treating them differently (MA's own distinct canopy vs. building-mount adders), if that's the direction chosen.
+3. **Rooftop-vs-canopy CF treatment** — same ratio or distinct? #6.3/#7 give real precedent for treating them differently (MA's own distinct canopy vs. building-mount adders), if that's the direction chosen.
 4. **Layout assumption** (shallow-tilt vs. east-west) underlying the 0.81 CF ratio.
-5. **Distributed storage sizing/dispatch mechanism** — central LP decision or independent DER-owner decision? §6.6's cross-state convergence (broad arbitrage layer + separate targeted-locational layer) plus §8.1-8.3's fully-worked-out example structure give this project's own Scenario 3 a concrete template to adopt or adapt, not just a direction.
+5. **Distributed storage sizing/dispatch mechanism** — central LP decision or independent DER-owner decision? #6.6's cross-state convergence (broad arbitrage layer + separate targeted-locational layer) plus #8.1-8.3's fully-worked-out example structure give this project's own Scenario 3 a concrete template to adopt or adapt, not just a direction.
 6. **DER-owner arbitrage vs. the export-rule structure** — how Scenario 3's individual-owner dispatch relates to #8's existing centralized-LP treatment. Same status as #5 — a concrete worked example now exists, not yet adopted/built here.
 7. **Heat pump/PHIUS efficiency measures' own quantified impact** — not researched at all yet.
 8. **Land acreage treatment**: agrivoltaic dual-use accounting, and rooftop/canopy's zero-incremental-land treatment.
-9. **Locational value credit** — §7.4's NY LSRV rate ($31-37/kW-year) gives a real starting benchmark, but §7.2's own market-defensibility tiering is explicit that this only becomes fully defensible with an actual Virginia-specific avoided-cost study identifying a real constrained Dominion location and its real avoided capital cost — the benchmark exists now; the underlying Virginia-specific study still doesn't.
+9. **Locational value credit** — #7.4's NY LSRV rate ($31-37/kW-year) gives a real starting benchmark, but #7.2's own market-defensibility tiering is explicit that this only becomes fully defensible with an actual Virginia-specific avoided-cost study identifying a real constrained Dominion location and its real avoided capital cost — the benchmark exists now; the underlying Virginia-specific study still doesn't.
 10. **Farmland lease income figures** — claimed complete in an unverified source; needs an actual check for whether this research exists anywhere, or needs redoing.
-11. **DLC vs. price-signal design for Scenario 3's own retail rate component (part d)** — new, surfaced by §7.5's own literature: price-based signals carry documented failure modes (load synchronization, inadequate response speed under genuine emergency conditions like the Ashburn near-miss) that a DLC-style mechanism avoids, at the cost of DLC's own limitation (participant overrides can halve its reliability value). Not yet decided whether Scenario 3's own market-participation design should be price-signal-only, DLC-only, or a hybrid.
-12. **Whether to formally cost the DLC-with-backup-generation externality** (~$213-253/MWh, Ashburn-style, §7.6) anywhere in this project's own Tier 1/2/3 framework, or hold it as disclosed context only — an explicit open question from the parallel session, not yet answered either way.
-13. **Whether Scenario 3's own FERC 2222 market-participation language should scope to the true wholesale DERA pathway specifically** (not available until Feb 2028 per §8.6) **or explicitly include the private-bilateral pathway** already active in this project's own geography today (§8.6) — a new, concrete open question, not yet decided.
-14. **Avoided-transmission-cost transfer split for this project's own Scenario 3** — §8.4 documents a sound mechanism (transfer, not new value; explicit ratepayer-side disclosure) with a worked 25/75 example from the parallel session, justified there by an affordability priority — the mechanism is ready to adopt; the actual split percentage for this project's own Scenario 3 is a fresh policy decision, not inherited automatically.
-15. **Revenue-volatility floor mechanism for any energy-value-timing component this project's own Scenario 3 eventually builds** — §8.8 documents a tested, working design pattern (a multi-year floor-then-market-exposure transition) with real Virginia data (6.25x monthly max/min ratio) motivating why it matters — not yet decided whether to adopt for this project.
-16. **Physical-feasibility check: does this project's own current Scenario 3 rooftop build-out sit under Virginia's real ~68.4 GW total viable-rooftop ceiling** (Google Project Sunroof, §9.3)? A concrete, bounded, not-yet-performed check against a real sourced denominator, not a sourcing gap.
+11. **DLC vs. price-signal design for Scenario 3's own retail rate component (part d)** — new, surfaced by #7.5's own literature: price-based signals carry documented failure modes (load synchronization, inadequate response speed under genuine emergency conditions like the Ashburn near-miss) that a DLC-style mechanism avoids, at the cost of DLC's own limitation (participant overrides can halve its reliability value). Not yet decided whether Scenario 3's own market-participation design should be price-signal-only, DLC-only, or a hybrid.
+12. **Whether to formally cost the DLC-with-backup-generation externality** (~$213-253/MWh, Ashburn-style, #7.6) anywhere in this project's own Tier 1/2/3 framework, or hold it as disclosed context only — an explicit open question from the parallel session, not yet answered either way.
+13. **Whether Scenario 3's own FERC 2222 market-participation language should scope to the true wholesale DERA pathway specifically** (not available until Feb 2028 per #8.6) **or explicitly include the private-bilateral pathway** already active in this project's own geography today (#8.6) — a new, concrete open question, not yet decided.
+14. **Avoided-transmission-cost transfer split for this project's own Scenario 3** — #8.4 documents a sound mechanism (transfer, not new value; explicit ratepayer-side disclosure) with a worked 25/75 example from the parallel session, justified there by an affordability priority — the mechanism is ready to adopt; the actual split percentage for this project's own Scenario 3 is a fresh policy decision, not inherited automatically.
+15. **Revenue-volatility floor mechanism for any energy-value-timing component this project's own Scenario 3 eventually builds** — #8.8 documents a tested, working design pattern (a multi-year floor-then-market-exposure transition) with real Virginia data (6.25x monthly max/min ratio) motivating why it matters — not yet decided whether to adopt for this project.
+16. **Physical-feasibility check: does this project's own current Scenario 3 rooftop build-out sit under Virginia's real ~68.4 GW total viable-rooftop ceiling** (Google Project Sunroof, #9.3)? A concrete, bounded, not-yet-performed check against a real sourced denominator, not a sourcing gap.
 17. ~~A related, not-yet-read section of the same uploaded document — Appendix D~~ — **resolved**: read directly and confirmed it lists the technical mechanisms utilities use (bi-directional transformers, voltage regulation, protective relaying) plus an Order 2222 RTO-implementation-status comparison table — no cost figures. Superseded by items #21 below.
-18. **A negative-price/oversupply safeguard for whatever energy-value component Scenario 3 ultimately adopts** — §10.2's own Germany precedent (a 15-minute-granularity subsidy-suspension rule, paired with a compensation-period-extension make-whole mechanism) is a real, tested design this project's own Section J/K currently lacks entirely; worth an explicit decision on whether to adopt a similar safeguard or deliberately not.
-19. **Whether to add a distribution-line-loss-reduction value stream to the Recommended Program component list** — §10.5's own Maryland CEIR-20 figure (up to $6/MWh) is a real, sourced, currently-unused addition candidate.
-20. **A structural risk not yet accounted for in this project's own timeline assumptions**: §10.8's own ComEd example (a filed VPP tariff withdrawn mid-process due to superseding state legislation) and §10.3's own multi-year CA/MD timeline lessons both suggest Virginia's own Order 2222/VPP implementation should be planned around realistic multi-year regulatory-process risk, not a single clean filing-to-approval path — worth reflecting explicitly wherever this project's own materials describe an implementation timeline.
-21. **Distribution-upgrade cost for high-DER-penetration hosting capacity** — §2.1 proposes a general-benchmark $500/kW figure (real, sourced, but not Dominion-verified); §2.2 refines the "apply to 100% of the build" simplification with a transparent circuit-count estimate (~910-2,140 of Dominion's own circuits, roughly half its total), yielding an illustrative $0.9-5.4B combined range. Three real, unresolved decisions remain: (a) whether to adopt the $500/kW figure and the circuit-count refinement as-is, adjust either, or pursue real Dominion hosting-capacity-tool data (confirmed to exist, §2.2) circuit-by-circuit instead; (b) whether this cost should be borne on the utility side (parallel to the transmission-avoidance mechanism) or allocated in part to individual DER-owner interconnection fees; (c) whether to independently verify Dominion's own 15%-of-peak-load screening threshold (§2.2, currently sourced from a third-party site) against an official Dominion or SCC document.
+18. **A negative-price/oversupply safeguard for whatever energy-value component Scenario 3 ultimately adopts** — #10.2's own Germany precedent (a 15-minute-granularity subsidy-suspension rule, paired with a compensation-period-extension make-whole mechanism) is a real, tested design this project's own Section J/K currently lacks entirely; worth an explicit decision on whether to adopt a similar safeguard or deliberately not.
+19. **Whether to add a distribution-line-loss-reduction value stream to the Recommended Program component list** — #10.5's own Maryland CEIR-20 figure (up to $6/MWh) is a real, sourced, currently-unused addition candidate.
+20. **A structural risk not yet accounted for in this project's own timeline assumptions**: #10.8's own ComEd example (a filed VPP tariff withdrawn mid-process due to superseding state legislation) and #10.3's own multi-year CA/MD timeline lessons both suggest Virginia's own Order 2222/VPP implementation should be planned around realistic multi-year regulatory-process risk, not a single clean filing-to-approval path — worth reflecting explicitly wherever this project's own materials describe an implementation timeline.
+21. **Distribution-upgrade cost for high-DER-penetration hosting capacity** — #2.1 proposes a general-benchmark $500/kW figure (real, sourced, but not Dominion-verified); #2.2 refines the "apply to 100% of the build" simplification with a transparent circuit-count estimate (~910-2,140 of Dominion's own circuits, roughly half its total), yielding an illustrative $0.9-5.4B combined range. Three real, unresolved decisions remain: (a) whether to adopt the $500/kW figure and the circuit-count refinement as-is, adjust either, or pursue real Dominion hosting-capacity-tool data (confirmed to exist, #2.2) circuit-by-circuit instead; (b) whether this cost should be borne on the utility side (parallel to the transmission-avoidance mechanism) or allocated in part to individual DER-owner interconnection fees; (c) whether to independently verify Dominion's own 15%-of-peak-load screening threshold (#2.2, currently sourced from a third-party site) against an official Dominion or SCC document.

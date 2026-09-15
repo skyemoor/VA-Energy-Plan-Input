@@ -163,7 +163,7 @@ and assumed for 2045**, and the distinction was not made when it was first writt
 | cause | status |
 |---|---|
 | **One gas price** — no merit order, so nothing for the dual to climb | heat rate tiers and capacity per rung sourced (`Gas_Fleet_Working_Notes.md`); **not wired in** |
-| **No operating reserve** — storage arbitrages to its floor in every hour | `all_hours_reserve.py` **exists and is dormant** — see §2 |
+| **No operating reserve** — storage arbitrages to its floor in every hour | `all_hours_reserve.py` **exists and is dormant** — see #2 |
 | **Nothing above gas** — stack jumps from $76/MWh to $100,000 VOLL | **not started**; no import variable exists at all |
 
 ### What this invalidates, and what it does not
@@ -261,7 +261,7 @@ S × BUILD_SCALE × solar_cf[h] ≥ (1 + IRM) × demand[h]
 
 One hour. It sizes the build so accredited capacity exceeds peak demand by 17.7%, and constrains
 nothing else. **Storage is free to discharge to its floor in all 8,760 hours**, which is the
-mechanism behind §1.
+mechanism behind #1.
 
 **This is the highest-value fix available**: the code exists, is documented, and was already
 validated once.
@@ -302,7 +302,7 @@ one hour constrained out of 8,760.
 
 ## 2A. A documented rename regressed — and the error it was meant to prevent recurred
 
-`Weather_Year_Robustness_Approaches_and_Findings_2026-08-23.md` §5 records that on **2026-08-23**
+`Weather_Year_Robustness_Approaches_and_Findings_2026-08-23.md` #5 records that on **2026-08-23**
 `t_peak` was renamed to `t_peak_net_load` across `checkpoint_solver.py` and `driver.py`, giving this
 reason:
 
@@ -316,7 +316,7 @@ demand, when the hour selection has always been net-load based.
 Renamed again, to `hour_of_maximum_net_demand`, which is harder to abbreviate back.
 
 **This is the second instance of a documented fix regressing**, alongside `all_hours_reserve.py`
-(§2) — built, documented as the project standard, and never called. Both were found only by reading
+(#2) — built, documented as the project standard, and never called. Both were found only by reading
 the code rather than the documentation. **Documentation recording that something was fixed is not
 evidence that it is still fixed.**
 
@@ -459,7 +459,7 @@ such. `CURTAILMENT_COST_ECONOMIC_MWH = 100.0` is retained for disclosure so the 
 curtailment costs and what the model can price is **visible rather than buried**.
 
 The model cannot represent a price above the threshold without structural complementarity, which
-P.2 §13 records as proven correct but impractical — ~470 s for one storage type over one month.
+P.2 #13 records as proven correct but impractical — ~470 s for one storage type over one month.
 
 ### Measured at $25/MWh — verification passes
 
@@ -481,9 +481,9 @@ eliminated. Open question, not a settled explanation.
 An import-time assertion now catches a raise above the threshold **without running a solve**. It
 failed loudly once, but only because a solve happened to be run.
 
-### Audited against P.2 §11, and one requirement was unverifiable
+### Audited against P.2 #11, and one requirement was unverifiable
 
-| §11 requirement | $25/MWh result |
+| #11 requirement | $25/MWh result |
 |---|---|
 | Zero unserved demand | **0.0 MWh** |
 | Zero simultaneous charge/discharge | **passes** — `verify_result()` did not raise |
@@ -517,7 +517,7 @@ checkpoint**:
 **Bath does not move** — its $7.50 is a literal — so it binds at every year and every conclusion
 stands. But the $48.87 quoted when the threshold was first derived was at the module's
 **import-time parameters, evaluated at a hardcoded 2044.5** — neither 2045 nor any checkpoint.
-That inconsistency was flagged in §2B above as an open item; this is it producing a wrong figure.
+That inconsistency was flagged in #2B above as an open item; this is it producing a wrong figure.
 
 ### Fixed by making the bound year inspectable, not by removing the state
 
@@ -570,7 +570,7 @@ economic figure, which would need **$17.50/MWh** — implausible for pumped hydr
 is essentially the RTE loss already priced.
 
 Recorded as issue #21 rather than fixed: the figures must be sourced deliberately, not estimated to
-hit a threshold, which is the tie-breaker error §13 warns against.
+hit a threshold, which is the tie-breaker error #13 warns against.
 
 ---
 

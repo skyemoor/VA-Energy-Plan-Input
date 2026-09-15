@@ -228,7 +228,7 @@ def run_perfect_foresight(klass, needs_distributed, verbose=True):
                   bounds=assembled['bounds'], method='highs')
     if not res.success:
         raise RuntimeError(f'perfect-foresight solve failed: status {res.status}, {res.message}')
-    # APPENDIX P.2 §11 -- the myopic side verifies through solve_with_reserve_margin, and this
+    # APPENDIX P.2 #11 -- the myopic side verifies through solve_with_reserve_margin, and this
     # side had nothing. Without it the comparison would hold the two to different standards, which
     # is the failure the comparison exists to avoid. Raises rather than reporting a flag.
     verification = mp.verify_solution(assembled, res.x)

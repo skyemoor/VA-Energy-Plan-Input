@@ -1,6 +1,6 @@
 # Gas turbine lifespans
 
-> **MERGED 2026-09-13 into [`Gas_Consolidated_Reference.md`](../methodology/Gas_Consolidated_Reference.md) § 7.**
+> **MERGED 2026-09-13 into [`Gas_Consolidated_Reference.md`](../methodology/Gas_Consolidated_Reference.md) # 7.**
 >
 > Seven gas documents were consolidated into one because the fragmentation was costing real time:
 > the CT capex figures the project needed were in `new_peaker_ccgt_costs_by_size.md` while

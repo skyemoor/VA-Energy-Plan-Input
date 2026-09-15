@@ -68,7 +68,7 @@ comparable.*
 independent producer. **Doswell 1,313 MW, Tenaska 1,011, Potomac Energy Center 812 = 3,136 MW,
 ~30% of the DOM-zone fleet.** Undetected because the filter was self-consistently wrong.
 
-**Export revenue in the Scenario 2 objective** — violating Appendix P.2 §8, a standing project-wide
+**Export revenue in the Scenario 2 objective** — violating Appendix P.2 #8, a standing project-wide
 rule, and the *second* occurrence of the same bug. No figure moved: the export bound was already
 pinned to `(0,0)`, so **one correct guard was masking an incorrect term.**
 
@@ -100,7 +100,7 @@ Each was found **by hand, months apart**. `scripts/audit_documented_fixes.py` no
 
 - **conflicting duplicate constants** (Rule 6) — 256 constants, no conflicts
 - **orphaned modules** (Rule 1) — transitive from entry points
-- **export revenue in objectives** (P.2 §8)
+- **export revenue in objectives** (P.2 #8)
 - plus the original three
 
 **Two of my own checks passed vacuously before working** — a mangled regex matching nothing, and a
@@ -111,10 +111,10 @@ non-transitive walk. Both looked like clean bills of health.
 ## Appendix P is now in the repository
 
 `docs/appendices/Appendix_P_Solve_Procedure.md` — 811 lines, **thirteen general solve requirements**
-that no code had been checked against. §8 (export) is now enforced. **Twelve remain unaudited**,
-including §11, *"Verification required before any solve is presented as final."*
+that no code had been checked against. #8 (export) is now enforced. **Twelve remain unaudited**,
+including #11, *"Verification required before any solve is presented as final."*
 
-**§7 settles the demand basis:** *"this project's Virginia-only demand total, adjusted for the
+**#7 settles the demand basis:** *"this project's Virginia-only demand total, adjusted for the
 flattening effect of data-center load growth described in Appendix O."*
 
 ---
@@ -178,7 +178,7 @@ and overlays on the most interesting points.
 
 ### Known gaps carried forward
 
-- **Appendix O is missing** and P.2 §7 cites it normatively — partly reconstructible from
+- **Appendix O is missing** and P.2 #7 cites it normatively — partly reconstructible from
   `demand_shape_interpolation`
 - **Existing gas FOM** absent on the Scenario 1 side
 - **Twelve P.2 requirements** unaudited

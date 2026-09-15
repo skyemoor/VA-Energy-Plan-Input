@@ -35,7 +35,7 @@ class TestTheStreamIsComplete:
         assert run['levelised']['years_in_stream'] == 20
 
     def test_no_year_had_unserved_energy(self, run):
-        """The runner raises on any year with unserved energy (Appendix P.2 §11), so a completed
+        """The runner raises on any year with unserved energy (Appendix P.2 #11), so a completed
         run is itself the assertion -- this records that the guard exists."""
         assert run['levelised']['pv_demand_mwh'] > 0
 
@@ -110,8 +110,8 @@ class TestCapexBand:
 
 
 class TestTierOneAndTwo:
-    """Appendix P.2 §9 requires Tier 1 and 2 "across all 20 years of a scenario-solve, not from a
-    subset of checkpoint years" -- the same full-window rule as §1."""
+    """Appendix P.2 #9 requires Tier 1 and 2 "across all 20 years of a scenario-solve, not from a
+    subset of checkpoint years" -- the same full-window rule as #1."""
 
     def test_tier_one_is_reported_as_two_separate_figures(self, run):
         """Va. Code §56-598(2)(d) / §56-585.1(A)(6) require the statutory CO2-only concept and the

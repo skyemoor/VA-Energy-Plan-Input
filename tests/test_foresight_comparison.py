@@ -125,7 +125,7 @@ class TestFailureIsReported:
 
 
 class TestVerificationIsSymmetric:
-    """P.2 §11. The myopic side verifies through solve_with_reserve_margin; the foresight side had
+    """P.2 #11. The myopic side verifies through solve_with_reserve_margin; the foresight side had
     nothing, so the comparison would have held the two to different standards."""
 
     def test_the_foresight_side_verifies(self):

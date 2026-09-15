@@ -915,14 +915,14 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
     fe_cycling_cost = (FE_ENERGY_CAPEX*1000) / (FE_CYCLE_LIFE * FE_DOD)
     for t in range(T):
         c[hv(t,IDX['g'])] = gas_price_mwh + ccgt_vom_mwh
-        # EXPORT REVENUE IS DELIBERATELY ABSENT (Appendix P.2 §8, enforced here 2026-09-13). The
+        # EXPORT REVENUE IS DELIBERATELY ABSENT (Appendix P.2 #8, enforced here 2026-09-13). The
         # rule is project-wide and standing: "Export revenue must never appear inside any
         # year-solve's own optimization objective, in any scenario." With it in, the optimizer has
         # a direct incentive to build or dispatch more capacity than demand requires purely to
         # capture that revenue -- turning a least-cost-to-serve-demand calculation into a
         # profit-maximizing merchant one.
         #
-        # THIS EXACT BUG HAS HAPPENED HERE BEFORE. P.2 §8 records it: an earlier Scenario 2
+        # THIS EXACT BUG HAS HAPPENED HERE BEFORE. P.2 #8 records it: an earlier Scenario 2
         # calculation included export revenue, "carried over from Scenario 1/3's code without
         # reconsidering whether it belonged there", and the optimizer began running gas as a
         # merchant generator. It was caught because export revenue came out identical at every

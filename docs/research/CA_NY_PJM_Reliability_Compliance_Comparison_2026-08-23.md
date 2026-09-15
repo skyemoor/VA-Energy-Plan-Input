@@ -205,10 +205,10 @@ simplified into one "the worst year is X" statement.
 
 - No further open items from this document's own original scope. Citation cross-reference (Part 3
   of Scenario3_Literature_Search_Citations_2026-08-23.md, #95-107), the Dominion Schedule 15a/15c
-  FCDS/EODS-equivalent finding, and the cold-snap/winter-share investigation (§3) were all
+  FCDS/EODS-equivalent finding, and the cold-snap/winter-share investigation (#3) were all
   completed 2026-08-23.
 - Not yet checked: whether Virginia's SCC has ever formally proposed or considered connecting
   PJM's own ELCC de-rating schedule directly to RPS-percentage compliance accounting (the specific
   policy move CAISO's FCDS/EODS split represents) -- Dominion's IRP filings show the underlying
-  data already exists (§2), but that's distinct from the SCC having considered the *connection*
+  data already exists (#2), but that's distinct from the SCC having considered the *connection*
   as a compliance-design question.

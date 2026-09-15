@@ -147,7 +147,7 @@ class TestImpliedGasCapacity:
 class TestSolarTargetIsYearAware:
     """FIXED 2026-09-13. vcea_new_solar_mw() took no year and returned the full remaining target in
     every checkpoint, so Scenario 2 built the entire statutory fleet in 2030 -- five years before
-    the § D.2 deadline. That overstated 2030's clean share by 9.8 points (59.2% -> 49.4%)."""
+    the # D.2 deadline. That overstated 2030's clean share by 9.8 points (59.2% -> 49.4%)."""
 
     def test_year_is_required(self):
         """Rule 5: there is no safe default. A missing year previously meant 'full target, now'."""
@@ -155,7 +155,7 @@ class TestSolarTargetIsYearAware:
             assumptions.vcea_new_solar_mw()
 
     def test_ramps_linearly_to_the_2035_deadline_then_holds(self):
-        """§ D.2 sets ONE deadline -- 31 December 2035 -- with no interim milestones, and § D.4
+        """# D.2 sets ONE deadline -- 31 December 2035 -- with no interim milestones, and # D.4
         requires annual petitions without per-year quantities. Linear is the neutral reading. It is
         certainly wrong in detail, but front-loading is the alternative that FLATTERS the baseline
         by crediting early checkpoints with solar not yet built."""
@@ -175,7 +175,7 @@ class TestSolarTargetIsYearAware:
 
     def test_deduction_uses_nameplate_not_degraded_capacity(self):
         """Existing solar falls 5,300 -> 4,818 MW by 2045 at 0.5%/yr, and the energy balance sees
-        that. But § D.2 counts capacity PROCURED, not energy delivered -- a panel that has lost 9%
+        that. But # D.2 counts capacity PROCURED, not energy delivered -- a panel that has lost 9%
         of its output has not un-procured itself. So the requirement does not grow with
         degradation."""
         assert assumptions.vcea_new_solar_mw(2035) == assumptions.vcea_new_solar_mw(2045)

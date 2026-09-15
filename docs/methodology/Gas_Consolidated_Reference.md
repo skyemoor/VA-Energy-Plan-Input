@@ -70,7 +70,7 @@ Utility Generation*, Net Summer Capability. Listed youngest first, which is the 
 The four flagged for overhaul are all at or beyond nominal 30–45 year CT life by 2045. Overhaul
 costs $11.4M/yr against $77.0M/yr for equivalent new build.
 
-**Gravel Neck and Darbytown look wrong against other sources and are not** — see §"The retain-pool
+**Gravel Neck and Darbytown look wrong against other sources and are not** — see #"The retain-pool
 MW figures are GAS capability" below.
 
 ### Capacity cap by scenario — `apply_gas_cap()`
@@ -109,7 +109,7 @@ settled as entirely frame.
 | net summer | **12,414.1** |
 | net winter | **13,673.4** |
 
-EIA-860, after correcting a filter that had excluded every merchant IPP — see §"The 1,167 MW
+EIA-860, after correcting a filter that had excluded every merchant IPP — see #"The 1,167 MW
 discrepancy".
 
 ---
@@ -287,7 +287,7 @@ sets price in an economic dispatch. It excludes capital, FOM, and start-up costs
 in the LP as `UNSERVED_PENALTY = 100,000`. **This is a penalty, not a price** — it is set high
 enough that the optimiser will do almost anything to avoid unserved energy, rather than being an
 estimate of actual damages. Real scarcity prices in PJM top out two orders of magnitude lower
-(see §5).
+(see #5).
 
 **Dual (shadow price)** — the marginal value of relaxing a constraint by one unit, produced by the
 LP solver alongside the primal solution. For the hourly energy-balance constraint, the dual is the
@@ -297,7 +297,7 @@ optimised dispatch rather than a market clearing.
 
 **Merit order** — generating units ranked by marginal cost, dispatched cheapest-first. The price in
 any hour is set by the most expensive unit running. **Without a merit order there is only one price
-and the dual cannot vary** — which is the central problem recorded in §6.
+and the dual cannot vary** — which is the central problem recorded in #6.
 
 **LMP — Locational Marginal Price.** PJM's nodal price = system energy component + congestion
 component + marginal loss component. Our `distributed_exogenous_price_mwh` supplies only the
@@ -833,9 +833,9 @@ real time hit **$1,240** on 3 September 2026.
 
 | gap | status |
 |---|---|
-| Single gas price → merit order | tiers sourced (§1), **capacity per rung partly sourced (§2)**, not wired in |
+| Single gas price → merit order | tiers sourced (#1), **capacity per rung partly sourced (#2)**, not wired in |
 | No operating reserve | `all_hours_reserve.py` **exists and is documented as "current standard" but is not called by anything** |
-| No scarcity/import tier above gas | **not started** (§5) |
+| No scarcity/import tier above gas | **not started** (#5) |
 
 ---
 
@@ -1085,7 +1085,7 @@ materially understated the baseline.
 
 **$2,500/kW central**, with $2,000 low and $3,200 high.
 
-A single point figure is not defensible here. §6 below records simple-cycle plant entering service
+A single point figure is not defensible here. #6 below records simple-cycle plant entering service
 in 2023 averaging **$562/kW** against 2025 costs of **$728–1,544/kW** — a 2–3× move in two years —
 and notes recent CCGT projects *"routinely reporting costs of $2,000/kW"* against an earlier
 $1,116–1,427/kW range.
@@ -1635,14 +1635,14 @@ allowed**. The unserved profile *is* the gap profile.
 Start hour, duration, peak MW, total MWh, ramp in, ramp out, hours since the previous event, and
 season. Then cluster. Two or three natural families are expected — short evening peaks, multi-day
 winter events, and possibly a shoulder-season dunkelflaute — and **each family is matched against
-the technology parameters in §5 and §7. The match, or the failure to match, is the finding.**
+the technology parameters in #5 and #7. The match, or the failure to match, is the finding.**
 
 ### Relationship to the other gas work
 
 | | |
 |---|---|
-| §6A lifecycle costing | gives the **crossover CF** a matched family is tested against |
-| §5 operating constraints | gives ramp, minimum up/down and start parameters to test against |
+| #6A lifecycle costing | gives the **crossover CF** a matched family is tested against |
+| #5 operating constraints | gives ramp, minimum up/down and start parameters to test against |
 | issue #19 (gas as a build variable) | this method may show whether that is asking the right question at all |
 
 **Residual value is a known gap in both.** Annualised capital assumes an asset earns over its full
@@ -1748,7 +1748,7 @@ total when deriving a new gas_allowed_frac value, not 5-8.
 5. **The Dominion IRP PDFs in the project folder are truncated and unreadable** — no `/Root`
    object, confirmed with `pypdf` and `pdfplumber`. **No longer blocking**, since EIA-860 supplied
    what they would have, but other work may depend on them.
-6. **Imports and scarcity pricing** (§5) — deferred as its own work set. Note the simplification
+6. **Imports and scarcity pricing** (#5) — deferred as its own work set. Note the simplification
    established 2026-09-12: under LMP, an importer pays **its own node's price**, so modelling
    imports needs a DOM-node price rather than PJM's whole supply stack. That makes the import
    question and the scarcity-pricing question **the same question**, and a smaller one than first

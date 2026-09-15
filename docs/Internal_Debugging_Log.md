@@ -2952,20 +2952,20 @@ the exact class of error already caught this session -- an EV-efficiency value o
 figure. Well-matched to the summer-afternoon event majority (17-18 of ~20 real 2026 events already
 sourced); poorly matched to the rare winter-morning events (6-9am), for which no separate window
 logic was built. Does NOT yet include the participant-override discount (Wildstein, Craig &
-Vaishnav, already sourced in this project's own §7.5 research -- overrides can halve DLC reliability
+Vaishnav, already sourced in this project's own #7.5 research -- overrides can halve DLC reliability
 value) or any enrollment/penetration rate -- this is a per-participant, gross (not net-of-override)
 figure, not yet scaled to an aggregate MW total.
 
 **Resolved.** 9/9 tests pass. Persistent reference file `Dominion_DLC_Program_Parameters_2026-08-24.md`
 updated with this chain and result.
 
-## 64. Seven newly-identified S3 features integrated into the existing DSM/DER taxonomy (Scenario3_Scope_and_Gaps.md §5)
+## 64. Seven newly-identified S3 features integrated into the existing DSM/DER taxonomy (Scenario3_Scope_and_Gaps.md #5)
 
 **Context:** direct user request -- "compile all of these into our current S3 feature taxonomy
 structure with the existing features," following a prior-turn brainstorm of features not yet on
 the project's list and a subsequent prioritization pass.
 
-**Two new mechanism types added to §5.1's own "A.2 Mechanism" list**, alongside the existing
+**Two new mechanism types added to #5.1's own "A.2 Mechanism" list**, alongside the existing
 EE/DR/Automated-EE-DR-hybrid three: **Passive/automatic** (utility-side, always-on, no enrollment
 or override behavior at all -- e.g. CVR) and **On-site thermal/physical storage** (a built asset
 shifting load via stored thermal capacity, closer in spirit to a battery than to DLC or DR). Added
@@ -2973,7 +2973,7 @@ as genuinely new categories, not subtypes of existing ones, since CVR and therma
 share the enrollment/override/event-window estimation problem that dominated this session's DLC
 work, or the price-signal-response structure of DR.
 
-**Seven items added to the §5.1 "Scenario 3's own elements, mapped" table** (A.4 through A.7, plus
+**Seven items added to the #5.1 "Scenario 3's own elements, mapped" table** (A.4 through A.7, plus
 extensions to the existing A.2 row), each correctly placed by mechanism rather than defaulted to a
 generic "demand-side" bucket:
 
@@ -6580,7 +6580,7 @@ SLCR row, exactly what the misplaced return was skipping. The source reading had
 was "after apply_slcr", which was true and still wrong. Now asserted at 245,647 exactly, so a return
 that drifts above any constraint block fails on the row count rather than on a subtler symptom.
 
-**Generalised as Appendix P.2 §14:** an alternative solve path must be built from the same code, not
+**Generalised as Appendix P.2 #14:** an alternative solve path must be built from the same code, not
 reconstructed. The constraints are not all in the builder, and a path that calls the builder
 directly gets a problem missing every post-build constraint without the omission announcing itself.
 
@@ -6589,7 +6589,7 @@ directly gets a problem missing every post-build constraint without the omission
 
 **Context:** Scenario 1's intermediate years need dispatch-only solves at a pinned build, with the
 reserve margin applied. I proposed a dispatch-specific constraint builder; that was challenged as
-inconsistent with our own process, and it was -- Appendix P.2 §14, added two commits earlier,
+inconsistent with our own process, and it was -- Appendix P.2 #14, added two commits earlier,
 requires an alternative solve path to be built from the same code, not reconstructed. It would have
 been the FOURTH parallel construction in this codebase, after the 20x curtailment divergence,
 run_solve_multi_duration's drift, and the perfect-foresight path skipping every post-build

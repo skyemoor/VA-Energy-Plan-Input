@@ -60,7 +60,7 @@ reliability requirement for 2026/27. A planning model that assumes Virginia can 
 building assumes regional surplus that does not currently exist.
 
 **Dominion states the DOM Zone is a net importer.** That is the utility's own characterisation, and
-it bears directly on this project's absence of an import variable — see `MODEL_WIDE_FINDINGS.md` §3.
+it bears directly on this project's absence of an import variable — see `MODEL_WIDE_FINDINGS.md` #3.
 The zone imports today; our model cannot.
 
 The IRP also records a **$444.26/MW-day** capacity price for Dominion *"due to system constraints

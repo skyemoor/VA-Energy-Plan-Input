@@ -1012,7 +1012,7 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         # generation share by about four percentage points.
         # YEAR-AWARE since 2026-09-13. The earlier call passed no year and returned the full
         # remaining target in every checkpoint, so Scenario 2 built the entire statutory fleet in
-        # 2030 -- five years before the § D.2 deadline -- and overstated that checkpoint's clean
+        # 2030 -- five years before the # D.2 deadline -- and overstated that checkpoint's clean
         # share. The trajectory is linear to 2035 then flat; see assumptions.vcea_new_solar_mw for
         # why linear is the neutral reading of a statute with one deadline and no interim
         # milestones.

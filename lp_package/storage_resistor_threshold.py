@@ -20,14 +20,14 @@ a resistor is HALF THE PRICE, and the LP takes it.
 
 WHY THIS IS A DERIVATION, NOT ANOTHER DETERRENT
 
-Appendix P.2 §13 records seven attempts at preventing simultaneous dispatch (Internal Debugging Log
+Appendix P.2 #13 records seven attempts at preventing simultaneous dispatch (Internal Debugging Log
 #20-20.7) and is careful that the standing mechanism -- discharge-side cycling costs -- qualifies
 "not as a cost-based deterrent in the same speculative category" but as a genuine physical cost that
 suppresses degeneracy as a SIDE EFFECT.
 
 This module invents nothing. The threshold is arithmetic on two already-sourced parameters: the
 Sandia-derived cycling cost and the round-trip efficiency. It states where the existing mechanism
-stops working, which §13 explicitly flags as "an empirical question, not a mathematical guarantee".
+stops working, which #13 explicitly flags as "an empirical question, not a mathematical guarantee".
 
 WHAT IT DELIBERATELY DOES NOT DO
 
@@ -41,7 +41,7 @@ would let model mechanics dictate economics:
 
 WHEN THE TWO CONFLICT -- as they do now -- that is a DISCLOSED LIMITATION, not a number to tune.
 The model cannot represent a defensible curtailment price above the threshold without structural
-complementarity (binary variables), which P.2 §13 records as proven correct but impractical at this
+complementarity (binary variables), which P.2 #13 records as proven correct but impractical at this
 scale: ~470 s for one storage type over one month, so plausibly hours per full-year solve.
 """
 from typing import Dict, Optional
@@ -182,7 +182,7 @@ def check_curtailment_cost(curtailment_cost_mwh: Optional[float] = None,
                'Measured at 2045 with $100/MWh: 4,710 hours for Na-ion, caught by verify_result(). '
                'This is a MODEL LIMITATION, not evidence about what curtailment truly costs -- the '
                'model cannot represent a price above the threshold without structural '
-               'complementarity, which Appendix P.2 §13 records as proven correct but impractical '
+               'complementarity, which Appendix P.2 #13 records as proven correct but impractical '
                'at this scale.')),
     }
 

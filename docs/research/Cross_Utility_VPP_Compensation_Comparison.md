@@ -64,7 +64,7 @@ Substituting GMP's own $850/year for Dominion's $294/year (all else equal):
    expected part of a well-designed residential battery VPP — which makes
    Dominion's own silence on the topic more notable, not less.
 3. **A genuine discrepancy surfaced, not silently corrected**: this
-   project's own `Scenario3_Scope_and_Gaps.md` §7.4 previously rejected MA's
+   project's own `Scenario3_Scope_and_Gaps.md` #7.4 previously rejected MA's
    ConnectedSolutions for a "twice-replicated 50/50 winter/summer seasonal
    mismatch." This session's own sourced figures ($225/kW summer vs. $50/kW
    winter) show an **~4.5:1 summer-weighted split, not 50/50**. Flagged here
@@ -164,7 +164,7 @@ participation with a fresh offer submitted each day.
 **Why this makes sense**: FERC Order 2222's own residential-scale energy/
 ancillary-services market pathway isn't live in PJM until February 2028
 (already documented in this project's own research — `Dominion_VPP_Pilot_
-Research.md` §1, §3). True daily-arbitrage DER participation currently
+Research.md` #1, #3). True daily-arbitrage DER participation currently
 exists mainly at commercial/industrial scale (Voltus and similar aggregators
 bidding into day-ahead/real-time markets on behalf of C&I customers), not
 residential. The operational/telemetry demands of submitting a genuine daily
@@ -173,7 +173,7 @@ haven't crossed yet, anywhere checked.
 
 **Direct implication for Scenario 3's own modeling**: the $63.00/MWh "Energy"
 component in this project's own already-built DER-comp structure
-(`Scenario3_Scope_and_Gaps.md` §8.2) models a compensation *type* that has
+(`Scenario3_Scope_and_Gaps.md` #8.2) models a compensation *type* that has
 essentially **no real-world residential precedent** yet. It's a reasonable,
 defensible estimate of what wholesale-equivalent value *should* be worth to
 a well-timed, storage-backed owner — but unlike the event-based DRV/PTR

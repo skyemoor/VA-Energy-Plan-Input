@@ -31,7 +31,7 @@ def _at_2045():
 
 class TestTheDerivation:
     """cycling_cost x RTE / (1 - RTE) -- arithmetic on two sourced parameters, not a new deterrent.
-    Appendix P.2 §13 catalogues seven rejected attempts; this invents nothing, it states where the
+    Appendix P.2 #13 catalogues seven rejected attempts; this invents nothing, it states where the
     EXISTING mechanism stops working."""
 
     def test_sodium_ion_at_2045(self):

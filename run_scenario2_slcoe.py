@@ -77,7 +77,7 @@ def solve_year(year, weather, capex_basis):
     x, IDX = result['raw'].x, result['problem']['IDX']
     unserved = sum(x[t * 14 + IDX['unserved']] for t in range(len(demand)))
     if unserved > 1.0:
-        # Appendix P.2 §11: verification before any solve is presented as final.
+        # Appendix P.2 #11: verification before any solve is presented as final.
         raise RuntimeError(
             f'{year}: {unserved:,.1f} MWh unserved. At $100,000/MWh this dominates the objective, '
             'and a year with unserved energy has failed verification -- its cost is not meaningful.')
@@ -85,8 +85,8 @@ def solve_year(year, weather, capex_basis):
     cost = solver.lifecycle_cost(ccgt_capex_basis=capex_basis)
     gas_mwh = sum(x[t * 14 + IDX['g']] for t in range(len(demand)))
 
-    # TIER 1 AND 2, per Appendix P.2 §9 -- which requires them "across all 20 years of a
-    # scenario-solve, not from a subset of checkpoint years", the same full-window rule as §1.
+    # TIER 1 AND 2, per Appendix P.2 #9 -- which requires them "across all 20 years of a
+    # scenario-solve, not from a subset of checkpoint years", the same full-window rule as #1.
     # Computed from THIS year's actual hourly gas dispatch, not from an annual total, because the
     # NOx blend depends on the existing/new MW split at this year's own dispatch level.
     g_hourly = np.array([x[t * 14 + IDX['g']] for t in range(len(demand))])
@@ -199,7 +199,7 @@ def main():
     print(f'PV terminal  ${summary["pv_terminal_value_usd"] / 1e9:>10,.2f}B', flush=True)
     print(f'\nSLCOE without terminal value  ${summary["slcoe_without_terminal_value"]:>7.2f}/MWh')
     print(f'SLCOE with terminal value     ${summary["slcoe_with_terminal_value"]:>7.2f}/MWh')
-    print('\nTier 1 and 2, levelised on the same PV basis (Appendix P.2 §9, Appendix D):')
+    print('\nTier 1 and 2, levelised on the same PV basis (Appendix P.2 #9, Appendix D):')
     for v in tiers_pv.values():
         print(f'  {v["label"]:<38}${v["pv_usd"] / 1e9:>8,.3f}B   ${v["per_mwh"]:>6.2f}/MWh')
     societal = (summary['slcoe_with_terminal_value']

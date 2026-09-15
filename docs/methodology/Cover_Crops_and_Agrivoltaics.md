@@ -1,7 +1,7 @@
 # Cover Crops and Agrivoltaics
 
 **Working note, 2026-09-11.** Consolidates findings currently scattered across
-`lp_package/agrivoltaic_basis.py` inline comments and §6A–6B of
+`lp_package/agrivoltaic_basis.py` inline comments and #6A–6B of
 `NSPM_Rural_Economic_Development.md`.
 
 ---
@@ -127,7 +127,7 @@ The **Virginia Agricultural Best Management Practices Cost-Share Program**, admi
 delivered through local Soil and Water Conservation Districts, *"can decrease the cost of planting
 cover crops on your farm"* and covers *"over 70 other conservation practices."*
 
-This is the same shape as the § 45.2-1702 energy performance contracting finding in §7A of the NSPM
+This is the same shape as the § 45.2-1702 energy performance contracting finding in #7A of the NSPM
 note: **a funding mechanism that already exists**, requiring no new legislation and no new
 appropriation. Cover cropping under an array is the same practice VACS already funds.
 
@@ -164,7 +164,7 @@ impacts, and not developed here.
 
 ## 7. What is *not* claimed
 
-**Cover crop acreage is not added to the compatible base.** Because of §2 it overlaps land already
+**Cover crop acreage is not added to the compatible base.** Because of #2 it overlaps land already
 counted, so including it would double-count. It is recorded because it strengthens the
 **qualitative** case — 302,940 acres of Virginia cropland are already being managed for soil health
 rather than yield in any given year, on species that graze well — **without changing any quantity.**
@@ -174,7 +174,7 @@ cannot be lost in a later edit and quietly become "cover crops don't work under 
 
 **No cover-crop-specific agrivoltaic field trial was identified.** The compatibility argument here
 is inferred from species overlap with forage crops that *do* have field evidence, plus the
-shading-tolerance argument in §3. That is reasoning, not measurement, and should be presented as
+shading-tolerance argument in #3. That is reasoning, not measurement, and should be presented as
 such.
 
 ---

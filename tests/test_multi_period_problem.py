@@ -185,7 +185,7 @@ class TestPerVariableSalvage:
 
 
 class TestVerifySolution:
-    """Appendix P.2 §11 on a solved multi-period result. The myopic side verifies through
+    """Appendix P.2 #11 on a solved multi-period result. The myopic side verifies through
     CheckpointSolver.verify_result(); the foresight side had NO verification at all, so a solve
     with unserved energy or simultaneous dispatch would have been reported unchecked -- holding the
     two sides of the comparison to different standards, which is the failure it exists to avoid."""

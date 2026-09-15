@@ -7,7 +7,7 @@ downstream means anything until the x-axis is one formula, stated once.
 
 ## The answer: the sweep axis is CLEAN GENERATION SHARE, not statutory RPS percentage
 
-They are different quantities, and `Demand_Basis_and_RPS_Compliance_Working_Notes.md` §5–6 had
+They are different quantities, and `Demand_Basis_and_RPS_Compliance_Working_Notes.md` #5–6 had
 already established how. This note picks between them for the sweep and says why.
 
 ### What the model enforces
@@ -32,7 +32,7 @@ And the statutory base **excludes**:
 |---|---|
 | **(a)** In-Commonwealth nuclear operating by 1 July 2020 (Surry, North Anna) | ~32,000 GWh against ~107,000 GWh of Virginia sales — roughly a **30% reduction in the denominator** |
 | **(b)** Certified **accelerated clean energy buyers** — C&I with >25 MW aggregate load, opt-in and certified | a behavioural variable, potentially very large |
-| **(c)** § H legacy competitive-service customers (>100 MW peak in 2019) | smaller |
+| **(c)** # H legacy competitive-service customers (>100 MW peak in 2019) | smaller |
 
 ### The two give materially different requirements at the same headline percentage
 
@@ -54,7 +54,7 @@ dominates has not been worked through.
 **It is the physically meaningful question.** "At what share of generation does clean become more
 expensive than gas" is answerable from a dispatch model. "At what REC procurement percentage" is an
 accounting question whose answer depends on out-of-state REC prices, ACEB certification behaviour
-and § H elections — none of which this model contains.
+and # H elections — none of which this model contains.
 
 **It is the stricter measure at the endpoint**, so a cost curve built on it does not understate what
 compliance demands. A reviewer arguing the analysis is too lenient has to argue against the
@@ -90,7 +90,7 @@ Not recommended now, recorded so the gap is explicit:
 1. Retail sales by year on the statutory basis, excluding nuclear
 2. An ACEB participation assumption, with sensitivity — it is opt-in and aggregates across
    affiliates
-3. § H legacy customer load
+3. # H legacy customer load
 4. A REC accounting layer, including out-of-state eligibility and the ≥75% in-state floor
 5. A position on whether banked RECs and deficiency payments are in scope
 
@@ -100,7 +100,7 @@ Items 2 and 5 are scenario variables in their own right. This is a second study,
 
 ## Related
 
-- `docs/methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md` §5–6 — the source findings
+- `docs/methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md` #5–6 — the source findings
 - `docs/statutes/56-585.5.md` — the statute
 
 ---
@@ -181,7 +181,7 @@ considered; an omission is indistinguishable from an oversight.
 > Measured at 2045: peak **+11.8%**, load factor **0.796 → 0.712**. The adjustment runs backwards
 > because the input it was built for no longer arrives unflattened.
 >
-> **P.2 §7 is satisfied without it** — the flattening adjustment is already *in* the source. And
+> **P.2 #7 is satisfied without it** — the flattening adjustment is already *in* the source. And
 > the source covers **2026–2045 with no gaps**, so intermediate years for the SLCOE stream come
 > from `demand_basis.VirginiaOnlyLoad(year)`, the same place the checkpoints do.
 >

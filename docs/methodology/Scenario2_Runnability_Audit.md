@@ -45,7 +45,7 @@ axis that matters, and it is separate.
 
 ### Social and environmental cost
 
-Across all twenty years per P.2 §9, on the same PV basis:
+Across all twenty years per P.2 #9, on the same PV basis:
 
 | tier | PV | $/MWh |
 |---|---:|---:|
@@ -82,7 +82,7 @@ carries roughly **$3.4B/yr of annualised capital by 2045** and never cycles.
 
 ### Two model boundaries push the same way
 
-**No imports** (P.2 §15) and **a flat annual gas price** (P.2 §16). Real MID-ATL/APS prices show a
+**No imports** (P.2 #15) and **a flat annual gas price** (P.2 #16). Real MID-ATL/APS prices show a
 **$45.92 night-to-evening spread** — $41.75 at 00–05 against $87.67 at 16–20 — against a sodium-ion
 cycling cost of $5.43/MWh. On that spread storage is comfortably economic **with no surplus at all**.
 

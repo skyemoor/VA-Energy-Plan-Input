@@ -29,7 +29,7 @@ def add_all_hours_reserve_margin_constraint(problem, nuclear, wind_cf, exist_sol
     """Holds the installed reserve margin in EVERY hour.
 
     WORKS ON BOTH PROBLEM SHAPES from one implementation (generalised 2026-09-14), rather than a
-    dispatch-specific copy. Appendix P.2 §14 requires an alternative solve path to be built from the
+    dispatch-specific copy. Appendix P.2 #14 requires an alternative solve path to be built from the
     same code, not reconstructed -- and the three parallel constructions this project has had
     (build_dispatch_problem's curtailment cost 20x adrift, run_solve_multi_duration losing every
     prior_* parameter, the perfect-foresight path skipping every post-build constraint) each

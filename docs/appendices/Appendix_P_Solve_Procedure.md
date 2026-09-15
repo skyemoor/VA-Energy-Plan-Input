@@ -17,8 +17,8 @@ automatically. Treat divergence between this file and the main
 document's own Appendix P as expected during active work, not an error.
 
 **Open, unresolved question carried over from this session**: the main
-document's own Appendix P still uses the section-symbol style ("§1"
-through "§13") throughout its own headings below (structurally
+document's own Appendix P still uses the section-symbol style ("#1"
+through "#13") throughout its own headings below (structurally
 load-bearing, with cross-references to it from elsewhere in the main
 document). This working copy has NOT yet had that formatting changed —
 pending a decision on whether to reformat Appendix P's own headings the
@@ -82,7 +82,7 @@ computation in this project. Every year from 2026 through 2045 is, or
 should be, backed by exactly one year-solve.
 
 Within a year-solve, a further distinction matters, particularly for
-P.2 §1 and §5 below:
+P.2 #1 and #5 below:
 
 - **Checkpoint solve**: a year-solve in which the optimizer itself
   decides both how much new capacity to build (solar megawatts [MW],
@@ -103,7 +103,7 @@ P.2 §1 and §5 below:
   "Dispatch-only" describes what the optimizer is deciding, not a lower
   standard of rigor: a dispatch-only solve is still a genuine,
   independent 8,760-hour optimization, not an approximation or an
-  interpolation of results from other years. The requirement in P.2 §1
+  interpolation of results from other years. The requirement in P.2 #1
   that dispatch and cost not be interpolated refers to exactly this
   distinction — capacity may be interpolated between checkpoints, but
   the dispatch and cost that result from that capacity must be
@@ -113,9 +113,9 @@ P.2 §1 and §5 below:
 year-solves for a given scenario, together with every calculation built
 on top of them: cost accounting that assigns each year's new capacity
 to the price it was actually built at ("vintage-tracked" capital cost,
-described further in P.2 §6), credit for the residual value of assets
+described further in P.2 #6), credit for the residual value of assets
 still in service beyond the end of the 20-year study window ("terminal
-value," P.2 §6), tiered social/environmental cost estimates, and the
+value," P.2 #6), tiered social/environmental cost estimates, and the
 final system-levelized-cost-of-energy (SLCOE) and net-present-value
 (NPV) results. This is what is meant when this project refers to "the
 Scenario 1 solve" or "re-solving Scenario 2" without naming a specific
@@ -131,7 +131,7 @@ begins rather than assumed:
   specific statutory capacity milestone) requires re-solving only that
   year, plus recalculating whatever downstream figures depend on it.
 - A correction to machinery shared across every year's calculation (for
-  example, how solar output is adjusted for panel aging — see P.2 §2)
+  example, how solar output is adjusted for panel aging — see P.2 #2)
   requires re-solving *every* affected year, not a single one. Both of
   this project's most substantial corrections to date — extending
   Scenario 2 from four sample years to a genuine 20-year solve, and
@@ -141,7 +141,7 @@ begins rather than assumed:
 
 ### P.2 General Procedure — Requirements Applying to Every Scenario and Every Solve
 
-#### §1. Time coverage
+#### #1. Time coverage
 
 A scenario-solve must cover all 20 years of the analysis window
 (2026-2045), not a subset of checkpoint years — that is, it must be
@@ -166,7 +166,7 @@ governing statute's or schedule's own earlier or later milestones
 should be used for the newly added year-solves where such milestones
 exist, rather than a flat extrapolation from the nearest checkpoint.
 
-#### §2. Solar output degradation
+#### #2. Solar output degradation
 
 Solar panels lose a small fraction of their generating capability every
 year they are in service — a standard, well-documented industry effect,
@@ -214,7 +214,7 @@ reconstructs the original, unaged total with no net effect from aging
 at all — this exact error occurred once in this project's history and
 must not recur (Appendix C.13).
 
-#### §3. Reserve margin
+#### #3. Reserve margin
 
 Every year-solve should enforce a formal reserve-margin requirement: that
 total available firm generating capacity exceed peak demand by a
@@ -268,7 +268,7 @@ is treated as a distinct, separately-scoped piece of future work rather
 than something completed incidentally alongside this mechanism test.
 See P.4.
 
-#### §4. Gas generating fleet (any scenario using gas capacity, existing or newly built)
+#### #4. Gas generating fleet (any scenario using gas capacity, existing or newly built)
 
 - Existing gas generating capacity must be verified directly against
   each plant owner's own current, published information — not inferred
@@ -310,7 +310,7 @@ See P.4.
   (directly confirmed, strongly inferred, weakly inferred, or no
   evidence either way) should be disclosed.
 
-#### §5. Capacity sizing when a resource faces no cost penalty within the optimizer's own objective
+#### #5. Capacity sizing when a resource faces no cost penalty within the optimizer's own objective
 
 If a resource — typically gas capacity — is left uncapped, or capped
 only loosely, within an optimization whose cost-minimization objective
@@ -326,7 +326,7 @@ own objective value plus the construction cost of that capacity, priced
 externally — rather than reading the unconstrained optimizer's own
 chosen output directly as the answer.
 
-#### §6. Terminal value
+#### #6. Terminal value
 
 Any asset whose useful operating life extends beyond the end of this
 project's 2045 study window (25 years for solar and battery storage; 30
@@ -353,7 +353,7 @@ feature of the convention, and should be explicitly flagged whenever it
 materially affects a comparison between scenarios (as it does in the
 comparison between Scenario 1 and Scenario 1B — see Appendix N.4).
 
-#### §7. Demand and weather-year basis
+#### #7. Demand and weather-year basis
 
 The same, current demand forecast should be used consistently across
 every year-solve — this project's Virginia-only demand total, adjusted for
@@ -365,7 +365,7 @@ should likewise be used consistently, unless a different weather year is
 being deliberately tested as its own, explicitly labeled stress-test
 case.
 
-#### §8. Export and curtailment treatment
+#### #8. Export and curtailment treatment
 
 **Export revenue must never appear inside any year-solve's own
 optimization objective, in any scenario.** This is a deliberate,
@@ -425,7 +425,7 @@ the scale of this project's overall results, that building and
 maintaining a separate post-hoc export mechanism for Scenario 2 was
 judged not worth the added complexity.]**
 
-#### §9. Tier 1/2/3 social and environmental cost
+#### #9. Tier 1/2/3 social and environmental cost
 
 Every scenario-solve must calculate Tier 1 and Tier 2 social cost, and
 must disclose Tier 3 findings even though Tier 3 is not converted to a
@@ -449,7 +449,7 @@ states only the requirement that every scenario-solve must satisfy.
   monetized using the EPA's own published benefit-per-ton figures for
   the electric generating sector. Nitrogen oxide emissions specifically
   must use the plant-specific pollution-control classification required
-  by §4, not a single fleet-wide assumption.
+  by #4, not a single fleet-wide assumption.
 - **Tier 3 (disclosed, not monetized)**: additional, harder-to-monetize
   effects — for example, elevated cancer risk from air toxics such as
   formaldehyde and benzene, and findings from the current public-health
@@ -504,7 +504,7 @@ proxy choice is sufficient — full statutory citation and reasoning
 belong here, not repeated at every level of summary.
 
 Both Tier 1 (in both its Virginia SCC and aggregate GHG forms) and Tier
-2 are subject to the same full-window coverage requirement as §1: they
+2 are subject to the same full-window coverage requirement as #1: they
 must be calculated across all 20 years of a scenario-solve, not from a
 subset of checkpoint years. This project's own history shows why the
 distinction matters even here, though the consequence was smaller than
@@ -526,7 +526,7 @@ original four checkpoints either, despite Scenario 1's own full
 20-year dispatch data having existed the entire time. See P.4 for the
 current status of both corrections.
 
-#### §10. Land acreage
+#### #10. Land acreage
 
 Every scenario-solve must calculate the physical land area its
 generation and storage build-out requires, for every year of the
@@ -546,7 +546,7 @@ earlier year along the way.
   fixed-tilt vs. tracking technology and whether direct or total land
   area is being measured). Applied to whichever solar capacity figure
   a scenario's own build-out produces at each year — nameplate, not
-  degraded/effective capacity (§2), since land is committed based on
+  degraded/effective capacity (#2), since land is committed based on
   what was physically built, not on how much output it currently
   generates.
 - **Onshore wind, battery storage, and new gas capacity**: this
@@ -575,13 +575,13 @@ MW/MWh capacity figures — acreage is an additional, disclosed impact
 metric, not a replacement for the capacity figures this project already
 reports throughout.
 
-#### §11. Verification required before any solve is presented as final
+#### #11. Verification required before any solve is presented as final
 
 - Zero demand goes unserved, unless an unserved-demand shortfall is
   itself the deliberate subject of the analysis.
 - Existing plus newly built capacity sums exactly, not approximately, to
   whatever peak or baseload requirement that capacity is meant to cover
-  — and once the §3 reserve-margin requirement is properly enforced,
+  — and once the #3 reserve-margin requirement is properly enforced,
   that requirement itself is the reserve-margin-inclusive target
   ((1+IRM) times peak demand), not raw peak demand alone. Reserve margin
   is a multiplier applied to the requirement being checked against, not
@@ -593,9 +593,9 @@ reports throughout.
   cost, fuel cost, storage cycling cost, export revenue, and terminal
   value — is counted exactly once: neither omitted nor double-counted.
 - Zero hours of simultaneous charge and discharge, for every storage
-  type — see §13.
+  type — see #13.
 
-#### §12. Documentation
+#### #12. Documentation
 
 - Update the relevant appendix section.
 - Present the actual script or scripts that produced the figures being
@@ -629,7 +629,7 @@ reports throughout.
   add it to this appendix's General Procedure section, not only to the
   specific scenario's own appendix.
 
-#### §13. Storage dispatch degeneracy (simultaneous charge and discharge)
+#### #13. Storage dispatch degeneracy (simultaneous charge and discharge)
 
 A linear program has no inherent reason to avoid a physically
 impossible state — a given storage resource charging and discharging in
@@ -681,7 +681,7 @@ context (DER-owner-operated distributed storage, potentially under
 different dispatch incentives than this project's existing
 utility-scale-only storage) — must directly verify zero hours of
 simultaneous charge and discharge for every storage type before being
-presented as final, per §11 below. This must be checked directly against
+presented as final, per #11 below. This must be checked directly against
 the solved hourly output (`charge[t] > 0 and discharge[t] > 0`
 simultaneously, for any hour), not assumed from the presence of a
 cycling-cost term alone — the cost term's effectiveness at a new
@@ -690,7 +690,7 @@ mathematical guarantee, per the SLCR trial's own finding (Internal
 Debugging Log #20.7) that a mechanism's effectiveness can vary by
 checkpoint depending on which constraints are actually binding there.
 
-#### §14. Any alternative solve path must be built from the same code, not reconstructed
+#### #14. Any alternative solve path must be built from the same code, not reconstructed
 
 A scenario solved through a different route — a multi-period assembly, a sweep harness, a
 diagnostic — must obtain its problem from the **same function that ordinarily solves it**, not by
@@ -715,7 +715,7 @@ be solved, placed immediately before the solve so it stays complete as constrain
 verification compares the constraint-row count of that mode against a full solve; a single missing
 row is a missing constraint.
 
-#### §15. Imports are excluded, and what that costs
+#### #15. Imports are excluded, and what that costs
 
 **The model serves the DOM zone from its own resources.** Virginia sits inside PJM and imports
 substantially — Dominion's own figures have varied, but roughly 20% of energy — and none of that is
@@ -734,7 +734,7 @@ that clean build-out is affordable, but not neutral, and it should not be presen
 a 17.7% all-hours reserve margin being holdable and not — see
 `assumptions.SCENARIO1_ANCHOR_STORAGE_MW`.
 
-#### §16. Gas price is flat within a year, which suppresses storage arbitrage
+#### #16. Gas price is flat within a year, which suppresses storage arbitrage
 
 **Every solve applies one gas price per year.** There is no intra-day or seasonal shape, so storage
 can earn only by absorbing surplus, never by arbitraging a price spread.
@@ -779,24 +779,24 @@ sections of P.2 currently contain a bracketed note affecting it. It
 does not restate what those notes say — follow the section reference to
 read the note itself, in context, next to the general rule.
 
-- **Scenario 1 / 1B**: §2 (solar degradation happens automatically via
-  vintage tracking); §8 (export-revenue parameter present but disabled
+- **Scenario 1 / 1B**: #2 (solar degradation happens automatically via
+  vintage tracking); #8 (export-revenue parameter present but disabled
   by default; post-hoc export-revenue calculation included).
-- **Scenario 2**: §2 (solar degradation must be separately calculated,
+- **Scenario 2**: #2 (solar degradation must be separately calculated,
   since capacity follows an externally-set schedule rather than an
-  optimizer decision); §8 (no export-revenue mechanism exists in the
+  optimizer decision); #8 (no export-revenue mechanism exists in the
   LP at all; no post-hoc export-revenue calculation applied, a
   deliberate decision given the small, single-checkpoint scale of its
   curtailment).
 - **Scenario 3**: no bracketed notes yet — scenario not yet built. Once
   built, this index should be updated at the same time any new,
   scenario-specific bracketed notes are added to P.2, consistent with
-  §12's requirement that new general requirements be added to this
+  #12's requirement that new general requirements be added to this
   appendix as part of documenting the work that discovered them.
 
 ### P.4 Disclosed Gaps Against This Procedure, as of This Appendix's Creation
 
-- **Reserve margin (§3) — value settled, mechanism tested, project-wide
+- **Reserve margin (#3) — value settled, mechanism tested, project-wide
   application still open.** 17.7% IRM settled by direct user decision.
   Mechanism verified on two test cases (Scenario 1's 2030 and 2045
   checkpoints): non-binding at 2045, genuinely binding at 2030 (Na-power
@@ -810,22 +810,22 @@ read the note itself, in context, next to the general rule.
   Scenario 2 figures that predate the corrections in Appendix C.12 and
   C.13. This has been deliberately deferred to a dedicated pass rather
   than addressed incidentally, and is not an oversight.
-- **Plant retirement-year cross-reference (§4)**: the retirement years
+- **Plant retirement-year cross-reference (#4)**: the retirement years
   used in this project's social-cost NOx classification have not yet
   been checked against the corrected plant roster used for gas capacity
   crediting elsewhere in the project. Believed likely immaterial (the
   classification of which plants have DLN pollution controls is
   unaffected either way), but not yet formally verified.
-- **Scenario 1's own reserve-margin status**: covered by the general §3
+- **Scenario 1's own reserve-margin status**: covered by the general #3
   gap above. Scenario 1's checkpoint solves were established earlier in
   this project's history and have not yet been individually re-audited
   against this appendix.
 - **Virginia SCC / aggregate GHG split, and Scenario 1's Tier 1/2
-  20-year extension (§9)**: methodology decided and documented above,
+  20-year extension (#9)**: methodology decided and documented above,
   but the actual figures for Scenario 1, 1B, and 2 are intentionally
   not yet calculated or published anywhere in this project. Both
   corrections depend on each scenario's underlying dispatch, which is
-  about to change once the §3 reserve-margin fix is implemented across
+  about to change once the #3 reserve-margin fix is implemented across
   all three scenarios — calculating these figures now would mean
   recalculating them again immediately after. Deliberately deferred
   until after the reserve-margin fix, so both are done once, on final
@@ -854,7 +854,7 @@ read the note itself, in context, next to the general rule.
   project's existing practice of using multiple priced tiers for other
   uncertain inputs (the Deloitte/EIA/Hughes gas-price tiers). Like the
   items above, deliberately deferred until after the reserve-margin fix.
-- **Land acreage (§10)**: newly added requirement, not yet calculated
+- **Land acreage (#10)**: newly added requirement, not yet calculated
   for any scenario. Solar land-use figure sourced (6.93 acres/MW,
   Virginia-specific); battery storage and new gas capacity figures not
   yet sourced; Scenario 3's agrivoltaic dual-use land accounting not

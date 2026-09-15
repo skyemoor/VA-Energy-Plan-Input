@@ -1,9 +1,9 @@
 # Scenario 3 Literature Search — Full Citation List (2026-08-23)
 
 *Every source that directly informed today's two research passes: (1) the independent NY/CA/MA/MD/WA/
-HI/Germany/IL "lessons learned" search (documented in Scenario3_Scope_and_Gaps.md §10), commissioned
+HI/Germany/IL "lessons learned" search (documented in Scenario3_Scope_and_Gaps.md #10), commissioned
 specifically to verify and extend beyond the AI-generated Appendices B/C of Virginia_Energy_Plan_Input.docx;
-and (2) the distribution-system-upgrade-cost and circuit-count research (§2.1-2.2). Organized by the
+and (2) the distribution-system-upgrade-cost and circuit-count research (#2.1-2.2). Organized by the
 same section structure as the scope document itself, so a citation can be traced directly back to the
 claim it supports. Search-result noise (irrelevant hits, duplicate listings, unrelated "wholesale"
 industries that surfaced from ambiguous query terms) is excluded — this list is sources actually used,
@@ -11,7 +11,7 @@ not everything returned.*
 
 ---
 
-## §10.1 — Hawaii and Massachusetts: the "changing a scheme is more dangerous than never offering one" finding
+## #10.1 — Hawaii and Massachusetts: the "changing a scheme is more dangerous than never offering one" finding
 
 1. Lee, Chris (Hawaii State Senator). "Why every state can learn from Hawai'i's solar journey." *pv
    magazine USA*, June 18, 2022.
@@ -54,7 +54,7 @@ not everything returned.*
 
 ---
 
-## §10.2 — Germany: Marktprämie as a real precedent for this project's own Section K
+## #10.2 — Germany: Marktprämie as a real precedent for this project's own Section K
 
 9. Sandra Enkhardt. "Germany introduces new rules for solar remuneration during negative prices."
    *pv magazine International*, February 17, 2025.
@@ -87,7 +87,7 @@ not everything returned.*
 14. Modo Energy. "Solar Cannibalisation: Why Germany's summer glut is costing consumers." August 19,
     2025. https://modoenergy.com/research/en/germany-2025-solar-cannibalisation-glut-subsidies-power-prices-bess
     — The "over 90% of installed capacity backed by government support" and "support gap widens"
-    findings — real-world confirmation of the cannibalization risk already flagged in §8.8.
+    findings — real-world confirmation of the cannibalization risk already flagged in #8.8.
 
 15. Gugler, Klaus; Haxhimusa, Adhurim; Liebensteiner, Mario. "Market premia for renewables in Germany:
     The effect on electricity prices." *Energy Economics*, March 4, 2022 (peer-reviewed).
@@ -116,7 +116,7 @@ not everything returned.*
 
 ---
 
-## §10.3 — California: the formal "six lessons," the 24/7-settlement barrier, and the double-counting provision
+## #10.3 — California: the formal "six lessons," the 24/7-settlement barrier, and the double-counting provision
 
 19. Gundlach, Justin; Webb, Romany. "Distributed Energy Resources in Wholesale Markets: Assessing
     Federal Barriers to Entry for Aggregators." *Energy Law Journal* (Energy Bar Association), Vol. 39,
@@ -127,7 +127,7 @@ not everything returned.*
 20. Lawrence Berkeley National Laboratory. "State regulatory opportunities to advance distributed energy
     resource aggregations in wholesale markets." January 2025.
     https://eta-publications.lbl.gov/sites/default/files/2025-01/final_der_participation_in_wholesale_market.pdf
-    — Source of the explicit Order 2222 double-counting provision language, quoted directly in §7.5/§10.3.
+    — Source of the explicit Order 2222 double-counting provision language, quoted directly in #7.5/#10.3.
 
 21. GT Law / E2 Law Blog. "Keeping Eyes on the Ball: Integration of Distributed Energy Resources."
     September 6, 2024 (republished; originally 2020).
@@ -142,7 +142,7 @@ not everything returned.*
 
 ---
 
-## §10.4 — Massachusetts Solar Canopy Working Group (real, primary source)
+## #10.4 — Massachusetts Solar Canopy Working Group (real, primary source)
 
 23. Massachusetts Department of Energy Resources. "Solar Canopy Working Group — Meeting Minutes,"
     April 18, 2025. https://www.mass.gov/doc/scwg-meeting-minutes-41825/download
@@ -152,9 +152,9 @@ not everything returned.*
 
 ---
 
-## §10.5 — Maryland: the May 2026 PSC order (detail) and the CEIR-20 line-loss value
+## #10.5 — Maryland: the May 2026 PSC order (detail) and the CEIR-20 line-loss value
 
-24. *(See #22 above — Maryland PSC order, cited again here for its own §10.5 detail.)*
+24. *(See #22 above — Maryland PSC order, cited again here for its own #10.5 detail.)*
 
 25. Maryland Department of Natural Resources / Power Plant Research Program. "Maryland Power Plants and
     the Environment (CEIR-20)." https://dnr.maryland.gov/pprp/Documents/CEIR-20.pdf
@@ -164,11 +164,11 @@ not everything returned.*
     Supporting DER Policy Developments: Q2 2026." July 23, 2026.
     https://www.dsireinsight.com/blog/2026/7/23/vpp-and-supporting-der-policy-developments-q2-2026
     — Confirms Maryland's own DRIVE Act summer-2026 demand-management-plan approvals (Potomac Edison,
-    BGE); also the same-quarter Virginia and Illinois developments referenced elsewhere in §10.
+    BGE); also the same-quarter Virginia and Illinois developments referenced elsewhere in #10.
 
 ---
 
-## §10.6 — Washington: PSE's "energy orchestration" framing and scale benchmark
+## #10.6 — Washington: PSE's "energy orchestration" framing and scale benchmark
 
 27. Utility Dive. "Puget Sound Energy, AutoGrid aim to develop a 100-MW virtual power plant by 2025."
     November 28, 2023. https://www.utilitydive.com/news/puget-sound-energy-autogrid-pse-virtual-power-plant-vpp/700806/
@@ -182,7 +182,7 @@ not everything returned.*
 
 ---
 
-## §10.7 — New York: the 2019 stabilization, the calculator's own disclosed limitations, and ICAP Alt refinement
+## #10.7 — New York: the 2019 stabilization, the calculator's own disclosed limitations, and ICAP Alt refinement
 
 29. California Energy Commission e-filing docket (originating presenter/date not independently
     confirmed beyond the docket listing). "NY State VDER Tariff — Simplified and Innovative Load
@@ -219,7 +219,7 @@ not everything returned.*
 
 ---
 
-## §10.8 — Illinois/ComEd: pilot results, the tariff-withdrawal lesson, and the statutory floor rate
+## #10.8 — Illinois/ComEd: pilot results, the tariff-withdrawal lesson, and the statutory floor rate
 
 35. EnergyChoiceMatters.com. "ComEd Withdraws Proposed VPP Tariff." November 18, 2025.
     http://www.energychoicematters.com/stories/20251118e.html
@@ -258,7 +258,7 @@ not everything returned.*
 
 ---
 
-## §2.1 — Distribution-system upgrade unit cost ($/kW)
+## #2.1 — Distribution-system upgrade unit cost ($/kW)
 
 42. GridLab / E3. "Distribution Grid Cost Impacts Driven by Transportation Electrification." June 2021.
     https://www.ethree.com/wp-content/uploads/2021/06/GridLab_2035-Transportation-Dist-Cost.pdf
@@ -270,8 +270,8 @@ not everything returned.*
     congestion." *Proceedings of the National Academy of Sciences*, April 22, 2024. DOI:
     10.1073/pnas.2317599121. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11067039/
     — Source of the real California feeder-level study: 67% of feeders needing upgrades by 2045, 25 GW
-    total, $6-20B cost — used both for its own $/kW-implied figure (§2.1) and its "67% of feeders"
-    proxy (§2.2).
+    total, $6-20B cost — used both for its own $/kW-implied figure (#2.1) and its "67% of feeders"
+    proxy (#2.2).
 
 44. Horowitz, Kelsey A.W.; Ding, Fei; Mather, Barry A.; et al. "The Cost of Distribution System
     Upgrades to Accommodate Increasing Penetrations of Distributed Photovoltaic Systems on Real Feeders
@@ -319,7 +319,7 @@ not everything returned.*
 
 ---
 
-## §2.2 — Number of circuits affected: Dominion system scale and data-center exclusion
+## #2.2 — Number of circuits affected: Dominion system scale and data-center exclusion
 
 51. Dominion Energy, Inc. Form 10-K, FY2020. U.S. Securities and Exchange Commission (EDGAR).
     https://www.sec.gov/Archives/edgar/data/715957/000156459021008442/d-10k_20201231.htm
@@ -385,7 +385,7 @@ authoritative:
   articles); #19-20 (a law-review article and an LBNL report); #22-25, #57 (official PSC/SCC/state
   agency documents); #43-45 (PNAS and NREL); #51-55, #58 (SEC filings and an official Dominion tool).
 - **Industry-press/trade-publication sources** (real, generally reliable, but not peer-reviewed):
-  most of §10.1, §10.4, §10.6-10.8, and #42, #46-49.
+  most of #10.1, #10.4, #10.6-10.8, and #42, #46-49.
 - **Explicitly flagged as lower-confidence**: #18 (a single, non-peer-reviewed arXiv preprint making
   strong claims about German emissions trends — not corroborated elsewhere in this search); #56 (a
   third-party solar-industry site, not an official Dominion/SCC source, for the specific 15%
@@ -535,7 +535,7 @@ by the topic area each source supported, matching the order these appeared acros
 88. Cole, W.; Ramasamy, V.; Turan, A. "Cost Projections for Utility-Scale Battery Storage: 2025
     Update." NREL/TP-6A40-93281, June 2025. National Renewable Energy Laboratory.
     — A full NREL report number was captured directly; source of the $240.8/kWh-duration +
-    $379.16/kW regression this project's own sodium-ion power/energy split (§ na_power_energy_split in
+    $379.16/kW regression this project's own sodium-ion power/energy split (# na_power_energy_split in
     assumptions.py) is built from.
 
 89. Lazard. "Levelized Cost of Energy+" (LCOE+), v19.0. Referenced repeatedly across both today's and
@@ -583,7 +583,7 @@ Every citation below was directly verified this session (web_fetch against the p
 narratively described from memory) — same standard as Part 1's own 60 citations, not Part 2's
 as-described-only standard. Cross-checked against Parts 1-2 above before numbering: **zero overlap**
 with any of citations #1-94, including #75 (E3's own PJM ELCC/RRS audit, a different document from
-PJM's own official ELCC class-ratings tables cited below) and §10.3's own California DER-aggregation
+PJM's own official ELCC class-ratings tables cited below) and #10.3's own California DER-aggregation
 citations (#19-22, which cover 24/7-settlement/Order-2222 barriers, not the CPUC/CAISO IRP-and-
 transmission-planning sources below). Full synthesis: `CA_NY_PJM_Reliability_Compliance_Comparison_2026-08-23.md`.
 
@@ -645,7 +645,7 @@ transmission-planning sources below). Full synthesis: `CA_NY_PJM_Reliability_Com
     Impacts." Independent replication of PJM's ELCC methodology; source of the winter-risk-shift
     finding (wind's annual ELCC now exceeds solar's due to system risk shifting toward winter) --
     the finding in tension with this project's own six-hydro-year August-driven result, not yet
-    resolved (see Part 3's own synthesis document, §3).
+    resolved (see Part 3's own synthesis document, #3).
     https://www.ascendanalytics.com/blog/pjm-elcc-capacity-market-modeing-case-study
 
 107. SYSO Technologies. "PJM BESS Operators." Source of the real-world PJM capacity-market revenue

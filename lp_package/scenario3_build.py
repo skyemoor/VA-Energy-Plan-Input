@@ -27,7 +27,7 @@ architecture):
 DISTRIBUTED_CF_RATIO = 0.81 (NREL 2024 ATB, Commercial vs. Utility-Scale
 PV, full derivation in Scenario3_Technical_Notes.md #1).
 DISTRIBUTED_SHARE = 0.20 (10% rooftop + 10% canopy, Scenario 3's own core
-definition, Scenario3_Scope_and_Gaps.md §1).
+definition, Scenario3_Scope_and_Gaps.md #1).
 
 SUB-ALLOCATION WITHIN DISTRIBUTED_SHARE (direct user decision, 2026-08-23,
 finalized after two rounds of revision -- see the session's own record for
@@ -121,14 +121,14 @@ class UtilityScalePolicy:
     Ownership shares (B.1.a-c) are fractions OF THE UTILITY-SCALE (80%) SHARE, not of
     total solar -- multiply by UTILITY_SHARE to get each tier's share of TOTAL solar.
     Rider shares are this project's own working assumption (Scenario3_Scope_and_Gaps.md
-    §5.2/§1) pending confirmation against Dominion's own real rider-enrollment mix; kept
+    #5.2/#1) pending confirmation against Dominion's own real rider-enrollment mix; kept
     equal by default as a disclosed starting split, not a sourced finding.
 
     Land-use shares (C.1) are fractions of the NON-URBAN portion specifically (the 80%
     utility-scale share, since B.1.d/e's rooftop/canopy 20% is definitionally not
     non-urban) -- agrivoltaic_share_of_nonurban=0.90 matches this project's own
     established 90%-agrivoltaic-within-non-urban figure (Scenario3_Scope_and_Gaps.md
-    §5.4/C.1) exactly.
+    #5.4/C.1) exactly.
     """
     rider_ce_share: float = 1.0 / 3.0   # Dominion Rider CE -- company-owned
     rider_ppa_share: float = 1.0 / 3.0  # Dominion Rider PPA -- third-party physical PPA

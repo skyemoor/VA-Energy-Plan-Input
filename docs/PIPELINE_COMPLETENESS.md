@@ -220,7 +220,7 @@ CSV is present, so that analysis runs, but the classifier that generated it is n
 
 `population_extrapolation.REFERENCE_COUNTIES` uses Prince William parking at **1,734.7-2,168.4
 MW**. That figure was re-based on 2026-09-10 to **335.6 MW** (see
-`methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md` § 13) after its
+`methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md` # 13) after its
 population-per-capita anchor was found to import Loudoun's data-center-driven parking density.
 
 This creates a circularity the module's own docstring is explicitly trying to avoid. It excludes
@@ -270,7 +270,7 @@ Queued behind the CAISO net-load investigation. Recorded now so it is not lost.
 
 PJM requires energy-market aggregations to sit at a **single pricing node** — capacity and
 ancillary services may aggregate across nodes, energy may not (see
-`research/DERA_VPP_WMA_Consolidated_Working_Notes.md` §4). The model currently treats the entire
+`research/DERA_VPP_WMA_Consolidated_Working_Notes.md` #4). The model currently treats the entire
 distributed fleet as one block arbitraging against one price series, which **energy-market rules do
 not permit**.
 
@@ -296,7 +296,7 @@ per-site files, NOAA station records). In principle those allow month-hour avera
 **varied down to individual hours of specific days** — a hot, still, low-insolation evening priced
 differently from a mild breezy one in the same month-hour bucket.
 
-That would address the deeper problem recorded in `MODEL_WIDE_FINDINGS.md` §1: month-hour averaging
+That would address the deeper problem recorded in `MODEL_WIDE_FINDINGS.md` #1: month-hour averaging
 removes 94.5% of the real extreme, and the top 1% of hours hold 29.4% of all positive congestion
 value.
 
@@ -339,7 +339,7 @@ is the sweep's subject.
 
 **The cap collapses at 2045** — Schedule B's VCEA retirements. At 100% it does not bind because gas
 is zero anyway, but **at 90% and 95% it will**, and it is the cap that uses a different retirement
-schedule from the merit order (see `Gas_Consolidated_Reference.md` § 3).
+schedule from the merit order (see `Gas_Consolidated_Reference.md` # 3).
 
 ### `compute_tier123_final.py` RESTORED
 

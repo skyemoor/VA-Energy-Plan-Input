@@ -2,7 +2,7 @@
 
 Working reference file, compiled 2026-08-23, separating out all Dominion-
 specific pilot-program research from Scenario3_Scope_and_Gaps.md's own
-§5.2.2 for easier standalone reference. Every figure here traces to a
+#5.2.2 for easier standalone reference. Every figure here traces to a
 specific, cited source — nothing is estimated or assumed unless
 explicitly marked as such.
 
@@ -191,4 +191,4 @@ search results for HB 2789/Income and Age Qualifying Solar Program
 reporting (Canary Media, Dominion's own program page); (c) direct web
 search for Order 841/Pacific Power precedent (already documented
 separately in this session's own Order 2222/841 research). Nothing here
-is estimated unless explicitly marked as such (see §4).
+is estimated unless explicitly marked as such (see #4).

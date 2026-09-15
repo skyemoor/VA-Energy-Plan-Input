@@ -72,7 +72,7 @@ class TestReserveMarginIsAppliedNotChecked:
         assert 'add_all_hours_reserve_margin_constraint' in src
 
     def test_it_uses_the_shared_function_with_fixed_capacities(self):
-        """Appendix P.2 §14 -- the same code as the checkpoints use, not a dispatch-specific copy.
+        """Appendix P.2 #14 -- the same code as the checkpoints use, not a dispatch-specific copy.
         build_dispatch_problem has NVAR_BUILD = 0, so capacities pass through fixed_capacity_mw."""
         src = inspect.getsource(ann.solve_year)
         assert 'fixed_capacity_mw=' in src
@@ -86,11 +86,11 @@ class TestReserveMarginIsAppliedNotChecked:
 
 
 class TestVerificationPerYear:
-    """Appendix P.2 §11, on every interpolated year, not only the checkpoints."""
+    """Appendix P.2 #11, on every interpolated year, not only the checkpoints."""
 
     def test_unserved_raises(self):
         assert 'unserved' in inspect.getsource(ann.solve_year)
-        assert '§11' in inspect.getsource(ann.solve_year)
+        assert '#11' in inspect.getsource(ann.solve_year)
 
     def test_simultaneous_dispatch_raises_for_all_three_storage_types(self):
         src = inspect.getsource(ann.solve_year)

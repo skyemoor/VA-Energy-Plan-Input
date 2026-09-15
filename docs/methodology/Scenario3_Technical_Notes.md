@@ -962,7 +962,7 @@ The same paper also bears on our lower bound:
 Our flat ~$1/MWh scarcity term is close to a fixed-price rule. So our no-lookahead endpoint is
 probably **conservative** — the true limited-foresight value sits above it.
 
-**arXiv 2407.21409 § 3.3** states the mechanism for why multi-day storage is the hard case:
+**arXiv 2407.21409 # 3.3** states the mechanism for why multi-day storage is the hard case:
 
 > *"While forecasts may be reliable 1-3 days ahead... the multi-week time scales on which wind power
 > vary are harder to anticipate. In particular this creates challenges for the dispatch of

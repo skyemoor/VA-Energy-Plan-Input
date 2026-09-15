@@ -22,7 +22,7 @@ class TestStatutoryScheduleMatchesCode:
     referenced from driver, not duplicated, so these lock the reference to the printed statute."""
 
     def test_key_years_match_statute(self):
-        # docs/statutes/56-585.5.md § C.1.a, Phase II column
+        # docs/statutes/56-585.5.md # C.1.a, Phase II column
         assert driver.RPS_CLEAN_PCT_PHASE_II[2030] == 0.41
         assert driver.RPS_CLEAN_PCT_PHASE_II[2035] == 0.59
         assert driver.RPS_CLEAN_PCT_PHASE_II[2040] == 0.79
@@ -61,7 +61,7 @@ class TestComplianceBaseExclusions:
 
     def test_aceb_participation_further_shrinks_the_base(self):
         """ACEB is the largest behavioral lever: data centers over 25 MW that self-procure leave
-        the compliance base entirely (§ G)."""
+        the compliance base entirely (# G)."""
         no_participation = self.build_2030_base(aceb_mwh=0.0)
         heavy_participation = self.build_2030_base(aceb_mwh=20_000_000.0)
         assert (heavy_participation.total_electric_energy_mwh()

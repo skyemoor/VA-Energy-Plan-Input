@@ -1,7 +1,7 @@
 # Agrivoltaics: Evidence Base and Findings
 
 **Working note, 2026-09-11.** Consolidates findings from `lp_package/agrivoltaic_basis.py` and
-§6A–6D of `NSPM_Rural_Economic_Development.md`. Complements the earlier
+#6A–6D of `NSPM_Rural_Economic_Development.md`. Complements the earlier
 `docs/appendices/Appendix_Agrivoltaics.md`, which covers statutory definition, regional practice
 and vertical bifacial design in more narrative form.
 
@@ -157,7 +157,7 @@ analysis.
 
 ## 5. SLCOE — the comparison that matters
 
-Since yield protection is largely moot (§2), configuration should be optimised for **SLCOE**.
+Since yield protection is largely moot (#2), configuration should be optimised for **SLCOE**.
 
 **The finding is not a compromise:** LPF is maximised for shade-tolerant crops under single-axis
 tracking — which is *also* the conventional, lowest-cost utility configuration. Virginia's
@@ -244,10 +244,10 @@ section is the Commonwealth Clean Energy Policy and **contains no agrivoltaic de
 
 **Scope:** the definition opens *"As used in this article"* (Article 5, Small Renewable Energy
 Projects, ≤150 MW solar, DEQ permit by rule) — **but it is not confined there in practice**.
-§ 15.2-2288.8(A)(3) imports it by reference into Title 15.2 zoning, which reaches **any
+# 15.2-2288.8(A)(3) imports it by reference into Title 15.2 zoning, which reaches **any
 ground-mounted solar project of 1 MW or more**.
 
-### § 15.2-2288.8 uses agrivoltaics permissively, in two places
+### # 15.2-2288.8 uses agrivoltaics permissively, in two places
 
 **(A)(3) — enabling, not restricting.** Panel height is capped at 25 ft at full tilt *"except in
 cases where a height variance is necessary to allow for agrivoltaics activity below or in proximity
@@ -272,7 +272,7 @@ arrays are *designed to prioritize energy yield*.
 **That reading is weaker than the alternative.** The relevant counterfactual is not an idealised
 agrivoltaic design — it is **conventional solar development, which removes the land from
 agriculture entirely**. Against that, a configuration keeping land in production *does* prioritize
-and sustain agricultural productivity. Clause (v) reads the same way, and § 15.2-2288.8(A)(9)
+and sustain agricultural productivity. Clause (v) reads the same way, and # 15.2-2288.8(A)(9)
 supports it.
 
 Neither reading is authoritative. The statute quantifies neither *"prioritize"* nor *"significantly
@@ -342,7 +342,7 @@ are 30–50 kW, not utility-scale tracking geometry. The lamb study covers two s
    **conventional solar development, which removes the land from agriculture entirely**. Against
    that, a configuration keeping land in production *does* prioritize agricultural productivity.
 
-   **§ 15.2-2288.8 supports the permissive reading in two places.** (A)(3) uses the definition as
+   **# 15.2-2288.8 supports the permissive reading in two places.** (A)(3) uses the definition as
    an **enabling** provision — agrivoltaics is grounds for a height *variance* above the 25 ft cap,
    not a design standard imposed on projects that don't need one. (A)(9) lists *"animal grazing,
    co-located crop production"* as ordinary alternatives to pollinator or meadow plantings, with no
@@ -455,7 +455,7 @@ electronic reading room.
 
 **Va. Code § 58.1-3239** — State Land Evaluation Advisory Council; use-value assessment.
 
-**Va. Code § 15.2-2288.8** — Special exceptions for solar photovoltaic projects. Amended 2026,
+**Va. Code # 15.2-2288.8** — Special exceptions for solar photovoltaic projects. Amended 2026,
 cc. 1005 (SB347), 1068 (HB711). Applies to ground-mounted solar ≥1 MW.
 → (A)(3) imports the § 10.1-1197.5 definition and makes agrivoltaics grounds for a height variance;
 (A)(9) lists animal grazing and co-located crop production alongside pollinator plantings, and
@@ -493,5 +493,5 @@ agrivoltaics. *In progress.*
 
 ### Cover crops
 
-See `Cover_Crops_and_Agrivoltaics.md` §8 for SARE, University of Georgia and Virginia DCR
+See `Cover_Crops_and_Agrivoltaics.md` #8 for SARE, University of Georgia and Virginia DCR
 citations.

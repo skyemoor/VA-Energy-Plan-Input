@@ -3,7 +3,7 @@ test_convergence_verdict_reaches_result.py
 
 The convergence verdict must reach the result a caller actually reads.
 
-THE GAP, found 2026-09-13 by auditing a result against Appendix P.2 §11. converge_frac() sets
+THE GAP, found 2026-09-13 by auditing a result against Appendix P.2 #11. converge_frac() sets
 'converged' and 'convergence_gap' on ITS OWN result -- but every caller in checkpoint_solver
 DISCARDS that result, re-solving at the converged fraction and returning the new one. So the flag
 never reached a caller, and a build that missed its gas target was indistinguishable from one that

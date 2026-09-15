@@ -15,7 +15,7 @@ The two formulations answer different questions and the analysis needs both answ
 
   STATUTORY (this module): RECs retired >= pct * total_electric_energy, where
     total_electric_energy is Virginia retail SALES less in-Commonwealth nuclear operating by
-    July 1 2020, less certified accelerated clean energy buyer load, less § H legacy customers.
+    July 1 2020, less certified accelerated clean energy buyer load, less # H legacy customers.
     Asks: how many certificates must the utility RETIRE?
     At 2045 the same 100% headline covers roughly 75,000 GWh.
 
@@ -168,7 +168,7 @@ class StatutoryRPSObligation:
                 "Phase I percentages differ from Phase II and are not yet transcribed into "
                 "driver.RPS_CLEAN_PCT_PHASE_II (which is Phase II only, as its name states). "
                 "Rule 5 -- raising rather than silently applying Phase II percentages to a "
-                "Phase I utility. See docs/statutes/56-585.5.md § C.1.a for the Phase I column.")
+                "Phase I utility. See docs/statutes/56-585.5.md # C.1.a for the Phase I column.")
         self.compliance_base = compliance_base
         self.eligible_rec_generation_mwh = eligible_rec_generation_mwh
         self.utility_phase = utility_phase
@@ -250,7 +250,7 @@ class StatutoryRPSObligation:
 # sequences years and owns the bank; the single-year classes above stay unchanged and are used
 # inside it.
 #
-# Open question carried into that work: whether the § C.2 distributed and § C.1.b geothermal
+# Open question carried into that work: whether the # C.2 distributed and # C.1.b geothermal
 # carve-outs bank in separate vintage pools. Recommended conservative reading is that they do.
 # ---------------------------------------------------------------------------
 

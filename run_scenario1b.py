@@ -73,7 +73,7 @@ def solve_checkpoint(year, weather, prior, irm):
         if not gas_mwh:
             gas_mwh = float(g_hourly.sum())
 
-    # TIER 1 AND 2 per Appendix P.2 §9, on the same per-year basis as the Scenario 2 runner, so the
+    # TIER 1 AND 2 per Appendix P.2 #9, on the same per-year basis as the Scenario 2 runner, so the
     # two scenarios' societal costs are comparable. Computed from THIS year's actual hourly gas
     # dispatch, because the NOx blend depends on the existing/new MW split at this dispatch level.
     tiers = {}

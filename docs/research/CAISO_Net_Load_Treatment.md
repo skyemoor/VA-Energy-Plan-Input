@@ -123,7 +123,7 @@ weak or too slow.
 
 None of these produce scarcity *pricing*. They constrain storage from arbitraging every hour to its
 floor — which should give the dual structure it currently lacks — but the stack still terminates at
-the dearest gas tier and then jumps to VOLL. See `MODEL_WIDE_FINDINGS.md` §1 and §3.
+the dearest gas tier and then jumps to VOLL. See `MODEL_WIDE_FINDINGS.md` #1 and #3.
 
 ---
 

@@ -1,6 +1,6 @@
 # Gas Technology Selection by Scenario
 
-> **MERGED 2026-09-13 into [`Gas_Consolidated_Reference.md`](Gas_Consolidated_Reference.md) § 8.**
+> **MERGED 2026-09-13 into [`Gas_Consolidated_Reference.md`](Gas_Consolidated_Reference.md) # 8.**
 >
 > Seven gas documents were consolidated into one because the fragmentation was costing real time:
 > the CT capex figures the project needed were in `new_peaker_ccgt_costs_by_size.md` while

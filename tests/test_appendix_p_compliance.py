@@ -28,14 +28,14 @@ class TestAppendixPIsInTheRepository:
     def test_it_carries_all_thirteen_general_requirements(self):
         s = read('docs', 'appendices', 'Appendix_P_Solve_Procedure.md')
         for n in range(1, 14):
-            assert f'#### §{n}.' in s, f'P.2 §{n} missing'
+            assert f'#### #{n}.' in s, f'P.2 #{n} missing'
 
 
 class TestSection8ExportRevenue:
-    """P.2 §8: "Export revenue must never appear inside any year-solve's own optimization
+    """P.2 #8: "Export revenue must never appear inside any year-solve's own optimization
     objective, in any scenario." A standing, project-wide rule.
 
-    THIS BUG HAS OCCURRED TWICE. §8 records the first -- an earlier Scenario 2 calculation included
+    THIS BUG HAS OCCURRED TWICE. #8 records the first -- an earlier Scenario 2 calculation included
     it, "carried over from Scenario 1/3's code without reconsidering whether it belonged there",
     and the optimizer began running gas as a profit-seeking merchant generator. Found 2026-09-13 to
     have returned, live and unguarded in build_scenario2_problem.
@@ -51,7 +51,7 @@ class TestSection8ExportRevenue:
                 window = lines[max(0, i - 3):i]
                 assert any('include_export' in w for w in window), (
                     f'line {i + 1}: export revenue in an objective without an include_export '
-                    'guard. Appendix P.2 §8 forbids this in every scenario.')
+                    'guard. Appendix P.2 #8 forbids this in every scenario.')
 
     def test_scenario2_objective_has_no_export_term(self):
         """The specific function where it had returned.
@@ -94,25 +94,25 @@ class TestSection8ExportRevenue:
 
 
 class TestSection7DemandBasis:
-    """P.2 §7: "this project's Virginia-only demand total, adjusted for the flattening effect of
+    """P.2 #7: "this project's Virginia-only demand total, adjusted for the flattening effect of
     data-center load growth described in Appendix O -- rather than an outdated or
     scenario-specific demand source."
 
     This settles a question raised by four competing demand series: ours (202,193 GWh at 2045),
     demand_shape_interpolation's internal table (186,462), a decomposed forecast (172,700) and an
-    old blended CAGR (254,900). §7 asks for the Virginia-only TOTAL with a flattening adjustment to
+    old blended CAGR (254,900). #7 asks for the Virginia-only TOTAL with a flattening adjustment to
     the SHAPE -- which is our totals plus that module, exactly.
     """
 
     def test_the_requirement_names_the_virginia_only_total(self):
         s = read('docs', 'appendices', 'Appendix_P_Solve_Procedure.md')
-        body = s[s.index('#### §7.'):s.index('#### §8.')]
+        body = s[s.index('#### #7.'):s.index('#### #8.')]
         assert 'Virginia-only demand total' in body
         assert 'flattening' in body
 
     def test_appendix_o_is_cited_as_the_governing_method(self):
-        """And is MISSING from the repository. §7 cites it normatively, not as background, so its
+        """And is MISSING from the repository. #7 cites it normatively, not as background, so its
         absence is a gap in the governing method rather than a lost narrative."""
         s = read('docs', 'appendices', 'Appendix_P_Solve_Procedure.md')
-        body = s[s.index('#### §7.'):s.index('#### §8.')]
+        body = s[s.index('#### #7.'):s.index('#### #8.')]
         assert 'Appendix' in body and 'O' in body

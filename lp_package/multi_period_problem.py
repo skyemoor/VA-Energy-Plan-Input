@@ -178,12 +178,12 @@ def builds_by_period(assembled: Dict, x) -> List[Dict[str, float]]:
 
 
 def verify_solution(assembled: Dict, x, years: Optional[Sequence[int]] = None) -> Dict:
-    """Appendix P.2 §11 checks on a solved multi-period result, per period.
+    """Appendix P.2 #11 checks on a solved multi-period result, per period.
 
     WHY THIS EXISTS. CheckpointSolver.verify_result() runs on the myopic side, through
     solve_with_reserve_margin. The perfect-foresight side produces a raw solution vector and had NO
     verification at all -- so a solve with unserved energy or simultaneous charge/discharge would
-    have been reported without checking. §11 requires both before any solve is presented as final,
+    have been reported without checking. #11 requires both before any solve is presented as final,
     and the comparison would otherwise hold the two sides to different standards, which is exactly
     the failure the comparison is meant to avoid.
 

@@ -24,7 +24,7 @@ had to be relaxed from equality to inequality because as an equality it capped t
 forced unserved energy.
 
 Continuing to build the distributed share bottom-up was discontinued on 2026-09-11 (see
-`docs/methodology/Parking_Reference_Basis_Working_Notes.md` §14): four of eight jurisdictions
+`docs/methodology/Parking_Reference_Basis_Working_Notes.md` #14): four of eight jurisdictions
 publish parking geometry at all, source vintages span nineteen years which undermines
 cross-jurisdiction comparison, and the effort was consuming disproportionate time for diminishing
 returns.
@@ -267,7 +267,7 @@ def lease_income(footprint_result: AgrivoltaicFootprint,
 #     fleet contributes roughly a third of the total.
 #   - escalates 10% on 1 July 2026 and every five years thereafter, for projects approved on or
 #     after 1 January 2021. Four escalations by 2045.
-#   - does NOT apply to projects of 5 MW or less, nor to net-metered projects under §§ 56-594,
+#   - does NOT apply to projects of 5 MW or less, nor to net-metered projects under #§ 56-594,
 #     56-594.01, 56-594.02 or 56-594.2. Distributed rooftop and canopy are therefore largely
 #     OUTSIDE this mechanism -- a real asymmetry between the utility-scale and distributed paths,
 #     and a further reason the 85% utility/PPA framing carries the rural benefit case.
@@ -1214,7 +1214,7 @@ def indicated_configuration(crop: str) -> str:
 # to prioritize and sustain agricultural productivity', might exclude conventional arrays. The
 # better reading is that the counterfactual is conventional solar development, which removes the
 # land from agriculture entirely -- against which any configuration keeping land in production does
-# prioritize agricultural productivity. § 15.2-2288.8 supports this: (A)(3) uses the definition as
+# prioritize agricultural productivity. # 15.2-2288.8 supports this: (A)(3) uses the definition as
 # an ENABLING provision, grounds for a height variance rather than a design standard, and (A)(9)
 # lists 'animal grazing, co-located crop production' as ordinary alternatives to pollinator
 # plantings while requiring up to 75% vegetative cover regardless. See

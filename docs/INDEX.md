@@ -70,7 +70,7 @@ of the other.
 
 ## Statutes — 9 files
 
-`docs/statutes/` — § 10.1-1197.5 (agrivoltaics definition), § 15.2-2288.8 (solar zoning),
+`docs/statutes/` — § 10.1-1197.5 (agrivoltaics definition), # 15.2-2288.8 (solar zoning),
 § 45.2-1701, § 45.2-1702, § 45.2-1706.1 (Clean Energy Policy — **no agrivoltaic definition**),
 § 45.2-1710, § 56-585.1-4, § 56-585.5 (RPS), plus a README.
 
@@ -104,16 +104,17 @@ of the other.
 | `research/Dominion_FRR_RPM_Status.md` | **Which capacity construct Dominion operates under** — FRR terminated May 2024, currently RPM; what that means for self-supply assumptions |
 | **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
+| **`whitepaper/Scenario2_Section_Draft.md`** | **Whitepaper draft section for Scenario 2** — modelled figures, with the conflicts against the existing draft text flagged |
 | **`Session_Handoff_2026-09-14.md`** | **START HERE** — results, corrections, the resistor threshold, the foresight technique, and what to run next |
 | `Session_Handoff_2026-09-13.md` | Prior handoff — superseded by the 2026-09-14 one above |
 | | |
 | **Appendices state the END PRODUCT.** What changed and why belongs in `Internal_Debugging_Log.md`. An appendix carrying a correction narrative is telling the reader about the process instead of the result — a whitepaper reader wants the finding, not its history. Where a result is not yet re-measured, the appendix says so plainly and points at the runner; it does not narrate the defect. | |
 | | |
 | **`appendices/Reorganized_Appendices_Draft.md`** | **The full appendix draft**, 275 KB. The repo previously held only a 61 KB truncation |
-| `appendices/Appendix_D_Tiered_Social_Cost.md` | Tier 1/2/3 framework — full methodology and sourcing (P.2 §9 points here) |
+| `appendices/Appendix_D_Tiered_Social_Cost.md` | Tier 1/2/3 framework — full methodology and sourcing (P.2 #9 points here) |
 | `appendices/Appendix_M_Reference_Literature.md` | Reference literature |
 | `appendices/Appendix_N_Scenario_1B.md` | Scenario 1B methodology |
-| **`appendices/Appendix_O_Intermediate_Year_Demand_Shape.md`** | **Data-centre flattening methodology** — cited normatively by P.2 §7 |
+| **`appendices/Appendix_O_Intermediate_Year_Demand_Shape.md`** | **Data-centre flattening methodology** — cited normatively by P.2 #7 |
 | **`appendices/Appendix_P_Solve_Procedure.md`** | **THE SOLVE REQUIREMENTS.** Thirteen general rules applying to every scenario and every solve, plus disclosed gaps. Added to the repo 2026-09-13 |
 | **`methodology/Scenario_Restructuring_Compliance_Sweep.md`** | **START HERE for the whitepaper's structure** — compliance as the axis, the counterfactual, what the sweep drops |
 | `methodology/Scenario2_Runnability_Audit.md` | Why the baseline scenario is not currently runnable — three blockers |

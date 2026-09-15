@@ -30,7 +30,7 @@ not depend on REC accounting: if a data center is connected, the grid serves it.
 
 **Compliance basis** — what counts toward the RPS percentage. Per § 56-585.5(A), retail sales
 in the Commonwealth, less in-Commonwealth nuclear operating by July 1 2020, less certified
-accelerated clean energy buyer (ACEB) load, less § H legacy competitive-service customers.
+accelerated clean energy buyer (ACEB) load, less # H legacy competitive-service customers.
 
 These are not competing candidates for one number. They serve different constraints and the
 compliance basis is materially smaller.
@@ -112,7 +112,7 @@ denominator is derived from retail sales.
 The statute instead sets the RPS requirement as "a percentage of the total electric energy sold
 in the previous calendar year" (§ 56-585.5(C)(1)(a)), satisfied by **procuring and retiring
 RECs** — which may originate anywhere in the PJM region, with at least 75% from Virginia-located
-resources beginning in the 2027 compliance year (§ C.3).
+resources beginning in the 2027 compliance year (# C.3).
 
 Worked comparison at 2045 (100% requirement):
 
@@ -148,7 +148,7 @@ approximate and should be computed from actual generation rather than nameplate.
 
 **(b) Certified accelerated clean energy buyers.** Commercial/industrial customers with
 **aggregate load over 25 MW** in the prior calendar year who enter subsection G arrangements
-and are certified by the Commission. § G is explicit: "the calculation of the utility's RPS
+and are certified by the Commission. # G is explicit: "the calculation of the utility's RPS
 Program requirements shall not include the electric load covered by customers certified as
 accelerated clean energy buyers," and contracted nameplate "shall be offset from the utility's
 procurement requirements pursuant to subsection D."
@@ -163,7 +163,7 @@ Three properties matter for modeling:
    resources in PJM placed in service after January 1, 2015, including nuclear uprates and
    agreements preventing announced retirements.
 
-**(c) § H legacy competitive-service customers** — Phase II customers with >100 MW peak demand
+**(c) # H legacy competitive-service customers** — Phase II customers with >100 MW peak demand
 in 2019 who elected competitive service before April 1, 2019.
 
 ACEB participation is properly a **scenario variable** and is plausibly the single largest lever
@@ -183,12 +183,12 @@ of roughly $129/MWh, a rational utility would pay the deficiency rather than bui
 statute effectively prices the answer to "how close can we come."** This deserves its own
 treatment in the deliverables.
 
-**Distributed carve-out** (§ C.2): 4.5% of RPS requirements for compliance years 2026–2030 and
+**Distributed carve-out** (# C.2): 4.5% of RPS requirements for compliance years 2026–2030 and
 5% for 2031–2045 must come from solar, wind, or anaerobic digestion resources **≤1 MW located
 in Virginia**, with ≥25% low-income qualifying projects, remainder on or adjacent to public
 elementary or secondary schools. Maximum 3,000 kW at any single or contiguous location.
 
-**Geothermal carve-out** (§ C.1.b): 0.5% (2027), 0.75% (2028), 1% (2029 onward) of RECs used
+**Geothermal carve-out** (# C.1.b): 0.5% (2027), 0.75% (2028), 1% (2029 onward) of RECs used
 for compliance.
 
 **Previously developed project sites** (§ 56-585.5(A) definition) explicitly include "(ii) as a
@@ -225,7 +225,7 @@ With heavy ACEB participation (40 TWh self-procured) the statutory obligation fa
    other. The gap between "physical 100% clean" and "statutory RPS compliance" is itself a
    substantive finding.
 3. **Compute actual nuclear generation** (not nameplate) for the exclusion.
-4. **Add ACEB participation as a scenario variable**, with the § D procurement offset.
+4. **Add ACEB participation as a scenario variable**, with the # D procurement offset.
 5. **Add the deficiency-payment ceiling** as a cost cap.
 6. **Resolve the leap-year discrepancy.** `demand_shape_interpolation.py` as available shows no
    trim; `BASE_SHAPE_YEAR = 2024` has 8,784 hours (verified). Internal Debugging Log #24 states
@@ -278,7 +278,7 @@ accreditation assumption, and this project's own evidence argues that assumption
 
 - The eight-year continuous dispatch test found reserve margin was **never violated** on a
   nameplate-credited basis while 6.44 million MWh went unserved, because storage sat empty 85% of
-  hours (see § 9 above and the 2030 charge-starvation finding).
+  hours (see # 9 above and the 2030 charge-starvation finding).
 - E3's independent evaluation of PJM's capacity model states that scrambling "risks overstating
   … the ELCC of energy storage resources" because storage "is likely to run out of charge" during
   the multi-day events that method underrepresents (citation C126 region; see
@@ -306,7 +306,7 @@ below, encountered in practice rather than in theory.
 
 ## 11. Storage capacity accreditation — the foresight artifact (2026-09-10)
 
-§ 10 left an 18 GW question resting entirely on how storage is credited at the peak hour. The
+# 10 left an 18 GW question resting entirely on how storage is credited at the peak hour. The
 approach adopted was Appendix A.13's own-data method: rank hours by net demand, take the top ten,
 measure what storage could actually have delivered. **Applying it surfaced a methodological
 problem serious enough to change the recommendation.**
@@ -359,7 +359,7 @@ the cross-validation rule takes it, and it is consistent with the mechanism the 
 independently established: storage empty 85% of hours, 6.44 million MWh unserved while reserve
 margin was never violated on a nameplate-credited basis.
 
-### Effect on the § 10 range
+### Effect on the # 10 range
 
 At 2045 with 23,000 MW of storage:
 
@@ -427,13 +427,13 @@ and rests on a single heuristic dispatch policy, which a more anticipatory polic
 Accreditation for 2030, 2035 and 2040 is blocked pending a re-solve of those checkpoints on
 corrected demand. Until then the whitepaper can report 2045 only, and must state the earlier years
 as not yet available rather than substituting the LP-derived figures — which are the foresight
-artifact described in § 11.
+artifact described in # 11.
 
 ---
 
 ## 13. Virginia-only load basis adopted (2026-09-10)
 
-§ 3 and § 4 established that the raw hourly file is VA+NC **load** and Appendix 2B-1 is VA+NC
+# 3 and # 4 established that the raw hourly file is VA+NC **load** and Appendix 2B-1 is VA+NC
 **sales**. A natural question is whether the two corrections offset — whether the raw file is
 "roughly right for Virginia because of losses." **They do not offset**, because they act on
 different quantities: losses separate sales from load, North Carolina is a difference in scope.
@@ -453,7 +453,7 @@ Raw exceeds VA-only load by **3.6%**, essentially exactly North Carolina's 3.5% 
 correctly, and its only remaining error for Virginia purposes is the North Carolina inclusion.
 That is a far smaller error than scaling the hourly shape to a sales-basis annual total, which
 strips the losses back out and leaves generation need roughly 9% short. The earlier concern in
-§ 1 that the project systematically understates generation need by ~6% applies to the
+# 1 that the project systematically understates generation need by ~6% applies to the
 sales-scaled checkpoint files, **not** to work using the raw hourly file directly.
 
 ### Adopted basis
@@ -500,6 +500,6 @@ be a reportable finding, and there is none.
 ### Still blocked
 
 Storage accreditation for these years remains unavailable. Computing it from this Scenario 2 LP's
-own dispatch reproduces the § 11 foresight artifact (2030 100.0%, 2035 0.0%, 2040 100.0% —
+own dispatch reproduces the # 11 foresight artifact (2030 100.0%, 2035 0.0%, 2040 100.0% —
 erratic and non-monotonic). A no-foresight heuristic dispatch against each year's Statutory Floor
 fleet is required, as was done for 2045.

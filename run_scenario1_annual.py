@@ -29,7 +29,7 @@ INFEASIBILITY, which is the signal wanted, rather than as silently-accepted unse
 infeasible year is a real possibility and is reported as a finding about the interpolation, not
 worked around.
 
-THE SAME CONSTRAINT FUNCTION as the checkpoints use, not a dispatch-specific copy: Appendix P.2 §14.
+THE SAME CONSTRAINT FUNCTION as the checkpoints use, not a dispatch-specific copy: Appendix P.2 #14.
 build_dispatch_problem fixes capacity (NVAR_BUILD = 0), so capacities are passed through
 fixed_capacity_mw and the constraint puts them on the right-hand side instead of treating them as
 columns.
@@ -115,7 +115,7 @@ def solve_year(year, weather, build, irm):
     if unserved > 1.0:
         raise RuntimeError(
             f'{year}: {unserved:,.1f} MWh unserved. At the penalty price this dominates the '
-            'objective, and Appendix P.2 §11 requires zero before a solve is presented as final.')
+            'objective, and Appendix P.2 #11 requires zero before a solve is presented as final.')
     for charge, discharge, label in (('nc', 'nd', 'Na'), ('fc', 'fd', 'iron-air'),
                                      ('bc', 'bd', 'Bath')):
         n = int(np.sum((hourly(charge) > 1e-6) & (hourly(discharge) > 1e-6)))

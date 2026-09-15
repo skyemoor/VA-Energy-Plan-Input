@@ -24,7 +24,7 @@ them defensibly rather than to justify counting them.
 **NSPM symmetry (Principle 3) cuts both ways here and must be honoured.** Rural benefits are
 counted only if rural costs are too: land conversion, viewshed, decommissioning obligations, and
 the local service burden during construction. This note covers the benefit side; the cost side is
-owed and is listed in §7.
+owed and is listed in #7.
 
 ---
 
@@ -45,7 +45,7 @@ benefit would be the easiest thing to attack.
 | 7 | Grazing co-location (reduced mowing) | operator/grazier | no — not yet estimated |
 | 8 | Farmland retained against development conversion | region | no — counterfactual required |
 | 9 | Pollinator habitat spillover | adjacent growers | no — highly site-specific |
-| 10 | **Chesapeake Bay nutrient reduction** | **Commonwealth** | **no — see §6B, highest priority to add** |
+| 10 | **Chesapeake Bay nutrient reduction** | **Commonwealth** | **no — see #6B, highest priority to add** |
 
 **Only 1, 2 and 3 are carried as quantified.** The others are named so the estimate is understood
 as conservative, not so they can be implied into the total.
@@ -387,7 +387,7 @@ Cost-Share Program, administered by DCR through local Soil and Water Conservatio
 *"can decrease the cost of planting cover crops"* and covers *"over 70 other conservation
 practices."*
 
-This is the same shape as the § 45.2-1702 energy performance contracting finding in §7A: **a
+This is the same shape as the § 45.2-1702 energy performance contracting finding in #7A: **a
 funding mechanism that already exists**, needing no new appropriation. Cover cropping under an
 array is the same practice VACS already cost-shares.
 
@@ -513,7 +513,7 @@ is materially tighter, so the tracking configuration is the more land-efficient 
 increase in corn yield of 5.6% is quite modest and should be weighed against a substantial decline
 in solar power."* Sacrificing generation to recover yield doesn't pay at these magnitudes.
 
-**What it doesn't resolve:** the paper states no acres/MW figure, so the §6C gap stands. But 9.1 m
+**What it doesn't resolve:** the paper states no acres/MW figure, so the #6C gap stands. But 9.1 m
 at constant total power is a far better anchor than the vertical route, and suggests **tracking is
 the configuration to cost**. Site is Indiana — humid continental, closer to Virginia than northern
 Colorado's semi-arid climate, though still not a match.
@@ -589,7 +589,7 @@ That is a materially different claim from *"agrivoltaics is worth paying a littl
 
 The ~zero delta assumes **(a)** siting on shade-tolerant forage, **(b)** single-axis tracking at
 standard density, **(c)** grazing fencing and access within normal O&M scope. It does **not** hold
-for row crops, elevated racking, or where machinery access forces vertical. And §6C's unresolved
+for row crops, elevated racking, or where machinery access forces vertical. And #6C's unresolved
 acres/MW question still applies: if standard-density tracking proves insufficient to qualify as
 agrivoltaic under Virginia's statutory definition, the land term rises and the delta with it.
 
@@ -668,7 +668,7 @@ a test asserts they stay that way until a real figure replaces them.
    upper bound and the actual adoption pattern should replace it.
 5. **The 85% share is an assumption, not a result**, and every figure here inherits that. NREL
    counts 13 existing agrivoltaic projects in Virginia, so current practice is far below.
-6. **An agrivoltaic-specific acres/MW figure** (see §6C). Every acreage and land-share figure
+6. **An agrivoltaic-specific acres/MW figure** (see #6C). Every acreage and land-share figure
    here is a lower bound until it exists.
 7. **Employment channels (5 and 6)** are the largest unquantified gap and the most commonly cited
    in rural economic development arguments. Worth estimating if time permits.

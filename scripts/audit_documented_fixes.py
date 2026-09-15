@@ -236,10 +236,10 @@ def check_no_orphaned_modules():
 
 
 def check_no_export_revenue_in_objectives():
-    """Appendix P.2 §8: "Export revenue must never appear inside any year-solve's own optimization
+    """Appendix P.2 #8: "Export revenue must never appear inside any year-solve's own optimization
     objective, in any scenario." A standing, project-wide rule.
 
-    WHY IT NEEDS A CHECK RATHER THAN A COMMENT: this exact bug has occurred twice. P.2 §8 records
+    WHY IT NEEDS A CHECK RATHER THAN A COMMENT: this exact bug has occurred twice. P.2 #8 records
     the first -- an earlier Scenario 2 calculation included it, "carried over from Scenario 1/3's
     code without reconsidering whether it belonged there", and the optimizer began running gas as a
     profit-seeking merchant generator. It was found on 2026-09-13 to have returned, live and
@@ -266,10 +266,10 @@ def check_no_export_revenue_in_objectives():
                 offenders.append(i)
     if offenders:
         return False, (f'export revenue assigned in the objective, unguarded, at line(s) '
-                       f'{offenders}. Appendix P.2 §8 forbids this in every scenario -- it gives '
+                       f'{offenders}. Appendix P.2 #8 forbids this in every scenario -- it gives '
                        'the optimizer an incentive to overbuild purely to capture export revenue. '
                        'Compute export POST-SOLVE from curtailment instead.')
-    return True, 'no unguarded export revenue in any objective (Appendix P.2 §8)'
+    return True, 'no unguarded export revenue in any objective (Appendix P.2 #8)'
 
 
 
@@ -561,6 +561,50 @@ def check_scenarios_state_their_own_gas_split():
     return True, 'every scenario solver states its own gas existing/new split'
 
 
+
+def check_section_symbol_only_in_va_code_citations():
+    """The section symbol is reserved for Virginia Code citations.
+
+    PROJECT CONVENTION set 2026-09-14: using it for our own numbered items is distracting, and its
+    meaning should be unambiguous -- seeing it should tell a reader "this is statute". Numbered
+    items use #.
+
+    404 uses were replaced across 61 files. THE FIRST PASS WALKED FOUR DIRECTORIES AND MISSED THE
+    TOP LEVEL, leaving 8 in the runners -- caught by a test, not by the sweep. The runners are where
+    a reader meets the convention first, so this check covers them.
+    """
+    import re
+    va_code = re.compile('\u00a7\\s*(?:56-|45\\.2-|10\\.1-|58\\.1-|2\\.2-|67-)')
+    offenders = []
+    roots = [REPO] + [os.path.join(REPO, d) for d in ('docs', 'lp_package', 'tests', 'scripts')]
+    for base in roots:
+        if not os.path.isdir(base):
+            continue
+        walk = [(base, [], os.listdir(base))] if base == REPO else os.walk(base)
+        for dirpath, _dirs, files in walk:
+            if '__pycache__' in dirpath:
+                continue
+            for fn in files:
+                if not fn.endswith(('.md', '.py')):
+                    continue
+                path = os.path.join(dirpath, fn)
+                if not os.path.isfile(path):
+                    continue
+                with open(path, encoding='utf-8', errors='replace') as fh:
+                    src = fh.read()
+                for m in re.finditer('\u00a7', src):
+                    if not va_code.match(src[m.start():m.start() + 12]):
+                        offenders.append(os.path.relpath(path, REPO) + ':'
+                                         + str(src[:m.start()].count('\n') + 1))
+    if offenders:
+        uniq = sorted(set(offenders))
+        return False, ('section symbol used outside a Virginia Code citation at '
+                       + ', '.join(uniq[:5])
+                       + ('' if len(uniq) <= 5 else ' (+%d more)' % (len(uniq) - 5))
+                       + '. Use # for numbered items.')
+    return True, 'section symbol appears only in Virginia Code citations'
+
+
 def check_module_is_actually_called(module_name, doc_claim):
     """A module that exists and is documented as standard, but is imported by nothing, is the
     exact failure this script was written for."""
@@ -627,8 +671,9 @@ CHECKS = [
     ('no undocumented dormant driver functions', check_no_dormant_driver_functions),
     ('no dead functions in the runners', check_no_dead_functions_in_runners),
     ('one demand source in the runners', check_one_demand_source),
+    ('section symbol only in VA Code citations', check_section_symbol_only_in_va_code_citations),
     ('scenarios state their own gas split', check_scenarios_state_their_own_gas_split),
-    ('no export revenue in objectives (Appendix P.2 §8)', check_no_export_revenue_in_objectives),
+    ('no export revenue in objectives (Appendix P.2 #8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 
     ('all_hours_reserve is wired in',

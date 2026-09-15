@@ -236,7 +236,7 @@ Mixing discounted and undiscounted quantities is the recurring shape here.*
 `solve_with_reserve_margin`; **the foresight side had none at all.** A solve with unserved energy or
 simultaneous charge/discharge would have been reported unchecked, holding the two sides of the
 comparison to different standards — the failure the comparison exists to avoid. `verify_solution()`
-now applies P.2 §11 per period and names the failing year.
+now applies P.2 #11 per period and names the failing year.
 
 **Fixed — the salvage/build pairing was positional and unasserted.** `_capex_by_build_var` returns
 `[solar $/MW, NA power, NA energy, FE energy]` and `_BUILD_RESULT_KEYS` must name the same four in

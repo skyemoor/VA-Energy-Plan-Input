@@ -29,7 +29,7 @@ stops keeping pace with demand.**
 
 ### Scenario 2 — social and environmental cost
 
-Across all twenty years per P.2 §9, on the same PV basis as the financial figure:
+Across all twenty years per P.2 #9, on the same PV basis as the financial figure:
 
 | tier | PV | $/MWh |
 |---|---:|---:|
@@ -85,7 +85,7 @@ MW of supply against ~47,900 MW of sinks with zero unserved.
 now bisection at 8. **And the flag it sets never reached a caller** — four convergence paths all
 discarded the result carrying it.
 
-**Export revenue in the Scenario 2 objective**, violating P.2 §8 — the *second* occurrence. No
+**Export revenue in the Scenario 2 objective**, violating P.2 #8 — the *second* occurrence. No
 figure moved: the export bound was already `(0,0)`, so **one correct guard was masking an incorrect
 term.**
 
@@ -119,7 +119,7 @@ Bath breaks, as derived.
 
 **The conflict is disclosed, not tuned.** `CURTAILMENT_COST_MWH = 25.0` is **model-constrained, not
 economically derived**; `CURTAILMENT_COST_ECONOMIC_MWH = 100.0` is retained so the gap stays visible.
-The model cannot represent the higher figure without structural complementarity, which P.2 §13
+The model cannot represent the higher figure without structural complementarity, which P.2 #13
 records as proven correct but impractical.
 
 **Storage carries no VOM** — only wear-based cycling costs. Issue **#21**. A plausible $0.50–$2.00
@@ -137,7 +137,7 @@ moves Bath's threshold to $32–$38; reaching $100 needs $17.50/MWh, implausible
 
 **Now automated.** `scripts/audit_documented_fixes.py` runs 9 checks: conflicting duplicate
 constants (Rule 6), orphaned modules (transitive from entry points), export revenue in objectives
-(P.2 §8), curtailment cost presence *and* agreement, plus the original five.
+(P.2 #8), curtailment cost presence *and* agreement, plus the original five.
 
 **Two of my own checks passed vacuously before working** — a mangled regex matching nothing, and a
 non-transitive walk. Both looked like clean bills of health.
@@ -160,8 +160,8 @@ non-transitive walk. Both looked like clean bills of health.
 
 That explains everything reported as "lost" this session. **None were lost.**
 
-**Appendix P** — 811 lines of solve requirements no code had been checked against. §8 now enforced;
-**twelve remain unaudited**, including §11.
+**Appendix P** — 811 lines of solve requirements no code had been checked against. #8 now enforced;
+**twelve remain unaudited**, including #11.
 
 **Appendix O** answered the NC-load question: both source tables are **Virginia-only**. The gap is a
 *vintage* difference, not geography.
@@ -251,7 +251,7 @@ sits on the axis; then the gas-price band; then overlays.
 
 ### Known gaps carried forward
 
-- **Twelve P.2 requirements unaudited**, including §11 on verification before a solve is final
+- **Twelve P.2 requirements unaudited**, including #11 on verification before a solve is final
 - **Existing gas FOM** absent on the Scenario 1 side
 - **Scenario 3 has never been run** with `distributed_physical_bounds` applied — every prior figure
   superseded
@@ -443,7 +443,7 @@ reaches it.
 **One LP row gave the confirmation the source could not** — 245,647 against 245,646, the SLCR row.
 Source reading had said the return was *"after apply_slcr"*, which was true and still wrong.
 
-**Generalised as Appendix P.2 §14:** an alternative solve path must be built from the same code, not
+**Generalised as Appendix P.2 #14:** an alternative solve path must be built from the same code, not
 reconstructed.
 
 ## Next

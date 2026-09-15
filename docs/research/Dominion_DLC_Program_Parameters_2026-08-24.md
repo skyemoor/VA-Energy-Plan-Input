@@ -12,14 +12,14 @@ stated eligibility rules.
 Events page (dominionenergy.com/en/Virginia/Save-Energy/My-Home/STR-Events), fetched directly.
 
 - **Mechanism**: utility-initiated "energy events" — brief thermostat adjustments during high-demand
-  periods. FERC-DLC by definition (§7.5), not price-based.
+  periods. FERC-DLC by definition (#7.5), not price-based.
 - **Incentive**: $25 signup rebate + $25/yr continued-participation rebate. Separately, $50 instant
   rebate on eligible thermostats purchased through Dominion's marketplace.
 - **Eligible brands**: Amazon, Ecobee, Google Nest, Honeywell Home, Sensi.
 - **Magnitude constraint**: explicitly stated as "a few degrees" from the customer's usual setting —
   a real, published ceiling on per-event adjustment depth.
 - **Opt-out**: customers can opt out of any individual event — directly confirms the participant-
-  override risk already established in this project's own §7.5 research (Wildstein, Craig &
+  override risk already established in this project's own #7.5 research (Wildstein, Craig &
   Vaishnav: overrides can halve DLC reliability value) is an active, real feature of this specific
   program, not just a theoretical risk.
 
@@ -57,7 +57,7 @@ administrator, EnergyHub), cross-confirmed by Dominion's own program pages and A
   during the winter." This is a genuinely broader window than Smart Thermostat Rewards -- the EV
   program has an explicit, regular WINTER MORNING window (5-10am) in addition to the afternoon/
   evening window, not just the rare exceptions seen in STR's own event history. Directly consistent
-  with this project's own already-established Winter Storm Fern / §7.6 finding that winter morning
+  with this project's own already-established Winter Storm Fern / #7.6 finding that winter morning
   hours are a genuine stress period, not just a summer-afternoon phenomenon.
 - **Maximum 45 energy events per year** — an explicit, published cap, substantially more frequent
   than Smart Thermostat Rewards' ~17-25 events/yr (consistent with EV charging being a more
@@ -73,7 +73,7 @@ administrator, EnergyHub), cross-confirmed by Dominion's own program pages and A
 
 **This is not the same mechanism as the two DLC programs above — worth being precise about the
 distinction, not folding it in.** PTR is voluntary, customer-initiated conservation in response to
-an event notification, NOT remote utility control of equipment. FERC's own taxonomy (§7.5) would
+an event notification, NOT remote utility control of equipment. FERC's own taxonomy (#7.5) would
 classify this as incentive-based DR, but specifically the non-DLC subtype (voluntary curtailment/
 demand bidding), distinct from the direct-control mechanism DLC requires by definition.
 

@@ -397,7 +397,7 @@ GAS_HEAT_RATE_STEAM = 10.337             # EIA Table 8.2, 2024 gas steam generat
 #:                                   storage_resistor_threshold.py from sourced parameters.
 #:
 #: The model cannot represent a defensible price above the threshold without structural
-#: complementarity (binary variables), which Appendix P.2 §13 records as proven correct but
+#: complementarity (binary variables), which Appendix P.2 #13 records as proven correct but
 #: impractical at this scale -- ~470 s for one storage type over one month.
 #:
 #: CURTAILMENT_COST_MWH IS THEREFORE MODEL-CONSTRAINED, NOT ECONOMICALLY DERIVED, and must be
@@ -426,7 +426,7 @@ CURTAILMENT_COST_ECONOMIC_MWH = 100.0
 # it is the STRICTER of the two at the endpoint -- a cost curve built on it does not understate
 # what compliance demands. The statutory measure would additionally require ACEB participation
 # assumptions (opt-in, aggregating across affiliates, "plausibly the single largest lever"),
-# § H legacy load, and a REC accounting layer including out-of-state eligibility. That is a second
+# # H legacy load, and a REC accounting layer including out-of-state eligibility. That is a second
 # study, not an axis change.
 #
 # See docs/methodology/Compliance_Definition_For_Sweep.md.
@@ -1017,7 +1017,7 @@ EXIST_SOLAR_MW_2026 = 5300.0
 #: double-counted roughly 4,655 MW and overstated the baseline's clean share.
 EXIST_SOLAR_PRE_VCEA_MW = 645.2
 
-#: The § D.2 deadline. There are NO interim solar milestones in the statute -- D.2 sets one date,
+#: The # D.2 deadline. There are NO interim solar milestones in the statute -- D.2 sets one date,
 #: and D.4 requires annual petitions without specifying per-year MW. So the trajectory between now
 #: and 2035 is an INTERPRETATION, not a statutory figure, and is documented as one.
 VCEA_SOLAR_TARGET_DEADLINE_YEAR = 2035
@@ -1030,15 +1030,15 @@ def vcea_new_solar_mw(year, target_mw=16_100.0):
     deadline -- and overstated that checkpoint's clean share.
 
     TRAJECTORY: linear from post-VCEA capacity in 2026 to the full target at
-    VCEA_SOLAR_TARGET_DEADLINE_YEAR, then flat. Linear because § D.2 sets a single deadline with no
-    interim milestones and § D.4 requires annual petitions without per-year quantities -- so even
+    VCEA_SOLAR_TARGET_DEADLINE_YEAR, then flat. Linear because # D.2 sets a single deadline with no
+    interim milestones and # D.4 requires annual petitions without per-year quantities -- so even
     progress is the neutral reading. It is certainly wrong in detail (no utility builds evenly), but
     the alternative of front-loading is the one that FLATTERS the baseline, by crediting early
     checkpoints with solar not yet built.
 
     THE DEDUCTION USES NAMEPLATE, NOT DEGRADED CAPACITY. Existing solar falls from 5,300 MW to
     4,818 MW by 2045 at 0.5%/yr. That degraded output is real and the energy balance sees it, but
-    the § D.2 target counts capacity PROCURED -- "construct, acquire, or enter into agreements to
+    the # D.2 target counts capacity PROCURED -- "construct, acquire, or enter into agreements to
     purchase" -- not energy delivered. A panel that has lost 9% of its output has not un-procured
     itself. So the deduction stays at nameplate and does not grow with degradation.
     """
@@ -1121,7 +1121,7 @@ if not QUIET_IMPORT:
 # facing higher build costs may lawfully pay these instead of building.
 DEFICIENCY_PAYMENT_BASE_RATE_PER_MWH = 45.0
 DEFICIENCY_PAYMENT_SUB_ONE_MW_RATE_PER_MWH = 75.0      # sub-1 MW VA solar/wind/anaerobic shortfalls
-DEFICIENCY_PAYMENT_GEOTHERMAL_RATE_PER_MWH = 100.0     # § C.1.b geothermal shortfalls
+DEFICIENCY_PAYMENT_GEOTHERMAL_RATE_PER_MWH = 100.0     # # C.1.b geothermal shortfalls
 DEFICIENCY_PAYMENT_BASE_YEAR = 2021
 DEFICIENCY_PAYMENT_ANNUAL_ESCALATION = 0.01            # "shall increase by one percent annually"
 
@@ -1170,7 +1170,7 @@ GAS_OUTAGE_STRESS_WINDOW_HOURS = 144
 # Distributed solar siting cap, DOM zone. Derived 2026-09-10 by re-basing the four-county NoVA
 # assessment (Prince William parking re-anchored to C&I footprint) and extrapolating statewide at
 # 0.93 kW/capita EXCLUDING Loudoun, whose data-center density is not representative.
-# See docs/methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md § 13.
+# See docs/methodology/Demand_Basis_and_RPS_Compliance_Working_Notes.md # 13.
 DOM_ZONE_DISTRIBUTED_SOLAR_CAP_MW = 7440.0
 
 # Distributed storage pairing, from this project's own parking-canopy convention: 1:1 MW with
