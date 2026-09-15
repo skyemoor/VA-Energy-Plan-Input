@@ -44,12 +44,18 @@ class TestMeasuredResult:
     """BASELINE LOCKED 2026-09-13, central capex case."""
 
     def test_slcoe_both_ways(self):
-        """$37.88/MWh without the terminal-value credit, $32.82 with it. Reported both ways per
-        the prior 20-year SLCOE convention, so a reader can strip out an assumption."""
+        """$37.86/MWh without the terminal-value credit, $32.80 with it. Reported both ways per the
+        prior 20-year SLCOE convention, so a reader can strip out an assumption.
+
+        MOVED 2 CENTS from $32.82 when Bath went to Dominion's 1,808 MW share on 2026-09-14.
+        Removing 1,192 MW of capacity changed almost nothing because SCENARIO 2'S STORAGE NEVER
+        OPERATES -- zero charge and zero discharge in all 8,760 hours, since solar delivers 41.3 TWh
+        against 202.2 TWh of demand and exceeds it, with nuclear, in only 14 hours. The two cents
+        come from reserve adequacy, not dispatch."""
         with open(RESULT) as f:
             d = json.load(f)['levelised']
-        assert d['slcoe_without_terminal_value'] == pytest.approx(37.88, abs=0.5)
-        assert d['slcoe_with_terminal_value'] == pytest.approx(32.82, abs=0.5)
+        assert d['slcoe_without_terminal_value'] == pytest.approx(37.86, abs=0.5)
+        assert d['slcoe_with_terminal_value'] == pytest.approx(32.80, abs=0.5)
 
     def test_terminal_value_is_material(self, run):
         """$10.01B of PV against $74.93B of PV cost -- 13%. Large enough that omitting it would
@@ -80,7 +86,7 @@ class TestMeasuredResult:
 
 
 class TestCapexBand:
-    @pytest.mark.parametrize('basis,expected', [('low', 32.32), ('high', 33.53)])
+    @pytest.mark.parametrize('basis,expected', [('low', 32.30), ('high', 33.51)])
     def test_band_brackets_the_central_case(self, basis, expected):
         path = os.path.join(REPO, 'results', f'scenario2_slcoe_{basis}.json')
         if not os.path.exists(path):

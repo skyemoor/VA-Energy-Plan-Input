@@ -27,6 +27,44 @@ the compliance sweep, it has to run. This records what was found tracing it.
 
 ---
 
+## SLCOE — **$32.80/MWh**
+
+Twenty annual solves, 2026–2045, levelised at WACC 4.5% from base year 2026. 1.2 minutes.
+
+| | |
+|---|---:|
+| PV cost | $74.88B |
+| PV demand | 1,977.9 TWh |
+| PV terminal value | $10.01B |
+| **SLCOE without terminal value** | **$37.86/MWh** |
+| **SLCOE with terminal value** | **$32.80/MWh** |
+
+**Capex band $32.30 – $33.51/MWh** with terminal value — a 3.7% spread. Gas capex uncertainty barely
+moves this scenario, because most of its cost is **fuel, not capital**. The gas *price* band is the
+axis that matters, and it is separate.
+
+### Social and environmental cost
+
+Across all twenty years per P.2 §9, on the same PV basis:
+
+| tier | PV | $/MWh |
+|---|---:|---:|
+| **Virginia SCC** (CO₂ only, statutory) | $145.83B | **$73.73** |
+| **Social cost of GHG** (CO₂+CH₄+N₂O) | $160.57B | **$81.18** |
+| **Health impacts** (PM, SO₂, NOx) | $10.88B | **$5.50** |
+| **TOTAL SOCIETAL SLCOE** | | **$119.48/MWh** |
+
+**The climate externality is ~2.5× the direct cost.** Tier 1 is reported as two figures, never
+combined, per Va. Code §56-598(2)(d).
+
+### Clean share
+
+**47.4% (2026) → 34.7% (2045)**, peaking near 2030–31 as the statutory solar builds out, then
+falling as demand overtakes it. **The turning point is where the fixed 16,100 MW target stops
+keeping pace.**
+
+---
+
 ## Storage is built, paid for, and never operates
 
 **Measured at 2045: zero charge, zero discharge, zero curtailment** — sodium-ion, iron-air and Bath
