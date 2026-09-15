@@ -8,6 +8,131 @@ checkpoint_solver.py is one of this project's own class hierarchy (CheckpointSol
 1.	First check whether it belongs on an existing class or mixin. If every scenario needs it and the underlying formula is the same (differing only in minor scenario-specific inputs), it belongs in a shared method or mixin -- not reimplemented per scenario.
 2.	If it's genuinely scenario-specific, it's a method override on that scenario's own subclass, following the same pattern similar to get_existing_new_mw() already establishes: the base class/mixin defines the shared logic and calls an abstract hook; each scenario class implements only the hook.
 3.	Free-standing script classes (compute_*.py, solve_*.py) are for orchestration and one-off analysis, not for logic that will be called more than once across scenarios. Bundle scripts for specific scenarios into classes for that scenario. Bundle scripts for a class of purposes into a class named for that purpose. If a second scenario needs the same calculation a free-standing script already has, that is the signal to move the logic into the class hierarchy, not to copy the script.
+4. Follow these approaches and principles;
+
+Purpose
+This skill provides guidance on object-oriented programming principles, design patterns, and practices. Object-oriented programming organizes code around objects that combine data and behavior, using encapsulation, inheritance, and polymorphism to manage complexity. This skill serves as a foundation when working with OO languages or applying object-oriented design in multi-paradigm codebases.
+
+When to Use This Skill
+Use this skill when:
+
+Working with object-oriented languages (Java, C#, C++, Python, Ruby, Swift) without language-specific skills available
+Designing systems with complex state and behavior
+Modeling domains with rich entity relationships
+Building frameworks or libraries with extension points
+Working with existing OOP codebases
+Note: Language-specific skills (e.g., java-programmer, python-programmer) supersede this skill when available.
+
+Core Philosophy
+Objects as Encapsulated State and Behavior
+Object-oriented programming bundles data (state) with the operations (behavior) that act on that data. An object presents a clean interface while hiding implementation details. This encapsulation creates boundaries that limit coupling and enable local reasoning.
+
+Quote to remember: "Bad programmers worry about the code. Good programmers worry about data structures and their relationships." — Linus Torvalds
+
+Polymorphism Enables Abstraction
+Polymorphism allows treating different types uniformly through shared interfaces. This enables writing code against abstractions rather than concrete types, making systems more flexible and extensible.
+
+Types of polymorphism:
+
+Subtype polymorphism — Inheritance hierarchies (interfaces, abstract classes)
+Parametric polymorphism — Generics/templates
+Ad-hoc polymorphism — Method overloading
+Inheritance as Code Reuse (Use Carefully)
+Inheritance enables defining types in terms of other types, inheriting both interface and implementation. However, inheritance creates tight coupling between parent and child classes.
+
+The inheritance trade-off: Inheritance is easy to add (create subclass) but hard to change (affects all subclasses). Composition is harder to add (requires more boilerplate) but easier to change (localized impact).
+
+Modern wisdom: "Composition over inheritance" — prefer delegating to contained objects over inheriting from parent classes.
+
+Fundamental Principles
+Encapsulation Hides Complexity
+Encapsulation bundles related data and behavior while hiding internal implementation. Objects expose interfaces; internals are private.
+
+Why encapsulation matters:
+
+Limits coupling (changes don't ripple through codebase)
+Enables local reasoning (understand object in isolation)
+Protects invariants (object controls its own consistency)
+Provides flexibility (change internals without affecting clients)
+Encapsulation boundaries:
+
+Private state, public interface
+Package-private for internal APIs
+Protected for inheritance hierarchies (use sparingly)
+Abstraction Manages Complexity
+Abstraction focuses on essential characteristics while hiding incidental details. Interfaces and abstract classes define contracts without specifying implementation.
+
+Why abstraction matters:
+
+Program against interfaces, not implementations
+Enable substitution (Liskov Substitution Principle)
+Defer decisions (choose implementations later)
+Facilitate testing (mock interfaces easily)
+Abstraction levels:
+
+Interfaces — Pure contracts (no implementation)
+Abstract classes — Partial implementation with extension points
+Concrete classes — Full implementation
+Polymorphism Enables Flexibility
+Polymorphism allows uniform treatment of different types. Write code once that works with many implementations.
+
+Why polymorphism matters:
+
+Add new implementations without changing client code
+Strategy pattern (choose behavior at runtime)
+Plugin architectures (extend without modifying core)
+Testing (inject mocks/stubs through interfaces)
+Polymorphism trade-off: Indirection obscures flow. Reading polymorphic code requires knowing what implementations exist and which is active. Balance flexibility against clarity.
+
+
+SOLID Principles
+SOLID provides guidelines for object-oriented design. These are heuristics, not laws—apply them where they improve code, not dogmatically.
+
+Single Responsibility Principle
+A class should have one reason to change. Each class should do one thing well.
+
+Good indicators:
+
+Can describe class purpose in one sentence without "and"
+Changes to requirements affect only one class
+Class has cohesive set of methods
+When to violate:
+
+Very small classes (splitting increases complexity)
+Clearly related concerns (don't separate prematurely)
+Performance-critical hot paths (fewer objects, fewer allocations)
+Common mistake: Confusing "single responsibility" with "one method." Classes can have multiple methods serving one coherent purpose. </single_responsibility>
+
+Open-Closed Principle
+Open for extension, closed for modification. Add new behavior without changing existing code.
+
+Implementation strategies:
+
+Inheritance — Extend base classes (classic OCP)
+Composition — Inject dependencies (modern preference)
+Strategy pattern — Plug in different algorithms
+Template method — Override specific steps
+When to violate:
+
+Requirements fundamentally change (refactor rather than extend)
+Abstraction is speculative (YAGNI — You Aren't Gonna Need It)
+System is small and changes are cheap
+Staff insight: OCP assumes future requirements. Don't add extension points for hypothetical needs. Wait until you need to extend, then refactor to enable it. </open_closed>
+
+Liskov Substitution Principle
+Subtypes must be substitutable for their base types.1 Derived classes should strengthen (not weaken) base class contracts.
+
+What LSP means:
+
+Preconditions cannot be strengthened (subclass can't be more restrictive)
+Postconditions cannot be weakened (subclass must do at least as much)
+Invariants must be preserved (subclass maintains base class guarantees)
+Common LSP violations:
+
+Square extending Rectangle (breaks area calculation expectations)
+ReadOnlyCollection extending Collection (throws on mutating methods)
+Overriding methods to do nothing or throw exceptions
+When inheritance violates LSP, use composition instead.
 ### Rule 2: Every shared calculation needs a test that locks it to a trusted baseline
  
 test_checkpoint_solver.py is the standing test suite. Before trusting any new shared method's own output:
