@@ -306,6 +306,78 @@ The 88% elevated-tilted LCOE premium and the 35% vertical-bifacial specific
 yield penalty remain real **for those configurations**. They are alternatives,
 not the only options, and are no longer treated as a blanket caution.
 
+### Capital cost by configuration — NREL bottom-up benchmark
+
+**Horowitz, K., Ramasamy, V., Macknick, J. and Margolis, R. (2020).** *Capital
+Costs for Dual-Use Photovoltaic Installations: 2020 Benchmark for
+Ground-Mounted PV Systems with Pollinator-Friendly Vegetation, Grazing, and
+Crops.* NREL/TP-6A20-77811. Bottom-up installed-cost model, primary interviews
+with ten developers (seven US, three European), benchmarked at 500 kW<sub>DC</sub>
+and averaged across eight states.
+
+**Headline: an installed capital cost premium of $0.07/W<sub>DC</sub> to
+$0.80/W<sub>DC</sub>** over conventional ground-mounted PV on bare ground. The
+range is wide because the configurations are genuinely different, and the report
+separates them along exactly the line that matters here.
+
+| configuration | structure | acres/MW | ground clearance |
+|---|---|---:|---:|
+| Conventional PV, 1-axis tracker | regular mount | **5.9** | 4.6 ft |
+| Conventional PV, fixed-tilt | regular mount | 4.5 | 4.6 ft |
+| **PV + grazing (sheep), tracker** | **conventional** | **5.9** | 4.6 ft |
+| PV + pollinator, tracker | conventional | 5.9 | 4.6 ft |
+| PV + crops, reinforced regular mount | heavy steel | **9.8** | 8.2 ft |
+| PV + crops, vertical bifacial | vertical | 7.0 | 6.4 ft |
+| PV + crops, tracker stilt-mount | 2-axis stilt | 13.8 | 8.2 ft |
+
+**NREL's own tracker figure of 5.9 acres/MW sits inside the SEIA 5–7 range this
+analysis adopts**, which is independent confirmation from a bottom-up model
+rather than an industry average.
+
+**Sheep grazing carries the smallest premium of any dual-use case**, in NREL's
+words because these systems "can use conventional PV structures and do not
+require as much site preparation or seeding." The added costs are modest and
+specific: fencing +10%, site investigation +100% (from a small base), and a
+water well of $0–$10,000 that the other dual-use cases do not need. Several site
+preparation costs *fall* relative to bare ground — clearing and grubbing −20%,
+soil stripping −20%, soil compaction −30% — because the land was already pasture.
+
+**Cattle are explicitly more expensive, and NREL says so directly:** the grazing
+results "are for sheep grazing, which is currently more common; cattle grazing
+scenarios are expected to be more expensive because of the need to elevate the
+panels and, in some cases, reinforce the system structure." The report offers its
+reinforced regular mount as the applicable structure — "could also apply to
+cattle grazing applications."
+
+**So the cattle premium is not only capital.** The reinforced mount needs
+**9.8 acres/MW against 5.9**, a two-thirds increase in land, because elevation
+forces wider row spacing. A cattle agrivoltaic megawatt costs more *and* occupies
+more ground than a sheep one.
+
+*Caveats NREL states.* The benchmark is 500 kW<sub>DC</sub> and "larger systems
+benefit significantly from economies of scale," so utility-scale premiums should
+be lower. Input data for the non-conventional crop designs is limited and "the
+costs associated with those applications are more uncertain." The report costs
+capital only: it explicitly does not cover O&M, crop yield changes, or lifetime
+value, and concludes that "lifetime analysis of costs and revenues... is required
+to understand the economic feasibility of these applications."
+
+### What this implies for Virginia's pasture
+
+Virginia's permanent pastureland is **1,915,266 acres** (2022 Census), and
+current NASS inventory (1 Jan 2026) is 575,000 beef cows, 680,000 other cattle,
+65,000 milk cows and **77,000 sheep**. On an animal-unit basis sheep account for
+roughly 1% of grazing demand and beef operations about 91%.
+
+**The best-evidenced and cheapest agrivoltaic configuration therefore applies to
+the smallest share of Virginia's grazing land.** Scaling solar grazing to
+state-significant acreage means either a substantially larger sheep flock or
+accepting the cattle premium in both capital and land.
+
+Pasture acreage is treated as a **maximum**, not an average: grazing is seasonal,
+but permanent pasture is committed year-round whether or not animals are on it in
+a given month.
+
 ### Grazing evidence, optimistic and cautionary together
 
 These must be cited as a pair. They are not contradictory — they measure
@@ -416,6 +488,27 @@ Supplements the regional practice section above.
   grazing** (170 kWdc, grid-connected).
 ● **Washington State** — $10.7M across the 2024 and 2025 budgets for a dual-use
   pilot with grants and technical assistance.
+
+### Still to read
+
+Identified and not yet reviewed. Recorded here so the next session does not have
+to rediscover them.
+
+● **American Solar Grazing Association webinar deck** (2023) —
+  `solargrazing.org/wp-content/uploads/2023/07/ASGA-webinar.pdf`. ASGA is the
+  source behind the 2024 census figures already cited; the deck should carry
+  grazier-side economics and operational practice that the census summary does
+  not.
+● **NREL/TP-5D00-91195** — `docs.nrel.gov/docs/fy24osti/91195.pdf`. A free
+  due-diligence tool with **AgriPV features, available through PySAM**. This
+  project already uses PySAM for its solar profiles, so an AgriPV-aware model
+  would let shade fraction, row pitch and ground clearance be varied directly
+  rather than assumed — which is what the Purdue work shows the crop answer
+  actually depends on, and what no figure adopted here currently represents.
+
+The second is the more consequential: every acreage and yield figure in this
+appendix is a **stated assumption** rather than a modelled result, and an AgriPV
+tool in a toolchain this analysis already runs would change that.
 
 ## Limitations and Open Questions
 
