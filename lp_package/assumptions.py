@@ -191,9 +191,24 @@ STOR_FOM_PCT = 0.025   # %/yr of capex
 #:       Pumped Storage -- 1,808 MW net summer, 7.8% of the resource mix.
 #:
 #: 3,003 x 0.60 = 1,802, within rounding of 1,808. THIS MODEL SERVES THE DOM ZONE, so the relevant
-#: figure for dispatch and for reserve margin is Dominion's SHARE, not the plant. See issue #23.
-BATH_MW = 3000.0
-BATH_MWH = 24000.0
+#: figure for dispatch and for reserve margin is Dominion's SHARE, not the plant.
+#:
+#: CHANGED TO 1,808 ON 2026-09-14. The figure above records the plant-total reconciliation for
+#: reference; what the model uses is the 1,808 MW Dominion can actually dispatch. The 40% held by
+#: Allegheny Generating Company is not Dominion's to schedule, and crediting it would give the DOM
+#: zone capacity it does not control -- in dispatch bounds and, since the reserve-margin work
+#: earlier the same day, in capacity adequacy too.
+#:
+#: BATH_MWH FOLLOWS THE SAME SHARE, not a separate measurement: 24,000 x (1,808/3,000) = 14,464,
+#: preserving the 8-hour duration. An undivided interest is a share of the whole works -- reservoir,
+#: penstocks and machines alike -- so the energy rating scales with the power rating rather than
+#: being independently owned. If a source gives Dominion's storage volume directly, it supersedes
+#: this.
+#:
+#: EVERY SCENARIO'S DISPATCH MOVES. Scenario 1, 1B and 2 all need re-running; their published
+#: figures predate this.
+BATH_MW = 1808.0
+BATH_MWH = 14464.0
 
 #: Existing utility-scale batteries in Virginia, MW. EIA-860 (2025), all status OP:
 #: Scott Solar Farm 40.0, Dry Bridge Storage 20.0, Danville BESS 1 10.5, Martinsville BESS 10.1.

@@ -92,3 +92,49 @@ class TestTheZeroGenerationReadingWasTooPessimistic:
         import os
         src = open(os.path.join(os.path.dirname(drv.__file__), 'driver.py')).read()
         assert 'Elizabeth River is the genuine exception' in src
+
+
+class TestBathIsDominionsShare:
+    """CHANGED 2026-09-14 from 3,000 MW (whole plant) to 1,808 MW (Dominion's 60%).
+
+    Two independent Dominion documents give 1,808 MW net summer: the 2024 Annual Report's Virginia
+    Power Utility Generation table, footnote (3) excluding the "40% undivided interest owned by
+    Allegheny Generating Company", and the 2025 IRP Update's Figure 3.1.1.1 Pumped Storage line."""
+
+    def test_the_power_rating_is_dominions_share(self):
+        import lp_model as lp
+        assert lp.BATH_MW == 1808.0
+
+    def test_the_energy_rating_follows_the_same_share(self):
+        """An undivided interest is a share of the whole works -- reservoir, penstocks and machines
+        alike -- so the energy rating scales with the power rating rather than being independently
+        owned. 24,000 x (1,808/3,000) = 14,464."""
+        import lp_model as lp
+        assert lp.BATH_MWH == pytest.approx(24_000.0 * 1808.0 / 3000.0, abs=1.0)
+
+    def test_the_duration_is_unchanged_at_eight_hours(self):
+        """The check that the share was applied consistently: scaling one rating and not the other
+        would silently change Bath's duration."""
+        import lp_model as lp
+        assert lp.BATH_MWH / lp.BATH_MW == pytest.approx(8.0, abs=0.01)
+
+    def test_it_reaches_all_three_problem_builders_and_reserve(self):
+        """THREE builders, not two -- build_problem, build_dispatch_problem AND
+        build_scenario2_problem -- plus the reserve credit added earlier the same day. I asserted
+        two and the test caught the third, which is the point of counting rather than assuming.
+
+        Every scenario's dispatch therefore moves with this change, Scenario 2 included."""
+        import os
+        src = open(os.path.join(os.path.dirname(drv.__file__), 'lp_model.py')).read()
+        assert src.count("bounds[hv(t,IDX['bd'])] = (0, BATH_MW)") == 3
+        assert src.count("bounds[hv(t,IDX['bc'])] = (0, BATH_MW)") == 3
+        ahr_src = open(os.path.join(os.path.dirname(drv.__file__), 'all_hours_reserve.py')).read()
+        assert 'rhs.append(BATH_MW)' in ahr_src
+
+    def test_the_change_is_documented_with_both_sources(self):
+        import os
+        import re
+        raw = open(os.path.join(os.path.dirname(drv.__file__), 'assumptions.py')).read()
+        src = re.sub(r'\n#:?\s*', ' ', raw)
+        assert 'Allegheny Generating Company' in src
+        assert 'CHANGED TO 1,808' in src
