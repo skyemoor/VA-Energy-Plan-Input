@@ -118,11 +118,15 @@ question actually asked.
 1. ~~Define compliance in model terms~~ — done, `Compliance_Definition_For_Sweep.md`
 2. Fix the gas cap / schedule mismatch, since the cap sets what the sweep can reach (issue #18)
 3. Run Scenario 2 pinned → its compliance level and cost
-4. Run the sweep, MEDIUM gas, 2045 target-first
+4. Run the sweep, MEDIUM gas, 2045 target-first — **11 levels, 30% to 100%**
+   (`assumptions.COMPLIANCE_SWEEP_LEVELS`), dense above 75% where compliance trades against cost,
+   coarse below it where the curve mainly establishes where Scenario 2 sits
 5. Add the gas-price band
 6. Apply overlays to the two or three most interesting points
 
-**Step 3 is not currently runnable** — see `Scenario2_Runnability_Audit.md`.
+~~**Step 3 is not currently runnable**~~ — **done 2026-09-14.** Scenario 2 runs, and its compliance
+level is 34.7% at 2045 with an SLCOE of $32.80/MWh. That figure is what set the sweep's lower bound:
+the floor is 30% so the reference case falls *inside* the range rather than on its edge.
 
 ---
 

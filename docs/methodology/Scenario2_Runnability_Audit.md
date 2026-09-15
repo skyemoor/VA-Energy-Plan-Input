@@ -21,9 +21,11 @@
 > on a 75–100% axis — either the sweep extended downward, or the chart showed Scenario 2 as an
 > off-scale reference.
 >
-> **Resolved: the sweep runs 35–100%.** Extending the lower bound puts Scenario 2 **on** the curve
+> **Resolved: the sweep runs 30–100%.** Extending the lower bound puts Scenario 2 **on** the curve
 > rather than beside it, which is what lets "what does the statutory minimum buy, and what would
-> more buy" read as one comparison instead of two claims. Density still concentrates at the top.
+> more buy" read as one comparison instead of two claims. The floor sits below 34.7% rather than at
+> it, so the reference case falls inside the range instead of on its edge. Density still
+> concentrates at the top.
 
 **Original audit, 2026-09-13.** Scenario 2 is the whitepaper's **baseline** — Dominion's approach of building only
 the solar and storage assets named in the Code. Before it can be plotted as the reference point on

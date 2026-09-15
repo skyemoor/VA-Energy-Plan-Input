@@ -430,7 +430,17 @@ CURTAILMENT_COST_ECONOMIC_MWH = 100.0
 # study, not an axis change.
 #
 # See docs/methodology/Compliance_Definition_For_Sweep.md.
-COMPLIANCE_SWEEP_LEVELS = (0.75, 0.80, 0.85, 0.90, 0.95, 1.00)
+#: EXTENDED DOWNWARD TO 0.30 ON 2026-09-14. The sweep originally ran 0.75-1.00, which would have
+#: left Scenario 2 off its own axis: the reference case achieves 34.7% clean generation at 2045, so
+#: on a 75% floor it could only be drawn as a detached point with nothing to read it against.
+#:
+#: THE FLOOR IS 0.30 RATHER THAN 0.35 so the reference sits INSIDE the range rather than at its
+#: edge. A point at the very end of an axis reads as a boundary rather than a result, and leaves no
+#: room to show that compliance below the statutory minimum costs more than it saves.
+#:
+#: DENSITY STAYS AT THE TOP. The interesting region is where compliance trades against cost; below
+#: 0.75 the curve mainly establishes where Scenario 2 sits, so the lower levels are coarse.
+COMPLIANCE_SWEEP_LEVELS = (0.30, 0.40, 0.50, 0.60, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00)
 
 #: gas_allowed_frac corresponding to each sweep level. The model constrains GAS share, so a
 #: compliance level of 0.90 is a gas allowance of 0.10.
