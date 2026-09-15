@@ -715,6 +715,52 @@ be solved, placed immediately before the solve so it stays complete as constrain
 verification compares the constraint-row count of that mode against a full solve; a single missing
 row is a missing constraint.
 
+#### §15. Imports are excluded, and what that costs
+
+**The model serves the DOM zone from its own resources.** Virginia sits inside PJM and imports
+substantially — Dominion's own figures have varied, but roughly 20% of energy — and none of that is
+represented.
+
+**Why excluded.** The data needed to model it is not held. Hourly LMPs for MID-ATL/APS are available
+and show what imported energy *costs*; what is missing is Dominion's import *volume* by hour, which
+would require PJM interchange data or Dominion's own filings. Modelling an import option without
+volumes would mean inventing the quantity that matters most.
+
+**Which direction it biases.** Excluding imports makes the model build more in-state capacity than
+Virginia needs, so every scenario's cost is **overstated** — conservative for a whitepaper arguing
+that clean build-out is affordable, but not neutral, and it should not be presented as neutral.
+
+**Where it bites hardest:** thin years. In 2026, before much is built, it is the difference between
+a 17.7% all-hours reserve margin being holdable and not — see
+`assumptions.SCENARIO1_ANCHOR_STORAGE_MW`.
+
+#### §16. Gas price is flat within a year, which suppresses storage arbitrage
+
+**Every solve applies one gas price per year.** There is no intra-day or seasonal shape, so storage
+can earn only by absorbing surplus, never by arbitraging a price spread.
+
+**That is not how the market behaves.** MID-ATL/APS real-time LMPs, Aug 2025 – Aug 2026:
+
+| block | mean $/MWh |
+|---|---:|
+| night 00–05 | $41.75 |
+| morning 06–09 | $57.84 |
+| midday 10–15 | $52.50 |
+| **evening 16–20** | **$87.67** |
+| late 21–23 | $53.67 |
+
+A **$45.92** night-to-evening spread, against a sodium-ion cycling cost of $5.43/MWh. Seasonally the
+range is wider still — January $119.91 against September $35.40, a factor of 3.4.
+
+**A merit order does not fix this.** With CCGT at 6.4 MMBtu/MWh against CT at 11.0, CCGT is cheaper
+in every hour, so a merit order alone reproduces a flat price. The spread arises from **minimum
+up/down times, start costs and ramp limits** — unit commitment, which is not modelled
+(`GAS_UNIT_COMMITMENT_NOT_MODELLED`).
+
+**Consequence, stated wherever storage utilisation is reported:** a scenario whose storage sits idle
+may be idle because the model offers it nothing to do, not because storage is uneconomic. The two
+are indistinguishable in these results.
+
 ### P.3 Scenario-Specific Requirements — Index
 
 Each scenario's own methodology creates requirements beyond the parts
