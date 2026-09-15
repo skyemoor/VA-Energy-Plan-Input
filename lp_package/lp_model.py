@@ -20,6 +20,7 @@ from assumptions import (  # noqa: E402
     BATH_MWH,
     BATH_DISCHARGE_COST_MWH,
     BATH_DISCHARGE_TOKEN_SCENARIO2_MWH,
+    NA_DISCHARGE_TOKEN_SCENARIO2_MWH,
     INIT_SOC_FRAC,
     BATH_RTE_CHARGE,
     BUILD_YEAR,
@@ -936,7 +937,7 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
         # Export is computed POST-SOLVE by applying an export price to the curtailment the
         # optimizer's own dispatch produced, subject to an interconnection volume limit.
         c[hv(t,IDX['unserved'])] = UNSERVED_PENALTY
-        c[hv(t,IDX['nd'])] = 100.0  # RAISED (below), was na_cycling_cost
+        c[hv(t,IDX['nd'])] = NA_DISCHARGE_TOKEN_SCENARIO2_MWH  # was a bare 100.0; see assumptions
         c[hv(t,IDX['fd'])] = fe_cycling_cost
         # ADDED (this session, Internal Debugging Log #40): the hard bc+bd<=BATH_MW constraint
         # (added above) alone did not suffice for Scenario 2's own problem structure -- confirmed
@@ -945,7 +946,28 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
         # (zero simultaneous hours across all four) -- the combination of protections already in
         # build_problem() (SLCR splice, Na/FE cycling costs, corrected curtailment cost) apparently
         # already makes simultaneous Bath dispatch unattractive there, without needing a dedicated
-        # Bath cost term. Scenario 2 lacks all of those, so needs its own. No sourced capex/cycle-
+        # Bath cost term.
+        #
+        # CORRECTED 2026-09-14 -- the previous wording said "Scenario 2 lacks all of those", and
+        # three of the four claims were wrong about the code this comment justifies:
+        #
+        #     Na cycling cost        PRESENT, but raised to NA_DISCHARGE_TOKEN_SCENARIO2_MWH
+        #     Fe cycling cost        PRESENT, sourced (fe_cycling_cost)
+        #     curtailment cost       PRESENT, assumptions.CURTAILMENT_COST_MWH
+        #     SLCR splice            genuinely ABSENT
+        #
+        # So Scenario 2 lacks ONE of the four, not all of them. A reader checking whether the Bath
+        # token is still needed would have concluded this problem was unprotected.
+        #
+        # SLCR IS ABSENT AND HAS NOTHING TO ACT ON. It modifies the RPS row so storage CHARGE is
+        # covered by renewables -- and Scenario 2's storage never charges. Measured 2026-09-14:
+        # zero charge and zero curtailment in every hour at both 2026 and 2045, because solar
+        # delivers 41.3 TWh against 202.2 TWh of demand and exceeds it, with nuclear, in 14 hours
+        # of 8,760. Adding SLCR here would change nothing until the statutory solar target rises
+        # enough to create surplus.
+        #
+        # Not added, and the reason recorded rather than left as an omission a future reader would
+        # try to correct. No sourced capex/cycle-
         # life figure exists for Bath (existing infrastructure, not a new-build decision), so this
         # is a disclosed, nominal token -- not a claimed "true" cycling cost -- sized similarly to
         # Na's own rate (~$5-6/MWh) purely to break the degeneracy, not to represent real economics.

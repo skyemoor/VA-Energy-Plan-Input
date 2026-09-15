@@ -251,6 +251,18 @@ BATH_DISCHARGE_COST_MWH = 7.50
 #: than $30, so Scenario 2 is far from the curtailment-pricing constraint that binds elsewhere.
 BATH_DISCHARGE_TOKEN_SCENARIO2_MWH = 100.0
 
+#: Sodium-ion discharge cost in build_scenario2_problem, $/MWh. A DISCLOSED NOMINAL TOKEN, like its
+#: Bath counterpart above and for the same reason.
+#:
+#: RAISED FROM na_cycling_cost (about $5.43/MWh at 2045) to break dispatch degeneracy that the
+#: sourced wear cost alone did not suppress in Scenario 2's problem structure. It represents no real
+#: economics, which is why it is named a token rather than a cost.
+#:
+#: NAMED HERE 2026-09-14. It had been a bare literal 100.0 in lp_model, sitting beside a NAMED Bath
+#: token doing the same job -- so a reader comparing the two would reasonably conclude the Bath
+#: figure was deliberate and this one incidental. Both are deliberate.
+NA_DISCHARGE_TOKEN_SCENARIO2_MWH = 100.0
+
 #: Storage state of charge at hour 0, as a fraction of energy capacity. Applies to Bath, sodium-ion
 #: and iron-air alike. Half-full is a neutral start for a cyclical year -- the final-hour SoC is
 #: constrained back to it -- but it is an ASSUMPTION rather than a measurement, and a year beginning

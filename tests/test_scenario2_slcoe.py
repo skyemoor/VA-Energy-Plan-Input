@@ -218,3 +218,47 @@ class TestVerificationCoverage:
         § 56-585.5(A) excludes in-Commonwealth nuclear. A compliance reading of Scenario 2 would
         cite 76.1%, not 65.3% -- a 10.8 point difference on the reference case."""
         assert 76.1 - 65.3 == pytest.approx(10.8, abs=0.1)
+
+
+class TestScenario2DegeneracyProtections:
+    """What build_scenario2_problem actually carries, versus what its own comment claimed."""
+
+    def test_the_na_token_is_named_not_a_bare_literal(self):
+        """It sat as 100.0 beside a NAMED Bath token doing the same job, so a reader comparing them
+        would reasonably conclude the Bath figure was deliberate and this one incidental. Both are
+        deliberate."""
+        import assumptions
+        import inspect
+        import lp_model as lp
+        assert assumptions.NA_DISCHARGE_TOKEN_SCENARIO2_MWH == 100.0
+        src = inspect.getsource(lp.build_scenario2_problem)
+        assert "IDX['nd'])] = 100.0" not in src
+        assert 'NA_DISCHARGE_TOKEN_SCENARIO2_MWH' in src
+
+    def test_the_comment_no_longer_misdescribes_the_code(self):
+        """It said Scenario 2 "lacks all of those" -- SLCR splice, Na/FE cycling costs, corrected
+        curtailment cost. THREE OF FOUR WERE WRONG. Na cycling is present but raised to a token, Fe
+        cycling is present and sourced, curtailment uses the corrected constant. Only SLCR is
+        genuinely absent.
+
+        That matters because the comment exists to justify the Bath token: a reader checking
+        whether it is still needed would have concluded this problem was unprotected."""
+        import inspect
+        import lp_model as lp
+        src = inspect.getsource(lp.build_scenario2_problem)
+        # Checks for the CORRECTION, not the absence of the old phrase -- the correction note
+        # quotes the previous wording, so a bare "not in" match fails on the fix itself. That
+        # caught this test's first version.
+        assert 'three of the four claims were wrong' in src
+        assert 'lacks ONE of the four, not all of them' in src
+
+    def test_slcr_absence_is_recorded_as_measured_not_as_an_omission(self):
+        """SLCR modifies the RPS row so storage CHARGE is covered by renewables, and Scenario 2's
+        storage never charges -- zero charge and zero curtailment in every hour at 2026 and 2045.
+        It would change nothing until the statutory solar target rises enough to create surplus.
+
+        Recorded so a future reader does not 'fix' the omission."""
+        import inspect
+        import lp_model as lp
+        src = inspect.getsource(lp.build_scenario2_problem)
+        assert 'SLCR IS ABSENT AND HAS NOTHING TO ACT ON' in src
