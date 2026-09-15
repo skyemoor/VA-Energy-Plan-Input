@@ -6690,3 +6690,49 @@ MW and may have introduced an overstatement of 1,200 in the same place.
 reserve. BATH_MWH = 24,000 presumably needs the same treatment, which should be confirmed rather
 than assumed proportional.
 
+
+## 134. Bath County changed to Dominion's 1,808 MW share -- and a wrong test found a third call site
+
+**Applied 2026-09-14**, following entry #133. BATH_MW 3,000 -> 1,808 and BATH_MWH 24,000 -> 14,464,
+preserving the 8-hour duration.
+
+**BATH_MWH follows the same share rather than being measured separately.** An undivided interest is
+a share of the whole works -- reservoir, penstocks and machines alike -- so the energy rating scales
+with the power rating. The duration is asserted unchanged at 8 hours, which is what checks the share
+was applied consistently: scaling one rating and not the other would silently change what Bath can
+do without changing either number visibly.
+
+**A TEST I WROTE WRONG CAUGHT SOMETHING USEFUL.** I asserted BATH_MW appears at two bound sites and
+it is THREE: build_problem, build_dispatch_problem AND build_scenario2_problem. So Scenario 2's
+dispatch moves with this change too, not only the reserve-constrained scenarios -- which I would not
+have checked, since Scenario 2 has no reserve constraint and the change had been framed as a
+reserve-margin correction.
+
+**Every published scenario figure predates this.** Scenario 1, 1B and 2 all need re-running.
+
+
+## 135. The gas fleet inventory, consolidated into the reference
+
+**Added 2026-09-14** to `Gas_Consolidated_Reference.md`, which had the three figures most often
+needed but not the fleet the model actually applies. A reader wanting the per-plant values had to
+read `driver.POOL` and `schedule_b_baseline_mw()` directly.
+
+Now carries, in one place: Schedule B by year (9,362 MW through 2044, 1,860 from 2045); the
+eight-plant retain pool with commissioning years and overhaul flags; the capacity cap by scenario
+and year, including Scenario 1B's divergence to 6,000 MW at 2045; heat rates; and DOM-zone fleet
+totals on all three rating bases.
+
+**A SOURCE CATALOGUE was added alongside**, stating what each source is good for and what it is not:
+
+    Dominion 2024 Annual Report        net summer BY PLANT AND BY FUEL, ownership footnotes
+    2025 IRP Appendix 3A(iv-v)         unit-level nameplate
+    2025 IRP Figure 3.1.1.1            net summer by resource type
+    EIA-860 (2025)                     unit nameplate and summer, OPERATING STATUS
+    EIA monthly generation             actual output, ending Dec 2024
+    Dominion Power Stations pages      net generating capacity per station
+    gridinfo.com, Global Energy Monitor  NOT INDEPENDENT -- EIA re-serves, same Dec 2024 cutoff
+
+The last row is there because both were cited as corroboration during this work before
+VA_gas_capacity_schedules.md was re-read -- a document that had already dismissed them in those
+terms. The catalogue exists so the next reader does not repeat that.
+

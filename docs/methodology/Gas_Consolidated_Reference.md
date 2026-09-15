@@ -32,6 +32,85 @@ the other.
 | Scenario 2's implied gas peak at 2045 | **22,479 MW** |
 | ...of which NEW build required | **10,262 MW** |
 | CCGT/CT crossover capacity factor | **28.1%** (central) |
+| Bath County, Dominion's dispatchable share | **1,808 MW / 14,464 MWh** |
+
+---
+
+## The fleet, as the model uses it
+
+Every figure below is what the code applies, not a nearby source value. Sourcing follows each table.
+
+### Existing fleet available — `driver.schedule_b_baseline_mw(year)`
+
+| year | MW |
+|---|---:|
+| 2026–2044 | **9,362** |
+| 2045 onward | **1,860** |
+
+A step, not a ramp: VCEA-driven retirement at 2045 leaves Chesterfield, Doswell and Possum Point.
+
+### Retain / overhaul pool — `driver.POOL`, 2,862 MW
+
+**Gas capability**, Dominion 2024 Annual Report (SEC, `dei-ars-12312024.pdf`), *Virginia Power
+Utility Generation*, Net Summer Capability. Listed youngest first, which is the order
+`select_overhaul_retain()` draws from.
+
+| plant | MW | commissioned | needs overhaul |
+|---|---:|---|---|
+| Marsh Run | 550 | 2004 | no |
+| Louisa | 525 | 2003 | no |
+| Wolf Hills | 285 | 2001 | no |
+| Remington | 619 | 2000 | no |
+| Gordonsville | 218 | 1994 | **yes** |
+| Elizabeth River | 327 | 1992 | **yes** |
+| Darbytown | 168 | 1990 | **yes** |
+| Gravel Neck | 170 | 1989 | **yes** |
+| **Total** | **2,862** | | |
+
+The four flagged for overhaul are all at or beyond nominal 30–45 year CT life by 2045. Overhaul
+costs $11.4M/yr against $77.0M/yr for equivalent new build.
+
+**Gravel Neck and Darbytown look wrong against other sources and are not** — see §"The retain-pool
+MW figures are GAS capability" below.
+
+### Capacity cap by scenario — `apply_gas_cap()`
+
+| year | Scenario 1 / 3 | Scenario 1B | RPS gas allowance |
+|---|---:|---:|---:|
+| 2026 | 12,224 | 12,224 | 71.0% |
+| 2030 | 12,224 | 12,224 | 59.0% |
+| 2035 | 12,224 | 12,224 | 41.0% |
+| 2040 | 12,224 | 12,224 | 21.0% |
+| 2044 | 12,224 | 12,224 | 5.0% |
+| **2045** | **4,722** | **6,000** | 0.0% |
+
+Cap = Schedule B baseline + the 2,862 MW pool. **Scenario 1B alone diverges at 2045**, adding
+1,278 MW of new simple-cycle CT at $2,000/kW — the figure Appendix N.2's capacity sweep selected
+and which `select_overhaul_retain()` independently reproduces.
+
+For Scenario 1 the 2045 cap is immaterial: its gas target is 0%, so nothing dispatches.
+
+### Heat rates, MMBtu/MWh
+
+| | |
+|---|---:|
+| CCGT, existing and modern new-build | **6.4** |
+| CT fleet | **10.999** |
+| CT aeroderivative | 9.5 |
+
+The aeroderivative rate is defined but **not applied to any Dominion unit** — the CT split was
+settled as entirely frame.
+
+### Fleet totals, DOM zone
+
+| basis | MW |
+|---|---:|
+| nameplate | **13,639.4** |
+| net summer | **12,414.1** |
+| net winter | **13,673.4** |
+
+EIA-860, after correcting a filter that had excluded every merchant IPP — see §"The 1,167 MW
+discrepancy".
 
 ---
 
@@ -106,15 +185,49 @@ specific to smaller plants — is the one the evidence supports.
 **Elizabeth River is the genuine exception**: all three units are `SB` (standby), and output had
 already fallen to a fraction of 2023 levels through 2024.
 
+### Sources used, and what each is good for
+
+| source | what it gives | what it does not |
+|---|---|---|
+| **Dominion 2024 Annual Report** (SEC, `dei-ars-12312024.pdf`), *Virginia Power Utility Generation* | Net summer capability **by plant and by fuel**; ownership footnotes | current availability |
+| **Dominion 2025 IRP Update**, Appendix 3A(iv–v) | Unit-level nameplate, as directed by the SCC | net ratings; dual-fuel split |
+| **Dominion 2025 IRP Update**, Figure 3.1.1.1 | Net summer by resource type, 2024 mix | plant detail |
+| **EIA-860 (2025)** | Unit-level nameplate *and* summer, **operating status** | fuel split on dual-fuel units |
+| **EIA monthly generation** | Actual output by plant | anything after Dec 2024 |
+| **Dominion Power Stations pages** | Net generating capacity per station | fuel split; availability |
+| gridinfo.com, Global Energy Monitor | — | **not independent**: both re-serve EIA data on the same Dec 2024 cutoff |
+
+**The last row matters.** Both were cited as corroboration during this work before
+`VA_gas_capacity_schedules.md` was re-read, which had already dismissed them in those terms.
+
 ### Bath County is 1,808 MW to Dominion, not 3,000
 
 The same Annual Report table lists **Bath County — 1,808 MW**, footnote (3): the *"40% undivided
 interest owned by Allegheny Generating Company."* The 2025 IRP Update's Figure 3.1.1.1 gives
 Pumped Storage at the same **1,808 MW** net summer.
 
-3,003 × 0.60 = 1,802. **This model serves the DOM zone**, so Dominion's share is the relevant
-figure — see issue #23. `BATH_MW = 3,000` is currently the whole plant, in dispatch bounds and in
-reserve margin.
+3,003 × 0.60 = 1,802.
+
+**Changed 2026-09-14.** This model serves the DOM zone, so what matters is what Dominion can
+dispatch:
+
+| | before | **now** |
+|---|---:|---:|
+| `BATH_MW` | 3,000 | **1,808** |
+| `BATH_MWH` | 24,000 | **14,464** |
+| duration | 8.0 h | 8.0 h |
+
+`BATH_MWH` follows the same share rather than being measured separately: an undivided interest is a
+share of the whole works — reservoir, penstocks and machines alike — so the energy rating scales
+with the power rating. The unchanged duration is the check that the share was applied consistently.
+
+**It reaches three problem builders and the reserve constraint** — `build_problem`,
+`build_dispatch_problem`, `build_scenario2_problem`, and the reserve credit added the same day. So
+**every scenario's dispatch moves, Scenario 2 included.** All published figures predate this.
+
+*Nameplate reconciliation, retained for reference:* the 2025 IRP Appendix 3A(iv–v) directs 6 × 477 =
+2,862 MW; EIA-860 lists 9 units totalling 3,109.3 MW; 3,000 is the commonly cited plant figure. The
+model no longer uses any of these — it uses Dominion's share.
 
 ---
 
