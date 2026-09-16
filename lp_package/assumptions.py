@@ -263,6 +263,50 @@ BATH_DISCHARGE_TOKEN_SCENARIO2_MWH = 100.0
 #: figure was deliberate and this one incidental. Both are deliberate.
 NA_DISCHARGE_TOKEN_SCENARIO2_MWH = 100.0
 
+# ============================================================================
+# THERMAL CYCLING COSTS -- Batlle & Rodilla (2013) LEEMA formulation
+# ============================================================================
+#
+# An enhanced screening curves method for considering thermal cycling operation costs in generation
+# expansion planning. IEEE Transactions on Power Systems 28(4). Comillas.
+#
+# THE ORDER OF MAGNITUDE IS THE FINDING. Batlle & Rodilla are explicit that start FUEL is the lesser
+# term: "when compared with the start fuel costs, it is evident that these O&M costs have a
+# considerably higher relevance". At one loading point their traditional estimate gives 13 k$/MW
+# against LEEMA's 31 k$/MW -- a factor of 2.4 on variable O&M alone.
+#
+# AND A LARGER NUMBER OF STARTS DOES NOT IMPLY LARGER O&M COST. Their peaking unit starts 25 times
+# over 108 firing hours, a cycling ratio of 4.3, and carries HIGH O&M; their mid-merit unit starts
+# 160 times over roughly 2,900 hours, ratio 18, and carries less. It is the RATIO that drives the
+# maintenance interval, not the count.
+
+#: Start fuel, MMBtu per start. Sourced in GAS_UNIT_COMMITMENT_NOT_MODELLED above, cross-checked
+#: against the $67,000 / $13,400 per start in arXiv 2311.04398 -- roughly a 5x ratio either way.
+CCGT_START_MMBTU = 1000.0
+CT_START_MMBTU = 350.0
+
+#: Maintenance Interval Function anchor, GE heavy-duty gas turbine (Balevic et al. 2010, via Batlle
+#: & Rodilla). The MIF trades starts against firing hours: GE's published options span 8,000-24,000
+#: hours and 400-900 starts before a hot-gas-path inspection. Batlle & Rodilla use the 600 starts /
+#: 24,000 hours pairing, which is the point adopted here.
+MIF_REFERENCE_FIRING_HOURS = 24000.0
+MIF_REFERENCE_STARTS = 600.0
+
+#: Cycling ratio at the MIF anchor: firing hours per start. A unit operating at a LOWER ratio than
+#: this reaches its inspection sooner in firing-hour terms, and pays more variable O&M per MWh.
+MIF_REFERENCE_CYCLING_RATIO = MIF_REFERENCE_FIRING_HOURS / MIF_REFERENCE_STARTS
+
+#: Major overhaul cost, $ per MW. Batlle & Rodilla cite $20M-60M for a major maintenance event and
+#: use $40M for a 540 MW CCGT -- $74,074/MW. Carried per-MW so it scales with the fitted build.
+MAJOR_OVERHAUL_USD_PER_MW = 40_000_000.0 / 540.0
+
+#: Maximum annual starts before a unit is infeasible for a duty cycle, by technology. Batlle &
+#: Rodilla set the cost of an infeasible profile to infinity rather than pricing it: "if the
+#: production profile turns out to be unfeasible for a certain technology (for example, for
+#: involving exceeding the maximum number of annual starts) then the associated cost of supplying
+#: that production profile with that technology is set to infinite."
+MAX_ANNUAL_STARTS = {'CCGT': 300.0, 'CT': 900.0}
+
 #: Storage state of charge at hour 0, as a fraction of energy capacity. Applies to Bath, sodium-ion
 #: and iron-air alike. Half-full is a neutral start for a cyclical year -- the final-hour SoC is
 #: constrained back to it -- but it is an ASSUMPTION rather than a measurement, and a year beginning

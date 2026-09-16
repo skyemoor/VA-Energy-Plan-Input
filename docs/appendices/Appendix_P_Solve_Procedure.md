@@ -761,6 +761,36 @@ up/down times, start costs and ramp limits** — unit commitment, which is not m
 may be idle because the model offers it nothing to do, not because storage is uneconomic. The two
 are indistinguishable in these results.
 
+#### #17. Gas capacity is sized by a brownfield screening curve, and results are presented as screening-level
+
+**Appendix Q carries the method in full.** Recorded here because it governs how every gas figure in
+this analysis should be read.
+
+**The method is a brownfield screening curve model** — Type 3 (unit-commitment-aware) in the
+taxonomy, with existing units entering at zero fixed cost per Güner (2018), and thermal cycling
+costs per Batlle & Rodilla (2013). It is chronological rather than duration-curve-based, because run
+length is what distinguishes combined-cycle duty from peaking duty and a duration curve cannot show
+it.
+
+**Screening curves narrow alternatives; they do not settle procurement.** Güner is explicit that the
+method suits *"preliminary investigation... to narrow down the technology alternatives for detailed
+analysis."* A procurement decision requires production-cost validation, which is a separate tool at
+a later stage.
+
+**Five limitations bind on absolute levels:** post-hoc repricing of a dispatch is circular; single-
+point ELCC overstates a large storage block; a deterministic reserve margin is not a loss-of-load
+calculation; continuous megawatts are not discrete turbines; part-load operation is unrepresented,
+so the modelled price spread is an upper bound.
+
+**None of them bind equally on comparisons.** Every scenario shares the weather years, demand
+projection, cost assumptions, solver and formulation, varying only the policy constraint — so a bias
+that inflates one inflates the others, and the shape of the relationship survives where the height
+is uncertain.
+
+**Therefore results lead with the compliance curve**, report levels beneath it with the
+screening-level caveat stated once, make comparative claims where the method is strongest, and say
+plainly that procurement requires production-cost validation.
+
 ### P.3 Scenario-Specific Requirements — Index
 
 Each scenario's own methodology creates requirements beyond the parts
