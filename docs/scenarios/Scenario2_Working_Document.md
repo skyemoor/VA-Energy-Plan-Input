@@ -15,53 +15,83 @@ live in GitHub issues. Cross-cutting facts that apply to every scenario live in
 
 | # | topic | covers |
 |---|---|---|
-| 1 | Result | SLCOE, capex band, social and health cost, clean-share trajectory |
+| 1 | Result | annualised cost, levelised cost, social and health cost, clean-share trajectory |
 | 2 | Storage | why it is insufficient rather than idle; the superseded finding and why it was wrong |
 | 3 | Gas capacity | the measured 2045 gap, its shape, and the technology that fits it |
 | 4 | Solve path | how Scenario 2's solver differs from the others and why |
 | 5 | Resolved blockers | what stopped it running, and how each was settled |
 | 6 | Bearing on the sweep | why this scenario sets the compliance axis's lower bound |
+| 7 | Distributed carve-out | how the C.2 obligation is sized, and the solar cap assumption |
+| 8 | Agrivoltaic siting | the overlay, its premium, and its land footprint |
 
 **Scenario-specific methodology that is not cross-cutting stays here.** Gas capacity method is
 Appendix Q; the compliance definition is `Compliance_Definition_For_Sweep.md`.
 
 ---
 
-## 1. Result — SLCOE $32.80/MWh
+## 1. Result — annualised cost
 
-Twenty annual solves, 2026–2045, levelised at WACC 4.5% from base year 2026. 1.2 minutes.
+Twenty annual solves, 2026–2045, levelised at a 4.5% weighted average cost of capital from a 2026
+base year. **Run 2026-09-14** on the corrected specification: the C.2 distributed carve-out,
+agrivoltaic siting, the merit-order stack, Schedule A retirement, and Bath County at Dominion's
+1,808 MW share.
+
+### Annualised system cost
+
+| year | clean share | peak gas, MW | $B/yr | $/MWh |
+|---|---:|---:|---:|---:|
+| 2026 | 47.4% | 13,141 | 1.88 | 18.39 |
+| 2030 | 48.6% | 14,948 | 3.27 | 27.73 |
+| 2035 | 46.1% | 18,457 | 5.72 | 38.44 |
+| 2040 | 35.7% | 22,926 | 8.58 | 45.53 |
+| **2045** | **32.5%** | 22,480 | **9.98** | **49.38** |
+
+**Annualised cost rises from $1.88B to $9.98B** across the window, and cost per megawatt-hour served
+from $18.39 to $49.38 — a 2.7× increase while clean share falls.
+
+### Levelised, as a secondary figure
 
 | | |
 |---|---:|
-| PV cost | $74.88B |
+| PV cost | $72.00B |
 | PV demand | 1,977.9 TWh |
-| PV terminal value | $10.01B |
-| **SLCOE without terminal value** | **$37.86/MWh** |
-| **SLCOE with terminal value** | **$32.80/MWh** |
-
-**Capex band $32.30 – $33.51/MWh** with terminal value — a 3.7% spread. Gas capex uncertainty barely
-moves this scenario, because most of its cost is **fuel, not capital**. The gas *price* band is the
-axis that matters, and it is separate.
+| PV terminal value | $9.08B |
+| SLCOE with terminal value | $31.81/MWh |
+| SLCOE without | $36.41/MWh |
 
 ### Social and environmental cost
 
-Across all twenty years per P.2 #9, on the same PV basis:
+Across all twenty years, on the same present-value basis (Appendix P.2 #9, Appendix D):
 
 | tier | PV | $/MWh |
 |---|---:|---:|
-| **Virginia SCC** (CO₂ only, statutory) | $145.83B | **$73.73** |
-| **Social cost of GHG** (CO₂+CH₄+N₂O) | $160.57B | **$81.18** |
-| **Health impacts** (PM, SO₂, NOx) | $10.88B | **$5.50** |
-| **TOTAL SOCIETAL SLCOE** | | **$119.48/MWh** |
+| Virginia social cost of carbon (CO₂ only, statutory) | $147.09B | **74.37** |
+| Social cost of greenhouse gases (CO₂ + CH₄ + N₂O) | $161.95B | **81.88** |
+| Health impacts (PM, SO₂, NOₓ) | $10.96B | **5.54** |
+| **Total societal** | | **119.24** |
 
-**The climate externality is ~2.5× the direct cost.** Tier 1 is reported as two figures, never
-combined, per Va. Code §56-598(2)(d).
+**The climate externality is roughly 2.4× the direct cost.** Virginia Code § 56-598(2)(d) requires
+the social cost of carbon as a component of generation operating costs; the CO₂-only statutory
+figure and the broader multi-gas total are reported separately because they are different
+quantities, per § 56-585.1(A)(6).
+
+### What moved, and why
+
+| | before | after |
+|---|---:|---:|
+| SLCOE with terminal value | $32.80 | **$31.81** |
+| clean share at 2045 | 34.7% | **32.5%** |
+| societal total | $119.48 | **$119.24** |
+| PV cost | $74.88B | **$72.00B** |
+
+**The C.2 carve-out lowers both.** It shifts 6,862 MW at 2045 from utility tracking at a 0.2252
+capacity factor to a fixed 45° array at 0.1526 — about 4.4 TWh less generation on the same
+nameplate, and less capital per megawatt of a cheaper resource.
 
 ### Clean share
 
-**47.4% (2026) → 34.7% (2045)**, peaking near 2030–31 as the statutory solar builds out, then
-falling as demand overtakes it. **The turning point is where the fixed 16,100 MW target stops
-keeping pace.**
+**47.4% (2026) → 32.5% (2045)**, peaking near 2030 as the statutory solar builds out, then falling
+as demand overtakes it. The turning point is where the fixed 16,100 MW target stops keeping pace.
 
 ---
 
@@ -226,3 +256,98 @@ the gap the whitepaper reports shrinks for the wrong reason.
 - `Scenario_Restructuring_Compliance_Sweep.md` — why Scenario 2 is the reference
 - `Gas_Fleet_Working_Notes.md` — the gas cap that does *not* apply here
 - `SCENARIO_NAMES.md`, `Internal_Debugging_Log.md` #53 — prior Scenario 2 work
+
+---
+
+## 7. Distributed carve-out — Va. Code § 56-585.5(C)(2)
+
+**Raised from 1% to 4.5% (2026–2030) and 5% (2031–2045) by the Distributed Generation Expansion Act,
+HB 628 / SB 175 (2026).** Met with resources of 1 MW or less, at least 25% low-income qualifying and
+the remainder on or adjacent to public schools.
+
+### Sizing
+
+The Code sets the RPS Program requirement as *"a percentage of the total electric energy **sold** in
+the previous calendar year"*, and the carve-out as a percentage of that requirement:
+
+```
+energy sold (n−1)  =  VirginiaOnlyGeneration(n−1) ÷ 1.0925
+RPS requirement    =  Phase II share × energy sold
+carve-out MWh      =  carve-out share × RPS requirement
+x (MW)             =  carve-out MWh ÷ (8,760 × 0.1526)
+```
+
+**Sold means metered**, so the generation series divides by the loss factor — the same series used
+undivided for dispatch. See `Common_Reference.md` section 1.
+
+**Dominion is a Phase II utility**, and the schedule is tabulated in the Code year by year rather
+than interpolated between milestones.
+
+| year | RPS share | carve-out | **distributed** | utility new build |
+|---|---:|---:|---:|---:|
+| 2026 | 29% | 1.16 TWh | 868 MW | — |
+| 2030 | 41% | 1.91 | **1,432 MW** | 3,655 MW |
+| 2035 | 59% | 3.82 | **2,856 MW** | 8,589 MW |
+| 2040 | 79% | 6.58 | **4,924 MW** | 6,522 MW |
+| **2045** | **100%** | 9.17 | **6,862 MW** | **4,583 MW** |
+
+**By 2045 the carve-out is 60% of new build.**
+
+### The solar cap is an assumption
+
+**D.2 is a one-time capacity target of 16,100 MW due 31 December 2035. C.2 is an annual energy
+obligation that keeps growing** — reaching roughly 6,862 MW of equivalent capacity by 2045 against
+about 2,856 MW at the 2035 deadline. The Code does not say whether the excess is built on top of the
+target or absorbed within it.
+
+**This analysis assumes the cap holds**: Scenario 2 does not follow the RPS in any case, and
+Dominion's preferred plan indicates 16,100 MW of solar, so the carve-out is met from within that
+total and utility-scale is the remainder.
+
+**The consequence, stated rather than buried:** utility-scale new build falls from 8,589 MW at 2035
+to 4,583 MW at 2045. That is not a choice a utility would make voluntarily; it is what holding the
+cap forces once the energy obligation outgrows the capacity target.
+
+### The profile
+
+Five NSRDB sites averaged — Sterling, Arlington, King George, Richmond, Chesapeake — at **45° due
+south, fixed**, on April–March hydro-year boundaries. Design-year capacity factor **0.1526**, the
+highest of eight hydro years ranging 0.1420–0.1526.
+
+**45° is not a yield sacrifice.** Measured at Sterling 2016 against a 15° array: December **+31.5%**,
+January +29.9%, June −17.5%, and the **year +1.3%**. The December-to-June ratio moves from 0.45 to
+0.71 — a far more even year, with the gain landing where peaks, outages and price spreads are.
+
+**No paired storage.** The DER expansion text sets none for distributed resources; the obligation
+rests with the utility under § 56-585.5(E).
+
+---
+
+## 8. Agrivoltaic siting
+
+**Applied to 85% of utility-scale solar installed after 2026**, on the same terms as every other
+scenario. Carrying it in Scenario 3 alone would give that scenario a benefit stream the others were
+denied by construction — and it is unphysical besides, since the same acres are involved either way.
+
+**It changes cost and land, not generation.** A sheep-grazed tracking array generates exactly what a
+conventional tracking array generates, because they are the same structures — NREL gives both
+5.9 acres/MW.
+
+| year | utility new build | agrivoltaic | capex premium | land |
+|---|---:|---:|---:|---:|
+| 2030 | 3,655 MW | 3,107 MW | $217M | 18,275–25,585 ac |
+| 2035 | 8,589 | 7,301 | $511M | 42,945–60,123 ac |
+| 2040 | 6,522 | 5,544 | $388M | 32,610–45,654 ac |
+| 2045 | 4,583 | 3,896 | $273M | 22,915–32,081 ac |
+
+**Premium: $0.07/W<sub>DC</sub>**, the low end of NREL's $0.07–0.80 dual-use range, because grazing
+*"can use conventional PV structures and does not require as much site preparation or seeding."*
+Several site-preparation costs *fall* relative to bare ground — clearing and grubbing −20%, soil
+stripping −20%, compaction −30% — since the land was already pasture.
+
+**Cattle are not modelled.** NREL states they cost more, needing elevation and reinforcement, and
+gives 9.8 acres/MW against 5.9 — but no equivalent of the $0.07 figure. The code raises rather than
+reusing the sheep premium, which would understate it.
+
+**Full method, evidence and citations: `appendices/Appendix_Agrivoltaics.md`.** Capital cost by
+configuration is Appendix Q.

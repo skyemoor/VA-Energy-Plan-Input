@@ -7083,3 +7083,24 @@ the Schedule A retirement correction:
 0.1526 capacity factor from tracking's 0.2252 -- less generation, and less capital per MW of a
 cheaper resource. The whitepaper section is superseded by these figures.
 
+## 148. Documentation brought onto the re-run figures
+
+**2026-09-14.** The Scenario 2 working document and whitepaper draft both carried the pre-carve-out
+result -- $32.80/MWh and a 34.7% clean share -- while the model had moved to $31.81 and 32.5%.
+
+**The whitepaper section now leads with ANNUALISED COST**, per the reporting decision: $1.88B/yr at
+2026 rising to $9.98B at 2045, with levelised cost beneath it as a secondary figure. Cost per
+megawatt-hour served rises $18.39 to $49.38 -- a 2.7x increase while clean share falls by a third.
+
+**A new section states the statutory conflict plainly**: D.2's one-time 16,100 MW capacity target
+against C.2's growing annual energy obligation, with the trajectory table and the cap assumption.
+That is the clearest thing Scenario 2 has to say, and it was previously buried in the modelling
+detail.
+
+**The idle-storage section is replaced**, not amended -- it was measured on unbounded gas and the
+bounded run reverses it. Storage discharges 13.04 TWh over 2,666 hours and 17.96 TWh still goes
+unserved: the mandate is insufficient, not mismatched.
+
+**Working document sections 7 and 8 added** for the carve-out and agrivoltaic siting, with formulas,
+the statutory basis, the profile derivation and the NREL premium.
+
