@@ -19,18 +19,33 @@ class TestTheTwoSchedules:
         """Plant age, market-indifferent. Bear Garden 2041, Warren County 2044."""
         assert drv.gas_baseline_mw(year, 'A') == expected
 
-    @pytest.mark.parametrize('year,expected', [(2040, 9362.0), (2044, 9362.0), (2045, 1860.0)])
-    def test_schedule_b_is_vcea_driven(self, year, expected):
-        """Identical to A through 2044, then Brunswick County, Potomac Energy Center and
-        Greensville -- 3,774 MW -- retire FOR LACK OF MARKET."""
+    @pytest.mark.parametrize('year,expected', [(2040, 9362.0), (2041, 8740.0), (2044, 7391.0),
+                                               (2045, 1860.0)])
+    def test_schedule_b_shares_the_physical_retirements(self, year, expected):
+        """CORRECTED 2026-09-14. The reference table states Schedule B as "2026-2044: Same as
+        Schedule A", and Schedule A is NOT flat across those years -- it steps at 2041 and 2044.
+
+        The original schedule_b_baseline_mw was a flat 9,362 through 2044, reading "same as
+        Schedule A" as A's opening value rather than A's series. Nothing about a VCEA-compliant
+        grid keeps a plant running past its physical life."""
         assert drv.gas_baseline_mw(year, 'B') == expected
 
-    def test_they_are_identical_through_2040(self):
-        for y in range(2026, 2041):
+    def test_they_are_identical_through_2044(self):
+        """They diverge only at 2045, where the MARKET premise applies -- not before."""
+        for y in range(2026, 2045):
             assert drv.gas_baseline_mw(y, 'A') == drv.gas_baseline_mw(y, 'B')
 
-    def test_the_2045_difference(self):
+    def test_the_error_affected_every_scenario_not_only_scenario_2(self):
+        """Scenarios 1, 1B and 3 all use Schedule B, so all three were carrying 622 MW too much
+        gas from 2041 and 1,971 MW too much from 2044 -- in the years approaching Scenario 1's
+        100% target, where gas is most tightly constrained, and through 1B's 2044 checkpoint,
+        which sets its capacity requirement."""
+        assert 9362.0 - drv.gas_baseline_mw(2041, 'B') == 622.0
+        assert 9362.0 - drv.gas_baseline_mw(2044, 'B') == 1971.0
+
+    def test_the_2045_difference_is_the_only_divergence(self):
         assert drv.gas_baseline_mw(2045, 'A') - drv.gas_baseline_mw(2045, 'B') == 5531.0
+        assert drv.gas_baseline_mw(2044, 'A') == drv.gas_baseline_mw(2044, 'B')
 
     def test_an_unknown_schedule_raises(self):
         """Rule 5. Defaulting would reintroduce exactly the defect this replaced."""
@@ -74,5 +89,6 @@ class TestTheCorrectionIsMaterial:
     def test_the_intermediate_years_were_overstated_too(self):
         """Schedule A retires 622 MW from 2041 and 1,971 MW from 2044 that the old flat baseline
         ignored entirely -- so those years had MORE capacity than they should, not less."""
-        assert drv.gas_baseline_mw(2041, 'A') == 9362.0 - 622.0
-        assert drv.gas_baseline_mw(2044, 'A') == 9362.0 - 1971.0
+        for sched in ('A', 'B'):
+            assert drv.gas_baseline_mw(2041, sched) == 9362.0 - 622.0
+            assert drv.gas_baseline_mw(2044, sched) == 9362.0 - 1971.0

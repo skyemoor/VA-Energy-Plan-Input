@@ -113,13 +113,23 @@ def gas_baseline_mw(year, schedule):
             f'{GAS_RETIREMENT_SCHEDULES}. A scenario must declare which retirement world it is '
             'in -- the schedules differ by 5,531 MW at 2045 and the difference is a scenario '
             'property, not a fact about the fleet.')
+    # THE SCHEDULES SHARE THEIR PHYSICAL RETIREMENTS. The reference table states Schedule B as
+    # "2026-2044: Same as Schedule A", and Schedule A is NOT flat across those years -- it steps at
+    # 2041 and 2044. Nothing about a VCEA-compliant grid keeps a plant running past its physical
+    # life; if anything a clean grid retires it sooner. B diverges from A only at 2045, where the
+    # MARKET premise applies.
+    #
+    # CORRECTED 2026-09-14, and the error predates the schedule parameter: the original
+    # schedule_b_baseline_mw was a flat 9,362 through 2044, so it read "same as Schedule A" as
+    # meaning A's opening value rather than A's series. Scenarios 1, 1B and 3 were all carrying
+    # 622 MW too much gas from 2041 and 1,971 MW too much from 2044.
     if year <= 2040:
         return 9362.0
-    if schedule == 'B':
-        return 9362.0 if year <= 2044 else 1860.0
     if year <= 2043:
-        return 8740.0      # Bear Garden retires 2041
-    return 7391.0          # Warren County retires 2044
+        return 8740.0                          # Bear Garden retires 2041, both schedules
+    if year <= 2044 or schedule == 'A':
+        return 7391.0                          # Warren County retires 2044, both schedules
+    return 1860.0                              # Schedule B only: VCEA-driven, 2045
 
 
 def schedule_b_baseline_mw(year):

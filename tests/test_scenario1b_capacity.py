@@ -74,7 +74,11 @@ class TestTheCapacitySweepIsImplemented:
 
     def test_before_2045_the_inherited_cap_is_unchanged(self):
         """Identical to Scenario 1 through 2044, so the cap must be too."""
-        assert _solver(2044).apply_gas_cap() == pytest.approx(12_224.0)
+        # 10,253 = the 7,391 MW baseline at 2044 + the 2,862 MW pool. WAS 12,224 on a flat 9,362,
+        # corrected 2026-09-14: the reference table states Schedule B as "same as Schedule A"
+        # through 2044, and Schedule A steps down at 2041 and 2044 for Bear Garden and Warren
+        # County. This is 1B's own 2044 checkpoint, which sets its capacity requirement.
+        assert _solver(2044).apply_gas_cap() == pytest.approx(10_253.0)
 
     def test_it_exceeds_scenario_1s_cap_at_2045(self):
         """Scenario 1 is bound at 4,722 MW; 1B builds beyond it. If these were equal, 1B's relaxed

@@ -662,8 +662,18 @@ and Possum Point continue reporting cleanly through May 2026.
 
 | Year | Total capacity (MW), VCEA-consistent world | Notes |
 |---|---|---|
-| 2026-2044 | Same as Schedule A | VCEA doesn't bind until the 100% terminal year itself |
+| 2026-2040 | 9,362 | Same as Schedule A |
+| 2041-2043 | 8,740 | Same as Schedule A — Bear Garden retires on plant age |
+| 2044 | 7,391 | Same as Schedule A — Warren County retires on plant age |
 | 2045 | 1,860 (Chesterfield + Doswell + Possum Point) | Brunswick County + Potomac Energy Center + Greensville (3,774 MW combined) retire for lack of market |
+
+**The physical retirements are shared.** Schedule B was written as "2026-2044: Same as Schedule A",
+and Schedule A is not flat across those years — it steps at 2041 and 2044. The years are now
+spelled out because the compressed form was misread in code: `schedule_b_baseline_mw` held a flat
+9,362 MW through 2044, so **Scenarios 1, 1B and 3 all carried 622 MW too much gas from 2041 and
+1,971 MW too much from 2044**. Nothing about a VCEA-compliant grid keeps a plant running past its
+physical life; if anything a clean grid retires it sooner. The schedules diverge **only at 2045**,
+where the market premise applies.
 
 ### Important caveats
 
