@@ -760,7 +760,8 @@ def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_
 def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
                               vcea_solar_mw, ccgt_mw, na_power_mw, na_duration_hr,
                               fe_power_mw, fe_duration_hr, gas_price_mwh, ccgt_vom_mwh,
-                              init_soc_frac=INIT_SOC_FRAC, verbose=True):
+                              init_soc_frac=INIT_SOC_FRAC, verbose=True,
+                              gas_merit_order=None, gas_merit_order_year=None):
     """
     Scenario 2: dispatch-only, all capacities FIXED (no build variables, no RPS gas-percentage cap).
     Gas capped only by CCGT's hard MW nameplate. VCEA solar/wind target treated as solar-equivalent
@@ -850,6 +851,61 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
             eq_rhs.append(0.0)
         row += 1
 
+    # MERIT ORDER, PART 1 OF 3 -- constraint rows. Bounds follow in part 2, costs in part 3.
+    #
+    # PORTED FROM build_problem 2026-09-14. ADDITIVE by design: IDX['g'] remains the hourly gas
+    # TOTAL, so the energy balance and the hourly MW bound operate on it untouched. Per-rung
+    # variables are appended and tied to that total by one equality per hour.
+    #
+    # WHY SCENARIO 2 NEEDS IT. With one gas price and gas marginal in every hour, the hourly
+    # energy-balance dual has ZERO VARIANCE -- output varies across the day, marginal cost does
+    # not, and the dual tracks the second (docs/MODEL_WIDE_FINDINGS.md section 1). Measured at
+    # 2045: flat at -$54.70 in all 8,760 hours.
+    #
+    # It also corrects the FUEL. Scenario 2 burns 132 TWh at a flat 6.40 heat rate -- the best
+    # machine in the fleet, every hour. The same dispatch on the stack gives an effective heat rate
+    # of 8.73 and $60.47/MWh against $44.32: understated by $16.15/MWh. See Appendix Q.
+    #
+    # SPLIT IN TWO because this function builds its constraint rows BEFORE it allocates c and
+    # bounds, unlike build_problem. Keeping one block would mean referencing c before assignment --
+    # which is exactly what the first port attempt did.
+    if (gas_merit_order is None) != (gas_merit_order_year is None):
+        # Rule 5: a stack without a year cannot resolve retirements or fuel price, and a year
+        # without a stack silently does nothing. Neither should be guessed past.
+        raise ValueError(
+            'gas_merit_order and gas_merit_order_year must be supplied together; got '
+            f'gas_merit_order={"set" if gas_merit_order else "None"}, '
+            f'gas_merit_order_year={gas_merit_order_year!r}. The stack needs a year to resolve '
+            'retirements and the fuel-price trajectory.')
+    _rungs = None
+    if gas_merit_order is not None:
+        _rungs = gas_merit_order.rungs(gas_merit_order_year)
+        if not _rungs:
+            raise ValueError(
+                f'gas_merit_order supplied but has no available rungs in {gas_merit_order_year}; '
+                'the whole fleet has retired. Pass gas_merit_order=None to run without a stack.')
+        _n_rung = len(_rungs)
+        _base = NVAR                      # rung columns are appended after the hourly block
+        NVAR = NVAR + _n_rung * T
+
+        def _rung_var(rung_i, t):
+            return _base + rung_i * T + t
+
+        # sum(rungs) - g = 0, one equality per hour.
+        #
+        # NOTE the row counter, which cost build_problem a debugging session: `row` here is SHARED
+        # between equality and inequality constraints, so it is NOT the equality row count. Using it
+        # as one produced an A_eq whose rows exceeded its b_eq and linprog refused the problem.
+        # len(eq_rhs) is the correct equality index.
+        _eq_row = len(eq_rhs)
+        for t in range(T):
+            eq_rows += [_eq_row] * (_n_rung + 1)
+            eq_cols += [_rung_var(_ri, t) for _ri in range(_n_rung)] + [hv(t, IDX['g'])]
+            eq_data += [1.0] * _n_rung + [-1.0]
+            eq_rhs.append(0.0)
+            _eq_row += 1
+        row = _eq_row
+
     # No cumulative gas tracking needed -- Scenario 2 has no percentage cap, just an hourly MW bound
     n_eq_rows = row
     A_eq = sparse.csr_matrix((eq_data, (eq_rows, eq_cols)), shape=(n_eq_rows, NVAR))
@@ -859,6 +915,14 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
     b_ub = np.array([])
 
     bounds = [(0, None)]*NVAR
+    # MERIT ORDER, PART 2 OF 3 -- BOUNDS on the rung columns allocated in part 1. Costs follow in
+    # part 3, because this builder creates `bounds` before `c` and referencing c here would be an
+    # UnboundLocalError. Two touches rather than one, in the order the function allocates.
+    if _rungs is not None:
+        for _ri, _rung in enumerate(_rungs):
+            _cap = _rung.nameplate_mw          # already net of retirements and availability
+            for t in range(T):
+                bounds[_rung_var(_ri, t)] = (0.0, _cap)
     for t in range(T):
         bounds[hv(t,IDX['g'])] = (0, ccgt_mw)  # hard MW ceiling, no percentage mechanism
         bounds[hv(t,IDX['e'])] = (0, 0)  # NO EXPORT in Scenario 2 -- CCGT exists to serve Dominion's own LSE
@@ -904,6 +968,13 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
     b_ub = np.array(ub_rhs)
 
     c = np.zeros(NVAR)
+
+    # MERIT ORDER, PART 3 OF 3 -- COSTS on the rung columns. See part 2 for bounds.
+    if _rungs is not None:
+        for _ri, _rung in enumerate(_rungs):
+            _cost = _rung.marginal_cost_mwh(gas_merit_order_year)
+            for t in range(T):
+                c[_rung_var(_ri, t)] = _cost
     price = export_price_profile(T)
     # ADDED (this session, Internal Debugging Log #38): this function had neither of
     # build_problem()'s two simultaneous-charge/discharge protections either -- same gap found and
@@ -915,7 +986,10 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
     na_cycling_cost = (NA_ENERGY_CAPEX*1000) / (NA_CYCLE_LIFE * (1.0 - NA_DOD_FLOOR))
     fe_cycling_cost = (FE_ENERGY_CAPEX*1000) / (FE_CYCLE_LIFE * FE_DOD)
     for t in range(T):
-        c[hv(t,IDX['g'])] = gas_price_mwh + ccgt_vom_mwh
+        # With a merit order supplied, per-rung variables carry the cost instead -- see the
+        # MERIT ORDER block below. Zeroing rather than skipping keeps the objective vector's
+        # shape identical in both modes, exactly as build_problem does.
+        c[hv(t,IDX['g'])] = (gas_price_mwh + ccgt_vom_mwh) if gas_merit_order is None else 0.0
         # EXPORT REVENUE IS DELIBERATELY ABSENT (Appendix P.2 #8, enforced here 2026-09-13). The
         # rule is project-wide and standing: "Export revenue must never appear inside any
         # year-solve's own optimization objective, in any scenario." With it in, the optimizer has

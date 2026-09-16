@@ -166,7 +166,12 @@ class GasMeritOrder:
             'new_build_pool_mw': new_build_pool_mw,
             'stack_available_mw': available,
             'binding': 'stack' if available < scenario_cap_mw else 'scenario_cap',
-            'new_build_has_no_rung': new_build_pool_mw > 0,
+            # CHECKS THE STACK, not merely whether a pool was passed. This read
+            # `new_build_pool_mw > 0` and so reported "no rung" whenever a pool was supplied --
+            # true when issue #18 was written, and false since the new_build_ccgt rung was added.
+            # A flag that cannot come back false is not a check. Corrected 2026-09-14.
+            'new_build_has_no_rung': not any(
+                r.name.startswith('new_build') for r in self.rungs(year)),
             'note': (
                 f'Scenario cap {scenario_cap_mw:,.0f} MW ({existing_cap:,.0f} existing + '
                 f'{new_build_pool_mw:,.0f} new-build pool) against stack availability '
