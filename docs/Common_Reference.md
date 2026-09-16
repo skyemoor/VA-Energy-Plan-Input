@@ -4,8 +4,9 @@
 or convention is shared across the model, it is defined here once rather than restated in each
 scenario's working paper.
 
-**This is a reference, not a log.** What was run goes to `Internal_Debugging_Log.md`; recurring
-error patterns go to `Common_Mistake_Log.md`; where things stand goes to
+**This is a reference, not a log.** LP issues and their solutions go to
+`Internal_Debugging_Log.md`; recurring error patterns go to `Common_Mistake_Log.md`; scenario
+findings go to that scenario's working document; where things stand goes to
 `Scenario_Completion_Dashboard.md`; open problems go to GitHub issues.
 
 ---

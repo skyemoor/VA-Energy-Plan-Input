@@ -4,9 +4,10 @@
 80% remaining utility-scale of which 90% agrivoltaic; FERC 2222 participation and hourly retail
 rates.
 
-Status lives in `Scenario_Completion_Dashboard.md`; what was run lives in
-`Internal_Debugging_Log.md`; open problems live in GitHub issues. Cross-cutting facts that apply to
-every scenario live in `Common_Reference.md`.
+Status lives in `Scenario_Completion_Dashboard.md`; LP issues and their solutions live in
+`Internal_Debugging_Log.md`; recurring error patterns live in `Common_Mistake_Log.md`; open problems
+live in GitHub issues. Cross-cutting facts that apply to every scenario live in
+`Common_Reference.md`.
 
 ---
 

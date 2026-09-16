@@ -5,8 +5,16 @@
 A step is **done** only when its result has been produced on current code, constants and scenario
 definition — not when the code to produce it exists.
 
-Narrative goes elsewhere: **what was found** to the relevant working paper or appendix, **what was
-run** to `Internal_Debugging_Log.md`, **open problems** to GitHub issues.
+Narrative goes elsewhere:
+
+| kind | where |
+|---|---|
+| scenario findings | `scenarios/<scenario>_Working_Document.md` |
+| cross-cutting facts | `Common_Reference.md` |
+| methodology spanning scenarios | the relevant appendix |
+| **LP issues and their solutions** | **`Internal_Debugging_Log.md`** |
+| recurring error patterns | `Common_Mistake_Log.md` |
+| open problems | GitHub issues |
 
 ---
 

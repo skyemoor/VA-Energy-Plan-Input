@@ -3,9 +3,10 @@
 **The working document for Scenario 1B.** As Scenario 1, except gas may supply 5% of the statutory
 base from 2045. Tests whether a small gas allowance materially eases the build.
 
-Status lives in `Scenario_Completion_Dashboard.md`; what was run lives in
-`Internal_Debugging_Log.md`; open problems live in GitHub issues. Cross-cutting facts that apply to
-every scenario live in `Common_Reference.md`.
+Status lives in `Scenario_Completion_Dashboard.md`; LP issues and their solutions live in
+`Internal_Debugging_Log.md`; recurring error patterns live in `Common_Mistake_Log.md`; open problems
+live in GitHub issues. Cross-cutting facts that apply to every scenario live in
+`Common_Reference.md`.
 
 ---
 

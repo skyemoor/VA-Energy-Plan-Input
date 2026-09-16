@@ -3,9 +3,10 @@
 **The working document for Scenario 1.** Full VCEA and RPS compliance, firmed solar co-located with
 storage, no standalone storage. The upper bound of the compliance axis.
 
-Status lives in `Scenario_Completion_Dashboard.md`; what was run lives in
-`Internal_Debugging_Log.md`; open problems live in GitHub issues. Cross-cutting facts that apply to
-every scenario live in `Common_Reference.md`.
+Status lives in `Scenario_Completion_Dashboard.md`; LP issues and their solutions live in
+`Internal_Debugging_Log.md`; recurring error patterns live in `Common_Mistake_Log.md`; open problems
+live in GitHub issues. Cross-cutting facts that apply to every scenario live in
+`Common_Reference.md`.
 
 ---
 

@@ -1,11 +1,23 @@
 # Internal Debugging & Investigation Log
 
-Working document. Not for the whitepaper or its appendices — this is our own
-record of what we tried, whether it worked, and what we actually did about
-it. Append new entries at the bottom as they come up; don't rewrite history
-above. Cross-references to the Activity Tracker (item numbers) and the
-Methodology appendix (section numbers) are included where the same finding
-also lives there in polished form.
+**LP issues and their solutions.** Working document, not for the whitepaper or its appendices — our
+own chronological record of what we tried, whether it worked, and what we actually did about it.
+
+**What belongs here:** solver behaviour, constraint and objective defects, convergence, problem
+construction, data-pipeline failures, and the measurements taken to settle them. Read an entry to
+find out *how* a figure was reached or *why* an earlier one changed.
+
+**What belongs elsewhere:** scenario findings go to that scenario's working document; cross-cutting
+facts to `Common_Reference.md`; recurring error *patterns* to `Common_Mistake_Log.md`, which is
+organised by pattern rather than by date; open problems to GitHub issues.
+
+The mistake log's test is whether the same kind of error could recur in a different context. This
+log's test is simply whether it happened. Most things land in one or the other; a few land in both
+at different grain — **the instance here, the shape there.**
+
+Append new entries at the bottom as they come up; don't rewrite history above. Cross-references to
+the Activity Tracker (item numbers) and the Methodology appendix (section numbers) are included
+where the same finding also lives there in polished form.
 
 **SCOPE NARROWED 2026-08-27**, per direct user instruction: this log is now reserved for major
 LP and high-level problems — genuinely substantive modeling, architectural, or methodological
