@@ -6969,3 +6969,32 @@ are credited nowhere in the model. Both understate distributed generation's valu
 generation series divided by 1.0925. An earlier figure of 7,565 MW at 2045 was computed on the
 generation basis and is overstated by 9.25%.
 
+
+## 145. One working document per scenario, indexed by topic
+
+**2026-09-14.** Scenario findings had no consistent home. Scenario 2's lived in a file named
+Scenario2_Runnability_Audit.md -- named for a question settled days ago -- Scenario 1B's in
+Appendix N, Scenario 1's nowhere, and Scenario 3's across four files catalogued by its own master
+index.
+
+**Now docs/scenarios/ holds one working document per scenario**, each opening with a topic index, a
+one-line statement of scope, and a pointer to where the other kinds of writing go. Scenario 2's
+carries the existing content renumbered against its index; the other three are scaffolded with what
+is known and marked where results are pending.
+
+**The audit file is marked superseded rather than deleted**, because build log entries reference its
+runnability history.
+
+**The division now holds across five document kinds:**
+
+    where things STAND    Scenario_Completion_Dashboard.md
+    what was FOUND        docs/scenarios/<scenario>_Working_Document.md
+    cross-cutting FACTS   docs/Common_Reference.md
+    what was RUN          Internal_Debugging_Log.md
+    recurring MISTAKES    Common_Mistake_Log.md
+    what is OPEN          GitHub issues
+
+Methodology that applies to more than one scenario stays in its appendix -- the gas capacity method
+is Appendix Q, agrivoltaics is the agrivoltaics appendix -- and the scenario documents point at
+them rather than restating.
+

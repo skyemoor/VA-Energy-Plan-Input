@@ -1,43 +1,32 @@
-> **SUPERSEDED 2026-09-14 by `docs/scenarios/Scenario2_Working_Document.md`.** Its content moved
-> there, indexed by topic. This file is retained because the runnability history is referenced
-> from build log entries; nothing here should be updated.
+# Scenario 2 — Statutory Minimums
 
-# Scenario 2 runnability audit — RESOLVED
+**The working document for Scenario 2.** Build only the 16,100 MW of solar and 20,000 MW of storage
+the Code names; meet the rest with gas. The reference case against which every other scenario is
+read.
 
-**2026-09-13.** All three blockers cleared; the baseline runs and its compliance level is measured.
-
-> ## The result
->
-> **Scenario 2 reaches 34.7% clean generation share at 2045**, with an implied gas peak of
-> **22,479 MW**.
->
-> **Corrected 2026-09-13 from 39.2%.** The earlier figure double-counted post-VCEA solar — it
-> passed the full 16,100 MW target alongside the existing fleet, treating the statutory target as
-> entirely new build. It is a **total**, not an increment: only **645 MW** of the existing 5,300
-> predates the VCEA, and the other **~4,655 MW** was approved under § 56-585.5 D.4's annual
-> petition process, which is the mechanism the 16,100 MW is measured by. **New build required is
-> ~11,445 MW, not 16,100.**
->
-> **Demand has roughly doubled since the VCEA was written, while the statutory MW targets did not
-> change.** The statutory build was sized against a much smaller system.
->
-> **This fell far below the sweep range as originally designed.** The baseline could not be plotted
-> on a 75–100% axis — either the sweep extended downward, or the chart showed Scenario 2 as an
-> off-scale reference.
->
-> **Resolved: the sweep runs 30–100%.** Extending the lower bound puts Scenario 2 **on** the curve
-> rather than beside it, which is what lets "what does the statutory minimum buy, and what would
-> more buy" read as one comparison instead of two claims. The floor sits below 34.7% rather than at
-> it, so the reference case falls inside the range instead of on its edge. Density still
-> concentrates at the top.
-
-**Original audit, 2026-09-13.** Scenario 2 is the whitepaper's **baseline** — Dominion's approach of building only
-the solar and storage assets named in the Code. Before it can be plotted as the reference point on
-the compliance sweep, it has to run. This records what was found tracing it.
+Status lives in `Scenario_Completion_Dashboard.md`; what was run lives in
+`Internal_Debugging_Log.md`; open problems live in GitHub issues. Cross-cutting facts that apply to
+every scenario live in `Common_Reference.md`.
 
 ---
 
-## SLCOE — **$32.80/MWh**
+## Index
+
+| # | topic | covers |
+|---|---|---|
+| 1 | Result | SLCOE, capex band, social and health cost, clean-share trajectory |
+| 2 | Storage | why it is insufficient rather than idle; the superseded finding and why it was wrong |
+| 3 | Gas capacity | the measured 2045 gap, its shape, and the technology that fits it |
+| 4 | Solve path | how Scenario 2's solver differs from the others and why |
+| 5 | Resolved blockers | what stopped it running, and how each was settled |
+| 6 | Bearing on the sweep | why this scenario sets the compliance axis's lower bound |
+
+**Scenario-specific methodology that is not cross-cutting stays here.** Gas capacity method is
+Appendix Q; the compliance definition is `Compliance_Definition_For_Sweep.md`.
+
+---
+
+## 1. Result — SLCOE $32.80/MWh
 
 Twenty annual solves, 2026–2045, levelised at WACC 4.5% from base year 2026. 1.2 minutes.
 
@@ -75,7 +64,7 @@ keeping pace.**
 
 ---
 
-## Storage is not idle — it is insufficient
+## 2. Storage — insufficient, not idle
 
 **Corrected 2026-09-14**, superseding the section below. The earlier finding was measured on an
 **unbounded gas** model, where the ceiling was 200,000 MW and gas could serve whatever the hour
@@ -109,7 +98,7 @@ every hour. The stack gives an effective heat rate of **8.12** and **$56.22/MWh 
 
 ---
 
-## Superseded: storage is built, paid for, and never operates
+### 2.1 Superseded — "storage is built, paid for, and never operates"
 
 **Measured at 2045: zero charge, zero discharge, zero curtailment** — sodium-ion, iron-air and Bath
 alike, in all 8,760 hours.
@@ -137,7 +126,22 @@ unit commitment would have that storage earning against the spread.
 
 ---
 
-## It uses a different solve path entirely
+## 3. Gas capacity — the measured 2045 gap
+
+With the merit-order stack bounding gas at the real fleet, the gap is **10,263 MW of peaking duty**:
+1,233 blocks, median 2 hours, longest 27, implied capacity factor 20.0%. Nothing clears a
+combined-cycle minimum uptime at any level.
+
+Costed on the full four-term formulation, **combustion turbine beats combined cycle by $1,365M/yr**
+— on capital, maintenance, capacity factor and duty shape alike. Only fuel favours combined cycle,
+and at 20% capacity factor there are too few hours to earn it.
+
+**Full working, with formulas and citations, in Appendix Q.3a.** The method itself — brownfield
+screening curve, Type 3 — is Appendix Q, and applies to every scenario rather than this one.
+
+---
+
+## 4. Solve path — different from every other scenario
 
 `Scenario2Solver.solve()` calls **`lp.build_scenario2_problem()`**, not `build_problem()`. It does
 not use `converge_frac`, `apply_gas_cap()` or `capacity_cap_mw`.
@@ -151,7 +155,7 @@ does **not** apply to Scenario 2. That cap governs Scenarios 1, 1B and 3.
 
 ---
 
-## Three blockers
+## 5. Resolved blockers
 
 ### 1. `peak_gas_mw` comes from a lost temp file — RESOLVED by making gas unbounded
 
@@ -206,7 +210,7 @@ variable and one gas price — no merit order — so everything is CCGT by const
 
 ---
 
-## Why this matters for the sweep
+## 6. Bearing on the compliance sweep
 
 The whole comparison rests on Scenario 2 being **genuinely** the statutory build. If any of its
 three components is optimised rather than pinned, the reference point moves toward the curve and
@@ -216,7 +220,7 @@ the gap the whitepaper reports shrinks for the wrong reason.
 
 ---
 
-## Related
+### Related
 
 - `Scenario_Restructuring_Compliance_Sweep.md` — why Scenario 2 is the reference
 - `Gas_Fleet_Working_Notes.md` — the gas cap that does *not* apply here

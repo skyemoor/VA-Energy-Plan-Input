@@ -105,6 +105,10 @@ of the other.
 | **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
 | **`appendices/Appendix_Q_Gas_Capacity_Method.md`** | **Gas capacity expansion** — brownfield screening curve method, LEEMA cost formulas, what the method does not support, and how results are presented |
+| **`scenarios/Scenario1_Working_Document.md`** | **Scenario 1 working document** — result, build trajectory, curtailment, foresight comparison, solver structure |
+| **`scenarios/Scenario1B_Working_Document.md`** | **Scenario 1B working document** — the 5% ceiling, gas capacity, checkpoint structure |
+| **`scenarios/Scenario2_Working_Document.md`** | **Scenario 2 working document** — result, storage, gas capacity, solve path, resolved blockers |
+| **`scenarios/Scenario3_Working_Document.md`** | **Scenario 3 working document** — siting, agrivoltaics, DER economics, transmission deferral |
 | **`Common_Reference.md`** | **CROSS-CUTTING FACTS AND CONVENTIONS** — quantities and unit bases shared across every scenario, defined once. Section 1: transmission and distribution |
 | **`Scenario_Completion_Dashboard.md`** | **WHERE EACH SCENARIO STANDS** — every step, its status, and the issue numbers blocking it |
 | **`whitepaper/Scenario2_Section_Draft.md`** | **Whitepaper draft section for Scenario 2** — modelled figures, with the conflicts against the existing draft text flagged |
