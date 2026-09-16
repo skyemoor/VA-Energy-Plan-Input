@@ -50,7 +50,7 @@ CHECKPOINTS = (2030, 2035, 2040, 2045)
 
 
 def solve_checkpoint(year, weather, prior, irm):
-    demand = demand_basis.VirginiaOnlyLoad(year).hourly_mw()
+    demand = demand_basis.VirginiaOnlyGeneration(year).hourly_mw()
     solver = cs.Scenario1WithReserveMargin(
         year=year, gas_target_share=drv.gas_target_share(year), demand=demand,
         exist_solar=lp.exist_solar_mw(year) * weather['solar'], solar_cf=weather['solar'],

@@ -30,7 +30,7 @@ correctly, so its only remaining error for Virginia purposes is the North Caroli
 Scaling that hourly shape to a SALES total instead -- which an earlier approach did -- strips the
 losses back out and leaves generation need roughly 9% short.
 
-A class named for its basis makes the quantity explicit at the call site. `VirginiaOnlyLoad`
+A class named for its basis makes the quantity explicit at the call site. `VirginiaOnlyGeneration`
 cannot be mistaken for sales; a bare array can.
 
 SCOPE IS A CHOICE, NOT A CORRECTION
@@ -44,7 +44,7 @@ THE HIERARCHY
 
     HourlyDemandBasis        fiscal-year construction, leap handling, column validation
       DomLseLoad             raw VA+NC load as filed
-        VirginiaOnlyLoad     scaled to Virginia's own share of DOM LSE sales
+        VirginiaOnlyGeneration     scaled to Virginia's own share of DOM LSE sales
 """
 import numpy as np
 
@@ -135,8 +135,25 @@ class DomLseLoad(HourlyDemandBasis):
         return 'DOM LSE (Virginia + North Carolina) hourly load, transmission losses included'
 
 
-class VirginiaOnlyLoad(DomLseLoad):
-    """Virginia-only hourly LOAD: the raw series scaled by Virginia's share of DOM LSE sales.
+class VirginiaOnlyGeneration(DomLseLoad):
+    """Virginia-only hourly GENERATION: the raw series scaled by Virginia's share of DOM LSE sales.
+
+    RENAMED FROM VirginiaOnlyLoad ON 2026-09-14, because the old name pointed the wrong way. It
+    returns the GENERATION-side quantity -- what must be produced at the generator, losses included
+    -- following the utility-planning convention where "load" means what is needed to serve load.
+    The ordinary reading of "load" is the quantity at the meter, which is this figure divided by
+    1.0925.
+
+    WHICH BASIS APPLIES WHERE (see docs/Common_Reference.md section 1):
+
+        dispatch                 THIS series, undivided. The gross-up is already in the raw file.
+        statutory obligations    divided by 1.0925. Va. Code 56-585.5(C) sets the RPS requirement
+                                 as a percentage of "the total electric energy SOLD in the previous
+                                 calendar year" -- sold means metered.
+
+    The same series is therefore divided for one purpose and not the other, sometimes within the
+    same function. That is correct, and it is the single most likely place in this model for a
+    plausible-looking error.
 
     This removes North Carolina load and NOTHING ELSE -- the loss gross-up already present in the
     raw file is preserved. Do not additionally scale the result to a sales-basis annual total;

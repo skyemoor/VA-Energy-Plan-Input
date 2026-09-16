@@ -10,7 +10,7 @@ its basis makes the quantity explicit at the call site; a bare array cannot.
 import numpy as np
 import pytest
 
-from demand_basis import (HourlyDemandBasis, DomLseLoad, VirginiaOnlyLoad,
+from demand_basis import (HourlyDemandBasis, DomLseLoad, VirginiaOnlyGeneration,
                           TOTAL_DOM_LSE_SALES_GWH, NORTH_CAROLINA_SALES_GWH,
                           HOURS_IN_STANDARD_YEAR)
 
@@ -86,29 +86,29 @@ class TestBasisIsNamedAndDistinct:
         assert 'North Carolina' in d and 'losses included' in d
 
     def test_virginia_only_load_names_its_scope_and_losses(self):
-        d = VirginiaOnlyLoad(2030, synthetic_source()).basis_description()
+        d = VirginiaOnlyGeneration(2030, synthetic_source()).basis_description()
         assert 'Virginia-only' in d and 'losses included' in d
 
     def test_virginia_only_is_smaller_than_combined(self):
         df = synthetic_source()
-        assert (VirginiaOnlyLoad(2030, df).hourly_mw().sum()
+        assert (VirginiaOnlyGeneration(2030, df).hourly_mw().sum()
                 < DomLseLoad(2030, df).hourly_mw().sum())
 
 
 class TestVirginiaShare:
     def test_2030_share_matches_worked_derivation(self):
-        assert VirginiaOnlyLoad(2030).virginia_share() == pytest.approx((110864 - 3870) / 110864)
-        assert VirginiaOnlyLoad(2030).virginia_share() == pytest.approx(0.9651, abs=0.0002)
+        assert VirginiaOnlyGeneration(2030).virginia_share() == pytest.approx((110864 - 3870) / 110864)
+        assert VirginiaOnlyGeneration(2030).virginia_share() == pytest.approx(0.9651, abs=0.0002)
 
     def test_virginia_only_sales_2030(self):
-        assert VirginiaOnlyLoad(2030).virginia_only_sales_gwh() == 106994
+        assert VirginiaOnlyGeneration(2030).virginia_only_sales_gwh() == 106994
 
     def test_share_rises_as_nc_shrinks_relatively(self):
-        assert VirginiaOnlyLoad(2045).virginia_share() > VirginiaOnlyLoad(2030).virginia_share()
+        assert VirginiaOnlyGeneration(2045).virginia_share() > VirginiaOnlyGeneration(2030).virginia_share()
 
     def test_unsourced_year_raises_rather_than_extrapolating(self):
         with pytest.raises(KeyError, match='no sourced Virginia share'):
-            VirginiaOnlyLoad(2050).virginia_share()
+            VirginiaOnlyGeneration(2050).virginia_share()
 
 
 class TestLossGrossUpPreserved:
@@ -116,7 +116,7 @@ class TestLossGrossUpPreserved:
     instead strips the losses back out and understates generation need by roughly 9%."""
 
     def test_derivation_reports_the_full_chain(self):
-        v = VirginiaOnlyLoad(2030, synthetic_source())
+        v = VirginiaOnlyGeneration(2030, synthetic_source())
         d = v.derivation()
         assert d['virginia_only_load_gwh'] == pytest.approx(
             d['raw_va_nc_load_gwh'] * d['virginia_share'])
@@ -125,6 +125,6 @@ class TestLossGrossUpPreserved:
     def test_raw_exceeds_virginia_only_load_by_the_nc_share(self):
         """Losses and NC do NOT offset: raw is above VA-only load by ~3.6%, essentially exactly
         NC's 3.5% share of sales."""
-        share = VirginiaOnlyLoad(2030).virginia_share()
+        share = VirginiaOnlyGeneration(2030).virginia_share()
         nc_share = NORTH_CAROLINA_SALES_GWH[2030] / TOTAL_DOM_LSE_SALES_GWH[2030]
         assert (1 / share - 1) == pytest.approx(nc_share, abs=0.002)

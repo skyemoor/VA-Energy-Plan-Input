@@ -197,3 +197,33 @@ finds the file you already know to look for, not the second copy you don't. Wort
 whenever a file is about to be treated as authoritative: confirm no case-variant sibling exists
 first, rather than assume the filename alone is unique.
 
+
+## Pattern: A name that follows a domain convention contradicts the ordinary reading, and the docstring does the work the name should
+
+`demand_basis.VirginiaOnlyLoad` returned the GENERATION-side quantity -- what must be produced at
+the generator, losses included. "Load" followed the utility-planning convention (what is needed to
+serve load) rather than the ordinary reading (the quantity at the meter). The two differ by the
+9.25% loss factor.
+
+**The docstring said so plainly**, and warned that dividing it *"strips the losses back out and
+understates generation need by roughly 9%."* That warning existed precisely because the name invites
+the error.
+
+**I read that docstring and made the error within the hour**, in the opposite direction: I described
+the meter-side figure as "sales" and the generation-side figure as "load", which is backwards from
+both the ordinary reading and from how the statute uses "sold".
+
+**What makes this a pattern rather than a one-off:** the name was not wrong within its convention,
+so nothing flagged it. A domain convention that inverts a common word is invisible to reviewers who
+share the convention and misleading to everyone else -- and this project's readers include
+legislators and county officials who do not share it.
+
+**Sharpened by the same series having two correct treatments.** Dispatch uses it undivided;
+statutory obligations divide by 1.0925, because Va. Code 56-585.5(C) sets the RPS requirement as a
+percentage of energy "sold". Same number, opposite handling, sometimes within one function.
+
+**How to catch it:** when a name and its docstring disagree about what a thing is, the NAME is the
+defect -- a docstring is read once and a name is read every time. Renamed to
+VirginiaOnlyGeneration across 45 occurrences in 19 files, and the basis question moved to
+docs/Common_Reference.md section 1 so the next scenario does not re-derive it.
+

@@ -32,7 +32,7 @@ FIXED = dict(utility_solar_mw=BUILD['S_mw'], sodium_ion_power_mw=BUILD['PNA_mw']
 @pytest.fixture(scope='module')
 def inputs():
     w = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
-    d = db.VirginiaOnlyLoad(2032).hourly_mw()
+    d = db.VirginiaOnlyGeneration(2032).hourly_mw()
     return w, d, lp.exist_solar_mw(2032) * w['solar'], np.zeros(len(d))
 
 

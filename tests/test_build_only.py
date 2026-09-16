@@ -26,7 +26,7 @@ import paths
 @pytest.fixture(scope='module')
 def problem_2030():
     w = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
-    d = db.VirginiaOnlyLoad(2030).hourly_mw()
+    d = db.VirginiaOnlyGeneration(2030).hourly_mw()
     s = cs.Scenario1WithReserveMargin(
         year=2030, gas_target_share=drv.gas_target_share(2030), demand=d,
         exist_solar=lp.exist_solar_mw(2030) * w['solar'], solar_cf=w['solar'],

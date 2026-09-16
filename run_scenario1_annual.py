@@ -79,7 +79,7 @@ def interpolate_build(year, anchors):
 
 def solve_year(year, weather, build, irm):
     """One dispatch-only solve at a fixed build, with the all-hours reserve margin applied."""
-    demand = demand_basis.VirginiaOnlyLoad(year).hourly_mw()
+    demand = demand_basis.VirginiaOnlyGeneration(year).hourly_mw()
     exist_solar = lp.exist_solar_mw(year) * weather['solar']
     drv.set_year_capex(year)
 

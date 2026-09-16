@@ -6944,3 +6944,28 @@ table. The division:
 The Scenario 2 findings moved to Scenario2_Runnability_Audit.md, where the superseded
 idle-storage section is now explicitly marked as such rather than silently contradicted.
 
+
+## 144. VirginiaOnlyLoad renamed to VirginiaOnlyGeneration; Common_Reference.md created
+
+**2026-09-14.** The class returns the generation-side quantity -- losses included -- while its name
+invited the ordinary reading of load as the metered quantity. Verified against two Dominion sources
+for the same year and scope: the hourly file gives 121,115 GWh for 2030 and IRP Appendix 2B-1 gives
+110,864, a ratio of 1.0925 that the IRP itself attributes to line losses and station service, not to
+scope.
+
+**Renamed across 45 occurrences in 19 files.** No alias kept: an alias would preserve the trap.
+
+**docs/Common_Reference.md created** for cross-cutting facts that apply to every scenario, with an
+index of sections. Section 1 covers transmission and distribution: the loss factor and its
+derivation, which basis applies to dispatch against statutory obligations, why the class name
+pointed the wrong way, and what is not represented.
+
+**Two omissions recorded there, both running the same way.** Losses are a scalar gross-up with no
+hourly or locational variation, where real losses rise with the square of current and are higher at
+peak. And avoided losses from distributed generation -- worth roughly 9% of the energy displaced --
+are credited nowhere in the model. Both understate distributed generation's value.
+
+**The immediate consequence:** the C.2 carve-out is sized on energy SOLD, so its base is the
+generation series divided by 1.0925. An earlier figure of 7,565 MW at 2045 was computed on the
+generation basis and is overstated by 9.25%.
+

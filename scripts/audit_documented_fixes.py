@@ -160,7 +160,7 @@ UNCALLED_BY_DESIGN = {
     'gas_capacity_fit.py':                           'brownfield screening curve fit (Appendix Q); wired when the merit order is enabled per issue #18',
     'multi_period_problem.py':                       'perfect-foresight assembler; wired when the comparison runner exists',
     'rps_compliance.py':                             'optional statutory layer, sits alongside the physical formulation by design; not the sweep axis',
-    'virginia_only_demand.py':                       'declared back-compatibility shim, superseded by demand_basis.VirginiaOnlyLoad',
+    'virginia_only_demand.py':                       'declared back-compatibility shim, superseded by demand_basis.VirginiaOnlyGeneration',
     'demand_shape_interpolation.py':                 'SUPERSEDED 2026-09-13 -- the source projections already flatten; retained for its sourced IRP series',
     # --- shared base layers of the siting derivations above. Unreachable from an entry point
     # because their only callers are themselves derivations, which is correct: the transitive
@@ -516,7 +516,7 @@ def check_one_demand_source():
                 offenders.append(fname + ':' + str(i))
     if offenders:
         return False, ('demand read from the cached intermediate at ' + ', '.join(offenders)
-                       + '. Use demand_basis.VirginiaOnlyLoad(year), which works for any year.')
+                       + '. Use demand_basis.VirginiaOnlyGeneration(year), which works for any year.')
     return True, 'demand read from demand_basis everywhere in the runners'
 
 

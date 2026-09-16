@@ -57,7 +57,7 @@ CHECKPOINTS = (2030, 2035, 2040, 2044, 2045)
 
 
 def solve_checkpoint(year, weather, prior, irm):
-    demand = demand_basis.VirginiaOnlyLoad(year).hourly_mw()
+    demand = demand_basis.VirginiaOnlyGeneration(year).hourly_mw()
     solver = cs.Scenario1BWithReserveMargin(
         year=year, demand=demand, exist_solar=lp.exist_solar_mw(year) * weather['solar'],
         solar_cf=weather['solar'], wind_cf=weather['wind'], nuclear=weather['nuclear'])
@@ -187,7 +187,7 @@ def main():
     # Retain/overhaul plan at the final checkpoint -- which plants the 6,000 MW target implies
     # keeping, which need overhaul, and how much genuinely new capacity is left over.
     w2 = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
-    d2 = demand_basis.VirginiaOnlyLoad(CHECKPOINTS[-1]).hourly_mw()
+    d2 = demand_basis.VirginiaOnlyGeneration(CHECKPOINTS[-1]).hourly_mw()
     plan = cs.Scenario1BWithReserveMargin(
         year=CHECKPOINTS[-1], demand=d2,
         exist_solar=lp.exist_solar_mw(CHECKPOINTS[-1]) * w2['solar'],

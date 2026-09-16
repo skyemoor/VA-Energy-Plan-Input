@@ -74,7 +74,7 @@ def load_year(year, needs_distributed):
     weather = paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz')
     if not os.path.exists(weather):
         missing.append(f'{weather}  (weather year)')
-    # NO DEMAND GUARD NEEDED. Demand now comes from demand_basis.VirginiaOnlyLoad, which
+    # NO DEMAND GUARD NEEDED. Demand now comes from demand_basis.VirginiaOnlyGeneration, which
     # reads the source projection directly and works for any year in 2026-2045 -- the cached
     # intermediate it used to check for exists only for checkpoint years.
     dist = {}
@@ -87,7 +87,7 @@ def load_year(year, needs_distributed):
                 dist[name] = np.load(p)
     if missing:
         raise SystemExit('Missing inputs:\n  ' + '\n  '.join(missing))
-    return np.load(weather), demand_basis.VirginiaOnlyLoad(year).hourly_mw(), dist
+    return np.load(weather), demand_basis.VirginiaOnlyGeneration(year).hourly_mw(), dist
 
 
 def solve_one(cls, year, stack, needs_dist, prior_result, irm):

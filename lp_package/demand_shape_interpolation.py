@@ -41,7 +41,7 @@ IT IS NO LONGER THE SITUATION. The demand stage now builds every year directly
 from Dominion's own hourly projections
 (DOMLSEHourlyLoadProjections2024through2048.csv, which covers 2024-2048 with a
 full year of hours for every year in 2026-2045, no gaps), via
-demand_basis.VirginiaOnlyLoad(year). Those projections carry a DIFFERENT SHAPE
+demand_basis.VirginiaOnlyGeneration(year). Those projections carry a DIFFERENT SHAPE
 PER YEAR and already flatten, because Dominion's own forecast embeds data-centre
 growth:
 

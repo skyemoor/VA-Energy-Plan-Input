@@ -50,7 +50,7 @@ ALL = (2030, 2035, 2040, 2045)
 
 
 def build(year, weather):
-    d = db.VirginiaOnlyLoad(year).hourly_mw()
+    d = db.VirginiaOnlyGeneration(year).hourly_mw()
     s = cs.Scenario1WithReserveMargin(
         year=year, gas_target_share=drv.gas_target_share(year), demand=d,
         exist_solar=lp.exist_solar_mw(year) * weather['solar'], solar_cf=weather['solar'],

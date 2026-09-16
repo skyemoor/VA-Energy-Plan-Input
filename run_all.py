@@ -134,14 +134,14 @@ def stage_demand_arrays():
     """Virginia-only hourly demand for each checkpoint fiscal year.
 
     Fiscal-year construction, leap handling and column validation live in
-    demand_basis.VirginiaOnlyLoad, not here (Rule 1.3: scripts orchestrate, they do not own logic
+    demand_basis.VirginiaOnlyGeneration, not here (Rule 1.3: scripts orchestrate, they do not own logic
     called more than once). This stage now only chooses the years and writes the files.
     """
     import numpy as np, paths
-    from demand_basis import VirginiaOnlyLoad
+    from demand_basis import VirginiaOnlyGeneration
     written = []
     for year in (2030, 2035, 2040, 2045):
-        basis = VirginiaOnlyLoad(year)
+        basis = VirginiaOnlyGeneration(year)
         out = basis.hourly_mw()
         np.save(paths.intermediate(f'demand_{year}fy_va_only.npy'), out)
         written.append((year, out.sum() / 1e6, out.max()))

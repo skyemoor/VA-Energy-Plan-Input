@@ -99,7 +99,7 @@ class TestItIsSupersededAndWhy:
         import demand_basis as db
         lfs = {}
         for y in (2030, 2037, 2045):
-            a = db.VirginiaOnlyLoad(y).hourly_mw()
+            a = db.VirginiaOnlyGeneration(y).hourly_mw()
             lfs[y] = a.mean() / a.max()
         assert lfs[2030] < lfs[2037] < lfs[2045]
         assert lfs[2045] == pytest.approx(0.794, abs=0.01)
@@ -109,7 +109,7 @@ class TestItIsSupersededAndWhy:
         projection's own 0.794. The adjustment runs backwards, because the input it was designed
         for no longer arrives unflattened."""
         import demand_basis as db
-        source = db.VirginiaOnlyLoad(2045).hourly_mw()
+        source = db.VirginiaOnlyGeneration(2045).hourly_mw()
         adjusted = dsi.flattened_hourly_demand(2045, source.sum() / 1000)
         assert adjusted.mean() / adjusted.max() < source.mean() / source.max()
         assert adjusted.max() > source.max()
@@ -119,7 +119,7 @@ class TestItIsSupersededAndWhy:
         from the same place the checkpoints do."""
         import demand_basis as db
         for y in (2026, 2031, 2042):
-            assert len(db.VirginiaOnlyLoad(y).hourly_mw()) == 8760
+            assert len(db.VirginiaOnlyGeneration(y).hourly_mw()) == 8760
 
     def test_the_supersession_is_documented_in_the_module(self):
         """Rule 10.3: a future reader must not wire it in believing it is the missing piece."""

@@ -65,7 +65,7 @@ ASSET_LIVES = {'solar': assumptions.CRF_LIFE_YEARS,
 
 def solve_year(year, weather, capex_basis):
     """One year: statutory pins, dispatch-only solve, full lifecycle cost."""
-    demand = demand_basis.VirginiaOnlyLoad(year).hourly_mw()
+    demand = demand_basis.VirginiaOnlyGeneration(year).hourly_mw()
     solver = cs.Scenario2Solver(
         year=year, demand=demand, exist_solar=lp.exist_solar_mw(year) * weather['solar'],
         solar_cf=weather['solar'], wind_cf=weather['wind'], nuclear=weather['nuclear'],

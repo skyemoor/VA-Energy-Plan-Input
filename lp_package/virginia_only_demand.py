@@ -1,7 +1,7 @@
 """
 virginia_only_demand.py -- BACK-COMPATIBILITY SHIM
 
-Superseded 2026-09-10 by `demand_basis.VirginiaOnlyLoad`. Per Rule 1 this belongs in a class
+Superseded 2026-09-10 by `demand_basis.VirginiaOnlyGeneration`. Per Rule 1 this belongs in a class
 hierarchy: it shared fiscal-year construction, leap handling and column validation with logic that
 had been written inline inside run_all.py's demand stage.
 
@@ -12,18 +12,18 @@ The sourced Appendix 2B-1/2B-3 series and the full derivation note now live in d
 """
 import numpy as np
 
-from demand_basis import (TOTAL_DOM_LSE_SALES_GWH, NORTH_CAROLINA_SALES_GWH, VirginiaOnlyLoad)
+from demand_basis import (TOTAL_DOM_LSE_SALES_GWH, NORTH_CAROLINA_SALES_GWH, VirginiaOnlyGeneration)
 
 _TOTAL_DOM_LSE_SALES_GWH = TOTAL_DOM_LSE_SALES_GWH
 _NORTH_CAROLINA_SALES_GWH = NORTH_CAROLINA_SALES_GWH
 
 
 def virginia_share_of_dom_lse_sales(year):
-    return VirginiaOnlyLoad(year).virginia_share()
+    return VirginiaOnlyGeneration(year).virginia_share()
 
 
 def virginia_only_sales_gwh(year):
-    return VirginiaOnlyLoad(year).virginia_only_sales_gwh()
+    return VirginiaOnlyGeneration(year).virginia_only_sales_gwh()
 
 
 def to_virginia_only_load(raw_hourly_load_mw, year):
@@ -32,11 +32,11 @@ def to_virginia_only_load(raw_hourly_load_mw, year):
     raw = np.asarray(raw_hourly_load_mw, dtype=float)
     if raw.ndim != 1:
         raise ValueError(f"expected a 1-D hourly array, got shape {raw.shape}")
-    return raw * VirginiaOnlyLoad(year).virginia_share()
+    return raw * VirginiaOnlyGeneration(year).virginia_share()
 
 
 def describe_conversion(raw_annual_gwh, year):
-    v = VirginiaOnlyLoad(year)
+    v = VirginiaOnlyGeneration(year)
     share = v.virginia_share()
     total_sales = TOTAL_DOM_LSE_SALES_GWH[year]
     return {

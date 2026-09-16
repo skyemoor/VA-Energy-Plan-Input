@@ -105,6 +105,7 @@ of the other.
 | **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
 | **`appendices/Appendix_Q_Gas_Capacity_Method.md`** | **Gas capacity expansion** — brownfield screening curve method, LEEMA cost formulas, what the method does not support, and how results are presented |
+| **`Common_Reference.md`** | **CROSS-CUTTING FACTS AND CONVENTIONS** — quantities and unit bases shared across every scenario, defined once. Section 1: transmission and distribution |
 | **`Scenario_Completion_Dashboard.md`** | **WHERE EACH SCENARIO STANDS** — every step, its status, and the issue numbers blocking it |
 | **`whitepaper/Scenario2_Section_Draft.md`** | **Whitepaper draft section for Scenario 2** — modelled figures, with the conflicts against the existing draft text flagged |
 | **`Session_Handoff_2026-09-14.md`** | **START HERE** — results, corrections, the resistor threshold, the foresight technique, and what to run next |

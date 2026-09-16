@@ -27,7 +27,7 @@ FLAT_VARS = 122_640
 @pytest.fixture(scope='module')
 def inputs():
     w = np.load(paths.weather_year('hydro_year1_2016_17_RECONSTRUCTED.npz'))
-    d = db.VirginiaOnlyLoad(YEAR).hourly_mw()
+    d = db.VirginiaOnlyGeneration(YEAR).hourly_mw()
     drv.set_year_capex(YEAR)
     return w, d, lp.exist_solar_mw(YEAR) * w['solar']
 
