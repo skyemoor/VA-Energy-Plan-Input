@@ -378,38 +378,62 @@ Pasture acreage is treated as a **maximum**, not an average: grazing is seasonal
 but permanent pasture is committed year-round whether or not animals are on it in
 a given month.
 
-### Grazing evidence, optimistic and cautionary together
+### Grazing evidence — and why biomass is the wrong metric
 
-These must be cited as a pair. They are not contradictory — they measure
-different quantities at different array densities — but the first alone would
-misrepresent the record.
+**The output that matters for forage is animal product, not tonnage.** Every crop study reviewed
+here measures biomass or grain, and carrying that habit into forage understates the agricultural
+outcome: a shaded sward with higher protein and digestibility converts better per kilogram.
 
-● **Andrew, A.**, *Lamb growth and pasture production in agrivoltaic production
-  system*, Oregon State University Honors College thesis, 2020. Corvallis,
-  spring 2019 and 2020. Pasture under panels **maintained higher carrying
-  capacity toward summer** than open pasture. Reports that **land productivity
-  could be increased up to 200%** by combining sheep grazing and solar
-  generation on the same land. Notes that shade tolerance governs: with
-  appropriate forage species and shade in the **30–40%** range, pasture growth
-  should not be significantly affected.
-● **U.S. Geological Survey**, *Co-location of sheep grazing and solar energy
-  production yields agrotechnological synergies*. Two grazing seasons at an
-  operational 21.85 ha, 18 MW facility on a former old field in New York.
-  **"Shade from solar panels negatively affected herbage yield."** Identifies an
-  **optimal stocking rate of 8 sheep per hectare** for sufficient herbage yield
-  and quality, flock health, and preventing overgrowth that would shade panels.
-  Found no significant difference between fallow and planted legume plots,
-  suggesting regrowth from native seed banks may be an economical alternative to
-  seeding.
-● **Florentino et al.**, *Forages for grazing solar panels*, JDS Communications
-  7:112–118, 2026. A **50 kW site produced less forage biomass** than a 30 kW
-  site and an unshaded control, "primarily due to reduced sunlight." Notes prior
-  literature reporting forage crops in agrivoltaic sites yielding **at least 90%
-  of control, or greater during a drought year**.
-● **Frontiers in Sustainable Food Systems**, 2025. Sheep grazing as vegetation
-  management, northeastern USA. In-situ data from **28 grazed and 3 non-grazed
-  commercial sites, 2022–2024**, sampled both in open space and directly under
-  panels. Most common prior land use was cropland, including hay and corn.
+**Andrew, A. (2020).** *Lamb growth and pasture production in an agrivoltaic production system.*
+Oregon State University Honors College thesis. Corvallis, spring 2019 and 2020.
+
+| | under panels | open pasture |
+|---|---:|---:|
+| lamb growth, g/head/day | 120 | 119 *(P = 0.90)* |
+| stocking, lambs/ha | **36.6** | 30 |
+| liveweight production, kg/ha/day | 1.5 | 1.3 |
+
+**Parity in per-animal growth is not the finding.** The panelled pasture carried **22% more
+animals** at comparable liveweight production. The array did not merely fail to harm the animals —
+it supported **higher carrying capacity at equal per-animal performance**.
+
+The same work reports that land productivity could rise up to **200%** by combining sheep grazing
+and solar generation on the same land. That figure is a **land equivalent ratio** — one acre doing
+both jobs in place of roughly two doing them separately — not a claim that pasture yield rises. It
+should be quoted as such, with the stocking and shade conditions attached.
+
+Shade tolerance governs: with appropriate forage species and shade in the **30–40%** range, pasture
+growth should not be significantly affected.
+
+**Florentino, A. M. et al. (2026).** *Forages for grazing solar panels.* JDS Communications
+7:112–118, American Dairy Science Association. DOI 10.3168/jdsc.2025-0973.
+
+Biomass is lowest under the most-shaded array — a 50 kW site produced less than a 30 kW site and an
+unshaded control, *"primarily due to reduced sunlight."* **But crude protein is higher, total-tract
+fibre digestibility is higher, and mineral content is maintained.** The authors conclude that
+**quality offsets tonnage**.
+
+The same paper notes prior literature reporting forage crops in agrivoltaic sites yielding **at
+least 90% of control, or greater during a drought year.**
+
+**U.S. Geological Survey.** *Co-location of sheep grazing and solar energy production yields
+agrotechnological synergies.* Two grazing seasons at an operational 21.85 ha, 18 MW facility on a
+former old field in New York.
+
+Finds that shade reduced herbage yield, and identifies an **optimal stocking rate of 8 sheep per
+hectare** for sufficient herbage yield and quality, flock health, and preventing overgrowth that
+would shade the panels. Found no significant difference between fallow and planted legume plots,
+suggesting regrowth from native seed banks may be an economical alternative to seeding.
+
+**Frontiers in Sustainable Food Systems (2025).** Sheep grazing as vegetation management,
+northeastern USA. In-situ data from **28 grazed and 3 non-grazed commercial sites, 2022–2024**,
+sampled both in open space and directly under panels. Most common prior land use was cropland,
+including hay and corn. Uses 6 acres/MW as its costing reference, on the SEIA basis.
+
+**What the four together support.** Biomass under panels falls at high shade. Forage *quality*
+rises. Per-animal performance is unchanged. Carrying capacity rises. **Reporting the biomass decline
+alone would be accurate and misleading** — which is why the stocking and quality figures are carried
+here rather than the yield figure alone.
 
 ### Scale and prevalence
 
@@ -555,17 +579,15 @@ resolved:
   demonstration at the Piedmont Environmental Council's Loudoun County
   community farm, but these are operations and demonstrations rather
   than controlled trials.
-- **Shade reduces herbage yield, and the optimistic and cautionary
-  findings must be cited together.** Oregon State's grazing study reports
-  land productivity rising up to 200% by combining sheep and solar on the
-  same land; the U.S. Geological Survey's New York study finds that
-  "shade from solar panels negatively affected herbage yield" and
-  identifies an optimal stocking rate of 8 sheep per hectare. A 2026
-  *JDS Communications* study found a 50 kW site produced less forage
-  biomass than both a 30 kW site and an unshaded control, "primarily due
-  to reduced sunlight." These are not contradictory — they measure
-  different quantities at different densities — but quoting the 200%
-  figure without the density constraint would misrepresent the evidence.
+- **Biomass alone is the wrong measure for forage, and quoting it alone
+  would mislead.** Shade does reduce herbage tonnage at high densities
+  (USGS New York; *JDS Communications* 2026). But crude protein and
+  fibre digestibility rise, minerals are maintained, per-animal lamb
+  growth is unchanged at 120 against 119 g/head/day (P = 0.90), and the
+  panelled pasture carried **22% more animals** at comparable liveweight
+  production (Oregon State, Corvallis). The relevant agricultural output
+  is animal product, not tonnage. See the grazing section above, which
+  carries all four studies with their figures.
 - Virginia's 2026 agrivoltaics statute requires a qualifying project to
   sustain agricultural productivity **over the life of the project** and
   to form part of a **commercial agricultural operation**. Whether

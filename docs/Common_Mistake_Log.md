@@ -227,3 +227,32 @@ defect -- a docstring is read once and a name is read every time. Renamed to
 VirginiaOnlyGeneration across 45 occurrences in 19 files, and the basis question moved to
 docs/Common_Reference.md section 1 so the next scenario does not re-derive it.
 
+
+## Pattern: Carrying a metric from one domain into another where it measures the wrong thing
+
+Every crop agrivoltaic study measures **biomass or grain**, so I carried biomass into the forage
+case and treated declining tonnage under shade as the cautionary counterweight to Oregon State's
+land-equivalent-ratio finding. I wrote that framing into the appendix limitations: *"shade reduces
+herbage yield, and the optimistic and cautionary findings must be cited together."*
+
+**Biomass is the wrong output for forage.** The relevant product is animal product. A shaded sward
+with higher crude protein and higher fibre digestibility converts better per kilogram, so tonnage
+understates the agricultural result:
+
+    lamb growth        120 vs 119 g/head/day under panels vs open (P = 0.90)
+    stocking           36.6 vs 30 lambs/ha -- 22% MORE ANIMALS
+    liveweight         1.5 vs 1.3 kg/ha/day
+
+The array did not merely fail to harm the animals; it supported higher carrying capacity at equal
+per-animal performance. And the JDS 2026 study that found the biomass decline **also found protein
+and digestibility up with minerals maintained**, concluding that quality offsets tonnage -- which I
+had read for its biomass figure alone.
+
+**What makes this a pattern:** the metric was correct in the domain it came from, so nothing flagged
+it. Reporting the biomass decline would have been accurate and misleading at once -- the worst
+combination, because it survives fact-checking.
+
+**How to catch it:** when moving a finding between domains, ask what the OUTPUT of the receiving
+domain actually is. Grain is the output of a grain crop; animal product is the output of a pasture.
+The intermediate quantity is not the result.
+
