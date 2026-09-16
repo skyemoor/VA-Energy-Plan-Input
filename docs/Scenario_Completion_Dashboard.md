@@ -12,8 +12,11 @@ Narrative goes elsewhere:
 | scenario findings | `scenarios/<scenario>_Working_Document.md` |
 | cross-cutting facts | `Common_Reference.md` |
 | methodology spanning scenarios | the relevant appendix |
+| what changed, when | `build.log` |
 | **LP issues and their solutions** | **`Internal_Debugging_Log.md`** |
 | recurring error patterns | `Common_Mistake_Log.md` |
+| source detail behind an assumption | `Data_Sourcing_Log.md` |
+| citations | `registers/Master_Citations.xlsx` |
 | open problems | GitHub issues |
 
 ---

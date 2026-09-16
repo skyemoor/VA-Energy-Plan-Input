@@ -1,0 +1,993 @@
+# build.log
+
+## Purpose
+Chronological log of routine updates -- files created or modified, and what changed. Lightweight,
+one entry per change, no deep narrative. This is the "what happened, when" record.
+
+For WHY something was hard and HOW it was solved -- major LP/modeling problems, architectural
+decisions, real bugs with real consequences -- see Internal_Debugging_Log.md instead.
+For recurring error patterns worth flagging so they aren't repeated -- see Common_Mistake_Log.md.
+For granular, lower-level source detail behind any assumption -- see Data_Sourcing_Log.md.
+
+Log structure established 2026-08-27, per direct user instruction, splitting what had previously
+all lived in Internal_Debugging_Log.md into four purpose-specific logs. Not backfilled with every
+prior-session update -- starts fresh from this point forward. Entries before this date remain in
+Internal_Debugging_Log.md's own existing 125 entries, un-migrated (see that file's own updated
+header for the open question on whether to retroactively re-sort them).
+
+---
+
+## 2026-08-27
+
+- Created `build.log`, `Common_Mistake_Log.md`, `Data_Sourcing_Log.md` (this update itself).
+  Narrowed `Internal_Debugging_Log.md`'s own stated scope to major LP/high-level problems only,
+  going forward.
+- Migrated `xlsx_update/school_counts_raw.txt`'s full per-locality sourcing detail into
+  `Data_Sourcing_Log.md` (original file left in place, not deleted -- new log is now the
+  organized, authoritative version going forward).
+- Added 2 mistake-pattern entries to `Common_Mistake_Log.md` from this session's own work not
+  previously captured as a named pattern: stale figure in a raw-notes working file (Prince
+  William school counts), and elicitation-tool selection not reflecting actual user intent.
+- Cross-referenced 2 existing `Internal_Debugging_Log.md` entries (#111 VPP numbering error,
+  #122 placeholder mischaracterization) into `Common_Mistake_Log.md` as named, reusable patterns,
+  rather than duplicating their full detail.
+
+## 2026-08-31 (continued)
+
+- Text-file reorganization pass: archived 10 confirmed-superseded files to `archive/`
+  (`Software_Engineering_Standards.md` capitalized-duplicate, `Solve_Procedure_and_Requirements.md`
+  and `Appendix_P_Working_Draft.md` -- both confirmed strictly-superseded by Appendix P's own copy
+  in `Reorganized_Appendices_Draft.md` after a direct 3-way diff found no unique content in either,
+  `Dominion_VPP_Pilot_Research.md`, `ThirdParty_VPP_DERA_Compensation_Benchmarks.md`,
+  `Loudoun_CI_Rooftop_Solar_Assessment_Methodology_and_Findings.md`,
+  `Fairfax_and_Arlington_Solar_Assessment_Methodology_and_Findings.md`, `loudoun_test_batch.md`,
+  `loudoun_test_batch_results.md`, `Appendix_Scenario3_Main_DRAFT.md`).
+- Began the `Internal_Debugging_Log.md` pre-Aug-27 backfill (125 entries). Found the initial
+  assumption -- that many entries would be easy routine-update reclassifications -- did not hold
+  up on direct reading (spot-checked entries #101, #122, both genuinely substantive despite
+  routine-sounding titles). Identified and extracted the clearest, highest-value finding instead:
+  two related but distinct recurring mistake patterns spanning 6+ debugging-log entries (#91, #95,
+  #96, #97, #100 x2, #107) each, added as new named patterns to `Common_Mistake_Log.md` rather than
+  left scattered. Original entries left in place in `Internal_Debugging_Log.md`, per this project's
+  own established cross-reference-don't-duplicate convention.
+
+## 2026-08-31 (continued further)
+
+- Completed the `Internal_Debugging_Log.md` backfill: read all 133 entry headers (125 numbered plus
+  decimal sub-entries) in full, not by title alone, following the lesson from the initial pass
+  (title-based triage on this file is unreliable -- #101/#122 both looked routine, both were
+  substantive). Conclusion: zero entries qualify for migration to build.log -- every single one is
+  genuinely substantive, consistent with the log's own stated purpose throughout its entire history,
+  not just since the Aug-27 scope narrowing. Added a third Common_Mistake_Log.md pattern
+  (case-only-different-filenames, e.g. `hourly_2030_final.npz` vs `hourly_2030_FINAL.npz`, entry
+  #25) confirmed as genuinely recurring via a second, independent instance found earlier this same
+  reorganization pass (`Software_Engineering_Standards.md`). Resolved and closed out
+  Internal_Debugging_Log.md's own long-standing "open question" note at the file's end, replacing it
+  with a direct record of the conclusion and how it was reached.
+
+Files: Common_Mistake_Log.md, Internal_Debugging_Log.md (both updated in place).
+
+## 2026-09-01
+
+- Retroactive Virginia_Grid_Analysis_Tracker_updated.xlsx catch-up, per direct user request and SES
+  Rule 13.5, covering this session's four work streams not yet reflected there: added rows 56-59
+  (Activity Tracker sheet, IDs 51-54, following the existing ID-continuation and formatting
+  conventions exactly -- Calibri 11, wrap/valign=top, copied from row 54's own style objects):
+  #51 Prince William C&I + parking-lot assessment (C); #52 Northern Virginia four-county
+  consolidation (C); #53 Loudoun data center address inventory (IP -- 186 of 246 rows still
+  unresolved operator); #54 text-file reorganization & debugging-log consolidation (IP -- appendix
+  merge still open). Verified zero formulas exist in this workbook (recalc.py not applicable).
+  Synced the updated file to all 3 known copies (outputs, tracker_build/, lp_package/) rather than
+  leave the other two stale, consistent with this session's own established practice around
+  duplicate-file risk.
+
+Files: Virginia_Grid_Analysis_Tracker_updated.xlsx (updated in place, all 3 copies).
+
+## 2026-09-02 (continued)
+
+- Adopted the DER compensation decision (Scenario3_Scope_and_Gaps.md §8.1-8.3), per direct user
+  instruction, as this project's own Scenario 3 DER-compensation design: Option 3's structure (base
+  case + "Recommended Program" tier + retained sensitivities) and the full component list (energy,
+  storage/solar capacity, locational, environmental, event-based, and the 25/75 avoided-transmission
+  -cost split) are now settled, not just documented as a parallel session's own prior work. Updated
+  three locations in the tracker to reflect this consistently -- Section 0.4 (provenance/status),
+  Section 12 item #1 (the summary list), and directly at Section 8's own header -- rather than only
+  the summary, so the adoption status is visible wherever a reader lands in the file.
+  Explicitly NOT resolved by this adoption, flagged in all three locations: the floor mechanism's own
+  value factor (§8.8/§0.3, an additional layer not folded into the Recommended Program figures), and
+  re-running the adopted structure against this project's own hourly-LP methodology -- the $1,053/kW
+  (rooftop) and $355/kW (parking) NPV figures remain the parallel session's own annual-model result,
+  not yet this project's own number. That re-run is now the critical-path item, unblocked by this
+  decision but not yet done.
+
+Files: Scenario3_Scope_and_Gaps.md (updated in place).
+
+## 2026-09-02 (continued further)
+
+- Closed a real, disclosed sourcing gap on the $63/MWh energy rate's own "1.40 DOM-zone premium"
+  factor, per direct user question and a newly-uploaded source: `Notes_from_Previous_session.docx`
+  (the raw transcript of the parallel session that produced this project's own §6-8 DER-compensation
+  work). Note on reading this file: despite its .docx extension it is not a valid zip/docx archive --
+  plain UTF-8 text -- `extract-text` failed, read directly instead, consistent with how this
+  project's own file-reading skill instructs handling a misidentified file type.
+  Found and sourced: the 1.40 factor is Dominion's own real, structural ~40% premium over the RTO
+  average (a year-round relationship, deliberately chosen by the parallel session over a rejected
+  seasonal-spike figure). Directly checked the user's own double-counting concern (does the DOM-zone
+  premium already capture some of the same locational value LSRV separately adds) against the source
+  transcript -- confirmed no double-counting: the parallel session explicitly built LSRV as a
+  separate sensitivity, never merged into the base energy rate, and directly stated the locational
+  adder is "a genuine additional stream on top of wholesale compensation," addressing a different gap
+  (wholesale-vs-retail compensation level) than the DOM-zone premium (Dominion-zone vs. RTO-average
+  pricing). Also surfaced a genuinely different, still-relevant caveat found in the same source: the
+  LSRV rate itself is NY's own imported figure, not a Virginia-specific avoided-cost study -- not a
+  double-counting issue, but worth keeping separately in mind. Both findings added directly to the
+  Section 0.2 component table (energy row and locational row) rather than left as a chat-only answer,
+  so the sourcing survives for the next reader of the tracker itself.
+
+Files: Scenario3_Scope_and_Gaps.md (updated in place).
+
+## 2026-09-02 (continued once more)
+
+- Added cross-utility DA/RT and TOU pilot evidence (ComEd DTOD, Hawaii Shift and Save, PEPCO
+  PowerCentsDC, Faruqui & Sergici meta-analysis) to both Scenario3_Scope_and_Gaps.md's own
+  elasticity-value row and the fuller Scenario3_Technical_Notes.md #2 subsection it points to, per
+  direct user research request and confirmation to add. Honestly labeled as mixed, not resolving:
+  ComEd's new DTOD program (6.5-9.7% peak reduction) and PEPCO's older PowerCentsDC pilot (up to 50%,
+  strongest with automated smart-thermostat control) support the automation-improves-response
+  premise; Hawaii's real, recent (2024-2025) large-sample pilot found no statistically significant
+  response under a substantial 1:2:3 price ratio, directly disconfirming the same premise under
+  presumably higher automation levels than Spain's 2015 population had. Explicit note added that this
+  doesn't rule "near-zero" back out as an option, despite the recency/automation argument for doing so.
+
+Files: Scenario3_Scope_and_Gaps.md, Scenario3_Technical_Notes.md (both updated in place).
+
+## 2026-09-02 (continued yet again)
+
+- Added a new tracker row for the "synchronized-response / rebound-peak" risk in the A.1
+  price-response mechanism -- a distinct risk from elasticity magnitude, per direct user research
+  request. Confirmed via a newly-uploaded, peer-reviewed source (Assolami, Eng. Sci. Technol. Int.
+  J. 78 (2026) 102355) that this is a genuine, named gap in the field, not something inferred from a
+  single other paper -- checked the same source's own "Guidance for Future Research" section
+  directly and confirmed it does not propose the user's specific solution (device-side framing only).
+  Recorded the user's own proposed solution (an ex-ante AI/forecasting layer dampening the day-ahead
+  price before the LP runs) explicitly as NOT an endogenous, in-solve mechanism, per direct user
+  instruction ("I do not mean to complicate our LP model further with another endogenous factor") --
+  framed as a separate pre-processing stage, consistent with the already-adopted linearized, ex-ante
+  design for the row above it.
+- User raised a real-world precedent (NYISO addressing wild swings in arbitrage historically via a
+  price floor and cap) believing it was already in this project's own notes. A direct web search did
+  not independently confirm the specific historical claim. Searched every file in this project
+  mentioning NYISO (10 files) before concluding -- found only a placeholder title,
+  Reorganized_Appendices_Draft.md's own "Appendix I -- Approaches by Other Utilities (NYISO and
+  others)," explicitly marked "full text not yet pulled into this document," sourced to the same
+  missing Virginia_Energy_Plan_Input.docx already flagged as absent from the Project KB in an earlier
+  turn. Recorded as genuinely unresolved rather than assumed either confirmed or false.
+
+Files: Scenario3_Scope_and_Gaps.md (updated in place).
+
+## 2026-09-02 (continued once more)
+
+- User confirmed Virginia_Energy_Plan_Input.docx was uploaded earlier the same day; found it at
+  /mnt/project/ (previously absent when checked). Same file-type note as Notes_from_Previous_
+  session.docx: despite the .docx extension it is plain UTF-8 text, not a real Word archive --
+  read directly rather than via extract-text.
+  Resolved the NYISO floor/cap claim precisely: confirmed the "wild swings" premise directly from
+  the source, but corrected the user's own recollection -- the document describes a *Virginia-
+  specific recommendation* (a floor price only, no cap, scoped to an initial 3-5 year transition
+  period) inspired by observing NY's problem, not a historical account of NYISO itself implementing
+  a floor-and-cap system. Updated the tracker row to reflect the accurate version rather than the
+  user's original phrasing. Noted this floor-price idea is a genuinely good, simple ex-ante fit for
+  the user's own no-additional-endogenous-factor constraint, independent of the attribution
+  correction -- flagged as a real alternative/complement to the AI-dampening proposal, still an open
+  choice.
+  Caught and fixed a real formatting bug during this edit: a str_replace call dropped the closing
+  table-row pipe, which would have broken markdown rendering for the row and needed a follow-up fix
+  -- caught via direct verification of the raw line content, not assumed correct after the edit.
+  This file (773 lines, Value Stack DER compensation design, DER aggregation model detail) is also
+  the source for the "Appendices G-L" placeholder in Reorganized_Appendices_Draft.md -- full
+  integration of that content is a separate, larger task not undertaken in this pass.
+
+Files: Scenario3_Scope_and_Gaps.md (updated in place).
+
+## 2026-09-02 (final continuation)
+
+- Resolved the rebound-peak tracker row per direct user instruction: user is not concerned about
+  the risk on the basis that the eventually-deployed price-setting algorithm would handle it, citing
+  a specific paper. Located the exact paper by title search after the PII code alone didn't resolve
+  (Han et al., Sustainable Energy, Grids and Networks, Vol. 47 (2026), Article 102354) -- title match
+  exact, though the PII found differs slightly from what the user supplied, noted as a likely
+  transcription difference rather than assumed identical without comment. Confirmed via abstract
+  (full text blocked by ScienceDirect's robots.txt, as with two prior sources this session) that the
+  paper is genuinely on point -- a bi-level differentiated pricing mechanism specifically designed to
+  mitigate synchronized peaks. Row updated to reflect resolved status: the mechanism-design question
+  delegated to whatever price-setting algorithm is eventually deployed, with real supporting
+  literature now cited directly (this paper plus the broader body found earlier this session --
+  the Swiss DCE tariff study, the 2015 foundational rebound-peak paper, the inclined-block-tariff
+  hybrid approach). Verified the table row's closing pipe was preserved this time, having dropped it
+  in an earlier edit this same session.
+
+Files: Scenario3_Scope_and_Gaps.md (updated in place).
+
+## 2026-09-02 (final)
+
+- Added HEMS market-availability findings to the elasticity-value row, per direct user research
+  request. Checked seven named products directly rather than at face value (Homey, gridX, Conow,
+  EcoFlow, ABB ReliaHome, Tesla Powerwall/Gateway, plus third-party automation layers PowerPilot and
+  BatteryProfit). Confirmed the user's own summary finding as accurate: true DA/RT-responsive HEMS
+  automation is genuinely real and market-available, more mature in the EU/UK (Homey, gridX, Conow,
+  EcoFlow's own EU product line all integrate directly with EPEX Spot/Nord Pool/500+ dynamic tariff
+  providers), but also now real in the US -- most directly via Tesla Powerwall + PowerPilot/
+  BatteryProfit syncing to ComEd's actual hourly real-time feed every 5 minutes. Preserved one
+  precise distinction for future readers: PowerPilot's own coverage table lists Dominion under "TOU"
+  specifically, not "Real-time" (that label is reserved for ComEd/Ameren, IL) -- Dominion does not
+  yet offer a true hourly DA/RT retail program, so current automation runs against its existing fixed
+  TOU plan. Net framing: the automation technology layer is a solved, market-ready problem; the
+  retail-rate-program prerequisite is the remaining gap, not the household-side technology.
+
+Files: Scenario3_Scope_and_Gaps.md (updated in place).
+
+## 2026-09-03
+
+- Master citations spreadsheet recovery, phase 1: completed full extraction of the original C001-C099
+  formal citation system, per direct user instruction to continue the systematic transcript-archive
+  recovery started previous session. Built `/mnt/user-data/outputs/Master_Citations.xlsx` against the
+  agreed schema (Citation_Key, Full_Citation, Type, Year, Key_Finding_Relevance, Primary_Topics,
+  Secondary_Topics, Evidence_Type, Modeling_Method, Source_Session_File, Verification_Status).
+  Automated regex/tuple parsing of the raw transcript JSON proved unreliable (inconsistent nested
+  escaping across tool-call boundaries; only ~10-26 of 99 entries parsed cleanly depending on
+  approach) -- switched to direct reading and careful manual transcription instead, verified against
+  a false-positive check (an initial broad C[0-9]{3} regex wrongly suggested keys up to C999; these
+  were base64/hash noise in the transcript encoding, caught and excluded before use).
+  A real, confirmed data-integrity issue surfaced and was handled explicitly rather than papered
+  over: citation keys C010 and C011 were independently assigned to two different citations across
+  different session passes (the transcripts' own words: "a direct ID collision"). Preserved both
+  versions distinctly (C010 and C010-ALT) with an explicit collision flag, rather than arbitrarily
+  picking one. C011's own collision had already self-resolved via reassignment to C061 in a later
+  session -- confirmed and left as-is.
+  Full C001-C099 sequence now complete, no gaps. A few entries are internal batch/sequence markers
+  rather than real citations (C019, C033, C060, C069, C088) -- kept in the record with that status
+  explicit, so the sequence reads as complete and honest rather than silently incomplete.
+  Checked project KB fresh for a user-mentioned manually-extracted citations file, PDF papers, and an
+  SCC docket PDF -- none found yet; flagged to user, not yet incorporated.
+  Examined nspm-main-2026-final.pdf directly (same plain-text-mislabeled-as-PDF pattern as two other
+  files this session) to answer a taxonomy-placement question -- confirmed as a cross-cutting
+  methodology document (NASEO/NESP Benefit-Cost Analysis manual, 14 chapters) spanning multiple
+  existing tags rather than fitting one; recommended a new dedicated `NSPM-principles` tag given its
+  standing-checklist role in this project's own prior work, distinct from generic cost-methodology
+  citations.
+  Not yet started: the broader sweep across all 37 transcripts for citations that never received a
+  C0XX key at all (where the load-shifting research found two sessions ago lives).
+
+Files: Master_Citations.xlsx (new).
+
+## 2026-09-03 (continued)
+
+- Citation taxonomy revised from flat-list (v1) to fully hierarchical (v2), per
+  direct user critique: v1 mixed parent and child concepts as flat peers within
+  groups, and had hierarchical relationships spanning group boundaries invisibly
+  (e.g. load-shifting and dynamic-pricing in separate, unlinked groups despite a
+  real relationship). Verified the user's own reference model directly (Abunima et
+  al. 2018, Energies 11(5):1050) -- confirmed the specific flaw the user flagged in
+  its own hierarchy (TOU nested as a child of "Real-Time Pricing Program" despite
+  being a fixed schedule, the opposite of real-time). Resolved by splitting into 18
+  independent axes rather than one larger tree, each internally hierarchical where
+  a genuine is-a relationship exists, with explicit cross-reference notes for
+  causal/associative relationships instead of forcing them into a single tree.
+  Found and fixed 12 redundancies in one systematic pass (listed in full in the
+  taxonomy file itself), including two the taxonomy-builder had introduced in the
+  prior session (ELCC and resource-adequacy each duplicated across two groups) and
+  one genuine collision risk (DEA/EDA, two similar acronyms for distributional-
+  equity vs. economic-development analysis, disambiguated by renaming).
+  User caught one further correction: EV-charging (base/managed mode) needed the
+  same direct-load-control cross-reference already given to smart-thermostat --
+  applied, then the full structure was confirmed as the project's official
+  taxonomy.
+  v1 preserved unchanged at Citation_Taxonomy_Proposal_v1_flat.md before rebuilding.
+- Applied the full v2 taxonomy to all 100 rows in Master_Citations.xlsx. Built the
+  tag mapping by systematic review of each row's own Key_Finding_Relevance/Type
+  fields (not re-reading original sources), organized by natural topic cluster
+  (agrivoltaics ~30 rows, PJM/reliability/ELCC ~25, gas fleet ~25, data-center-
+  health, DER/VPP/NSPM, SC-CO2, misc) for tagging consistency within each cluster.
+  35 distinct valid tags used across all rows; 5 rows (confirmed internal
+  tracking/batch markers, not real citations -- C019, C033, C060, C069, C088) left
+  with empty topic tags correctly, rather than forced into a topic they don't have.
+  Spot-checked across clusters before presenting, including one case (C022) that
+  demonstrates the new structure's value directly -- a citation tagged with both a
+  program-mechanism tag and a device-platform tag simultaneously, which the old
+  flat structure would have made awkward.
+
+Files: Citation_Taxonomy_Proposal.md, Citation_Taxonomy_Proposal_v1_flat.md (new),
+Master_Citations.xlsx (updated in place, fully tagged).
+
+## 2026-09-03 (final)
+
+- Added and verified Citation_URL for the master citations spreadsheet, per direct user request
+  ("populate and verify") for faster repeat access to sources. Extraction proved genuinely difficult:
+  automated tuple-boundary parsing found candidate URLs for 77 of 100 keys on a wide search window,
+  but manual review showed most "multi-candidate" cases were truncation variants of one real URL
+  while a few (C009, C016, C050) were genuine noise -- unrelated URLs from adjacent web-search-result
+  content in the same transcript window, including one clear false positive (a Google favicon link).
+  Narrowed to a tuple-close-boundary method (44 candidates), which resolved the conflicts cleanly.
+  Two candidates were pre-emptively excluded as known non-citations before verification (C060, C069
+  -- confirmed as internal batch/sequence markers in the original recovery, not real citations; their
+  nearby URLs were noise, confirmed when one of them independently surfaced again during verification
+  and matched a citation-adjacent but unrelated Form Energy page).
+  Verified all 42 remaining candidates via direct web search (not just extracted and trusted) --
+  36 confirmed with precise content matches, including several exact-figure confirmations (e.g. C061's
+  "2-3x higher yield," C064's exact pepper/tomato/squash wording, C065's "55-85% yield reduction,"
+  which also incidentally resolved a location uncertainty flagged in the original recovery -- the
+  California claim is directly confirmed by the source). Two flagged honestly rather than silently
+  assigned: C034's original azom.com URL could not be confirmed (related GE 7F.05 content found
+  instead, kept unverified); C010's extracted URL was kept but flagged uncertain, since the page
+  content doesn't confirm C010's own specific claim -- consistent with the known C010/C011 key
+  collision already on record. Remaining ~58 rows left with no URL and an honest "no URL recovered"
+  note rather than a forced guess, mirroring the same principle used throughout this citation-recovery
+  effort: absence of a source is recorded plainly, not papered over.
+
+Files: Master_Citations.xlsx (updated in place, Citation_URL and URL_Verification_Note columns
+added).
+
+## 2026-09-03 (deeper pass)
+
+- User pushed back on "58 rows have no URL" as surprising -- fair challenge, and correct: dug deeper
+  rather than accept the prior pass as final. Reviewed all 58 rows' own Full_Citation text directly
+  and found the transcript-extraction method (limited to what a past session's own search happened to
+  surface, parsed via regex) was the real bottleneck, not genuine source absence for most of them.
+  Searched directly for each citation's own named source (author/title/publisher already captured
+  carefully during the original recovery) rather than relying solely on transcript-embedded URLs.
+  Found and verified 9 more real URLs in this pass: C050 (corrected -- original candidate was the
+  wrong document, the *commercial* NY managed-charging plan; found and substituted the precise
+  *residential* program match, an exact title match to the citation's own text), C097, C031 (a real,
+  useful discovery -- both citations turned out to cite the *same* underlying EDF formaldehyde report
+  from different angles, previously unrecognized as the same source), C030 (official eCFR regulation
+  text), C080 (Virginia Mercury), C046, C047 (both real academic papers via ScienceDirect), C027
+  (arXiv, with Virginia-specific content directly confirming the citation), and C095 (found URLs for
+  *both* of its two cited studies -- VCU/Pitt-Suen-Plisko and Gour/Ortiz/Maibach/George Mason).
+  Citation_URL now populated for 45 of 100 rows, up from 36. Remaining unpopulated rows reviewed
+  directly and categorized honestly rather than left ambiguous: some are genuinely unpublished/
+  internal (C055's stakeholder testimony, C084's own internal Deloitte-gas derivation, C076/C083
+  cross-references to other rows in this same tracker) with no URL possible in principle; others are
+  real public documents not yet found in this pass and remain open for further digging if useful.
+
+Files: Master_Citations.xlsx (updated in place, Citation_URL coverage increased from 36 to 45 rows).
+
+## 2026-09-04
+
+- Added C100-C103 (LBNL price-based-DR-in-IRP technical brief, MPC-HPWH field study, pre-cooling
+  simulation study, PEMD-by-customer-class paper) to Master_Citations.xlsx per direct user request.
+  One entry (C103) flagged honestly rather than guessed -- author byline could not be reliably
+  retrieved despite two search attempts (page blocks automated fetch); left explicitly marked in
+  Verification_Status rather than fabricated.
+- User proposed splitting Scenario 3 into three (new Scenario 3: EE/DLC/DER/LSRV-DRV only; Scenario 4:
+  adds DA/RT; Scenario 5: adds data-center-restricted buildout, TBD). Classified all ~21 open items from
+  Scenario3_Scope_and_Gaps.md section 12 against the new, narrower Scenario 3 scope -- only the
+  elasticity-value item is purely DA/RT-specific and drops away entirely; ~19 of ~21 still apply
+  regardless of the split. Direct, honest finding: the split removes the single hardest/most-contested
+  item but does not collapse the remaining workload.
+- Worked through user's direct responses to items 3-21 (per claude.md workflow -- captured confirmed
+  decisions into Scenario3_Technical_Notes.md rather than editing Scenario3_Scope_and_Gaps.md per
+  explicit user instruction not to restructure that file yet). Did real work where requested: item 7
+  re-researched (found CPUC/Opinion Dynamics Jan 2025 Passive House grid-impact study, added as C104 --
+  up to 32% HVAC reduction, up to 50% winter peak reduction, 20%+ more homes per feeder before hosting-
+  capacity limits, CA-specific but a real methodological/magnitude anchor); item 10 checked directly
+  against Activity Tracker and found the farmland-lease-rate research already exists and matches C005
+  independently -- what's missing is the calculation, not further research. Flagged one substantive,
+  unresolved internal tension directly to the user rather than let it pass silently: item 18's
+  acknowledgment that even firmed solar overgenerates near 100% penetration sits in tension with item
+  21's near-zero-circuit-count position, which leans on firmed solar not causing distribution stress --
+  not yet reconciled.
+
+Files: Master_Citations.xlsx (C100-C104 added, 105 rows total), Scenario3_Technical_Notes.md (updated,
+new section 3 capturing all confirmed Scenario 3/4/5-split decisions). Scenario3_Scope_and_Gaps.md
+intentionally NOT restructured per direct user instruction.
+
+## 2026-09-04 (continued)
+
+- Second round of item responses arrived with an ambiguous dual-number format per line (e.g. "6. 12.").
+  Verified the mapping against content rather than assume the pattern held mechanically -- one entry
+  (labeled "6. 12.", about Tier 4 diesel generation) did not obviously match item 12's content
+  (DLC-with-backup-generation externality) at first read. Traced it through directly rather than force
+  a fit or silently guess: Tier 4 is the EPA emissions class for the backup generators that drive the
+  Ashburn-style externality already being costed under item 12, and the user's point is that this
+  requirement is scenario-uniform, not scenario-discriminating -- a refinement of the existing decision,
+  not a mismatched reference. All other mappings (8, 9, 13, 15, 16, 18) confirmed cleanly against
+  content.
+- Directly engaged rather than simply recorded on item 18's own explicit request for correction
+  ("correct me if wrong"): confirmed the aggregate-level logic (urban/suburban solar+battery output
+  absorbed by local demand) holds given the small aggregate share, but flagged that this doesn't
+  automatically hold at the individual-feeder level unless capacity is also evenly distributed across
+  circuits, not just small in aggregate -- directly supported by C104's own methodology (backfeed hours
+  tracked as a distinct grid-impact metric from peak-load hours, with measurable voltage effects found
+  even in an aggregate-favorable sample). Recommended a feeder-level check before treating this as fully
+  resolved rather than let a partially-correct claim stand as fully confirmed.
+
+Files: Scenario3_Technical_Notes.md (updated, new section 4 capturing second-round decisions).
+
+## 2026-09-04 (continued, item 18/21 data question)
+
+- User asked directly where feeder-level data for the earlier-recommended check would come from,
+  correctly noting Dominion doesn't publish distribution-level data. Verified this directly rather than
+  concede without checking -- searched for and found Dominion's real, public Hosting Capacity Tool, but
+  confirmed it is an interactive single-address lookup map, not a bulk dataset or API; no path exists to
+  pull aggregate circuit-count data from it at the scale needed. Confirms the "manually-intensive" flag
+  already on record in Scenario3_Scope_and_Gaps.md rather than contradicting it.
+- Adopted user's proposed 5% distribution-systems-need-upgrade assumption, replacing the prior
+  PNAS-67%-of-feeders-proxy-derived ~910-2,140-circuit estimate. Computed the concrete implication rather
+  than record a bare percentage: 94-188 circuits, 188-940 MW, $94M-$470M total cost at the existing
+  $500/kW figure -- roughly a 10-20x reduction from the prior $0.9-5.4B illustrative range. Flagged one
+  denominator ambiguity (applied to Dominion's total circuit count, not the narrower already-refined
+  urban/suburban non-data-center subset) for the user to correct if the narrower base was intended.
+
+Files: Scenario3_Technical_Notes.md (updated, new section 5).
+
+## 2026-09-04 (continued, denominator confirmation)
+
+- User confirmed the narrower denominator (1,360-3,200 urban/suburban non-data-center-dedicated
+  circuits) for the 5% distribution-upgrade-cost assumption, resolving the ambiguity flagged last turn.
+  Recomputed precisely rather than trust the prior turn's output from memory: 68-160 circuits, 136-800
+  MW, $68M-$400M. Updated Scenario3_Technical_Notes.md to reflect this as the final adopted figure,
+  removing the now-resolved total-denominator alternative.
+
+Files: Scenario3_Technical_Notes.md (updated).
+
+## 2026-09-04 (model documentation)
+
+- User uploaded LinearProgrammingPresentation.docx (a generic, non-project-specific LP-to-business-
+  language translation guide) to the Project KB, with direct instruction to use it both as a pre-solve
+  model review and as the template for ongoing non-modeler documentation. Confirmed the file type
+  directly (plain text under a .docx extension, same pattern as other files this session) before reading.
+- Read build_problem() in lp_model.py in full (not summarized from memory) to extract every real decision
+  variable, constraint, and objective-function term, then mapped each onto the uploaded framework's own
+  Goal/Levers/Guardrails structure using this project's real terms, not the generic example's "Product
+  A/B" language.
+- The mapping exercise itself surfaced two genuine review findings, verified directly against the code
+  rather than assumed, and flagged to the user rather than silently resolved: (1) RESILIENCE_TILT_PCT
+  (a cost discount for iron-air storage) is currently set to 0.0 -- disabled, not deleted -- so iron-air
+  and sodium-ion are currently compared on cost alone; (2) a -$2/MWh charging-side cost term on Bath
+  County's charge variable appears to still be present in the code, after the analogous terms on
+  sodium/iron-air were documented as intentionally removed once a different, discharge-side fix was
+  shown to handle the same problem more reliably -- flagged as worth a direct check, not assumed to be
+  either fine or a bug.
+
+Files: Scenario3_Model_Plain_Language_Guide.md (new).
+
+## 2026-09-04 (resilience tilt and Bath County resolutions)
+
+- User resolved the resilience-tilt tension by splitting narrative claim from technical mechanism:
+  mention host-customer/societal resilience qualitatively in whitepaper narrative (matches NSPM's own
+  framework directly), keep the small tie-breaking nudge value undisclosed in modeler notes only. Did
+  not reinstate RESILIENCE_TILT_PCT from 0.0 to 0.03 -- flagged rather than assumed, since that's tied
+  to an active trial (Internal Debugging Log #20.6) this session has no visibility into the status of.
+- User confirmed the Bath County discrete-480MW-block constraint doesn't need modeling, reasoning that
+  other system assets absorb the gap. Verified and slightly refined this reasoning before recording:
+  confirmed the LP has no geographic/nodal structure at all, so the argument doesn't depend on
+  proximity -- system-wide total flexibility (~240 MW max gap vs. total storage/solar capacity) already
+  covers this regardless of location, since location isn't represented in the model to begin with.
+  Flagged this as a broader, standing model-scope characteristic worth knowing generally, not unique to
+  this one decision.
+
+Files: Scenario3_Technical_Notes.md (updated, new section 6).
+
+## 2026-09-04 (RBD trial concluded, non-modeler documentation update)
+
+- User confirmed the RBD trial concluded, resolving the precondition the code's own comment had set for
+  reinstating the resilience tilt. Reinstated RESILIENCE_TILT_PCT from 0.0 to 0.03 in lp_model.py, with
+  the comment updated to reflect the trial's conclusion rather than silently changing the value.
+- Updated Scenario3_Model_Plain_Language_Guide.md to close out both now-resolved review findings
+  (resilience tilt narrative/mechanism split; Bath County discrete-block decision). Caught and corrected
+  a real mistake mid-edit: the original section 5 had flagged a THIRD, separate, still-unresolved item
+  (a possible leftover -$2/MWh Bath charging-side cost term, distinct from both the discrete-block
+  question and the discharge-side cycling costs) -- an early replacement draft would have silently
+  dropped this still-open item while closing out the two that were actually resolved. Caught before
+  finalizing and re-added as its own, clearly-separated, still-open item rather than conflated with or
+  lost alongside the two resolved ones.
+
+Files: lp_model.py (RESILIENCE_TILT_PCT reinstated to 0.03), Scenario3_Model_Plain_Language_Guide.md
+(updated), Scenario3_Technical_Notes.md (already current from prior turn, no change needed here).
+
+## 2026-09-04 (items 18 and 21 fully resolved)
+
+- Traced the "different metric" the user recalled (75-80%, 10am-2pm window) through project archive
+  search (no verbatim match found) then targeted web research, landing on a stronger result than the
+  original recall: FERC Order No. 792 (2013) itself states the existing 15%-of-peak-load screen (already
+  used in this project) "approximates a 50 percent minimum load screen," and that FERC's own adopted
+  standard is actually 100% of minimum load. This upgrades the 15% figure's own sourcing considerably --
+  from "a third-party solar-industry website" to a direct federal order. Added as C105. Also confirmed a
+  real "minimum daytime load" 10am-2pm window in Hawaiian Electric's own field practice (matching the
+  user's exact recall), distinct from the broader 10am-4pm standard ISO/FERC clause window.
+- Verified the Germany "not enough batteries overall" claim directly rather than accept on assertion --
+  strongly corroborated by multiple independent sources, added the strongest (Ember/energynews) as C106.
+- Resolved item 21's all three sub-questions ($500/kW + narrower-denominator adopted as-is; utility-side
+  cost bearer; 15% screen sourcing strengthened via FERC) and item 18 (was never actually a contradiction
+  with item 21 once precisely scoped -- different asset populations, DER-owner arbitrage vs. utility-scale,
+  all along). No remaining tension between them.
+
+Files: Master_Citations.xlsx (C105-C106 added, 107 rows total), Scenario3_Technical_Notes.md (updated,
+new section 7, items 18 and 21 fully resolved).
+
+## 2026-09-04 (solar-time window correction)
+
+- User proposed adopting HECO's 10am-2pm minimum-daytime-load window on physical grounds (solar
+  irradiance peaks reliably around solar noon), computed from the appropriate UTC offset rather than a
+  literal local-clock reading. Worked through the precise translation rather than adopt the number as
+  stated: found the dominant correction is not Virginia's small longitude offset from the Eastern Time
+  meridian (~10 min for Richmond) but Daylight Saving Time itself (a full hour, in effect for the
+  higher-solar-output ~8 months of the year). A literal "hour 10-14" window against locally-timestamped
+  data would miss true solar noon by a full hour for most of the year. Adopted a UTC-anchored window
+  (15:00-19:00 UTC year-round) instead, translating to 10am-2pm EST in winter months but 11am-3pm EDT
+  during DST months. Flagged as a standing implementation point for any future minimum-daytime-load
+  work, not specific to this one item.
+
+Files: Scenario3_Technical_Notes.md (updated, new section 8).
+
+## 2026-09-04 (phrase corrections and feeder-check status clarified)
+
+- Applied both agreed phrase corrections to Scenario3_Model_Plain_Language_Guide.md (my own persisted
+  file, not yet merged with the user's uploaded draft edits): the gas/100%-year fragment, and the
+  export/"following step" fragment -- the latter with the export/overgeneration connection folded in
+  explicitly per direct request, distinguishing the LP's own simple curtail-or-export switch from the
+  fuller, still-open surplus-disposition question for utility-scale assets.
+- Answered directly rather than let ambiguity stand: the solar-time-window correction from the prior
+  turn does NOT close the still-pending feeder-level overgeneration check. Two separate prerequisites
+  were being conflated -- the time-window fix resolves only the methodology (when to look); the
+  data-availability gap (no bulk Dominion feeder data, confirmed several turns prior) is untouched and
+  remains the blocking constraint. Recorded this distinction directly in the technical notes rather than
+  let the methodology fix read as fully closing the question.
+
+Files: Scenario3_Model_Plain_Language_Guide.md (updated), Scenario3_Technical_Notes.md (updated).
+
+## 2026-09-04 (feeder-check correction, full Sr.-technical-staff rewrite)
+
+- Corrected the prior turn's "still open" framing for the feeder-level overgeneration check --
+  user pointed out their own earlier 5% distribution-upgrade assumption already substitutes for
+  empirical feeder verification, which the data constraint makes permanently unobtainable anyway.
+  Reasoning: adopting a non-zero (5%) assumption rather than an absolute "zero circuits ever affected"
+  position already concedes the substantive point the check existed to establish. Updated
+  Scenario3_Technical_Notes.md to reflect this as closed, correcting the prior session's own stale
+  framing rather than let an error stand uncorrected.
+- Completed the full model-documentation rewrite, retargeted at Sr. technical staff specifically
+  (narrower than the general "masters level" instruction, since this is a model-discussion document).
+  Kept LP vocabulary this audience would already know (objective function, decision variables,
+  constraints) rather than translating into lay analogies; incorporated every resolution from this
+  entire review pass into one coherent document: NPV clarification, both corrected phrases (with the
+  export/overgeneration connection folded in explicitly), the resilience-tilt narrative/mechanism
+  split, the Bath charging-term removal with full test rationale, the item 18/21 resolution (DER-owner
+  vs. utility-scale distinction, Germany sourcing), the $68M-$400M distribution-upgrade figure, and the
+  FERC-strengthened 15%/50%/100% minimum-load sourcing.
+
+Files: Scenario3_Technical_Notes.md (feeder-check status corrected), Scenario3_Model_Plain_Language_Guide.md
+(full rewrite, Sr.-technical-staff audience level).
+
+## 2026-09-05 (energy-rate assumption updated, IMM citations added)
+
+- Updated the project's energy-rate assumption basis per direct user confirmation: replaced the $45
+  EIA-average-LMP baseline with a directly-sourced PJM-wide load-weighted figure from Monitoring
+  Analytics (PJM's Independent Market Monitor). Adopted 2026 YTD ($75.47/MWh) over full-2025 ($48.94/MWh)
+  or a blended 19-month average ($58.89/MWh), per user's structural-shift argument (data-center-driven
+  congestion is ongoing, not one-time; new transmission construction is structurally slow due to
+  siting/community delays) -- explicitly not a preference for the larger number, a reasoned rejection of
+  the implicit "2025 and 2026 are equally representative" assumption underlying the other two options.
+  With the existing 1.40 DOM-zone premium applied: $105.66/MWh, replacing $63.00/MWh.
+- Kept January 2026's outlier month in every average per direct user instruction -- weather/congestion
+  spikes are a recurring, structural PJM market feature (same category as the already-cited Winter Storm
+  Fern), not noise to exclude.
+- Added both Monitoring Analytics files as formal citations (C107: 2026, C108: 2025), with the source's
+  own explicit usage limitation ("should not be used to calculate the costs of any specific market
+  activity in PJM") recorded precisely and this project's own use distinguished from what that limitation
+  warns against (internal modeling assumption vs. formal auditable cost calculation). Both flagged for
+  potential future relevance to Scenario 4 (DA/RT pricing), not yet used for that purpose.
+- Flagged, not resolved: whether forward-looking checkpoint years should assume continued escalation of
+  the congestion premium beyond 2026's level, or hold flat -- left as an open, separate decision.
+
+Files: Master_Citations.xlsx (C107-C108 added, 109 rows total), Scenario3_Technical_Notes.md (updated,
+new section 9).
+
+## 2026-09-05 (comprehensive pre-update feature review)
+
+- User requested a full review of all Scenario 3 feature additions over the Scenario 1 baseline before
+  updating the model. Systematically re-read both Scenario3_Scope_and_Gaps.md (2562 lines) and
+  Scenario3_Technical_Notes.md (809 lines) in full, section by section, rather than rely on recall,
+  given how much has accumulated across this session and prior ones.
+- Compiled into a new, persisted file (Scenario3_Feature_Review_Pre_Update.md), organized by the
+  established A/B/C/D taxonomy, with each item marked READY / OPEN / SUPERSEDED. Caught and flagged one
+  important thing explicitly to avoid a real implementation error: Technical_Notes.md section 1 (the
+  0.81 rooftop/canopy CF ratio) was superseded by the later, direct winter-output-maximizing panel-angle
+  decision, not adopted alongside it -- flagged clearly so the older proposal doesn't get implemented by
+  mistake alongside the newer one.
+- Stated the critical scope note prominently at the top: A.1 (DA/RT pricing) is out of scope for this
+  update entirely, having moved to Scenario 4 in the 3/4/5 split -- the scenario being updated now is
+  narrower than Scenario 3's original definition in the early parts of Scope_and_Gaps.md.
+- Summarized into three clear buckets for the actual implementation work: ready-to-implement items,
+  items requiring a default to be picked (A.2 override discount, floor-mechanism value factor, A.6/A.7
+  scale-up), and items explicitly excluded (A.1, A.5).
+
+Files: Scenario3_Feature_Review_Pre_Update.md (new).
+
+## 2026-09-05 (Scenario 3 model update -- first implementation pass)
+
+- User confirmed proceeding with A.2/A.3/A.4 built fresh against base `demand` (not the unverified
+  `demand_dsm` series). Reminded to follow claude.md and SES directly -- re-read Software_Engineering_
+  Standards.md before continuing, and found real violations in an already-written first-pass script
+  (scenario3_demand_adjustment.py, a free-standing script duplicating dlc_assumptions.py's own EV-charger
+  constants locally) -- discarded that file entirely rather than patch it, per Rule 1 (extend the
+  existing OO structure) and Rule 6 (single source of truth).
+- DISCOVERED, and reported directly rather than silently work around: a `Scenario3Solver` class and
+  `scenario3_build.py` module already exist, properly wired into the class hierarchy, but implement an
+  earlier version of the B/C structure predating several of this session's own decisions -- notably
+  DISTRIBUTED_CF_RATIO=0.81, the exact NREL-ATB ratio already flagged as superseded (not adopted) in
+  Scenario3_Technical_Notes.md in favor of a direct winter-output-maximizing panel-angle decision. User
+  confirmed extending in place rather than replacing.
+- IMPLEMENTED, extending scenario3_build.py and checkpoint_solver.py rather than adding new free-standing
+  scripts (SES Rule 1):
+  1. Renamed the stale CF ratio to DISTRIBUTED_CF_RATIO_STALE_PRE_WINTER_TILT_DECISION (SES Rule 12
+     pattern, matching BATTERY_CAPACITY_DERIVED_KWH_DO_NOT_USE) rather than silently guess a replacement
+     -- the real winter-tilt-vs-utility-scale CF derivation has not been done and would require a real
+     solar-position/irradiance model (SES Rule 5: fail loudly, never silently default or guess). Flagged
+     as a specific, named open task, not bundled silently into this pass.
+  2. Added UtilityScalePolicy dataclass + utility_scale_ownership_mw()/utility_scale_land_use_mw() to
+     scenario3_build.py, covering B.1.a-c (Dominion's three riders: CE/PPA/RPS, equal-thirds disclosed
+     working split) and C.1 (90% agrivoltaic of the utility-scale share) -- taxonomy layers the existing
+     module never covered (it only ever allocated the 20% distributed share, not the 80% utility-scale
+     share, by ownership or land use). Wired into Scenario3Solver.compute_distributed_shares()'s own
+     return dict.
+  3. Added apply_scenario3_demand_adjustment() to scenario3_build.py (A.2 EV Charger DLC only + A.3
+     heat pump/PHIUS + A.4 HPWH), explicitly excluding A.1 (Scenario 4), A.2's Water Energy Rewards/
+     Large C&I (no sourced aggregate scale figure, same gap pattern as A.6/A.7), the override discount
+     (evidence too thin), A.5, and A.7 (premature) -- all per direct user decisions this session, stated
+     as comments with the reasoning, not just the exclusion. EV Charger ceiling MW imported directly from
+     dlc_assumptions.py's own territory_wide_ceiling_estimate_50_50_split_mw() (SES Rule 6), not
+     duplicated. A.3/A.4 percentages taken from the already-documented Appendix_Efficiency_Stock_
+     Turnover_Model.md figures (the underlying stock-turnover simulation code itself did not survive
+     between sessions) -- applied as a flat, all-hours reduction, a disclosed simplification (SES Rule
+     10) since the original hourly-shape logic isn't available to reconstruct.
+  4. Wired the demand adjustment into Scenario3Solver.__init__(), applied to the base demand series
+     before the existing solar-CF-blending step, consistent with how that step is already structured.
+- TESTED (SES Rule 2): wrote test_scenario3_extensions.py, 11 new tests, all passing -- cross-checking
+  new logic against independent baselines (dlc_assumptions.py's own ceiling figure directly, independent
+  arithmetic reconstructions of the ownership/land-use splits, an exact-equality check on the demand
+  adjustment's event-window boundary).
+- VERIFIED (SES Rule 3/4): ran the full existing test_checkpoint_solver.py suite -- 4 failed, 9 passed.
+  Cross-checked directly against the SAME suite run on unmodified original files (SES Rule 4) before
+  concluding anything: identical 4-failed/9-passed result on the untouched originals, confirming these
+  failures are pre-existing (a missing /tmp/ data file from a prior session's own container, unrelated
+  to this change) and not a regression introduced here.
+
+Files: scenario3_build.py (extended), checkpoint_solver.py (Scenario3Solver.__init__ and
+compute_distributed_shares updated), test_scenario3_extensions.py (new, 11 tests).
+
+## 2026-09-05 (insolation data persisted, OO structure built and corrected per SES)
+
+- User uploaded the two missing 2020 files (Sterling, King George), completing full
+  2012-2020 coverage across all six locations. Verified both directly rather than trust
+  filenames: King George's 2020 file's own filename ("38_31_-77_33...") does not match
+  its internal header (38.33/-77.34), which DOES match the rest of that location's
+  series -- trusted the header, not the filename. Sterling's 2020 file's own internal
+  header (39.05/-77.42) differs slightly (~0.02 deg) from the rest of that series
+  (39.03336/-77.40713) -- disclosed as likely NSRDB grid-cell snapping, not silently
+  smoothed over.
+- Reminded to follow claude.md/SES; re-checked Rule 1's exact text before building
+  further. First pass (nsrdb_loader.py) was a free-function module -- Rule 1 explicitly
+  requires conceptualizing an OO structure even for genuinely new, previously-unowned
+  functionality ("when creating code where no existing OO structure is present...
+  conceptualize an OO structure"), and the user's own "for future possible use" framing
+  is exactly Rule 1 point #3's scenario (logic meant to be reused, not a one-off script).
+  Discarded the free-function version and rebuilt as nsrdb_data.py: NSRDBFileFormat base
+  class with GoesAggregatedFormat/Psm322Format/UnrecognizedTmyFormat concrete subclasses
+  isolating the two real products' column differences (including the verified GHI/DNI/DHI
+  column-order difference) behind one common interface, plus NSRDBLocationData owning
+  each location's file set.
+- Tested per Rule 2: test_nsrdb_data.py, 25 tests. Two failed on first run -- correctly,
+  not a bug: the fail-loudly-on-ambiguous-match design surfaced two genuine, previously-
+  unnoticed data-quality issues: (1) Albermarle 2019 has BOTH a GOES-aggregated and a
+  PSM3-2-2 file (not a clean per-year format split, as had been assumed from the
+  filename listing alone); (2) King George 2013 has two GOES-aggregated files at
+  different time intervals (30-min and 60-min) and slightly different coordinates.
+  Reported both directly to the user as genuine ambiguities needing a decision, not
+  silently resolved by picking one file over the other.
+- Persisted all six locations' raw CSV files (60 files, 68MB) plus nsrdb_data.py and
+  test_nsrdb_data.py to /mnt/user-data/outputs/insolation_data/, per direct user
+  instruction to save this data for future use beyond the immediate winter-tilt
+  calculation.
+
+Files: /mnt/user-data/outputs/insolation_data/ (new directory -- six location subfolders
+with all raw CSVs, nsrdb_data.py, test_nsrdb_data.py).
+
+## 2026-09-05 (4-county firming rerun: old vs. 45° rooftop tilt)
+
+- Extended SolarSiteProfile (SES Rule 1) with two new classmethods rather than free-standing scripts,
+  catching the pattern before repeating it a third time this session: from_nsrdb_pysam() (runs real
+  NSRDB data through PySAM PVWatts at a given tilt, averaging across multiple locations by real
+  timestamp, not row position) and combine_weighted() (sums multiple already-scaled segments -- e.g.
+  rooftop at its own tilt, canopy at its own -- into one combined fleet-level profile).
+- REAL BUG found and fixed via direct verification, not assumed correct: combine_weighted()'s first
+  version stored already-MW-scale values into the 'kw' column for interface compatibility, but
+  scale_to_fleet_mw()'s own arithmetic always applies a final /1000 (kW-reference-system -> MW
+  conversion) -- this caused a silent second /1000 when the combined profile was later re-scaled inside
+  find_optimal_blended_split's own grid search, which would have produced a result 1000x too small.
+  Caught via a direct round-trip check (re-scaling to the same total_mw the profile already represents
+  should reproduce the same values) before trusting the pipeline further -- fixed by storing genuine kW
+  values (MW * 1000) instead.
+- Ran the full 4-county model (true combined MW: rooftop 2,202.4 MW [C&I + schools, all four counties],
+  canopy 3,956.6 MW [low end of the true 3,956.6-4,945.8 MW four-county range, matching the original
+  baseline's own low-end convention], total 6,159.0 MW) at both rooftop tilts, Sterling+Arlington
+  insolation averaged in both cases, canopy held at 15° throughout (not adjustable per direct user
+  constraint):
+  - Old (15° rooftop): worst daily firm level = 159.77 MW (100% short-duration optimal split)
+  - New (45° rooftop): worst daily firm level = 160.90 MW (100% short-duration optimal split)
+  - Tilt change alone: +1.13 MW (~0.7%) -- a small difference, isolated cleanly since fleet size and
+    insolation basis were held identical between the two runs.
+- Both figures are not directly comparable to the original 77.85 MW baseline without caveats -- fleet
+  size (2,908.4 -> 6,159.0 MW) and insolation basis (Sterling-only -> Sterling+Arlington averaged) both
+  changed simultaneously in addition to tilt, so that comparison shows the combined effect of all three
+  changes, not tilt in isolation.
+
+Files: /mnt/user-data/outputs/firming_rerun_4county/ (loudoun_solar_hourly_profile.py extended,
+result_old.pkl, result_new.pkl, configs.pkl).
+
+## 2026-09-05 (6-day lookahead, latitude-tilt baseline)
+
+- User redefined the "old" rooftop comparison point from the arbitrary original 15 deg to latitude-tilt
+  (39 deg, standard annual-energy-optimal convention for this region) -- a more defensible baseline than
+  the original figure, which never represented a deliberate design choice. Generated rooftop_39 via the
+  already-extended from_nsrdb_pysam() classmethod (no new structure needed, per claude.md -- just a new
+  parameter value to existing, properly-extended machinery).
+- Attempted the full 21-point 6-day (144hr) lookahead grid search in one call -- timed out. Diagnosed
+  directly rather than assume: a single-point timing check (8.0s) matched the earlier estimate, revealing
+  the real cause was that interior split fractions compute BOTH short- and long-duration daily series
+  (roughly double the cost of the 0%/100% extremes, where only one runs) -- the single-point timing had
+  been measured at the fast extreme, not representative of the grid's average cost.
+- Extended find_optimal_blended_split() (SES Rule 1 -- backward-compatible default behavior unchanged)
+  with optional split_fraction_min/max parameters, splitting the full 5%-resolution grid across two
+  calls per configuration rather than coarsening resolution to fit one call's timeout.
+- Full 6-day lookahead results, true 4-county fleet (6,159.0 MW total), Sterling+Arlington averaged:
+  - Old (39 deg latitude-tilt rooftop): 7,945,892 MWh/yr, worst-day firm level 265.42 MW (100% short-
+    duration optimal)
+  - New (45 deg rooftop): 7,895,667 MWh/yr (-0.63% vs. latitude-tilt, consistent with 45 deg being off
+    the true annual-optimal angle), worst-day firm level 266.72 MW (100% short-duration optimal)
+  - Tilt difference at 6-day lookahead: +1.30 MW (~0.5%) -- small, consistent with the same finding at
+    3-day lookahead (+1.13 MW, ~0.7%).
+
+Files: firming_rerun_4county/ (loudoun_solar_firming.py extended with split-range parameters,
+result_old_lat_6day_combined.pkl, result_new_45_6day_combined.pkl, configs_latitude.pkl).
+
+## 2026-09-05 (documentation + 1-day PJM-aligned lookahead)
+
+- Documented the full 6-day lookahead run (Six_Day_Lookahead_Firming_Documentation.md): citation,
+  algorithm explanation, formula, and results. Caught and corrected a real citation problem before
+  writing this rather than after: fetched the actual MDPI paper directly (had only received a pasted
+  generic explainer alongside the URL two turns ago, never the paper itself) and found it is a
+  machine-learning FORECASTING paper (XGBoost/CatBoost predicting future output), not a battery-dispatch/
+  firming-optimization method -- fundamentally different from what this project built (deterministic,
+  perfect-foresight retrospective optimization). Cited the paper accurately for what it actually
+  contributes (real support that 6-day NWP forecast skill is legitimate) rather than mis-cite it as the
+  source of this project's own different methodology.
+- Ran the same two configurations (39 deg latitude-tilt rooftop vs. 45 deg rooftop, both with 15 deg
+  canopy, true 4-county 6,159.0 MW fleet, Sterling+Arlington insolation) at a 1-day (24hr) lookahead,
+  per direct user reasoning (alignment with PJM's own day-ahead market clearing cycle).
+- REAL, VERIFIED FINDING, not an edge-case artifact -- checked the full 21-point curve before trusting
+  the "best" result, given "0% short-duration, 0.00 MW" looked suspiciously different from every prior
+  finding (all of which found 100% short-duration optimal): every single split point (0% to 100%) returns
+  EXACTLY 0.00 MW worst-day firm level, for BOTH tilt configurations. Root cause, physically sound: with
+  only 24 hours of foresight, the algorithm cannot pre-position battery charge ahead of any single
+  genuinely severe (near-zero-solar) day it can't yet see coming when that day's own dispatch decision is
+  made -- since the metric is the MINIMUM across all 3,277 real days, one such day anywhere in the 9-year
+  record drags the entire worst-case floor to zero, regardless of storage duration split (neither short
+  nor long duration has any foresight advantage at this horizon). This is a direct, concrete demonstration
+  of why lookahead window length matters for this reliability metric -- the 3-day and 6-day windows
+  produced meaningful positive floors specifically because they let the algorithm see and pre-position for
+  approaching low-solar stretches; a 1-day window structurally cannot.
+
+Files: Six_Day_Lookahead_Firming_Documentation.md (new), firming_rerun_4county/ (result_old_lat_1day.pkl,
+result_new_45_1day.pkl added).
+
+## 2026-09-05 (citation removed per direct instruction; reserve-floor gap investigated)
+
+- Removed all mention of Bezerra Menezes Leite & Zareipour (2023), "Six Days Ahead Forecasting of
+  Energy Production of Small Behind-the-Meter Solar Sites" (Energies 16(3), 1533) from
+  Six_Day_Lookahead_Firming_Documentation.md, per direct user instruction. Verified clean via direct
+  search after editing, not assumed. The generic multi-day-lookahead explainer citation remains, since it
+  was not part of this removal instruction.
+- User flagged the 1-day lookahead's 0.00 MW result directly: "there should never be a zero output
+  configuration." Investigated the actual mechanism rather than defend the number -- confirmed 820 of
+  3,285 days (~25%, concentrated in winter months) hit exactly zero or near-zero. Checked the firming
+  module's own solve_max_flat_level_for_window/compute_chained_daily_firm_levels directly: confirmed no
+  minimum-reserve-SoC floor exists anywhere in that logic -- SoC can be driven to exactly 0.0 if that's
+  what maximizes a single day's own isolated flat-level optimization, with nothing preventing it. This is
+  the "midnight blindness" failure mode the uploaded generic explainer document itself named directly
+  (a single-day algorithm "will routinely empty the battery in the evening"). Real, confirmed modeling
+  gap, not a defensible finding as originally presented -- a fix (adding a minimum-reserve-SoC floor
+  parameter) is proposed to the user directly rather than silently picked.
+
+## 2026-09-05 (1-day lookahead result accepted as final)
+
+- Tested the proposed reserve-floor fix directly (20%) -- found it does NOT genuinely solve the
+  zero-output finding: zero-day count only dropped marginally (820 -> 808 of 3,285 days), since a
+  per-day-isolated optimizer has no incentive to preserve margin beyond whatever floor exists and simply
+  drains to the new floor instead of to zero, recreating the same failure mode. Reported this honestly
+  rather than present a partial fix as resolved. Reserve-floor code (minimum_reserve_soc_pct, added to
+  _can_hold_flat_level_without_shortfall/solve_max_flat_level_for_window/compute_chained_daily_firm_
+  levels/find_optimal_blended_split, tested and confirmed working correctly in isolation) kept in the
+  codebase as a real, valid, backward-compatible extension -- not the fix for this specific finding, but
+  potentially useful for other analyses later.
+- User accepted the 0.00 MW result as final "under these particular circumstances" -- a genuine,
+  dependable, nonzero firm-capacity floor is not achievable at a 1-day, PJM-day-ahead-aligned lookahead
+  for this fleet, given the real 9-year weather record. Updated Six_Day_Lookahead_Firming_Documentation.md
+  with the full finding: the result itself, the investigation showing it's structural (not a bug or an
+  unfixed parameter), and the practical implication for the transmission-reduction question (this fleet
+  cannot support any dependable day-ahead-market firm commitment; the 3-day/6-day lookahead results remain
+  the project's meaningful positive findings, since only multi-day foresight lets the algorithm prepare
+  for an approaching low-solar stretch before it arrives).
+
+Files: Six_Day_Lookahead_Firming_Documentation.md (updated, new section 5).
+
+## 2026-09-05 (documentation restructured around the encompassing framework)
+
+- User validated the reframing from the prior turn (market-clearing-cadence vs. participant-planning-
+  horizon; perfect-foresight vs. real-forecast-skill; reliability-optimization vs. price-arbitrage) as
+  well-framed and asked for the full set of lookahead runs to be documented within this framework, not as
+  a flat sequence of appended results.
+- Rebuilt Six_Day_Lookahead_Firming_Documentation.md from scratch (deleted the incrementally-built prior
+  version) rather than append yet another section -- restructured to lead with the framework itself
+  (Section 1), then method/formula (Section 2), then all three lookahead results presented explicitly
+  through that framework's own lens rather than as disconnected findings (Section 3), then a new,
+  explicit "implications for the whitepaper" section (Section 4) stating directly what these numbers can
+  and cannot support -- e.g. not presenting the 1-day result as "the PJM-realistic figure," not presenting
+  any of these as a price-arbitrage result, and stating the transmission-reduction implication as a range
+  bounded by the fully-myopic floor and the perfect-foresight ceiling, not a single precise number.
+- No new computation in this pass -- purely a documentation/organization restructuring preserving all
+  previously-established real numbers and findings.
+
+Files: Six_Day_Lookahead_Firming_Documentation.md (fully restructured).
+
+## 2026-09-05 (population-based C&I/parking extrapolation, 28 additional jurisdictions)
+
+- Built population_extrapolation.py as a proper OO structure (SES Rule 1, mirroring the same
+  locality-keyed design already established in school_rooftop_solar_assumptions.py) rather than a
+  one-off calculation, given the user's own request implies this is reusable, ongoing extrapolation
+  logic, not a single-use script.
+- Reference basis: Fairfax/Arlington/Prince William (Loudoun deliberately excluded -- documented outlier,
+  data-center-driven commercial boom distorts its own C&I MW/capita far outside what any other county
+  would plausibly show). C&I kW/capita range: 0.113 (Fairfax) to 1.506 (Arlington), a 13.4x spread even
+  excluding Loudoun. Parking kW/capita range: 0.361 (Fairfax) to 3.845 (Prince William).
+- Deduplicated the user's two source population lists directly against Virginia's real jurisdictional
+  structure before building the target list, rather than assume no overlap: found and excluded 6 CDPs/
+  1 incorporated town already embedded inside a county elsewhere on the list (Dale City/Woodbridge ->
+  Prince William; Centreville/Reston/McLean -> Fairfax; Tuckahoe -> Henrico; Leesburg -> Loudoun) --
+  would have double-counted roughly 300,000+ people had these been treated as separate. Kept Roanoke
+  (independent city, 98,807) and Roanoke County (96,927) as two distinct, correctly-separate entries
+  despite the confusingly similar names.
+- Final target set: 28 jurisdictions (16 counties + 12 independent cities), total population 4,250,833.
+- Tested (SES Rule 2): 11 tests, all passing, cross-checking against independent arithmetic
+  reconstructions and verifying the deduplication logic directly (not just that some result comes out,
+  but that the specific excluded entities are actually excluded and the specific expected ones remain).
+- Result is a genuinely wide range (C&I: 478.6-6,402.6 MW; parking: 1,533.2-16,343.7 MW, both ~13-14x
+  spread, directly inheriting the underlying reference-rate spread) -- flagged directly to the user as a
+  real limitation of this extrapolation approach's own precision, not glossed over.
+
+Files: population_extrapolation/ (new directory -- population_extrapolation.py,
+test_population_extrapolation.py).
+
+## 2026-09-05 (reference basis narrowed to Fairfax + PWC, Arlington excluded)
+
+- Direct user correction: exclude Arlington from the reference-rate basis too, not just Loudoun --
+  Arlington is genuinely, distinctively dense (Virginia's smallest county by land area, high-rise
+  urban-core commercial character) unlike any of the 28 extrapolation targets, which are suburban/
+  exurban counties and mid-sized independent cities. Updated REFERENCE_COUNTIES to Fairfax + Prince
+  William only; Arlington's own real, GIS-measured figures remain in the separate, already-established
+  four-directly-measured-counties total elsewhere -- this change only removes it from the rate-derivation
+  basis for extrapolating to OTHER jurisdictions. Updated and fixed 2 tests that had asserted Arlington
+  was part of the reference set; all 12 tests pass with the new basis.
+- Result, worth being precise about: C&I range tightened substantially (2,284.6 MW new high vs. 6,402.6
+  MW old high -- Arlington's own rate had been the prior high-end driver). Parking range is UNCHANGED
+  (1,533.2-16,343.7 MW, identical to before) -- Prince William, not Arlington, was already the high-end
+  driver for parking, so removing Arlington had zero effect there. Worth flagging directly: PWC's own
+  parking figure is explicitly documented elsewhere in this project as "estimated, not measured" (a
+  density-based approximation, not real GIS extraction) -- now that it's one of only two reference
+  counties, that data-quality caveat carries more weight than before, since it's driving the entire high
+  end of the parking range specifically.
+
+Files: population_extrapolation/ (population_extrapolation.py and test_population_extrapolation.py
+updated).
+
+## 2026-09-09 (missing file confirmed: large_ci_curtailment_assumptions.py)
+
+- User could not locate large_ci_curtailment_assumptions.py. Searched directly rather than assume --
+  confirmed it does not exist anywhere (outputs, uploads, or working directories). Its own downstream
+  adapter, large_ci_curtailment_feature.py (in large_ci_curtailment_analysis/), survived and explicitly
+  documents that the original was deliberately left unmodified as "the single source of truth for every
+  constant" when the adapter was built (2026-08-26) -- confirming the original genuinely existed and was
+  lost afterward, not renamed or folded into the adapter.
+- Confirmed directly (not inferred) that this is an ACTIVE BREAK, not just a missing convenience file:
+  attempting `import large_ci_curtailment_feature` raises `ModuleNotFoundError: No module named
+  'large_ci_curtailment_assumptions'` right now. Anything downstream of this adapter is currently broken.
+- What the missing file covered, per Internal_Debugging_Log.md entry #82: the A.2 (extended, Large C&I)
+  avoided-cost cross-check -- the $36/kW/yr incentive rate benchmarked against this project's own
+  established peaker costs, finding it captures only ~41-71% of avoided generation-capacity cost alone.
+- Reconstruction note for whoever rebuilds this: the adapter's own comments reference two later updates
+  made AFTER the original file was written (entry #112: shared-method default utility margin changed from
+  5% to 0%, since 5% was never sourced; entry #116: the margin value was further consolidated into a
+  single global, DEFAULT_UTILITY_MARGIN_PCT, in shared_base_classes/). A straight rebuild from entry #82
+  alone would miss both of these -- the adapter file itself is the more complete record of the original's
+  final, intended behavior and should be the primary reference, not entry #82 in isolation.
+
+Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
+
+---
+
+## 2026-09-14 (Bath County corrected to Dominion's share)
+
+- `lp_package/assumptions.py` -- `BATH_MW` 3,000 -> 1,808, `BATH_MWH` 24,000 -> 14,464, 8-hour
+  duration preserved. Dominion operates Bath but owns 60%; the 40% is FirstEnergy's Allegheny
+  Generating Company and LS Power / Bath County Energy. Sourced to the 2024 Annual Report footnote
+  (3) and the 2025 IRP Update Figure 3.1.1.1, both giving 1,808 MW net summer.
+- Reaches three problem builders and the reserve constraint, so every scenario's dispatch moves.
+
+## 2026-09-14 (gas retirement schedules)
+
+- `lp_package/driver.py` -- `gas_baseline_mw(year, schedule)` replaces the single
+  `schedule_b_baseline_mw`. Schedule A is physical retirement on plant age; Schedule B adds
+  VCEA-driven closure at 2045. Both share the 2041 and 2044 steps, which the old flat baseline
+  omitted.
+- `lp_package/checkpoint_solver.py` -- `gas_retirement_schedule()` template method, no default on
+  the base class. Scenario 2 declares A; 1, 1B and 3 declare B.
+- `scripts/audit_documented_fixes.py` -- sixteenth check: every scenario declares its own schedule.
+
+## 2026-09-14 (reserve margin generalised; Bath credited)
+
+- `lp_package/all_hours_reserve.py` -- generalised to both problem shapes via `fixed_capacity_mw`;
+  Bath added as a fifth per-hour reserve variable; `margin_shortfall_hours` ported in.
+- `lp_package/scenario2_all_hours_reserve.py` -- DELETED. Its justification expired when the
+  constraint was generalised.
+- `lp_package/driver.py` -- `build_only` return moved to immediately before the solve.
+
+## 2026-09-14 (merit-order stack in Scenario 2)
+
+- `lp_package/lp_model.py` -- `build_scenario2_problem` gains `gas_merit_order` /
+  `gas_merit_order_year`, in three parts matching this builder's allocation order.
+- `lp_package/gas_merit_order.py` -- `new_build_has_no_rung` now checks the stack rather than
+  whether a pool was passed.
+- Measured: effective heat rate 6.40 -> 8.12, $/MWh 44.32 -> 56.22.
+
+## 2026-09-14 (distributed carve-out)
+
+- `lp_package/distributed_solar_profile.py` -- NEW. Five sites at 45 degrees fixed, eight hydro
+  years, design-year CF 0.1526.
+- `lp_package/nsrdb_data.py` -- `fixed_tilt_hourly_kw()` extracted from the Loudoun module; flat
+  file layout and camel-cased filenames accepted; King George disambiguated on registry coordinate.
+- `lp_package/rps_compliance.py` -- `PHASE_II_RPS_SCHEDULE` tabulated from the Code,
+  `phase_ii_rps_share()`, `distributed_carve_out_share()`.
+- `lp_package/checkpoint_solver.py` -- `carve_out_mw()`, `solar_split_mw()` on Scenario2Solver.
+- `lp_package/lp_model.py` -- `dist_solar_mw` / `dist_solar_cf` in the residual.
+- `lp_package/demand_basis.py` -- `VirginiaOnlyLoad` renamed `VirginiaOnlyGeneration`, 45
+  occurrences across 19 files, no alias.
+
+## 2026-09-14 (agrivoltaic siting as a cross-scenario overlay)
+
+- `lp_package/agrivoltaic_overlay.py` -- NEW. 85% of solar installed after 2026; cost and land only.
+- `lp_package/agrivoltaic_basis.py` -- acres/MW 4-6 -> SEIA 5-7; unresolved flag closed on the
+  tracking evidence; NREL sheep premium and per-livestock acreage added.
+- `run_scenario2_slcoe.py` -- overlay applied and reported per year.
+
+## 2026-09-14 (thermal cycling costs)
+
+- `lp_package/assumptions.py` -- `CCGT_START_MMBTU`, `CT_START_MMBTU`, MIF constants,
+  `EOH_PER_START_BY_STATE`, `MAJOR_OVERHAUL_USD_PER_MW_BY_TECH`, `MAX_ANNUAL_STARTS`,
+  `TRANSMISSION_LOSS_FACTOR`, `SCENARIO2_TOTAL_SOLAR_CAP_MW`.
+- `lp_package/gas_capacity_fit.py` -- NEW. Run-length fit against the CCGT minimum uptime.
+
+## 2026-09-14 (documentation structure)
+
+- `docs/Common_Reference.md` -- NEW. Cross-cutting facts, indexed by section. Section 1:
+  transmission and distribution.
+- `docs/scenarios/` -- NEW. One working document per scenario, each indexed by topic.
+- `docs/appendices/Appendix_Q_Gas_Capacity_Method.md` -- NEW. Brownfield screening curve method.
+- `docs/Scenario_Completion_Dashboard.md` -- reduced to status only, 218 lines to 124.
+- `registers/Master_Citations.xlsx` -- restored; C109-C118 added for this session's ten sources.
+- Section symbol reserved for Virginia Code citations: 404 uses replaced across 61 files.
+
+## 2026-09-14 (Scenario 2 re-run)
+
+- SLCOE $32.80 -> $31.81/MWh; clean share at 2045 34.7% -> 32.5%; PV cost $74.88B -> $72.00B;
+  societal total $119.48 -> $119.24/MWh. Annualised cost $1.88B (2026) to $9.98B (2045).
+- Scenario 2 dashboard steps 1-9 now done.
+
