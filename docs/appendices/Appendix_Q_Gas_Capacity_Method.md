@@ -189,6 +189,84 @@ falls.
 
 ---
 
+## Q.3a Worked result — Scenario 2's 2045 capacity gap
+
+Applying the method end to end, with the merit-order stack inside the solve.
+
+### The gap, measured rather than inferred
+
+With gas bounded by the real fleet (12,216 MW available at 2045) rather than an unbounded ceiling,
+Scenario 2 leaves **17.96 TWh unserved over 3,294 hours**, peaking at **10,263 MW**.
+
+**And storage begins working.** Sodium-ion discharges **13.04 TWh over 2,666 hours**, where the
+flat-price unbounded model had it at exactly zero in every hour of the year. Not arbitrage —
+**scarcity**: with gas capped, the alternative to discharging is unserved energy at the penalty
+price, so storage runs whenever it holds charge.
+
+That revises an earlier finding. Scenario 2's storage is not idle because the mandate is mismatched;
+it is working hard **and still leaving 17.96 TWh unserved**. The mandate is insufficient, which is a
+different and stronger claim.
+
+### The gap is peaking duty, uniformly
+
+| level | hours | blocks | median run |
+|---|---:|---:|---:|
+| 1 MW | 3,294 | 1,233 | **2.0 h** |
+| 3,000 MW | 2,860 | 1,100 | 2.0 h |
+| 5,000 MW | 2,307 | 950 | 2.0 h |
+| 7,000 MW | 671 | 332 | 1.0 h |
+
+**1,233 separate blocks, median 2 hours, longest 27.** Nothing clears a combined-cycle unit's
+six-hour minimum uptime, at any level.
+
+*An earlier fit on the UNBOUNDED gas series had given 10,500 MW of combined-cycle plant, because
+that series was flat baseload running 18-hour blocks. It described what gas served in total, not
+what capacity was missing — the wrong requirement.*
+
+### Full cost comparison
+
+Duty cycle: **1,233 starts, 3,294 firing hours**, cycling ratio **2.67** against the maintenance
+interval's reference 40 — fifteen times more cycling-intensive. Implied capacity factor **20.0%**.
+
+| | CC | EFC | SFC | OMC | **total** |
+|---|---:|---:|---:|---:|---:|
+| **CT, large frame** | $937M | $1,368M | $31M | **$1,303M** | **$3,639M** |
+| **CCGT** | $2,258M | $796M | $88M | **$1,862M** | **$5,004M** |
+
+**Combustion turbine by $1,365M/yr — 27%.**
+
+**Maintenance dominates start fuel by a factor of 42** ($1,303M against $31M for the turbine case),
+which is Batlle & Rodilla's central finding reproduced on this project's own data.
+
+### The conclusion is over-determined
+
+The turbine wins on **every** term that varies:
+
+● **capital** — $1,250/kW against $3,000/kW
+● **maintenance** — smaller overhaul scope
+● **capacity factor** — 20.0%, well below the 28.1% crossover this project carries
+● **duty shape** — median two-hour blocks against a six-hour minimum uptime
+
+Only fuel favours combined cycle, and at a 20% capacity factor there are not enough hours to earn
+it. **No single assumption is load-bearing**: the result survives reversing the simple-cycle
+overhaul ratio to parity.
+
+### Two capex figures that were conflated
+
+Recorded because the constant names give no hint which is operative.
+
+● **`ccgt_capex_kw(year)` is the model's CCGT capex** — year-varying, Wood Mackenzie April 2026,
+  **$3,000/kW** at the build year, and what the import banner prints.
+  `CCGT_CAPEX_KW_BY_CASE['central'] = $2,500` is the sensitivity band's midpoint and **does not
+  match**. Using it understated combined cycle by 20%, and so understated the turbine's advantage
+  by roughly $350M/yr.
+● **`SCENARIO_1B_NEW_CT_CAPEX_KW = $2,000/kW` is not a benchmark** — it is the midpoint of a
+  $1,200–3,000 sweep, chosen because Scenario 1B's capacity answer proved insensitive across the
+  range, and it prices a 1,278 MW build. **`PEAKER_CAPEX_KW_BY_TIER` is the benchmark**, pricing a
+  large build at $1,250/kW. The two answer different questions.
+
+---
+
 ## Q.4 Static per year, chained — and what that costs
 
 Güner distinguishes the two approaches: *"A **static** capacity expansion model is utilized for the

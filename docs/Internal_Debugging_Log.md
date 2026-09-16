@@ -6861,3 +6861,64 @@ would have to be redone once the carve-out moved the build.
 **The dashboard is the status; this is the history.** Scenario 2's steps 4-8 are marked superseded
 there without the narrative, so a reader checking where things stand does not have to read why.
 
+
+## 141. The merit order made Scenario 2's capacity gap visible, and the storage finding reversed
+
+**2026-09-14.** Porting the merit-order stack into build_scenario2_problem changed two things at
+once, and the second was not expected.
+
+**THE FUEL CORRECTION.** Scenario 2 burned 132 TWh at a flat 6.40 heat rate -- the best machine in
+the fleet, in every hour. Solved WITH the stack: effective heat rate 8.12, $56.22/MWh against
+$44.32. A post-hoc loading of the unbounded dispatch had estimated 8.73 and $16.15; solving with the
+stack gives a SMALLER correction, because the dispatch adjusts to the prices it faces. That gap
+between 8.73 and 8.12 is Appendix Q's first limitation demonstrated rather than asserted.
+
+**THE STORAGE FINDING REVERSED.** With gas bounded by the real fleet, sodium-ion discharges 13.04
+TWh over 2,666 hours -- where the unbounded flat-price model had it at exactly zero in every hour.
+Not arbitrage: SCARCITY. With gas capped, the alternative to discharging is unserved energy at the
+penalty price, so storage runs whenever it holds charge.
+
+So the whitepaper draft's claim -- that Scenario 2's storage never operates and carries $3.4B/yr of
+stranded capital -- was an artifact of unbounded gas. **The storage is working hard and STILL leaves
+17.96 TWh unserved.** The mandate is not mismatched; it is insufficient. Different claim, stronger.
+
+
+## 142. A capacity fit on the wrong series, and three capex errors
+
+**THE FIRST FIT USED THE WRONG REQUIREMENT.** Fitting the UNBOUNDED gas series gave 10,500 MW of
+CCGT, because that series is flat baseload running 18-hour blocks. It describes what gas SERVED in
+total, not what capacity was MISSING. The bounded run gives the real gap: 1,233 blocks, median 2
+hours, longest 27 -- uniformly peaking duty at every level, clearing no CCGT minimum uptime anywhere.
+
+**THREE CAPEX ERRORS, all caught by being asked.**
+
+**(a) I used CCGT_CAPEX_KW_BY_CASE['central'] = $2,500/kW.** The model's operative figure is
+`ccgt_capex_kw(year)` = $3,000/kW, year-varying, Wood Mackenzie April 2026 -- and it is what the
+import banner prints at every run. I had seen that banner dozens of times. Understated CCGT by 20%,
+and so understated CT's advantage by roughly $350M/yr.
+
+**(b) I nearly used SCENARIO_1B_NEW_CT_CAPEX_KW = $2,000/kW as a general CT cost.** It is the
+midpoint of a $1,200-3,000 sweep, chosen because 1B's capacity answer proved insensitive across the
+range -- a robustness device, not a benchmark -- and it prices a 1,278 MW build against this one's
+10,263 MW. PEAKER_CAPEX_KW_BY_TIER is the benchmark.
+
+**(c) I gave CT and CCGT the same overhaul cost.** Batlle & Rodilla's $40M/540 MW is a COMBINED
+CYCLE figure; a simple-cycle overhaul covers the turbine alone, without HRSG or steam turbine. Now
+split, with the 0.70 ratio labelled as a judgement and its direction recorded: it favours CT, which
+is already the selected technology, so it reinforces rather than produces the conclusion.
+
+**Both ambiguous constants are now flagged at their definitions**, because the names give no hint
+which is operative.
+
+**THE MARGIN MOVED THREE TIMES**: $460M with a common overhaul cost, $1,019M with the split,
+$1,365M with the corrected CCGT capex. The conclusion never changed -- CT wins on capital,
+maintenance, capacity factor AND duty shape, with only fuel favouring CCGT -- but the first number
+would have been quoted if nobody had asked.
+
+**AND THE EOH START FACTOR MATTERS MORE THAN THE TECHNOLOGY SPLIT.** GE GER-3620 weights a cold
+start at 150-200 run-hour equivalents, warm at 30-60, hot at 10-20. At 175, this duty's 1,233 starts
+consume 215,775 EOH against a 24,000-hour interval -- nine inspections a year, an impossibility
+rather than a cost. At the assumed warm 45 it is 58,779: heavy but bounded. The start-type
+classification swings the answer further than CT-versus-CCGT does, and is stated as an assumption
+for that reason.
+

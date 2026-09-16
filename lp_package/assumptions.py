@@ -286,19 +286,75 @@ CCGT_START_MMBTU = 1000.0
 CT_START_MMBTU = 350.0
 
 #: Maintenance Interval Function anchor, GE heavy-duty gas turbine (Balevic et al. 2010, via Batlle
-#: & Rodilla). The MIF trades starts against firing hours: GE's published options span 8,000-24,000
-#: hours and 400-900 starts before a hot-gas-path inspection. Batlle & Rodilla use the 600 starts /
-#: 24,000 hours pairing, which is the point adopted here.
+#: & Rodilla). GE's published options span 8,000-24,000 hours and 400-900 starts before a
+#: hot-gas-path inspection. Batlle & Rodilla use the 600 starts / 24,000 hours pairing, adopted here.
 MIF_REFERENCE_FIRING_HOURS = 24000.0
 MIF_REFERENCE_STARTS = 600.0
+
+#: Equivalent operating hours added per START, by thermal state. GE GER-3620's factored-fired-starts
+#: framework: a start damages hot-section components like many hours of steady running, because
+#: cycling from ambient to roughly 1,100 C and back is the primary fatigue driver.
+#:
+#:     cold  (unit below 50 C)   150-200 run-hour equivalents
+#:     warm                       30-60
+#:     hot                        10-20
+#:
+#: ASSUMED: WARM, at the midpoint of 45. STATED AS AN ASSUMPTION, not a measurement. The duty this
+#: model produces is short blocks separated by short gaps -- Scenario 2's 2045 capacity gap has a
+#: MEDIAN RUN OF 2 HOURS across 1,233 blocks -- and a machine idle for two hours has not cooled to
+#: 50 C. Cold starts would be a minority: overnight and weekend shutdowns, not the typical cycle.
+#:
+#: WHY THIS MATTERS MORE THAN THE CT/CCGT SPLIT. At 150 EOH/start, 1,233 starts consume 184,950 EOH
+#: against a 24,000-hour inspection interval -- eight inspections a year, which is not a cost but an
+#: impossibility. At 45 it is 55,485 EOH: heavy, but bounded. The start-type classification swings
+#: the answer by more than the technology choice does, which is why it is stated here.
+EOH_PER_START_BY_STATE = {'cold': 175.0, 'warm': 45.0, 'hot': 15.0}
+EOH_PER_START_ASSUMED_STATE = 'warm'
+
+#: Major overhaul interval, factored fired hours, by technology. ASSUMED EQUAL at GE's 24,000-hour
+#: hot-gas-path figure. No source separating simple-cycle from combined-cycle intervals was found,
+#: and the gas turbine itself is the cycling-limited component in both configurations: a
+#: combined-cycle plant adds an HRSG and steam turbine, which cycle too but are not what GER-3620's
+#: interval tracks.
+OVERHAUL_INTERVAL_FFH = {'CT': 24000.0, 'CCGT': 24000.0}
 
 #: Cycling ratio at the MIF anchor: firing hours per start. A unit operating at a LOWER ratio than
 #: this reaches its inspection sooner in firing-hour terms, and pays more variable O&M per MWh.
 MIF_REFERENCE_CYCLING_RATIO = MIF_REFERENCE_FIRING_HOURS / MIF_REFERENCE_STARTS
 
-#: Major overhaul cost, $ per MW. Batlle & Rodilla cite $20M-60M for a major maintenance event and
-#: use $40M for a 540 MW CCGT -- $74,074/MW. Carried per-MW so it scales with the fitted build.
-MAJOR_OVERHAUL_USD_PER_MW = 40_000_000.0 / 540.0
+#: Major overhaul cost, $ per MW, BY TECHNOLOGY. Batlle & Rodilla cite $20M-60M for a major
+#: maintenance event and use $40M for a 540 MW combined-cycle unit -- $74,074/MW, adopted for CCGT.
+#:
+#: THE SIMPLE-CYCLE FIGURE IS AN ASSUMPTION, NOT A SOURCED VALUE, and is stated as one. No source
+#: separating simple-cycle from combined-cycle overhaul cost per MW was found. What was found:
+#:
+#:     GE 7F hot-gas-path inspection, combined cycle   ~$1.8M per unit (parts, labour, lost revenue)
+#:     base-load GT major cycle, 24,000 hours          $2M-$3M
+#:     LM6000PC simple cycle, scheduled overhaul       $250,000/yr fixed + $6/MWh variable
+#:
+#: These are not comparable: different machine sizes, different scopes, one annualised and one per
+#: event. ASSUMED 0.70 of the combined-cycle figure for simple cycle, on the physical reasoning
+#: that a combined-cycle overhaul covers the gas turbine AND the steam side -- HRSG, steam turbine,
+#: condenser -- where a simple-cycle overhaul covers the turbine alone. The ratio is a judgement,
+#: not a measurement, and a production-cost model would replace it with machine-specific figures.
+#:
+#: DIRECTION OF THE UNCERTAINTY: a lower simple-cycle figure favours CT, which is already the
+#: technology this analysis selects for peaking duty. So the assumption REINFORCES a conclusion
+#: rather than producing it -- worth knowing, and the conclusion should be checked against the
+#: alternative. At parity (ratio 1.0) CT still wins on the measured 2045 gap, because its capital
+#: advantage exceeds CCGT's fuel advantage at a 20% capacity factor.
+MAJOR_OVERHAUL_USD_PER_MW_BY_TECH = {
+    'CCGT': 40_000_000.0 / 540.0,
+    'CT': 0.70 * (40_000_000.0 / 540.0),
+}
+SIMPLE_CYCLE_OVERHAUL_RATIO_IS_ASSUMED = (
+    'MAJOR_OVERHAUL_USD_PER_MW_BY_TECH["CT"] is 0.70 x the CCGT figure -- a stated judgement on '
+    'overhaul scope (turbine alone against turbine plus steam side), not a sourced value. It '
+    'favours CT, which is already the selected peaking technology, so it reinforces rather than '
+    'produces that conclusion. At parity CT still wins on the measured 2045 gap.')
+
+#: Retained for callers predating the split. New code should use the by-technology mapping.
+MAJOR_OVERHAUL_USD_PER_MW = MAJOR_OVERHAUL_USD_PER_MW_BY_TECH['CCGT']
 
 #: Maximum annual starts before a unit is infeasible for a duty cycle, by technology. Batlle &
 #: Rodilla set the cost of an infeasible profile to infinity rather than pricing it: "if the
@@ -586,6 +642,14 @@ GAS_UNIT_COMMITMENT_NOT_MODELLED = (
 #:
 #: Lazard also flags an "illustrative high case" of $2,400-2,600/kW for post-2028-COD CCGT
 #: reflecting market tightness, which brackets the central figure adopted here.
+#: NOT THE MODEL'S OPERATIVE CCGT CAPEX. `ccgt_capex_kw(year)` is -- a year-varying function
+#: sourced to Wood Mackenzie's April 2026 turbine market analysis, giving $3,000/kW at BUILD_YEAR,
+#: and it is what the import banner prints. This mapping is the low/central/high SENSITIVITY BAND,
+#: and its central value of $2,500 does not match the function.
+#:
+#: THE TWO WERE CONFLATED ON 2026-09-14, in a CT-versus-CCGT comparison that used $2,500 --
+#: understating CCGT by 20%, and so understating CT's advantage by roughly $350M/yr. Flagged here
+#: because the names give no hint which is operative.
 CCGT_CAPEX_KW_BY_CASE = {'low': 2_000.0, 'central': 2_500.0, 'high': 3_200.0}
 
 #: SCENARIO 1B's total gas capacity at 2045 and beyond, MW.
@@ -624,6 +688,13 @@ SCENARIO_1B_NEW_CT_MW = 1_278.0
 #: $/kW for that build. N.2's central assumption, "the midpoint of the tested range, consistent with
 #: this project's own Wood Mackenzie-sourced equipment-to-full-project-cost ratio for CCGT extended
 #: to simple-cycle by the same underlying supply-chain logic".
+#: SCENARIO 1B ONLY, AND NOT A BENCHMARK. The midpoint of the $1,200-3,000/kW sweep in the table
+#: above, chosen because 1B's capacity answer proved insensitive across that whole range -- a
+#: robustness device rather than a cost estimate -- and it prices a 1,278 MW build.
+#:
+#: FOR A GENERAL CT COST USE PEAKER_CAPEX_KW_BY_TIER, the tiered benchmark, which prices a large
+#: build at $1,250/kW. The two are not inconsistent; they answer different questions, and nothing
+#: outside Scenario 1B should reach for this one.
 SCENARIO_1B_NEW_CT_CAPEX_KW = 2_000.0
 
 #: New-build gas: the standing 2,862 MW pool the scenarios permit above the existing fleet
