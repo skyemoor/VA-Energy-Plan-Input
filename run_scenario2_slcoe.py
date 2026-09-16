@@ -43,6 +43,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lp_
 
 import numpy as np                                                        # noqa: E402
 
+import agrivoltaic_overlay
 import assumptions                                                        # noqa: E402
 import checkpoint_solver as cs                                            # noqa: E402
 import demand_basis                                                       # noqa: E402
@@ -73,6 +74,9 @@ def solve_year(year, weather, capex_basis):
     result = solver.solve(gas_price_mwh=lp.gas_cost_mwh(year, heat_rate=lp.CCGT_HEAT_RATE))
     if not result['success']:
         raise RuntimeError(f'{year}: solve failed with status {result["status"]}')
+
+    dist_mw, _util_mw = solver.solar_split_mw()
+    overlay = agrivoltaic_overlay.apply(float(result['vcea_new_build_mw']))
 
     problem = result['problem']
     x, IDX = result['raw'].x, problem['IDX']
@@ -135,6 +139,15 @@ def solve_year(year, weather, capex_basis):
         'gas_share_statutory': float(gas_mwh / (demand - weather['nuclear']).sum()),
         'peak_gas_mw': float(max(x[t * nph + IDX['g']] for t in range(len(demand)))),
         'new_solar_mw': float(result['vcea_new_build_mw']),
+        'dist_solar_mw': float(dist_mw),
+        # AGRIVOLTAIC SITING, applied to the utility-scale portion of solar installed after 2026.
+        # Cost and land only -- a sheep-grazed tracking array generates exactly what a conventional
+        # one does, because they are the same structures (NREL/TP-6A20-77811 gives both 5.9
+        # acres/MW). So this is arithmetic on the solved build, not a constraint inside the LP.
+        'agrivoltaic_mw': float(overlay.agrivoltaic_mw),
+        'agrivoltaic_capex_premium_usd': float(overlay.capex_premium_usd),
+        'solar_acres_low': float(overlay.acres_low),
+        'solar_acres_high': float(overlay.acres_high),
         'na_power_mw': float(result['na_power_mw']),
         'fe_power_mw': float(result['fe_power_mw']),
         'objective_usd': float(result['obj']),

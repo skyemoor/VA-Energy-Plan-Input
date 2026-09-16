@@ -7045,3 +7045,41 @@ TWh lost on the same nameplate.
 the scenario. Scenarios 1, 1B and 3 build to meet a compliance target, so the carve-out there is a
 FLOOR on distributed within whatever total the LP chooses.
 
+
+## 147. Agrivoltaic siting applied to every scenario; Scenario 2 re-run
+
+**2026-09-14.** Scenario 2 steps 1 and 3 done, and the scenario re-runs end to end on the corrected
+specification.
+
+**AGRIVOLTAICS IS AN OVERLAY, NOT A SCENARIO PROPERTY.** Carried by Scenario 3 alone, it gave that
+scenario a benefit stream the others were denied by construction -- and it is unphysical besides:
+Scenario 1's 156,737 MW has to go somewhere, and that somewhere is overwhelmingly agricultural land.
+Modelling identical acres as dual-use in one scenario and bare ground in another is a difference in
+accounting, not in the world.
+
+**IT CHANGES COST AND LAND, NOT GENERATION**, which is why it is arithmetic on a solved build rather
+than a constraint inside the LP. A sheep-grazed tracking array generates exactly what a conventional
+tracking array generates -- NREL gives both 5.9 acres/MW, because they are the same structures. The
+C.2 carve-out had to enter the residual because it changes what is generated; this does not.
+
+**THE NREL GRAZING PREMIUM WAS FOUND EARLIER AND NEVER FILED.** $0.07/W-DC, the LOW end of NREL's
+$0.07-0.80 dual-use range, because grazing "can use conventional PV structures and does not require
+as much site preparation or seeding" -- and several site-prep costs FALL relative to bare ground,
+since the land was already pasture.
+
+**CATTLE ARE REFUSED RATHER THAN APPROXIMATED.** NREL states they are more expensive and gives 9.8
+acres/MW against 5.9, but no equivalent of the $0.07 figure. Reusing the sheep premium would
+understate it, so the code raises.
+
+**SCENARIO 2 RE-RUN, all four changes together** -- carve-out, agrivoltaic siting, merit order, and
+the Schedule A retirement correction:
+
+    SLCOE with terminal value    $32.80  ->  $31.81 /MWh
+    clean share at 2045           34.7%  ->   32.5%
+    societal total              $119.48  -> $119.24 /MWh
+    PV cost                      $74.88B ->  $72.00B
+
+**The clean share falls and the cost falls with it**, because the carve-out shifts capacity to a
+0.1526 capacity factor from tracking's 0.2252 -- less generation, and less capital per MW of a
+cheaper resource. The whitepaper section is superseded by these figures.
+

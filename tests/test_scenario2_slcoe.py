@@ -44,7 +44,7 @@ class TestMeasuredResult:
     """BASELINE LOCKED 2026-09-13, central capex case."""
 
     def test_slcoe_both_ways(self):
-        """$37.86/MWh without the terminal-value credit, $32.80 with it. Reported both ways per the
+        """$36.41/MWh without the terminal-value credit, $31.81 with it. Reported both ways per the
         prior 20-year SLCOE convention, so a reader can strip out an assumption.
 
         MOVED 2 CENTS from $32.82 when Bath went to Dominion's 1,808 MW share on 2026-09-14.
@@ -54,8 +54,11 @@ class TestMeasuredResult:
         come from reserve adequacy, not dispatch."""
         with open(RESULT) as f:
             d = json.load(f)['levelised']
-        assert d['slcoe_without_terminal_value'] == pytest.approx(37.86, abs=0.5)
-        assert d['slcoe_with_terminal_value'] == pytest.approx(32.80, abs=0.5)
+        # MOVED 2026-09-14 when the C.2 carve-out and agrivoltaic siting were wired in. The
+        # carve-out shifts 6,862 MW at 2045 from tracking (0.2252 CF) to fixed 45-degree (0.1526),
+        # so generation falls AND capital falls -- less energy from a cheaper resource.
+        assert d['slcoe_without_terminal_value'] == pytest.approx(36.41, abs=0.5)   # was 37.86
+        assert d['slcoe_with_terminal_value'] == pytest.approx(31.81, abs=0.5)      # was 32.80
 
     def test_terminal_value_is_material(self, run):
         """$10.01B of PV against $74.93B of PV cost -- 13%. Large enough that omitting it would
@@ -65,11 +68,14 @@ class TestMeasuredResult:
         assert d['pv_terminal_value_usd'] / d['pv_cost_usd'] == pytest.approx(0.134, abs=0.02)
 
     def test_clean_share_falls_across_the_whole_stream(self, run):
-        """THE WHITEPAPER'S THESIS, now at annual resolution: 47.4% in 2026 falling to 34.7% in
+        """THE WHITEPAPER'S THESIS, now at annual resolution: 47.4% in 2026 falling to 32.5% in
         2045. Demand grows 72% while the solar target is fixed at 16,100 MW."""
         stream = sorted(run['stream'], key=lambda r: r['year'])
         assert stream[0]['clean_share'] == pytest.approx(0.474, abs=0.02)
-        assert stream[-1]['clean_share'] == pytest.approx(0.347, abs=0.02)
+        # 32.5%, was 34.7% before the C.2 carve-out. The carve-out LOWERS the clean share: it
+        # shifts 6,862 MW at 2045 from tracking at a 0.2252 capacity factor to fixed 45-degree at
+        # 0.1526, losing roughly 4.4 TWh on the same nameplate.
+        assert stream[-1]['clean_share'] == pytest.approx(0.325, abs=0.02)
 
     def test_clean_share_peaks_mid_stream_then_declines(self, run):
         """It RISES to 2030-31 as the statutory solar builds out, then falls as demand overtakes
@@ -167,7 +173,7 @@ class TestAgainstAppendixD:
         session also changed.
 
         The most likely driver is this session's demand and solar corrections: Scenario 2's clean
-        share fell from 39.2% to 34.7% at 2045 once post-VCEA solar stopped being double-counted,
+        share fell from 39.2% to 32.5% at 2045 once post-VCEA solar stopped being double-counted,
         which means more gas burned across the window."""
         t = run['levelised']['tiers']
         assert t['social_cost_ghg_usd']['per_mwh'] / 72.84 == pytest.approx(1.114, abs=0.03)

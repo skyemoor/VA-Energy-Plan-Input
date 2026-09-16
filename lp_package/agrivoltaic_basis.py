@@ -88,6 +88,37 @@ AGRIVOLTAIC_SHARE_OF_TOTAL_SOLAR = 0.85
 ACRES_PER_MW_LOW = 5.0
 ACRES_PER_MW_HIGH = 7.0
 
+#: Installed capital premium for SHEEP-GRAZED agrivoltaics over conventional ground-mounted PV,
+#: $/W-DC. NREL/TP-6A20-77811 (Horowitz, Ramasamy, Macknick and Margolis, 2020), a bottom-up model
+#: benchmarked at 500 kW-DC across eight states from primary interviews with ten developers.
+#:
+#: SHEEP GRAZING CARRIES THE SMALLEST PREMIUM OF ANY DUAL-USE CASE, in NREL's words because these
+#: systems "can use conventional PV structures and do not require as much site preparation or
+#: seeding." Several site-preparation costs FALL relative to bare ground -- clearing and grubbing
+#: -20%, soil stripping -20%, soil compaction -30% -- because the land was already pasture. The
+#: added costs are fencing +10%, site investigation +100% from a small base, and a water well of
+#: $0-10,000 that the other dual-use cases do not need.
+#:
+#: THE LOW END OF NREL'S $0.07-0.80/W-DC RANGE IS THE GRAZING CASE; the upper end is crop
+#: configurations with elevated or stilt-mounted racking. 0.07 is adopted here for that reason.
+#:
+#: AND IT IS A 500 kW BENCHMARK. NREL states that "larger systems benefit significantly from
+#: economies of scale", so a utility-scale premium should be lower. Carrying the benchmark
+#: unadjusted is conservative.
+AGRIVOLTAIC_SHEEP_CAPEX_PREMIUM_USD_PER_WDC = 0.07
+
+#: Acres per MW for sheep-grazed agrivoltaics on single-axis tracking. NREL gives 5.9 for both
+#: conventional tracking AND PV-plus-grazing: the structures are the same, so the land is the same.
+#: Sits inside the SEIA 5-7 range adopted above, which is independent confirmation from a bottom-up
+#: model rather than an industry average.
+#:
+#: CATTLE ARE DIFFERENT AND MORE EXPENSIVE IN BOTH RESPECTS. NREL: cattle "are expected to be more
+#: expensive because of the need to elevate the panels and, in some cases, reinforce the system
+#: structure", and offers its reinforced regular mount -- 9.8 acres/MW against 5.9, a two-thirds
+#: increase in LAND as well as capital, because elevation forces wider row spacing.
+AGRIVOLTAIC_SHEEP_ACRES_PER_MW = 5.9
+AGRIVOLTAIC_CATTLE_ACRES_PER_MW = 9.8
+
 #: Storage land-use add-on per MW of solar, at this project's own VCEA-target sodium-ion and
 #: iron-air mix. Sodium-ion uses a lithium-ion proxy (no chemistry-specific figure found); iron-air
 #: has a primary Form Energy figure of ~0.5 acre/MW at its least dense configuration.
