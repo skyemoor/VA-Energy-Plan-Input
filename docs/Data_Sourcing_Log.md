@@ -2325,3 +2325,156 @@ William C&I/parking + 30 shared parking-canopy module).
 
 Files: Northern_Virginia_Solar_Assessment_Methodology_and_Findings.md (updated in place, now
 covering four counties).
+
+---
+
+## Bath County capacity: three conflicting figures, resolved to Dominion's entitlement (2026-09-14)
+
+**The constant had no sourcing at all.** `BATH_MW = 3000.0` sat in `assumptions.py` as a bare
+number in a file where every other value carries provenance.
+
+**Three sources, none agreeing:**
+
+| source | figure | what it measures |
+|---|---:|---|
+| Dominion 2025 IRP Update, Appendix 3A(iv-v) | 6 turbines x 477 = **2,862 MW** | turbine nameplate, SCC-directed |
+| EIA-860 (2025), 9 units in Virginia | **3,109.3 MW** | unit nameplate, all owners |
+| commonly cited, and this project's other references | **3,000 MW** | plant rating |
+
+**Retained at an even 3,000 as a stated assumption** balancing the three, on direct instruction.
+The EIA figure counts units beyond the six the IRP directs; the IRP figure is turbine nameplate
+rather than plant rating.
+
+**But the operative question turned out to be ownership, not rating.** Two Dominion documents give
+the same answer independently:
+
+● **2024 Annual Report** (SEC, `dei-ars-12312024.pdf`), *Virginia Power Utility Generation*: Bath
+  County, Warm Springs VA, **1,808 MW net summer**, footnote (3) -- the standing exclusion of the
+  *"40% undivided interest owned by Allegheny Generating Company, a subsidiary of Allegheny Energy,
+  Inc."*
+● **2025 IRP Update**, Figure 3.1.1.1 *2024 Capacity Resource Mix by Unit Type*: Pumped Storage
+  **1,808 MW** net summer, 7.8% of the mix.
+
+3,003 x 0.60 = 1,802, within rounding.
+
+**Current ownership is broader than the footnote suggests.** The 40% minority share has moved
+through mergers and now sits with FirstEnergy's Allegheny Generating Company AND LS Power / Bath
+County Energy -- confirmed by the FERC notice at 2026-07124, which names Virginia Electric and Power
+Company, Allegheny Generating Company and the LS Power entity together. A reader checking the
+Annual Report footnote alone would get an out-of-date picture.
+
+**The limit is an entitlement, not a transmission constraint.** Bath is fully integrated into PJM
+and dispatched against joint entitlements and regional reliability, so Dominion cannot unilaterally
+route or monopolise it -- but nothing about the binding limit is imposed by AEP or any transmission
+owner. That matters for how the bound reads: a reader taking 1,808 MW for a wires constraint might
+expect it to relax with grid upgrades, and it would not.
+
+**`BATH_MWH` follows the same share** rather than being measured separately: an undivided interest
+is a share of the whole works -- reservoir, penstocks and machines alike -- so 24,000 x (1,808/3,000)
+= 14,464, preserving the 8-hour duration.
+
+---
+
+## Gas retain-pool MW: gas capability on dual-fuel plants, not plant totals (2026-09-14)
+
+**An apparent discrepancy that resolved to a measurement-basis difference**, and the investigation
+correctly changed nothing.
+
+The retain pool's figures looked wrong against EIA-860: Gravel Neck at 170 MW against a net summer
+of 368, Darbytown at 168 against 340 -- ratios of 0.46, where Gordonsville (1.00) and Elizabeth
+River (1.01) matched.
+
+**Resolved against Dominion's 2024 Annual Report**, *Virginia Power Utility Generation*, Net Summer
+Capability. **Gravel Neck and Darbytown are DUAL-FUEL and appear TWICE** -- once under Gas, once
+under Oil:
+
+| plant | pool | AR gas | AR oil | total | EIA-860 net summer |
+|---|---:|---:|---:|---:|---:|
+| Gravel Neck | 170 | 170 | 198 | 368 | 368 |
+| Darbytown | 168 | 168 | 168 | 336 | 340 |
+| Elizabeth River | 327 | 327 | — | 327 | 325 |
+| Gordonsville | 218 | 218 | — | 218 | 218 |
+| Remington | 619 | 619 | — | 619 | — |
+
+Every pool figure matches the **Gas** column exactly. EIA-860's net summer is gas plus oil, as is
+Dominion's own Power Stations page. Gordonsville and Elizabeth River match directly because they
+are **not** dual-fuel -- which is why they looked inconsistent with the other two.
+
+**Sources treated as NOT independent:** gridinfo.com and Global Energy Monitor both re-serve EIA
+data on the same December 2024 cutoff, as `VA_gas_capacity_schedules.md` had already recorded. They
+were cited as corroboration during this investigation before that document was re-read.
+
+**A separate reading also corrected.** The schedule recorded these plants as showing zero generation
+since December 2024, cause unconfirmed. The EIA monthly series ENDS at that date; it does not fall
+to zero. Darbytown generated 42,561 MWh in July 2024 and 13,916 MWh in December, Gravel Neck 40,380
+MWh in July -- ordinary peaker duty at a 17% capacity factor, with near-zero months recurring every
+February and December in prior years. EIA-860's 2025 vintage, postdating the cutoff, lists every
+unit at both plants as `OP`. Elizabeth River is the genuine exception: all three units `SB`.
+
+---
+
+## Transmission loss factor: 1.0925 (2026-09-14)
+
+Derived from two Dominion sources for the same year and identical scope, so the gap is losses rather
+than coverage:
+
+| source | 2030 GWh | basis |
+|---|---:|---|
+| `DOMLSEHourlyLoadProjections2024through2048.csv` | 121,115 | losses included |
+| 2025 IRP Update, Appendix 2B-1 | 110,864 | losses excluded |
+| **ratio** | **1.0925** | approx. 9.25% losses and station service |
+
+The IRP itself distinguishes the bases, describing values *"at the utility generator and adjusted
+for line losses"* (Figures 2.1.11 and 2.1.12).
+
+**Which basis applies where is the trap.** Dispatch uses the generation basis undivided -- the
+hourly file already carries the gross-up. Statutory obligations divide by the factor, because
+Va. Code 56-585.5(C) sets the RPS requirement as a percentage of energy **sold**. Same series,
+opposite treatment, sometimes within one function. Recorded in `Common_Reference.md` section 1.
+
+---
+
+## Distributed solar profile: five sites, 45 degrees fixed (2026-09-14)
+
+**NSRDB data confirmed complete** for all five sites across all nine calendar years 2012-2020:
+Sterling, Arlington, King George, Richmond, Chesapeake. Albemarle is registered in `nsrdb_data` but
+excluded -- it is a utility-solar siting location, not a population centre.
+
+**Both profiles come from SAM PVWatts with default losses.** The utility `hourlyinsolation` family
+was run by the project author on NSRDB inputs at single-axis tracking; the distributed profile runs
+through `nsrdb_data.fixed_tilt_hourly_kw` at 45 degrees fixed. Same tool, same loss assumptions --
+the 22.52% against 15.26% capacity-factor gap is array type, not method. Worth recording because the
+build script had described the utility family only as "already-simulated power output", which reads
+as unattributed against a 48% difference.
+
+**Measured, Sterling 2016, 45 degrees against 15:**
+
+| | 15 deg | 45 deg | change |
+|---|---:|---:|---:|
+| December | 67.7 | 89.1 | **+31.5%** |
+| January | 81.0 | 105.2 | +29.9% |
+| June | 151.7 | 125.2 | -17.5% |
+| **year** | 1,316.0 | 1,332.8 | **+1.3%** |
+
+**45 degrees is not a yield sacrifice.** At this latitude it sits about 6 degrees past optimal and
+the winter gain covers the summer loss. What changes is shape: December-to-June moves from 0.45 to
+0.71.
+
+**Eight hydro-year capacity factors**, five-site averaged: 0.1499, 0.1524, 0.1497, 0.1501,
+**0.1526** (design year 2016-17), 0.1521, 0.1420, 0.1465. The design year is the HIGHEST of the
+eight, so an eight-year robustness run sees about 7% less distributed output than a design-year
+solve assumes.
+
+---
+
+## Statutory RPS schedule: tabulated, Phase II (2026-09-14)
+
+Va. Code 56-585.5(C)(1)(a) gives the schedule year by year for 2021-2049 in two columns.
+**Dominion is a Phase II utility**, the second column, which runs well above Phase I -- 59% against
+45% at 2035, 100% against 80% at 2045.
+
+**Tabulated, not interpolated.** The schedule is not linear: Phase II steps 3 points a year to 2030
+then 4 from 2031, and Phase I repeats 53% at both 2036 and 2037. Interpolating between milestone
+years gives plausible wrong numbers at every year between. Filed as
+`rps_compliance.PHASE_II_RPS_SCHEDULE`.
+
