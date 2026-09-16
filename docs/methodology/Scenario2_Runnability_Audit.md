@@ -71,7 +71,41 @@ keeping pace.**
 
 ---
 
-## Storage is built, paid for, and never operates
+## Storage is not idle — it is insufficient
+
+**Corrected 2026-09-14**, superseding the section below. The earlier finding was measured on an
+**unbounded gas** model, where the ceiling was 200,000 MW and gas could serve whatever the hour
+needed.
+
+With the merit-order stack bounding gas at the real fleet — **12,216 MW available at 2045** —
+sodium-ion discharges **13.04 TWh over 2,666 hours**, and **17.96 TWh still goes unserved** across
+3,294 hours, peaking at 10,263 MW.
+
+**The mechanism is scarcity, not arbitrage.** With gas capped, the alternative to discharging is
+unserved energy at the penalty price, so storage runs whenever it holds charge. It needs no price
+spread to do so.
+
+**So the mandate is not mismatched; it is insufficient.** That is a different claim from the one
+below, and a stronger one: the statutory storage works hard and still cannot close the gap.
+
+### What the gap requires
+
+**1,233 separate blocks, median 2 hours, longest 27** — uniformly peaking duty, clearing no
+combined-cycle minimum uptime at any level, with an implied capacity factor of **20.0%**.
+
+Costed on the full four-term formulation, **combustion turbine beats combined cycle by $1,365M/yr**
+— on capital, maintenance, capacity factor and duty shape alike. Only fuel favours combined cycle,
+and at 20% capacity factor there are too few hours to earn it. Full working in **Appendix Q.3a**.
+
+### And fuel was understated
+
+A single gas variable at a 6.40 heat rate burns 132 TWh as though the best machine in the fleet ran
+every hour. The stack gives an effective heat rate of **8.12** and **$56.22/MWh against $44.32** —
+**$11.90/MWh** understated.
+
+---
+
+## Superseded: storage is built, paid for, and never operates
 
 **Measured at 2045: zero charge, zero discharge, zero curtailment** — sodium-ion, iron-air and Bath
 alike, in all 8,760 hours.

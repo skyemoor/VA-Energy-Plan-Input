@@ -6922,3 +6922,25 @@ rather than a cost. At the assumed warm 45 it is 58,779: heavy but bounded. The 
 classification swings the answer further than CT-versus-CCGT does, and is stated as an assumption
 for that reason.
 
+
+## 143. The dashboard reduced to status only
+
+**2026-09-14.** It had accumulated findings, caveats, measurement tables and design rationale
+alongside the step tables -- 218 lines, of which the tables were 65.
+
+**Narrative in a status document is narrative nobody reads and nobody updates.** Worse, it
+duplicated: the Scenario 2 findings sat in the dashboard AND the runnability audit, and the two had
+already diverged on the storage question -- the dashboard still carried the idle-storage claim after
+the merit order had reversed it.
+
+**Now 124 lines, tables only.** Each scenario has a heading, one sentence of scope, and its step
+table. The division:
+
+    what was FOUND        the relevant working paper or appendix
+    what was RUN          Internal_Debugging_Log.md
+    what is OPEN          GitHub issues
+    where things STAND    the dashboard
+
+The Scenario 2 findings moved to Scenario2_Runnability_Audit.md, where the superseded
+idle-storage section is now explicitly marked as such rather than silently contradicted.
+
