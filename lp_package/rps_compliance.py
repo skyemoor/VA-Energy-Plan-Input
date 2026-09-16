@@ -63,6 +63,40 @@ IN_COMMONWEALTH_REC_MINIMUM_FIRST_YEAR = assumptions.IN_COMMONWEALTH_REC_MINIMUM
 
 # § 56-585.5(C)(2) -- distributed carve-out: share of the RPS requirement that must come from
 # solar/wind/anaerobic digestion resources of one megawatt or less located in the Commonwealth.
+
+#: Va. Code 56-585.5(C)(1)(a), Phase II Utilities column, verbatim from the statutory table.
+#: DOMINION IS A PHASE II UTILITY. The Phase I column is the smaller utilities and runs well below
+#: this one -- 45% against 59% at 2035, 80% against 100% at 2045.
+#:
+#: TABULATED, NOT INTERPOLATED. The schedule is not linear: Phase II steps 3 points a year to 2030,
+#: then 4 points a year from 2031, and Phase I repeats 53% at both 2036 and 2037. An interpolation
+#: between the named milestone years produces plausible wrong numbers at every year between.
+PHASE_II_RPS_SCHEDULE = {
+    2021: 0.14, 2022: 0.17, 2023: 0.20, 2024: 0.23, 2025: 0.26, 2026: 0.29, 2027: 0.32,
+    2028: 0.35, 2029: 0.38, 2030: 0.41, 2031: 0.45, 2032: 0.49, 2033: 0.52, 2034: 0.55,
+    2035: 0.59, 2036: 0.63, 2037: 0.67, 2038: 0.71, 2039: 0.75, 2040: 0.79, 2041: 0.83,
+    2042: 0.87, 2043: 0.91, 2044: 0.95, 2045: 1.00,
+}
+
+
+def phase_ii_rps_share(year):
+    """Statutory RPS share for a Phase II utility. 100% from 2045 onward."""
+    if year in PHASE_II_RPS_SCHEDULE:
+        return PHASE_II_RPS_SCHEDULE[year]
+    if year > 2045:
+        return 1.00
+    raise ValueError(
+        f'year {year} precedes the statutory schedule, which begins in 2021. Extrapolating '
+        'backwards would invent an obligation the Code does not set.')
+
+
+def distributed_carve_out_share(year):
+    """4.5% for 2026-2030, 5% for 2031-2045, of the RPS requirement."""
+    if year <= 2030:
+        return DISTRIBUTED_CARVE_OUT_SHARE_2026_THROUGH_2030
+    return DISTRIBUTED_CARVE_OUT_SHARE_2031_THROUGH_2045
+
+
 DISTRIBUTED_CARVE_OUT_SHARE_2026_THROUGH_2030 = assumptions.DISTRIBUTED_CARVE_OUT_SHARE_2026_THROUGH_2030
 DISTRIBUTED_CARVE_OUT_SHARE_2031_THROUGH_2045 = assumptions.DISTRIBUTED_CARVE_OUT_SHARE_2031_THROUGH_2045
 

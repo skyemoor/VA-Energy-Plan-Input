@@ -363,6 +363,52 @@ MAJOR_OVERHAUL_USD_PER_MW = MAJOR_OVERHAUL_USD_PER_MW_BY_TECH['CCGT']
 #: that production profile with that technology is set to infinite."
 MAX_ANNUAL_STARTS = {'CCGT': 300.0, 'CT': 900.0}
 
+# ============================================================================
+# SCENARIO 2 SOLAR CAP -- a stated assumption about Dominion's preferred plan
+# ============================================================================
+#
+# TOTAL SOLAR IS CAPPED AT 16,100 MW AND STOPS THERE. Once deployed, no further solar is added for
+# the purposes of this whitepaper's evaluation of Dominion's preferred plan.
+#
+# WHY THIS IS AN ASSUMPTION AND NOT A READING OF THE CODE. Two statutory obligations pull apart
+# after 2035 and the Code does not say how they are reconciled:
+#
+#   D.2   16,100 MW of solar or onshore wind BY DECEMBER 31, 2035. A one-time CAPACITY target with
+#         a deadline. Once met, it is met.
+#   C.2   4.5% (2026-2030) and 5% (2031-2045) of the RPS requirement from resources of 1 MW or
+#         less. An ANNUAL ENERGY obligation that keeps growing, because the RPS percentage climbs
+#         to 100% by 2045 and energy sold roughly doubles over the period.
+#
+# The carve-out therefore reaches about 6,862 MW by 2045 against roughly 2,856 MW at the 2035
+# deadline -- some 4,000 MW more, with no capacity target left to take it from. Either total solar
+# rises above 16,100 MW, or the mix is re-weighted within a fixed total.
+#
+# WE DO NOT KNOW WHICH DOMINION WOULD DO, and Scenario 2 does not attempt to follow the RPS in any
+# case. What its preferred plan indicates is that it builds 16,100 MW of solar. So this analysis
+# assumes the cap holds: the distributed requirement is met from within the total, and utility-scale
+# is the remainder.
+#
+# THE CONSEQUENCE, STATED RATHER THAN BURIED. Holding the cap while the carve-out grows means
+# utility-scale solar falls from about 13,244 MW at 2035 to 9,238 MW at 2045 -- roughly 4,000 MW
+# retired or not replaced. That is not a choice a utility would make voluntarily; it is what the cap
+# forces once the energy obligation outgrows the capacity target. And because distributed solar
+# delivers a 0.1526 capacity factor against tracking's 0.2252, the shift loses roughly 4.4 TWh/yr by
+# 2045, so Scenario 2's clean share degrades faster than a fixed-target reading would suggest.
+SCENARIO2_TOTAL_SOLAR_CAP_MW = 16_100.0
+SCENARIO2_SOLAR_CAP_IS_AN_ASSUMPTION = (
+    'Total solar is capped at 16,100 MW and stops there. D.2 sets that as a one-time capacity '
+    'target due 2035; C.2 sets a growing annual energy obligation that reaches about 6,862 MW of '
+    'equivalent capacity by 2045. The Code does not say whether the excess is built on top of the '
+    'target or absorbed within it. Dominion disregards the RPS in this scenario and its preferred '
+    'plan indicates 16,100 MW of solar, so the cap is assumed to hold and the mix re-weights '
+    'within it.')
+
+#: Load-to-sales ratio for the DOM zone: generation divided by metered energy. Derived from two
+#: Dominion sources for 2030 at identical scope -- the hourly file's 121,115 GWh against IRP
+#: Appendix 2B-1's 110,864 GWh -- which the IRP attributes to line losses and station service.
+#: See docs/Common_Reference.md section 1.
+TRANSMISSION_LOSS_FACTOR = 1.0925
+
 #: Storage state of charge at hour 0, as a fraction of energy capacity. Applies to Bath, sodium-ion
 #: and iron-air alike. Half-full is a neutral start for a cyclical year -- the final-hour SoC is
 #: constrained back to it -- but it is an ASSUMPTION rather than a measurement, and a year beginning

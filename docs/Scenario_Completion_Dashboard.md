@@ -35,18 +35,18 @@ Build only the 16,100 MW solar and 20,000 MW storage the Code names; meet the re
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver wired and verified | **superseded** | steps 2, 3 |
-| 2 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 1 | Solver wired and verified | **superseded** | step 3 |
+| 2 | Statutory distributed carve-out | **done** | — |
 | 3 | Agrivoltaic siting, applied evenly | **not started** | — |
 | 4 | Merit-order stack in the solver | **done** | — |
 | 5 | Gas capacity fit on the measured gap | **done** | — |
-| 6 | Four-checkpoint pathway | **superseded** | steps 2, 3 |
-| 7 | Twenty-year annual stream | **superseded** | steps 2, 3 |
-| 8 | SLCOE + capex band | **superseded** | steps 2, 3 |
-| 9 | Social + health cost | **superseded** | steps 2, 3 |
-| 10 | New gas capacity costed into the SLCOE | **not started** | steps 2, 3 |
+| 6 | Four-checkpoint pathway | **superseded** | step 3 |
+| 7 | Twenty-year annual stream | **superseded** | step 3 |
+| 8 | Annualised cost + capex band | **superseded** | step 3 |
+| 9 | Social + health cost | **superseded** | step 3 |
+| 10 | New gas capacity costed in | **not started** | step 3 |
 | 11 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
-| 12 | Whitepaper section | **superseded** | steps 2, 3 |
+| 12 | Whitepaper section | **superseded** | step 3 |
 | 13 | Unit commitment sensitivity | **blocked** | #17 |
 
 ---

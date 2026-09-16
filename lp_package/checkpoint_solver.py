@@ -37,6 +37,22 @@ import lp_model as lp
 import driver as drv
 
 
+
+_DIST_CF_CACHE = {}
+
+
+def _distributed_design_year_cf():
+    """Hourly distributed capacity-factor profile for the design year, cached.
+
+    Five sites averaged at 45 degrees fixed, on the same April-March hydro-year boundaries as every
+    other weather input -- so the distributed and utility profiles describe the same hours, and the
+    correlation between them is meaningful.
+    """
+    if 'design' not in _DIST_CF_CACHE:
+        import distributed_solar_profile as dsp
+        _DIST_CF_CACHE['design'] = dsp.hydro_year_profile(2016)
+    return _DIST_CF_CACHE['design']
+
 class CheckpointSolver:
     """Base class for a single checkpoint's own year-solve (Appendix P.1's
     "checkpoint solve" -- optimizer decides both build and dispatch).
@@ -911,6 +927,61 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
     lp_model.build_scenario2_problem() directly, per that function's own, separate
     calling convention (Appendix C)."""
 
+    def carve_out_mw(self, year=None):
+        """Distributed capacity the C.2 carve-out requires in `year`, MW.
+
+        Va. Code 56-585.5(C): the RPS Program requirement is "a percentage of the total electric
+        energy SOLD in the previous calendar year", and C.2 requires 4.5% (2026-2030) or 5%
+        (2031-2045) of that requirement from resources of 1 MW or less.
+
+            energy sold (n-1)  =  VirginiaOnlyGeneration(n-1) / loss factor
+            RPS requirement    =  Phase II share  x  energy sold
+            carve-out MWh      =  carve-out share x  RPS requirement
+            x (MW)             =  carve-out MWh   /  (8,760 x distributed capacity factor)
+
+        SOLD MEANS METERED, so the generation series is divided by the 1.0925 loss factor. The same
+        series is used UNDIVIDED for dispatch, because the hourly file already carries the gross-up.
+        See docs/Common_Reference.md section 1.
+
+        NOT CIRCULAR. The base is energy sold, a quantity the demand series gives independently of
+        what the scenario builds -- so the carve-out is computable even though Scenario 2 does not
+        meet the RPS.
+
+        THE CAPACITY FACTOR DECIDES THE MEGAWATTS. The obligation is energy, so a worse capacity
+        factor means more nameplate for the same RECs. The 45-degree fixed array assumed for
+        distributed resources delivers 0.1526 against utility tracking's 0.2252, which is why the
+        swap loses energy at constant total capacity.
+        """
+        import demand_basis
+        import distributed_solar_profile as dsp
+        import rps_compliance as rc
+
+        year = self.year if year is None else year
+        sold_mwh = (demand_basis.VirginiaOnlyGeneration(year - 1).hourly_mw().sum()
+                    / assumptions.TRANSMISSION_LOSS_FACTOR)
+        requirement_mwh = sold_mwh * rc.phase_ii_rps_share(year)
+        carve_out_mwh = requirement_mwh * rc.distributed_carve_out_share(year)
+        return carve_out_mwh / (8760.0 * dsp.DESIGN_YEAR_CAPACITY_FACTOR)
+
+    def solar_split_mw(self, year=None, new_build_mw=None):
+        """(distributed, utility) MW of NEW BUILD, within the capped total.
+
+        THE SPLIT APPLIES TO NEW BUILD, NOT TO THE STATUTORY TOTAL. The 16,100 MW of D.2 is a total
+        INCLUDING the existing fleet -- assumptions.vcea_new_solar_mw already nets that off, giving
+        11,445 MW of new build at 2045 against 4,819 MW existing. Splitting the 16,100 itself and
+        passing both parts to the builder would add the existing fleet on top, taking total solar to
+        20,918 MW and RAISING the clean share, which is how this was first written and how it was
+        caught: the result moved the wrong way.
+
+        The carve-out is capped at the new build available. If it ever exceeded that, the obligation
+        could not be met from new build alone -- which the cap assumption forbids.
+        """
+        year = self.year if year is None else year
+        if new_build_mw is None:
+            new_build_mw = assumptions.vcea_new_solar_mw(year, self.vcea_solar_mw)
+        dist = min(self.carve_out_mw(year), new_build_mw)
+        return dist, new_build_mw - dist
+
     def gas_retirement_schedule(self):
         """SCHEDULE A -- CORRECTED 2026-09-14, having inherited B silently until then.
 
@@ -1070,9 +1141,18 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         # milestones.
         vcea_new_mw = (assumptions.vcea_new_solar_mw(self.year, self.vcea_solar_mw)
                        if deduct_existing_post_vcea else self.vcea_solar_mw)
+        # THE C.2 CARVE-OUT TAKES ITS SHARE FROM WITHIN THE CAPPED TOTAL, not on top of it. See
+        # assumptions.SCENARIO2_SOLAR_CAP_IS_AN_ASSUMPTION for why that is an assumption rather
+        # than a reading of the Code, and what it costs: utility-scale falls from about 13,244 MW
+        # at 2035 to 9,238 MW at 2045 as the energy obligation outgrows the capacity target.
+        _dist_mw, _util_mw = self.solar_split_mw(new_build_mw=vcea_new_mw)
+        _dist_cf = _distributed_design_year_cf()
+        vcea_new_mw = _util_mw
+
         problem = lp.build_scenario2_problem(
             self.solar_cf, self.wind_cf, self.nuclear, self.exist_solar, self.demand,
             vcea_solar_mw=vcea_new_mw,
+            dist_solar_mw=_dist_mw, dist_solar_cf=_dist_cf,
             ccgt_mw=ccgt_mw,
             na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
             na_duration_hr=na_duration_hr,

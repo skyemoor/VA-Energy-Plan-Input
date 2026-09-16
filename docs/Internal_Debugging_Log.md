@@ -7010,3 +7010,38 @@ Methodology that applies to more than one scenario stays in its appendix -- the 
 is Appendix Q, agrivoltaics is the agrivoltaics appendix -- and the scenario documents point at
 them rather than restating.
 
+
+## 146. The C.2 carve-out wired into Scenario 2, and three statutory misreadings caught
+
+**2026-09-14.** Scenario 2 step 2 done: the distributed carve-out is computed from the statutory
+schedule and dispatched at its own profile.
+
+**THREE MISREADINGS, EACH CAUGHT BY BEING ASKED TO CHECK THE SOURCE:**
+
+**(a) I sized the carve-out on total demand rather than the RPS requirement.** C.2 is "a percentage
+of the Phase II Utility's RPS Program requirements", so it is a share of a share. That gave 3,970 MW
+at 2030 where the correct figure is 1,432.
+
+**(b) I interpolated a schedule the statute tabulates year by year.** The Code gives every year from
+2021 to 2049. It is not linear -- Phase II steps 3 points a year to 2030 then 4 from 2031.
+
+**(c) I read the Phase I column.** Dominion is Phase II, which runs well above it: 59% against 45%
+at 2035, 100% against 80% at 2045.
+
+None would have been visible in the output. All three produce plausible numbers.
+
+**AND A FOURTH ERROR CAUGHT BY THE RESULT MOVING THE WRONG WAY.** I split the 16,100 MW total and
+passed both parts to the builder -- but `vcea_new_solar_mw` is already net of the existing fleet, so
+that added 4,819 MW on top and took total solar to 20,918 MW. Clean share ROSE when the physics says
+it must fall, which is what caught it. Had it moved the right way by a plausible amount it would
+have been accepted.
+
+**MEASURED, on the corrected implementation:** the carve-out reaches 6,862 MW by 2045, 60% of new
+build, leaving 4,583 MW of utility-scale. Clean share falls 34.7% to 32.5% and gas rises 127 to 136
+TWh, because distributed delivers a 0.1526 capacity factor against tracking's 0.2252 -- about 4.4
+TWh lost on the same nameplate.
+
+**Scenario 2's split logic is its own.** It divides a FIXED total because the cap is what defines
+the scenario. Scenarios 1, 1B and 3 build to meet a compliance target, so the carve-out there is a
+FLOOR on distributed within whatever total the LP chooses.
+

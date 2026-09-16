@@ -761,7 +761,8 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
                               vcea_solar_mw, ccgt_mw, na_power_mw, na_duration_hr,
                               fe_power_mw, fe_duration_hr, gas_price_mwh, ccgt_vom_mwh,
                               init_soc_frac=INIT_SOC_FRAC, verbose=True,
-                              gas_merit_order=None, gas_merit_order_year=None):
+                              gas_merit_order=None, gas_merit_order_year=None,
+                              dist_solar_mw=0.0, dist_solar_cf=None):
     """
     Scenario 2: dispatch-only, all capacities FIXED (no build variables, no RPS gas-percentage cap).
     Gas capped only by CCGT's hard MW nameplate. VCEA solar/wind target treated as solar-equivalent
@@ -784,7 +785,16 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
     ENA_mwh = na_power_mw * na_duration_hr
     EFE_mwh = fe_power_mw * fe_duration_hr
 
-    residual = demand - nuclear - exist_solar - CVOW_MW*wind_cf - solar_cf*vcea_solar_mw
+    # THE C.2 CARVE-OUT DISPATCHES AT ITS OWN PROFILE, as its own term. Not folded into
+    # exist_solar or converted to a utility-scale equivalent: distributed resources are a 45-degree
+    # FIXED array at a 0.1526 capacity factor against utility tracking's 0.2252, so the hourly
+    # SHAPE differs and the shape is what decides peak contribution. Converting would misrepresent
+    # it, and folding it into another array would make the statutory obligation unreportable --
+    # there would be no way to check afterwards whether the carve-out was met.
+    _dist_generation = (0.0 if dist_solar_cf is None
+                        else np.asarray(dist_solar_cf) * dist_solar_mw)
+    residual = (demand - nuclear - exist_solar - CVOW_MW*wind_cf - solar_cf*vcea_solar_mw
+                - _dist_generation)
 
     eq_rows, eq_cols, eq_data, eq_rhs = [], [], [], []
     row = 0

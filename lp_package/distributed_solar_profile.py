@@ -94,6 +94,11 @@ import numpy as np
 #: siting location, not a population centre.
 DISTRIBUTED_SITES = ('Sterling', 'Arlington', 'KingGeorge', 'Richmond', 'Chesapeake')
 
+#: Measured capacity factor of the design year (2016-17), five sites averaged at 45 degrees.
+#: THE HIGHEST OF THE EIGHT hydro years, which range 0.1420 to 0.1526 -- so a robustness run
+#: sees about 7% less distributed output than a design-year solve assumes.
+DESIGN_YEAR_CAPACITY_FACTOR = 0.1526
+
 #: Fixed array, due south. See the module docstring for why 45 rather than latitude-optimal.
 DISTRIBUTED_TILT_DEGREES = 45.0
 DISTRIBUTED_AZIMUTH_DEGREES = 180.0
