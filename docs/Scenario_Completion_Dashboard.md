@@ -1,6 +1,6 @@
 # Scenario completion dashboard
 
-**Status as of 2026-09-14.** One row per step per scenario. A step is **done** only when its result
+**Updated whenever a step's status changes on any scenario.** Status as of 2026-09-14. One row per step per scenario. A step is **done** only when its result
 has been produced on the current code and constants — not when the code to produce it exists.
 
 **The gas fleet reference is `docs/methodology/Gas_Consolidated_Reference.md`**, rebuilt against
@@ -22,20 +22,24 @@ third-party database is superseded by it and should not be carried forward.
 ## Scenario 2 — Statutory Minimums
 
 The reference case: build only the 16,100 MW solar and 20,000 MW storage the Code names, meet the
-rest with gas. No reserve-margin constraint by design.
+rest with gas. No reserve-margin constraint — adequacy is bounded by the merit-order stack instead,
+which caps gas at the real fleet and surfaces any shortfall as unserved energy.
 
 | # | step | status | blockers |
 |---|---|---|---|
 | 1 | Solver wired and verified | **superseded** | steps 2, 3 |
 | 2 | Statutory distributed carve-out | **not started** | profile built, not wired |
 | 3 | Agrivoltaic siting, applied evenly | **not started** | — |
+| 3a | Merit-order stack in the solver | **done** | — |
+| 3b | Gas capacity fit on the measured gap | **done** | — |
 | 4 | Four-checkpoint pathway | **superseded** | steps 2, 3 |
 | 5 | Twenty-year annual stream | **superseded** | steps 2, 3 |
 | 6 | SLCOE + capex band | **superseded** | steps 2, 3 |
 | 7 | Social + health cost | **superseded** | steps 2, 3 |
 | 8 | Whitepaper section | **superseded** | steps 2, 3 |
-| 9 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
-| 10 | Unit commitment sensitivity | **blocked** | #17 |
+| 9 | New gas capacity costed into the SLCOE | **not started** | steps 2, 3 |
+| 10 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
+| 11 | Unit commitment sensitivity | **blocked** | #17 |
 
 **Two changes to the scenario definition supersede the completed run.** The
 $32.80/MWh SLCOE is a clean result on a specification we have since revised, not a wrong
@@ -57,9 +61,14 @@ overlay on whatever build results.
   demand growth.
 ● **The mandated storage never operates** — zero charge, discharge and curtailment in all 8,760
   hours of 2045. Solar delivers 41.3 TWh against 202.2 TWh of demand.
-● The **$3.4B/yr of idle storage capital** carries a caveat: the model offers storage nothing to
-  arbitrage (#3, and flat annual gas pricing), so mandate mismatch and modelling boundary cannot be
-  separated.
+● **The storage is not idle — it is insufficient.** With the merit order bounding gas at the real
+  fleet, sodium-ion discharges **13.04 TWh over 2,666 hours** and **17.96 TWh still goes unserved**.
+  The earlier idle-storage finding was an artifact of unbounded gas. Not arbitrage but scarcity: the
+  alternative to discharging is unserved energy at the penalty price.
+● **The 2045 capacity gap is 10,263 MW of peaking duty** — 1,233 blocks, median 2 hours, clearing no
+  combined-cycle minimum uptime at any level. Combustion turbine beats combined cycle by
+  **$1,365M/yr**, on capital, maintenance, capacity factor and duty shape alike. Appendix Q.3a.
+● **Fuel was understated by $11.90/MWh** at a flat 6.40 heat rate; the stack gives 8.12.
 
 ---
 
@@ -182,6 +191,11 @@ Density still concentrates at the top: 100, 95, 90, 85, 80, 75, then coarser ste
 | #5, #15 | DER foresight and revenue stack | S3 step 5 |
 | #4 | Nodal prices | S3 step 6 |
 | #3 | No import capability | caveats every result; blocks none |
+
+**The merit-order stack is available to all four scenarios.** `build_problem` has carried it since
+before this session; `build_scenario2_problem` gained it 2026-09-14. It is opt-in, so no published
+result moves until a scenario enables it — but every scenario's fuel is understated until one does,
+because a single-rung model burns at the best heat rate in the fleet in every hour.
 
 **#24 is on the critical path** — it gates the re-run that three scenarios depend on, and the sweep
 depends on Scenario 1.
