@@ -9,12 +9,11 @@
 
 ## The question
 
-Virginia's clean energy law was enacted in 2020 against a electricity demand forecast that has since roughly
-doubled, driven almost entirely by the rapid growth in data centers. The clean energy targets did not change.
-
 **This analysis asks whether the 100% clean energy target is still achievable, what each level of compliance costs, and
 what happens if Virginia builds only what the law's own solar, wind, and storage minimums require.**
 
+Virginia's clean energy law was enacted in 2020 against a electricity demand forecast that has since roughly
+doubled, driven almost entirely by the rapid growth in data centers. The clean energy targets did not change.
 ---
 
 ## What the analysis found
@@ -27,7 +26,7 @@ point. This chart is the paper's central result.*
 ( this information down to row 47 will likely be best as bullets, such as the following)
 ## The statutory solar, wind, and storage minimums now are projected to achieve less than 32% clean energy by 2045
  - 16,100 megawatts of solar, 2600 megawatts of wind, and 20,000 megawatts of storage** —
-and meeting the rest with natural gas:
+ - the rest supplied overwhelmingly with natural gas
 (I envision the curve here where all the scenarios show up, the information below is more for tech summary. there can also be a stacked bar chart showing each scenario with benefits above zero, and impacts below zero)
 | | 2026 | 2030 | 2035 | 2040 | 2045 |
 |---|---:|---:|---:|---:|---:|
