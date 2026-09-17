@@ -7174,3 +7174,31 @@ discussion: `paths.source_file('PJMMap.webp')` is used as the marker for locatin
 root, so a missing irradiance dataset reports a missing map image; and other scripts may carry the
 same unnecessary data dependency, which would mean they cannot run on a clean checkout.
 
+
+## 151. Correction to 150: the 6.2x aggregate claim was wrong
+
+**2026-09-14, same day.** Entry 150 states that "two jobs on eight workers each gives roughly 6.2x
+aggregate against 2.7x for one job on sixteen". That is wrong and was committed to three documents
+before being caught.
+
+**I multiplied per-pool speedups.** Two jobs at 3.1x each does not give 6.2x, because memory
+bandwidth does not care how processes are grouped: two jobs on eight workers each IS sixteen
+concurrent solves, which is the configuration that measured 2.7x.
+
+The measured figures are for TOTAL CONCURRENT SOLVES:
+
+    4 concurrent   2.4x
+    8 concurrent   3.1x
+    16 concurrent  2.7x
+
+**So throughput is maximised at about eight concurrent solves in total**, however grouped. One job
+on eight workers and two jobs on four workers each should be equivalent, the second being
+preferable when two scenarios are wanted together rather than in sequence.
+
+**Caught by a question about running four jobs of four workers** -- which is also sixteen
+concurrent, and would have run four scenarios at once, each about 15% slower than the peak, for no
+aggregate gain over one job on sixteen.
+
+`scripts/time_concurrent_jobs.py` now measures the multi-job case directly, because I have reasoned
+wrongly about this once and measurement is cheaper than a second attempt.
+

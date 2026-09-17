@@ -50,10 +50,14 @@ memory bandwidth saturates around eight concurrent solves, after which hyperthre
 about 12% of throughput back while occupying the whole machine. Efficiency falls monotonically
 across the three, which is the bandwidth-bound signature.
 
-The scheduling consequence is worth more than the 12%: **two jobs on eight workers each delivers
-roughly 6.2x aggregate against 2.7x for one job on sixteen** -- more than double the throughput from
-the same hardware. For a sweep of eleven compliance levels across four scenarios, that is the
-difference between one day and two.
+**THESE FIGURES ARE FOR TOTAL CONCURRENT SOLVES, however grouped.** Memory bandwidth does not care
+how processes are divided into jobs, so two jobs on eight workers each is sixteen concurrent solves
+-- the 2.7x row, not twice the 3.1x one. An earlier note here multiplied per-pool speedups and
+claimed 6.2x aggregate; that was wrong.
+
+Throughput is therefore maximised at about eight concurrent solves in TOTAL: one job on eight
+workers, or two jobs on four workers each. `scripts/time_concurrent_jobs.py` measures the multi-job
+case directly rather than inferring it from this one.
 
 **The finding is not "eight is right".** It is that the peak sits below the core count and past it
 gets worse, so it must be measured per machine. Three runs, ninety seconds, and it changed the

@@ -192,9 +192,19 @@ years inherit the fleet, so the draw loop does not need all twenty.
 **Eight beats sixteen.** Memory bandwidth saturates around eight concurrent solves; past that,
 hyperthread contention costs about 12% of throughput while occupying the whole machine.
 
-**Two jobs on eight workers each gives roughly 6.2× aggregate against 2.7× for one job on sixteen** —
-more than double, from the same hardware. `scripts/time_solve_benchmark.py` measures this; the peak
-is machine-specific and going past it makes things worse, so it should be measured rather than
+**The numbers above are for TOTAL CONCURRENT SOLVES, however they are grouped.** Memory bandwidth
+does not care how processes are divided into jobs: two jobs on eight workers each is sixteen
+concurrent solves, which is the 2.7× row, not twice the 3.1× one. An earlier version of this
+section multiplied per-pool speedups and claimed 6.2× aggregate; that was wrong, and the error is
+recorded because it is an easy one to repeat.
+
+**So throughput is maximised at about eight concurrent solves in total.** One job on eight workers
+and two jobs on four workers each should deliver the same aggregate — the second being preferable
+when two scenarios are wanted at once, since they progress together rather than in sequence.
+
+`scripts/time_solve_benchmark.py` measures single-job scaling and
+`scripts/time_concurrent_jobs.py` measures the multi-job case directly. The peak is
+machine-specific and going past it makes things worse, so both should be measured rather than
 assumed.
 
 ### What is still missing

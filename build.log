@@ -1010,3 +1010,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `docs/scenarios/Scenario2_Working_Document.md` -- section 9, adequacy and new gas capacity.
 - Sizing adopted: 6,500 MW of new CCGT at 2045 on cost; adequacy floor is 5,000 MW.
 
+## 2026-09-14 (concurrent-job throughput; correction to the aggregate claim)
+
+- `scripts/time_concurrent_jobs.py` -- NEW. Measures aggregate throughput for N jobs x M workers
+  directly, and flags when equal-concurrency groupings differ.
+- `docs/Common_Reference.md`, `scripts/time_solve_benchmark.py` -- the "6.2x aggregate" claim
+  corrected. The measured curve is a function of TOTAL CONCURRENT SOLVES, however grouped; two jobs
+  of eight workers is sixteen concurrent, which is the 2.7x row, not twice the 3.1x one.
+
