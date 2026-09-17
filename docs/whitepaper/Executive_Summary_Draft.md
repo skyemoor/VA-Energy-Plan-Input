@@ -9,11 +9,11 @@
 
 ## The question
 
-Virginia's clean energy law was written in 2020 against a demand forecast that has since roughly
-doubled, driven almost entirely by data centres. The targets did not change.
+Virginia's clean energy law was enacted in 2020 against a electricity demand forecast that has since roughly
+doubled, driven almost entirely by the rapid growth in data centers. The clean energy targets did not change.
 
-**This analysis asks whether they are still reachable, what each level of compliance costs, and
-what happens if Virginia builds only what the law's own minimums require.**
+**This analysis asks whether the 100% clean energy target is still achievable, what each level of compliance costs, and
+what happens if Virginia builds only what the law's own solar, wind, and storage minimums require.**
 
 ---
 
@@ -24,12 +24,11 @@ with a shaded band for gas-price uncertainty and the statutory-minimum case plot
 point. This chart is the paper's central result.*
 
 ---
-
-## The statutory minimum does not hold its ground
-
-Building only what the Code names — **16,100 megawatts of solar and 20,000 megawatts of storage** —
+( this information down to row 47 will likely be best as bullets, such as the following)
+## The statutory solar, wind, and storage minimums now are projected to achieve less than 32% clean energy by 2045
+ - 16,100 megawatts of solar, 2600 megawatts of wind, and 20,000 megawatts of storage** —
 and meeting the rest with natural gas:
-
+(I envision the curve here where all the scenarios show up, the information below is more for tech summary. there can also be a stacked bar chart showing each scenario with benefits above zero, and impacts below zero)
 | | 2026 | 2030 | 2035 | 2040 | 2045 |
 |---|---:|---:|---:|---:|---:|
 | **Clean share of energy** | 47.4% | **48.6%** | 45.7% | 35.0% | **31.6%** |
@@ -47,7 +46,7 @@ only lose ground, however much storage is paired with it — and this scenario p
 megawatts the Code requires.
 
 ---
-
+(there will likely need to be a legislative appendix with these details, though key legislative changes should be bulletized here)
 ## Three findings the General Assembly should be aware of
 
 ### 1. The two solar requirements in the Code work against each other
@@ -112,18 +111,18 @@ single largest uncertainty.** Three independently published forecasts:
 costs, not what it achieves, because the build is fixed by statute rather than chosen for economy.
 
 ---
+(this section is helpful, and the descriptions should be condensed)
+## What this analysis does and does not do
 
-## What this analysis does and does not settle
-
-**It does settle** which compliance levels are reachable, what each costs per year, and how sensitive
+**It does project** which compliance levels are reachable, what each costs per year, and how sensitive
 those costs are to fuel price and to how the system is bounded.
 
-**It does not settle whether any particular plant should be built.** This is screening-level
+**It does not call for any particular plant to be built.** This is screening-level
 analysis — the stage that narrows options before detailed study, not the stage that approves
 construction. A procurement decision would require production-cost modelling with unit commitment,
 forced outages and transmission, which is a different tool used later in the process.
 
-**Every figure here is measured**, from Dominion's own hourly demand projections, published fuel
+**Every figure here is sourced and calculated**, from Dominion's own hourly demand projections, published fuel
 price forecasts, and the generating fleet as it actually exists and is scheduled to retire. Where an
 assumption is doing significant work, the analysis says so and shows what the answer would be if the
 assumption changed.
