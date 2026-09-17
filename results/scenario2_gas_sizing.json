@@ -1,0 +1,13 @@
+{
+  "reference_unit_mw": 1083.0,
+  "basis": "adequacy floor: smallest build at which unserved energy reaches zero. NOT the cost optimum, which sits above it -- at 2045 adequacy gives about 5,000 MW against a 6,500 MW cost optimum.",
+  "units_required_by_year": {
+    "2036": 2,
+    "2037": 2
+  },
+  "units_built_by_year": {
+    "2036": 2,
+    "2037": 2
+  },
+  "not_adequate_at_max_units": []
+}

@@ -1414,6 +1414,43 @@ PEAKER_FOM_USD_PER_KW_YR = {
     'f_class': 7.00,           # 237 MW single genset, 38.2% efficiency
 }
 
+#: SCENARIO 2 ONLY. New combined-cycle capacity target by year, MW, before rounding to whole
+#: reference units. A DECISION per Rule 8: revisitable, and revised if adequacy testing with
+#: forced-outage draws shows the simple-cycle fleet has too little headroom at 40.5% capacity factor.
+#:
+#: PER YEAR, NOT PER CHECKPOINT, and the difference is not cosmetic. THE REQUIREMENT IS NOT
+#: MONOTONIC: 2031 needs 500 MW, 2033 needs none, 2035 needs 500 MW and 2037 needs 2,000. The
+#: statutory solar build ramps to 16,100 MW by 2035 while demand grows steadily, so the residual
+#: DIPS when solar arrives faster than load. A four-checkpoint table with zeros at 2030 and 2035
+#: missed 2031 entirely and the runner failed there on 4,022.9 MWh unserved -- Rule 9's own check
+#: catching what checkpoint sizing had hidden. See build log 154.
+#:
+#: CAPACITY PERSISTS, so what is built is the RUNNING MAXIMUM of the per-year requirement, not the
+#: requirement itself. A year needing less than an earlier year builds nothing and runs what exists
+#: at lower utilisation.
+#:
+#: SIZED ON COST AT 2045: $8,307M/yr at 6,500 MW against $8,323M at 7,000 and $8,342M at 7,500.
+#: Adequacy alone gives 5,000 MW, where unserved energy reaches zero -- the extra 1,500 MW pays for
+#: itself in fuel saved on the existing fleet, so a least-cost plan builds above the floor.
+#:
+#: EARLIER YEARS ARE THE ADEQUACY FLOOR, pending the per-year sweep.
+SCENARIO2_NEW_CCGT_UNITS_BY_YEAR_IS_PROVISIONAL = (
+    'Only 2031, 2033, 2035, 2037, 2040 and 2045 are measured; the rest are interpolated '
+    'placeholders. Run scripts/sweep_scenario2_gas_sizing.py to replace this with a measured '
+    'trajectory.')
+
+#: WHOLE UNITS, NOT MEGAWATTS, and that removes an ambiguity rather than hiding one. A megawatt
+#: target has to be rounded, and no single rule serves both kinds of entry: 2031's 500 MW is an
+#: ADEQUACY requirement, where rounding to nearest gives zero units and leaves the year short, while
+#: 2045's 6,500 MW is a COST optimum, where ceiling adds a seventh unit for a 2 MW excess. Recording
+#: the unit count directly states what is built and leaves the rounding decision where it was made.
+SCENARIO2_NEW_CCGT_UNITS_BY_YEAR = {
+    2026: 0, 2027: 0, 2028: 0, 2029: 0, 2030: 0,
+    2031: 1, 2032: 1, 2033: 1, 2034: 1, 2035: 1,
+    2036: 2, 2037: 2, 2038: 3, 2039: 3, 2040: 5,
+    2041: 5, 2042: 5, 2043: 6, 2044: 6, 2045: 6,
+}
+
 #: SCENARIO 2 ONLY. New combined-cycle reference unit, for the DISCRETE build it requires.
 #: Resolve it through Scenario2Solver.new_gas_technology() rather than reaching for it directly:
 #: the other scenarios build simple-cycle under the standing rule, and a constant whose name gives

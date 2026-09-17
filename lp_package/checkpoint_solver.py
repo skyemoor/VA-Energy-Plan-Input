@@ -30,6 +30,8 @@ this class hierarchy inherits that fix automatically, with no changes
 needed here, since it calls run_solve()/converge_frac() rather than
 reimplementing their own internals.
 """
+import math
+
 import numpy as np
 
 import assumptions
@@ -1053,6 +1055,72 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
     lp_model.build_scenario2_problem() directly, per that function's own, separate
     calling convention (Appendix C)."""
 
+    def new_gas_capacity_mw(self, year=None):
+        """New combined-cycle capacity in place in `year`, MW, as whole reference units.
+
+        SIZED ON COST, NOT ON ADEQUACY ALONE. Adequacy sets a FLOOR -- unserved energy reaches zero
+        at about 5,000 MW at 2045 -- and cost sets the optimum ABOVE it at 6,500 MW, because the
+        extra capacity pays for itself in fuel saved on the existing fleet. Reporting only the
+        adequacy floor would understate what a least-cost plan builds.
+
+        THE COST CURVE IS FLAT: $8,307M/yr at 6,500 MW against $8,323M at 7,000 and $8,342M at
+        7,500, a 0.4% spread across a 1,000 MW range. The answer is weakly determined, which is
+        itself a finding -- Scenario 2's cost is dominated by fuel on a fleet that must run hard
+        regardless, so the CCGT/CT split moves it far less than the QUANTITY of gas the scenario
+        forces. See the Scenario 2 working document, section 9.
+
+        WHOLE UNITS, because megawatts are not divisible in procurement. Six H-Class multi-shaft
+        units give 6,498 MW against the 6,500 MW optimum -- a 0.03% shortfall, against Scenario
+        1B's 11% overshoot when 1,278 MW becomes six F-Class units.
+
+        CAPACITY PERSISTS, so this is a running maximum: nothing already built is unbuilt, and a
+        year needing less than an earlier year simply runs what exists at lower utilisation.
+
+        THREE SIZING CRITERIA WERE TRIED AND REJECTED before cost (build log 149): a CT-utilisation
+        diagnostic with no support in the literature, a run-length fit on the unbounded gas series
+        which described what gas SERVED rather than what capacity was MISSING, and a rule holding
+        the existing simple-cycle fleet at or below its 28.1% crossover -- which is a NEW-BUILD
+        decision that does not transfer to plant with sunk capital.
+        """
+        year = self.year if year is None else year
+        targets = assumptions.SCENARIO2_NEW_CCGT_UNITS_BY_YEAR
+        if year not in targets:
+            # Rule 5. Interpolating would feed a reported figure, and the requirement is NOT
+            # monotonic -- it dips when statutory solar arrives faster than load grows -- so no
+            # interpolation between neighbouring years is safe.
+            raise ValueError(
+                f'no new-gas capacity target for {year}. Targets run '
+                f'{min(targets)}-{max(targets)}; a year outside that range needs its own sizing '
+                'solve rather than an interpolated guess.')
+        # CAPACITY PERSISTS: what is built is the running maximum, not this year's requirement.
+        # A year needing less than an earlier year runs what exists at lower utilisation.
+        # CAPACITY PERSISTS: the running maximum, not this year's own entry. The requirement is NOT
+        # monotonic -- 2031 needs a unit that 2033 does not -- because statutory solar arrives
+        # faster than load grows in some years. Nothing already built is unbuilt.
+        units = max(n for y, n in targets.items() if y <= year)
+        return units * assumptions.CCGT_REFERENCE_UNIT_MW
+
+    def apply_gas_cap(self):
+        """Existing fleet under Schedule A, plus the new combined-cycle capacity built by this year.
+
+        THE INHERITED DEFAULT DISPATCHED GAS THE FLEET DOES NOT HAVE. Scenario2Solver.solve left
+        ccgt_mw at unbounded_gas_ceiling_mw -- 200,000 MW -- so the published run reported ZERO
+        unserved energy while a run bounded by the real fleet showed 30.05 TWh at 2045 over 5,671
+        hours. Those were two specifications, and every figure downstream rested on the wrong one.
+
+        Overriding here rather than in the runner follows the hook Scenario1BSolver already uses,
+        and means the sweep and any future caller inherit the bound rather than having to remember
+        to pass it.
+        """
+        # THE RETAIN POOL IS PART OF THE EXISTING FLEET, not new build. Omitting it in the first
+        # version of this override gave 13,889 MW against the merit-order stack's 12,216 MW plus
+        # 6,498 MW of new capacity, and the solve showed 15.82 TWh unserved where an independent
+        # probe at the same capacity showed zero. Rule 4: the disagreement between two paths was
+        # the signal, not either figure on its own.
+        return (drv.gas_baseline_mw(self.year, self.gas_retirement_schedule())
+                + assumptions.GAS_NEW_BUILD_POOL_MW
+                + self.new_gas_capacity_mw())
+
     def new_gas_technology(self):
         """COMBINED CYCLE, and the standing rule's own text carves this scenario out: "NOT Scenario
         2, which retains its own established CCGT-based new-build methodology".
@@ -1212,13 +1280,21 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
                     capex_usd_per_kw=lp.FE_ENERGY_CAPEX,
                     fixed_om_usd_per_kw_yr=0.0,
                     note='MW figure is MWh of energy capacity; capex is $/kWh')
+        # NEW CAPACITY IS WHAT WAS BUILT, NOT WHAT DISPATCH HAPPENED TO REACH. This read
+        # `new_mw = max(0.0, peak_gas_mw - existing_gas_mw)`, inferring the build from the peak
+        # hour -- which was defensible while gas ran against an unbounded ceiling and nothing
+        # declared a build, but understates capacity in any year whose peak falls below what was
+        # installed. A plant that runs below nameplate is still paid for. See build log 154.
+        new_gas_mw = self.new_gas_capacity_mw()
         c.add_asset('gas',
-                    existing_mw=min(peak_gas_mw, existing_gas_mw),
-                    new_mw=max(0.0, peak_gas_mw - existing_gas_mw),
+                    existing_mw=existing_gas_mw,
+                    new_mw=new_gas_mw,
                     capex_usd_per_kw=CCGT_CAPEX_KW[ccgt_capex_basis],
                     fixed_om_usd_per_kw_yr=assumptions.CCGT_FOM_KW_YR,
-                    note=f'all CCGT by construction -- this problem has one gas variable, so the '
-                         f'CCGT/CT split cannot be determined here; capex basis {ccgt_capex_basis}')
+                    note=f'{new_gas_mw:,.0f} MW new combined cycle, '
+                         f'{round(new_gas_mw / assumptions.CCGT_REFERENCE_UNIT_MW)} x '
+                         f'{assumptions.CCGT_REFERENCE_UNIT_MW:,.0f} MW reference units; '
+                         f'capex basis {ccgt_capex_basis}')
         self.result['lifecycle_cost'] = c
         return c
 
@@ -1261,7 +1337,16 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
             # matches DISTRIBUTED_STORAGE_DURATION_HR.
             na_duration_hr = assumptions.DISTRIBUTED_STORAGE_DURATION_HR
         if ccgt_mw is None:
-            ccgt_mw = unbounded_gas_ceiling_mw
+            # BOUNDED BY THE REAL FLEET, corrected 2026-09-14 (build log 154). This read
+            # `ccgt_mw = unbounded_gas_ceiling_mw` -- 200,000 MW -- so the published run dispatched
+            # gas the fleet does not have and reported ZERO unserved energy, while a run bounded by
+            # apply_gas_cap showed 30.05 TWh at 2045 over 5,671 hours. Two specifications, and
+            # every figure downstream rested on the wrong one.
+            #
+            # unbounded_gas_ceiling_mw is retained for diagnostic callers that deliberately want an
+            # unbounded solve -- measuring what gas WOULD serve, as distinct from what the fleet
+            # CAN. Passing it is now explicit rather than the default.
+            ccgt_mw = self.apply_gas_cap()
         # THE STATUTORY TARGET IS A TOTAL, NOT AN INCREMENT (corrected 2026-09-13).
         #
         # build_scenario2_problem subtracts BOTH exist_solar and vcea_solar_mw from demand, so

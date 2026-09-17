@@ -1057,3 +1057,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   steps they supersede in Scenarios 1, 1B and 3.
 - Step numbers cited in build-log entries before this date may not match.
 
+## 2026-09-14 (Scenario 2 gas capacity pinned; step 6)
+
+- `lp_package/checkpoint_solver.py` -- `Scenario2Solver.apply_gas_cap()` override, `new_gas_capacity_mw()`,
+  `solve()` default changed from the unbounded ceiling, `lifecycle_cost` costs the declared build.
+- `lp_package/assumptions.py` -- `SCENARIO2_NEW_CCGT_UNITS_BY_YEAR` (unit counts, per year),
+  marked provisional.
+- `scripts/sweep_scenario2_gas_sizing.py` -- NEW. Per-year adequacy-floor sweep.
+

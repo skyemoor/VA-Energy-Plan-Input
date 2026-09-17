@@ -7277,3 +7277,43 @@ carve-out. 1B is the one most likely to move: its 5% gas from 2045 is an energy 
 than gap-filling. Scenario 1's 2035 and 2040 are next, since its clean build arrives late and those
 years carry large residuals against a retiring fleet.
 
+
+## 154. Scenario 2 bounded by its real fleet, and checkpoint sizing was not enough
+
+**2026-09-14.** Scenario2Solver.solve defaulted `ccgt_mw` to `unbounded_gas_ceiling_mw` -- 200,000
+MW -- so the published run dispatched gas the fleet does not have and reported ZERO unserved energy,
+while a run bounded by the real fleet showed 30.05 TWh at 2045 over 5,671 hours. Two specifications,
+and every downstream figure rested on the wrong one.
+
+**Fixed on the existing hook.** `apply_gas_cap()` is what Scenario1BSolver already overrides;
+Scenario 2 now overrides it too, returning Schedule A baseline plus the retain pool plus new build,
+and `solve()` takes that as its default. The unbounded ceiling remains for diagnostic callers that
+deliberately want to measure what gas WOULD serve, but passing it is now explicit.
+
+**THE RETAIN POOL WAS OMITTED in the first version**, giving 13,889 MW where the stack has 12,216
+plus 6,498 of new capacity, and the solve showed 15.82 TWh unserved where an independent probe at
+the same capacity showed zero. Rule 4 caught it: the DISAGREEMENT between two paths was the signal,
+not either figure on its own.
+
+**THEN CHECKPOINT SIZING FAILED, TWICE.** A four-checkpoint table gave 2030 and 2035 zero units, and
+the runner failed at 2031 on 4,022.9 MWh unserved. Interpolating between measured points failed
+again at 2036 on 6,173.5 MWh. Rule 9's invariant check caught both.
+
+**THE REQUIREMENT IS NOT MONOTONIC**, which is why: 2031 needs a unit, 2033 needs none, 2035 needs
+one and 2037 needs two. The statutory solar build ramps to 16,100 MW by 2035 while demand grows
+steadily, so the residual DIPS in years when solar arrives faster than load. No interpolation
+between neighbouring years is safe.
+
+**AND A MEGAWATT TARGET COULD NOT BE ROUNDED CONSISTENTLY.** 2031's 500 MW is an ADEQUACY
+requirement, where rounding to nearest gives zero units and leaves the year short; 2045's 6,500 MW
+is a COST optimum, where ceiling adds a seventh unit for a 2 MW excess. The table now records UNIT
+COUNTS directly, which states what is built and leaves the rounding decision where it was made.
+
+**Costing corrected too.** `lifecycle_cost` derived new capacity as `peak_gas_mw - existing_gas_mw`,
+inferring the build from the peak hour -- defensible while nothing declared a build, but a plant
+running below nameplate is still paid for. It now costs what `new_gas_capacity_mw()` says was built.
+
+**`scripts/sweep_scenario2_gas_sizing.py`** measures the per-year adequacy floor. The table is
+marked provisional until it has been run across all twenty years; only 2031, 2033, 2035, 2036, 2037,
+2040 and 2045 are measured.
+
