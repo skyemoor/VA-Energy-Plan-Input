@@ -196,7 +196,7 @@ dispatch mix is fixed by what was built.
 | 2 | Demand basis and its sourcing | working notes exist |
 | 3 | Resource modelling — solar, wind, storage, nuclear, gas | partial |
 | 4 | Capacity planning method | `Reserves_Approach.md` |
-| 5 | Resource adequacy method | `Common_Reference.md` §2–3 |
+| 5 | Resource adequacy method | `Common_Reference.md` sections 2-3 |
 | 6 | Scenario 1 | pending |
 | 7 | Scenario 1B | Appendix N |
 | 8 | **Scenario 2** | **complete — `scenarios/Scenario2_Working_Document.md`** |
