@@ -112,6 +112,7 @@ of the other.
 | **`registers/Master_Citations.xlsx`** | **THE CITATION REGISTER** — 119 sourced citations, keyed C001 onward, with topics, evidence type, verification status and URLs. Every sourced finding goes here |
 | **`Citation_Taxonomy_Proposal.md`** | The topic taxonomy the register's Primary/Secondary Topics columns use |
 | **`build.log`** | **What changed, when** — chronological, one entry per file modified. Lightweight; the WHY lives in the debugging log |
+| **`whitepaper/Whitepaper_Outline.md`** | **THREE-LAYER STRUCTURE** — executive summary, technical summary, body. Scenario 2's results in place, everything else marked pending |
 | **`Common_Reference.md`** | **CROSS-CUTTING FACTS AND CONVENTIONS** — quantities and unit bases shared across every scenario, defined once. Section 1: transmission and distribution |
 | **`Scenario_Completion_Dashboard.md`** | **WHERE EACH SCENARIO STANDS** — every step, its status, and the issue numbers blocking it |
 | **`whitepaper/Scenario2_Section_Draft.md`** | **Whitepaper draft section for Scenario 2** — modelled figures, with the conflicts against the existing draft text flagged |
