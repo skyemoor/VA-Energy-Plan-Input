@@ -142,3 +142,19 @@ def result(filename):
 
 def manifest(filename):
     return os.path.join(MANIFESTS, filename)
+
+
+def source_dir_marker_or_none():
+    """Path to a source-data marker file if source data is present, else None.
+
+    EXISTS SO CALLERS CAN CHECK WITHOUT CATCHING. `source_file` raises a long, specific message
+    naming the file it looked for -- useful when that file IS the thing wanted, misleading when a
+    caller is only asking "is source data here at all?" and gets told to go find a map image.
+    """
+    import os as _os
+    for _name in ('PJMMap.webp',):
+        for _directory in (_os.path.join(REPO_ROOT, 'data', 'source'), '/mnt/project'):
+            _candidate = _os.path.join(_directory, _name)
+            if _os.path.exists(_candidate):
+                return _candidate
+    return None

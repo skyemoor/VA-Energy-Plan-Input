@@ -72,6 +72,42 @@ class TestTheCacheIsACacheNotAReplacement:
         assert '_cache is None' in inspect.getsource(dsp.hydro_year_profile)
 
 
+class TestTheMissingCacheFailsLoudly:
+    """RULE 5, and this was violated while fixing a Rule 5 violation. `_cached_hydro_year` returned
+    None silently when the file was absent, and the caller walked into the NSRDB path -- which fails
+    on a missing PJMMap.webp, a map image with nothing to do with solar profiles. The reader is sent
+    looking for the wrong thing, which is how this presented twice."""
+
+    def test_neither_cache_nor_source_raises_a_useful_message(self, monkeypatch, tmp_path):
+        import shutil
+        cache_path = paths.weather_year(dsp.CACHED_PROFILE_FILE)
+        moved = tmp_path / 'cache.npz'
+        shutil.move(cache_path, moved)
+        monkeypatch.setattr(paths, 'source_dir_marker_or_none', lambda: None)
+        try:
+            with pytest.raises(FileNotFoundError) as caught:
+                dsp.hydro_year_profile(2016)
+            message = str(caught.value)
+            assert dsp.CACHED_PROFILE_FILE in message
+            assert 'git pull' in message
+            assert 'PJMMap' not in message, 'must not send the reader after a map image'
+        finally:
+            shutil.move(moved, cache_path)
+
+    def test_a_partial_cache_raises_rather_than_falling_through(self):
+        """Falling through for SOME years would silently mix two derivations in one run."""
+        import inspect
+        source = inspect.getsource(dsp._cached_hydro_year)
+        import re
+        assert 'partial cache is worse' in re.sub(r'\s+', ' ', source)
+
+    def test_source_marker_check_does_not_raise(self):
+        """`source_file` raises a long message naming the file it wanted -- useful when that file
+        IS the thing wanted, misleading when the caller only asks whether source data exists."""
+        assert paths.source_dir_marker_or_none() is None or os.path.exists(
+            paths.source_dir_marker_or_none())
+
+
 class TestWhyItIsCommitted:
     def test_it_is_small(self):
         """260 KB against hundreds of megabytes of NSRDB source."""

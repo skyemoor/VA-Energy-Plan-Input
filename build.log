@@ -1103,3 +1103,9 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   `check_optional_capabilities_are_invoked()`. Seven capabilities registered.
 - Verified by reintroducing the merit-order defect: the check fails by name, then passes on restore.
 
+## 2026-09-14 (missing cache fails loudly)
+
+- `lp_package/distributed_solar_profile.py` -- missing cache raises a message naming the real file;
+  partial cache raises rather than falling through.
+- `lp_package/paths.py` -- `source_dir_marker_or_none()`, for asking without catching.
+

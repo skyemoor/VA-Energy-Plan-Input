@@ -7502,3 +7502,27 @@ RECURRING one.
 **And a test asserts an unresolvable registry entry FAILS rather than passing silently**, so a
 renamed function surfaces as a broken check rather than a green one.
 
+
+## 160. A Rule 5 violation written while fixing a Rule 5 violation
+
+**2026-09-14.** The committed profile cache landed, and the sweep still failed on the same
+`PJMMap.webp` error -- because `_cached_hydro_year` returned **None silently** when the file was
+absent, and the caller fell through to the NSRDB path.
+
+**The fallback hid the real cause.** A reader is told to go find a map image, which has nothing to
+do with solar profiles, when what is actually missing is a 260 KB derived product that `git pull`
+would bring. That is how this defect presented twice.
+
+**Two fixes.** The missing-cache case now raises a message naming the actual file, saying `git pull`
+should bring it, and pointing at DATA_SOURCES.md for the rebuild path -- and a test asserts
+`PJMMap` does NOT appear in it. A PARTIAL cache raises rather than falling through, because
+computing some years from NSRDB and reading others from the cache would silently mix two
+derivations in one run.
+
+**And `paths.source_dir_marker_or_none()` exists** so a caller can ask "is source data here at all?"
+without catching the exception `source_file` raises. That exception names the specific file it
+wanted, which is useful when that file IS the thing wanted and misleading when it is a marker.
+
+**The marker itself is still PJMMap.webp**, and still wants replacing with something that names what
+it stands for.
+

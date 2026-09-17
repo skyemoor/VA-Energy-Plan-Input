@@ -169,15 +169,20 @@ def _cached_hydro_year(first_calendar_year):
 
     The NSRDB path stays as the fallback and remains the definition; this is a cache of it.
     """
-    try:
-        path = paths.weather_year(CACHED_PROFILE_FILE)
-    except Exception:
-        return None
+    import paths
+
+    path = paths.weather_year(CACHED_PROFILE_FILE)
     if not os.path.exists(path):
         return None
     with np.load(path) as data:
         key = f'hy{first_calendar_year}'
-        return data[key].copy() if key in data else None
+        if key not in data:
+            raise KeyError(
+                f'{CACHED_PROFILE_FILE} exists but has no entry for hydro year '
+                f'{first_calendar_year} (keys: {sorted(data.files)}). A partial cache is worse '
+                'than none -- rebuild it rather than falling through to the NSRDB path, which '
+                'would silently use a different derivation for some years and not others.')
+        return data[key].copy()
 
 
 def hydro_year_profile(first_calendar_year, sites=DISTRIBUTED_SITES, _cache=None):
@@ -195,6 +200,20 @@ def hydro_year_profile(first_calendar_year, sites=DISTRIBUTED_SITES, _cache=None
         cached = _cached_hydro_year(first_calendar_year)
         if cached is not None:
             return cached
+        # RULE 5. Falling through here lands in the NSRDB path, which fails on a missing
+        # PJMMap.webp -- a map image that has nothing to do with solar profiles and sends the
+        # reader looking for the wrong thing. That is how this defect presented twice. Say what is
+        # actually missing, and what to do about it, before the misleading error can happen.
+        import paths
+
+        if paths.source_dir_marker_or_none() is None:
+            raise FileNotFoundError(
+                f'{CACHED_PROFILE_FILE} is not in data/weather_years, and the NSRDB source data '
+                'needed to rebuild it is not present either.\n'
+                '  The cache is a committed derived product (260 KB) -- `git pull` should bring '
+                'it.\n'
+                '  To rebuild from source instead, see docs/DATA_SOURCES.md for the NSRDB files '
+                'and place them in data/source.')
     cache = {} if _cache is None else _cache
     for y in (first_calendar_year, first_calendar_year + 1):
         if y not in cache:
