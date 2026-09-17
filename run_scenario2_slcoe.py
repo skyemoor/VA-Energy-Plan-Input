@@ -44,7 +44,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lp_
 import numpy as np                                                        # noqa: E402
 
 import agrivoltaic_overlay
-import assumptions                                                        # noqa: E402
+import assumptions
+import reliability_metrics                                                        # noqa: E402
 import checkpoint_solver as cs                                            # noqa: E402
 import demand_basis                                                       # noqa: E402
 import driver as drv                                                      # noqa: E402
@@ -105,7 +106,13 @@ def solve_year(year, weather, capex_basis):
                 f'{year}: {n} hours of simultaneous charge/discharge for {label} storage. '
                 'Appendix P.2 #11 requires zero before a solve is presented as final.')
 
-    unserved = sum(x[t * nph + IDX['unserved']] for t in range(len(demand)))
+    # ADEQUACY METRICS, per NERC's Risk Mitigation for Emerging Large Loads (2026): loss of load
+    # hours and unserved energy give the DURATION and MAGNITUDE of shortfall. These are
+    # realisations under one weather year with no forced-outage draws, not probabilistic
+    # expectations -- see reliability_metrics for why the EUE and CVaR names are not claimed.
+    unserved_hourly = np.array([x[t * nph + IDX['unserved']] for t in range(len(demand))])
+    adequacy = reliability_metrics.compute(unserved_hourly, demand)
+    unserved = float(unserved_hourly.sum())
     if unserved > 1.0:
         # Appendix P.2 #11: verification before any solve is presented as final.
         raise RuntimeError(
@@ -140,6 +147,10 @@ def solve_year(year, weather, capex_basis):
         'peak_gas_mw': float(max(x[t * nph + IDX['g']] for t in range(len(demand)))),
         'new_solar_mw': float(result['vcea_new_build_mw']),
         'dist_solar_mw': float(dist_mw),
+        'loss_of_load_hours': adequacy.loss_of_load_hours,
+        'unserved_energy_mwh': adequacy.unserved_energy_mwh,
+        'peak_shortfall_mw': adequacy.peak_shortfall_mw,
+        'longest_shortfall_event_hours': adequacy.longest_event_hours,
         # AGRIVOLTAIC SITING, applied to the utility-scale portion of solar installed after 2026.
         # Cost and land only -- a sheep-grazed tracking array generates exactly what a conventional
         # one does, because they are the same structures (NREL/TP-6A20-77811 gives both 5.9

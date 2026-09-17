@@ -991,3 +991,12 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   societal total $119.48 -> $119.24/MWh. Annualised cost $1.88B (2026) to $9.98B (2045).
 - Scenario 2 dashboard steps 1-9 now done.
 
+## 2026-09-14 (adequacy metrics)
+
+- `lp_package/reliability_metrics.py` -- NEW. Loss of load hours, unserved energy, peak shortfall,
+  event count and longest event, from the hourly unserved series. Named as realisations; the EUE
+  and CVaR names deliberately not claimed.
+- `run_scenario2_slcoe.py` -- metrics computed and reported per year.
+- `registers/Master_Citations.xlsx` -- C119, NERC Risk Mitigation for Emerging Large Loads (2026).
+- `docs/Common_Reference.md` -- section 2, resource adequacy metrics.
+

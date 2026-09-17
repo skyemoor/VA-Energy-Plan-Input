@@ -16,6 +16,7 @@ findings go to that scenario's working document; where things stand goes to
 | # | section | covers |
 |---|---|---|
 | 1 | Transmission and distribution | loss factor, load against generation basis, what "energy sold" means in statute |
+| 2 | Resource adequacy metrics | what is measured, what is not, and why the probabilistic names are not claimed |
 
 *Sections are added as cross-cutting questions arise. A topic belongs here when a second scenario
 would otherwise need the same answer.*
@@ -82,3 +83,51 @@ factor for dispatch would understate generation need by 9.25%; the working notes
   quantified; it is not currently anywhere in the model.
 
 **Both omissions run the same way: they understate the value of distributed generation.**
+
+---
+
+## 2. Resource adequacy metrics
+
+**NERC's *Risk Mitigation for Emerging Large Loads* (2026)** asks resource planners for multiple
+probabilistic metrics — *"loss of load hours, expected unserved energy, and conditional value at
+risk"* — because these *"provide information on the duration, magnitude, and severity of potential
+shortfall events."*
+
+It is explicit that one aggregate figure is not enough: *"without expanded metrics, RPs risk being
+surprised by rare, severe outages that **aggregate metrics like loss of load expectation cannot
+detect**."*
+
+### What this model reports
+
+`lp_package/reliability_metrics.py`, computed from the hourly unserved-energy series every solve
+already produces:
+
+| metric | dimension |
+|---|---|
+| loss of load hours | duration |
+| longest shortfall event | duration |
+| unserved energy | magnitude |
+| peak shortfall | magnitude |
+| event count and mean event length | severity, as far as one realisation allows |
+
+### What is not claimed, and why
+
+**These are realisations, not expectations.** A proper expected unserved energy is an expectation
+over many scenarios — NERC asks for *"thousands of integrated weather, load, and generation
+scenarios"* — and this model solves one weather year at a time with no forced-outage draws.
+
+So the functions are named `unserved_energy_mwh` and `loss_of_load_hours`, **not `eue`**. The
+correspondence is stated; the term is not taken. Using the probabilistic name for a deterministic
+quantity would invite comparison against a standard it cannot meet.
+
+**Conditional value at risk is not offered.** CVaR at 95% needs at least 20 scenarios for a single
+tail observation and several hundred for a stable estimate; eight weather years give 0.4. **What
+closes that gap is forced-outage draws, not more weather years** — 8 weather years × 100 draws is
+800 scenarios, which is in NERC's range. Scoped as its own work.
+
+### Zero unserved is a correctness test; non-zero is a result
+
+Different questions, and the distinction governs how these figures are read. A scenario built to
+serve its load must show zero, and a non-zero value there is a defect — which is why the runners
+raise. Scenario 2 bounded by its real gas fleet legitimately shows **30.05 TWh over 5,671 hours** at
+2045, and that is a finding about the statutory minimum rather than a bug.
