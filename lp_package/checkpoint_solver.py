@@ -1083,7 +1083,7 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         decision that does not transfer to plant with sunk capital.
         """
         year = self.year if year is None else year
-        targets = assumptions.SCENARIO2_NEW_CCGT_UNITS_BY_YEAR
+        targets = assumptions.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR
         if year not in targets:
             # Rule 5. Interpolating would feed a reported figure, and the requirement is NOT
             # monotonic -- it dips when statutory solar arrives faster than load grows -- so no
@@ -1097,8 +1097,28 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         # CAPACITY PERSISTS: the running maximum, not this year's own entry. The requirement is NOT
         # monotonic -- 2031 needs a unit that 2033 does not -- because statutory solar arrives
         # faster than load grows in some years. Nothing already built is unbuilt.
-        units = max(n for y, n in targets.items() if y <= year)
-        return units * assumptions.CCGT_REFERENCE_UNIT_MW
+        required_mw = max(mw for y, mw in targets.items() if y <= year)
+        _mix, total_mw, _capex = assumptions.ccgt_unit_mix_for(required_mw)
+        return total_mw
+
+    def new_gas_unit_mix(self, year=None):
+        """Which combined-cycle blocks make up this year's build, as {unit key: count}.
+
+        A MIX RATHER THAN ONE SIZE, because one size fits badly. Locking to the 1,083 MW block
+        sent 2031's 500 MW requirement to a single unit -- a 583 MW overshoot -- where the 566 MW
+        Mitsubishi block covers it with 66 MW to spare. The standing simple-cycle rule already
+        establishes combining as the method for its own three units. See build log 155.
+        """
+        year = self.year if year is None else year
+        targets = assumptions.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR
+        if year not in targets:
+            raise ValueError(
+                f'no new-gas capacity requirement for {year}. Requirements run '
+                f'{min(targets)}-{max(targets)}; a year outside that range needs its own sizing '
+                'solve rather than an interpolated guess.')
+        required_mw = max(mw for y, mw in targets.items() if y <= year)
+        mix, _total_mw, _capex = assumptions.ccgt_unit_mix_for(required_mw)
+        return mix
 
     def apply_gas_cap(self):
         """Existing fleet under Schedule A, plus the new combined-cycle capacity built by this year.

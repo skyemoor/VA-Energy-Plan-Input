@@ -1065,3 +1065,10 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   marked provisional.
 - `scripts/sweep_scenario2_gas_sizing.py` -- NEW. Per-year adequacy-floor sweep.
 
+## 2026-09-14 (three combined-cycle reference blocks)
+
+- `lp_package/assumptions.py` -- `CCGT_REFERENCE_UNITS` (418, 566, 1,083 MW),
+  `ccgt_unit_mix_for()`, `SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR` back to megawatts.
+- `lp_package/checkpoint_solver.py` -- `new_gas_unit_mix()`; `new_gas_capacity_mw()` uses the mix.
+- Worst overshoot across the trajectory: 583 MW -> 168 MW.
+

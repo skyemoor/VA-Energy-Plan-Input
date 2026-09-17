@@ -7317,3 +7317,51 @@ running below nameplate is still paid for. It now costs what `new_gas_capacity_m
 marked provisional until it has been run across all twenty years; only 2031, 2033, 2035, 2036, 2037,
 2040 and 2045 are measured.
 
+
+## 155. One turbine size fitted badly; three fit well
+
+**2026-09-14.** `new_gas_capacity_mw` rounded a megawatt requirement onto a single 1,083 MW
+reference unit, which sent 2031's 500 MW requirement to one block -- a **583 MW overshoot** -- and
+forced an awkward choice of rounding rule, since ceiling added a seventh unit at 2045 for a 2 MW
+excess while nearest gave 2031 zero units and left it short.
+
+**The rounding problem was a symptom of forcing one size.** The standing simple-cycle rule already
+establishes combining as the method for its own three units -- "these three units can be combined as
+needed to approximate whatever specific shortfall size a checkpoint re-solve reveals" -- and I had
+not carried that principle over to combined cycle.
+
+**THREE BLOCKS NOW, and the fit is tight everywhere:**
+
+    418 MW    H-Class single-shaft, Gas Turbine World 2024, $1,084/kW    published
+    566 MW    Mitsubishi M501JAC single-shaft, 64% efficiency            rating sourced,
+                                                                         COST INTERPOLATED
+    1,083 MW  H-Class multi-shaft, Gas Turbine World 2024, $950/kW       published
+
+Worst overshoot across the trajectory falls from **583 MW to 168 MW**. 2031 goes from one 1,083 MW
+block to one 566 MW block, +66 MW rather than +583.
+
+**THE 566 MW COST IS INTERPOLATED AND LABELLED AS SUCH.** Gas Turbine World publishes four
+configuration studies -- simple-cycle aero, simple-cycle frame, single-shaft CC and multi-shaft CC
+-- and none falls at this size. The RATING is sourced to Mitsubishi Power's T-Point 2 validation
+plant at Takasago. The capex is not, and `CCGT_REFERENCE_UNIT_COSTS_ARE_MIXED_BASIS` says so.
+
+**It does not contaminate the reported figure**, because capital for the whole build comes from
+`ccgt_capex_kw()`. The per-unit costs inform SELECTION only.
+
+**Selection is on CAPITAL, not megawatts.** The larger block is cheaper per kW -- $950 against
+$1,084 -- so minimising megawatts and minimising dollars are different objectives and can disagree.
+Exhaustive over three types, which is trivial at this size and avoids a greedy rule missing a
+cheaper mixed combination.
+
+**AND THE TABLE WENT BACK TO MEGAWATTS.** It had been changed to unit counts specifically to dodge
+the rounding rule; with a mix, the requirement is the natural quantity and the combination follows.
+
+**One botched edit worth recording:** my replacement of `new_gas_capacity_mw`'s body targeted text
+that had already changed, so the old line survived and the method returned `units *
+CCGT_REFERENCE_UNIT_MW` with a MEGAWATT value in `units` -- 541,500 for a 500 MW requirement. Caught
+immediately because the printed overshoot was +541,000 MW. An assertion on the replacement count
+would have failed loudly instead.
+
+**2034 now fails verification at 39,775.7 MWh unserved**, a year the placeholder table never
+measured. That is the sweep's job, not a defect in this mechanism.
+

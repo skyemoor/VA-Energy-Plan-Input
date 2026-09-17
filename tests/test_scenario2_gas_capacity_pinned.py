@@ -50,34 +50,62 @@ class TestTheCapIsBoundedByTheRealFleet:
 class TestSizing:
     """Adequacy sets a FLOOR; cost sets the optimum ABOVE it."""
 
-    @pytest.mark.parametrize('year,units,mw', [
-        (2030, 0, 0.0), (2031, 1, 1_083.0), (2040, 5, 5_415.0), (2045, 6, 6_498.0)])
-    def test_whole_reference_units(self, year, units, mw):
+    @pytest.mark.parametrize('year,mw', [
+        (2030, 0.0), (2031, 566.0), (2036, 2_166.0), (2040, 5_168.0), (2045, 6_547.0)])
+    def test_whole_unit_combinations(self, year, mw):
         assert _solver(year).new_gas_capacity_mw() == pytest.approx(mw)
-        assert a.SCENARIO2_NEW_CCGT_UNITS_BY_YEAR[year] <= units
 
-    def test_the_table_holds_unit_COUNTS_not_megawatts(self):
-        """A megawatt target has to be rounded, and no single rule serves both kinds of entry:
-        2031's 500 MW is an ADEQUACY requirement, where rounding to nearest gives zero units and
-        leaves the year short; 2045's 6,500 MW is a COST optimum, where ceiling adds a seventh unit
-        for a 2 MW excess. Recording unit counts states what is built."""
-        assert all(isinstance(n, int) for n in a.SCENARIO2_NEW_CCGT_UNITS_BY_YEAR.values())
+    def test_a_mix_fits_far_better_than_one_size(self):
+        """Locking to the 1,083 MW block sent 2031's 500 MW requirement to a single unit -- a 583
+        MW overshoot -- where the 566 MW Mitsubishi block covers it with 66 MW to spare. Worst
+        overshoot across the trajectory falls from 583 MW to 168."""
+        worst = max(_solver(y).new_gas_capacity_mw()
+                    - max(mw for yy, mw in a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR.items()
+                          if yy <= y)
+                    for y in range(2026, 2046))
+        assert worst < 200.0, f'worst overshoot {worst:,.0f} MW'
 
-    def test_the_requirement_is_not_monotonic_but_the_build_is(self):
+    def test_the_mix_is_chosen_on_capital_not_megawatts(self):
+        """The larger block is cheaper per kW ($950 against $1,084), so minimising megawatts and
+        minimising dollars are different objectives and can disagree. Capital decides."""
+        _mix, _mw, capex = a.ccgt_unit_mix_for(2_000.0)
+        alternatives = [a.CCGT_REFERENCE_UNITS[k]['mw'] * 1000 * a.CCGT_REFERENCE_UNITS[k]['capex_usd_per_kw']
+                        for k in a.CCGT_REFERENCE_UNITS]
+        assert capex <= sum(alternatives)
+
+    def test_an_unreachable_requirement_raises(self):
+        """Rule 5: a short build would feed a reported figure."""
+        with pytest.raises(ValueError, match='rather than accepting a short build'):
+            a.ccgt_unit_mix_for(1_000_000.0, max_units_per_type=2)
+
+    def test_the_566_unit_carries_an_interpolated_cost_and_says_so(self):
+        """Gas Turbine World publishes four configuration studies and none falls at this size. The
+        RATING is sourced to Mitsubishi Power's T-Point 2 validation plant; the capex is not."""
+        unit = a.CCGT_REFERENCE_UNITS['m501jac_single_shaft_566']
+        assert unit['mw'] == 566.0 and unit['efficiency'] == 0.640
+        assert 'INTERPOLATED' in unit['capex_basis']
+        assert 'INTERPOLATED' in a.CCGT_REFERENCE_UNIT_COSTS_ARE_MIXED_BASIS
+
+    def test_the_per_unit_figures_do_not_set_the_reported_cost(self):
+        """Capital for the whole build comes from ccgt_capex_kw(), so a mixed-basis per-unit table
+        informs SELECTION without contaminating the reported figure."""
+        assert 'inform unit SELECTION, not the reported cost' in a.CCGT_REFERENCE_UNIT_COSTS_ARE_MIXED_BASIS
+
+    def test_the_build_never_decreases(self):
         """2031 needs a unit that 2033 does not -- statutory solar arrives faster than load grows
         in some years. Capacity persists, so the BUILD is the running maximum."""
         builds = [_solver(y).new_gas_capacity_mw() for y in range(2030, 2046)]
         assert all(b >= x for x, b in zip(builds, builds[1:])), 'build must never decrease'
 
-    def test_the_table_is_marked_provisional(self):
-        """Only 2031, 2033, 2035, 2037, 2040 and 2045 are measured."""
-        assert 'interpolated placeholders' in a.SCENARIO2_NEW_CCGT_UNITS_BY_YEAR_IS_PROVISIONAL
+
 
     def test_2045_is_the_cost_optimum_not_the_adequacy_floor(self):
         """$8,307M/yr at 6,500 MW against $8,323M at 7,000 and $8,342M at 7,500. Adequacy alone
         gives 5,000 MW -- the extra pays for itself in fuel saved on the existing fleet."""
-        assert a.SCENARIO2_NEW_CCGT_UNITS_BY_YEAR[2045] == 6
-        assert 6 * a.CCGT_REFERENCE_UNIT_MW > 5_000.0
+        assert a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR[2045] == 6_500.0
+
+    def test_the_table_is_marked_provisional(self):
+        assert 'interpolated placeholders' in a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR_IS_PROVISIONAL
 
     def test_a_year_outside_the_range_raises(self):
         """Rule 5: an interpolated guess would feed a reported figure."""

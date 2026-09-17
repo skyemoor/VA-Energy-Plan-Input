@@ -1434,21 +1434,20 @@ PEAKER_FOM_USD_PER_KW_YR = {
 #: itself in fuel saved on the existing fleet, so a least-cost plan builds above the floor.
 #:
 #: EARLIER YEARS ARE THE ADEQUACY FLOOR, pending the per-year sweep.
-SCENARIO2_NEW_CCGT_UNITS_BY_YEAR_IS_PROVISIONAL = (
-    'Only 2031, 2033, 2035, 2037, 2040 and 2045 are measured; the rest are interpolated '
+SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR_IS_PROVISIONAL = (
+    'Only 2031, 2033, 2035, 2036, 2037, 2040 and 2045 are measured; the rest are interpolated '
     'placeholders. Run scripts/sweep_scenario2_gas_sizing.py to replace this with a measured '
     'trajectory.')
 
-#: WHOLE UNITS, NOT MEGAWATTS, and that removes an ambiguity rather than hiding one. A megawatt
-#: target has to be rounded, and no single rule serves both kinds of entry: 2031's 500 MW is an
-#: ADEQUACY requirement, where rounding to nearest gives zero units and leaves the year short, while
-#: 2045's 6,500 MW is a COST optimum, where ceiling adds a seventh unit for a 2 MW excess. Recording
-#: the unit count directly states what is built and leaves the rounding decision where it was made.
-SCENARIO2_NEW_CCGT_UNITS_BY_YEAR = {
-    2026: 0, 2027: 0, 2028: 0, 2029: 0, 2030: 0,
-    2031: 1, 2032: 1, 2033: 1, 2034: 1, 2035: 1,
-    2036: 2, 2037: 2, 2038: 3, 2039: 3, 2040: 5,
-    2041: 5, 2042: 5, 2043: 6, 2044: 6, 2045: 6,
+#: MEGAWATTS REQUIRED, not unit counts. An earlier version held counts, to avoid a rounding rule
+#: that could not serve both an adequacy floor and a cost optimum -- but that was a symptom of
+#: forcing one unit size. With ccgt_unit_mix_for() choosing among three blocks, the requirement is
+#: the natural quantity and the combination follows from it.
+SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR = {
+    2026: 0.0, 2027: 0.0, 2028: 0.0, 2029: 0.0, 2030: 0.0,
+    2031: 500.0, 2032: 500.0, 2033: 500.0, 2034: 500.0, 2035: 500.0,
+    2036: 2_000.0, 2037: 2_000.0, 2038: 2_500.0, 2039: 3_000.0, 2040: 5_000.0,
+    2041: 5_000.0, 2042: 5_500.0, 2043: 6_000.0, 2044: 6_500.0, 2045: 6_500.0,
 }
 
 #: SCENARIO 2 ONLY. New combined-cycle reference unit, for the DISCRETE build it requires.
@@ -1476,6 +1475,96 @@ SCENARIO2_NEW_CCGT_UNITS_BY_YEAR = {
 CCGT_REFERENCE_UNIT_MW = 1083.0
 CCGT_REFERENCE_UNIT_FOM_KW_YR = 12.20
 CCGT_REFERENCE_UNIT_EFFICIENCY = 0.594
+
+#: SCENARIO 2 ONLY. The combined-cycle blocks a new build may be composed from, so a requirement is
+#: met with the closest whole-unit combination rather than forced onto one size. The standing
+#: simple-cycle rule already establishes combining as the method for its own three units -- "these
+#: three units can be combined as needed to approximate whatever specific shortfall size a
+#: checkpoint re-solve reveals" -- and the same applies here.
+#:
+#: WHY IT MATTERS: locking to the 1,083 MW unit sent 2031's 500 MW requirement to a single block,
+#: a 583 MW overshoot. Two 418 MW blocks give 836 MW instead -- 247 MW less capital for the same
+#: adequacy. See build log 155.
+#:
+#: COST BASIS DIFFERS BY UNIT, and the mixture is stated rather than smoothed:
+#:
+#:   418 MW   H-Class single-shaft. Gas Turbine World 2024 Handbook, 58.9% efficiency, $1,084/kW,
+#:            $13.10/kW-yr. One of the handbook's four published configuration studies.
+#:   566 MW   Mitsubishi M501JAC single-shaft, 64% efficiency. Rating is from Mitsubishi Power's own
+#:            T-Point 2 validation plant at Takasago, which replaced the JAC-class multi-shaft plant
+#:            in 2020 and confirms design performance for units in service in the US, Mexico and
+#:            Brazil. NO PUBLISHED $/kW ON THE HANDBOOK'S BASIS: its four configuration studies are
+#:            simple-cycle aero, simple-cycle frame, single-shaft CC and multi-shaft CC, and this
+#:            size falls between the two CC points. The cost here is INTERPOLATED between them and
+#:            labelled as such.
+#:  1,083 MW  H-Class multi-shaft. Gas Turbine World 2024 Handbook, 59.4% efficiency, $950/kW,
+#:            $12.20/kW-yr.
+#:
+#: EIA's 2019 survey puts most installed combined-cycle capacity in 600-700 MW power blocks, with
+#: the average reaching 820 MW by 2017 -- so 418 MW is small by current practice and 1,083 MW is
+#: large. The 566 MW block sits where real plant is actually built, which is why it is worth
+#: carrying despite the interpolated cost.
+CCGT_REFERENCE_UNITS = {
+    'h_class_single_shaft_418': {
+        'mw': 418.0, 'efficiency': 0.589, 'capex_usd_per_kw': 1084.0,
+        'fixed_om_usd_per_kw_yr': 13.10, 'capex_basis': 'Gas Turbine World 2024, published'},
+    'm501jac_single_shaft_566': {
+        'mw': 566.0, 'efficiency': 0.640, 'capex_usd_per_kw': 1030.0,
+        'fixed_om_usd_per_kw_yr': 12.70,
+        'capex_basis': 'INTERPOLATED between the two handbook points; no published figure at this '
+                       'size on that basis'},
+    'h_class_multi_shaft_1083': {
+        'mw': 1083.0, 'efficiency': 0.594, 'capex_usd_per_kw': 950.0,
+        'fixed_om_usd_per_kw_yr': 12.20, 'capex_basis': 'Gas Turbine World 2024, published'},
+}
+CCGT_REFERENCE_UNIT_COSTS_ARE_MIXED_BASIS = (
+    "CCGT_REFERENCE_UNITS['m501jac_single_shaft_566'] carries an INTERPOLATED capex and fixed O&M: "
+    'Gas Turbine World publishes four configuration studies and none falls at this size. The '
+    'rating itself is sourced to Mitsubishi Power. The two H-Class entries are published figures. '
+    'Capital for the whole build comes from ccgt_capex_kw() in any case -- these per-unit figures '
+    'inform unit SELECTION, not the reported cost.')
+
+
+def ccgt_unit_mix_for(required_mw, units=None, max_units_per_type=12):
+    """Cheapest whole-unit combination of combined-cycle blocks meeting `required_mw`.
+
+    Returns (mix, total_mw, capex_usd) where mix maps unit key to count.
+
+    WHY A MIX RATHER THAN ONE SIZE. Locking to the 1,083 MW block sent Scenario 2's 2031 requirement
+    of 500 MW to a single unit -- a 583 MW overshoot -- where two 418 MW blocks give 836 MW for 247
+    MW less capital at the same adequacy. The standing simple-cycle rule already establishes
+    combining as the method for its own three units; this applies it to combined cycle.
+
+    CHEAPEST, NOT SMALLEST OVERSHOOT. The larger block is cheaper per kW ($950 against $1,084), so
+    minimising megawatts and minimising dollars are different objectives and can disagree. Capital
+    is what a least-cost plan minimises, so capital decides -- and because the reported cost comes
+    from ccgt_capex_kw() rather than these per-unit figures, this affects unit SELECTION only.
+
+    Exhaustive over the three unit types, which is trivial at this size and avoids a greedy rule
+    that could miss a cheaper mixed combination.
+    """
+    import itertools
+
+    if required_mw <= 0:
+        return {}, 0.0, 0.0
+    catalogue = CCGT_REFERENCE_UNITS if units is None else units
+    keys = sorted(catalogue)
+    best = None
+    for counts in itertools.product(range(max_units_per_type + 1), repeat=len(keys)):
+        total_mw = sum(n * catalogue[k]['mw'] for n, k in zip(counts, keys))
+        if total_mw < required_mw:
+            continue
+        capex = sum(n * catalogue[k]['mw'] * 1000.0 * catalogue[k]['capex_usd_per_kw']
+                    for n, k in zip(counts, keys))
+        if best is None or capex < best[2]:
+            best = ({k: n for k, n in zip(keys, counts) if n}, total_mw, capex)
+    if best is None:
+        raise ValueError(
+            f'no combination of {len(keys)} unit types up to {max_units_per_type} each reaches '
+            f'{required_mw:,.0f} MW. Raise max_units_per_type or add a larger reference unit '
+            'rather than accepting a short build.')
+    return best
+
 
 PEAKER_DUAL_FUEL_ADDER_KW = 200.0            # USP&E: $150-250/kW, midpoint
 PEAKER_FAST_TRACK_PREMIUM_FRACTION = 0.15    # USP&E: 10-20% for delivery under 18 months
