@@ -22,6 +22,7 @@ problems each have their own home.
 | 6 | Bearing on the sweep | why this scenario sets the compliance axis's lower bound |
 | 7 | Distributed carve-out | how the C.2 obligation is sized, and the solar cap assumption |
 | 8 | Agrivoltaic siting | the overlay, its premium, and its land footprint |
+| 9 | Adequacy and new gas | the measured shortfall, what closes it, and how the size was chosen |
 
 **Scenario-specific methodology that is not cross-cutting stays here.** Gas capacity method is
 Appendix Q; the compliance definition is `Compliance_Definition_For_Sweep.md`.
@@ -350,3 +351,83 @@ reusing the sheep premium, which would understate it.
 
 **Full method, evidence and citations: `appendices/Appendix_Agrivoltaics.md`.** Capital cost by
 configuration is Appendix Q.
+
+---
+
+## 9. Adequacy and new gas capacity
+
+### The shortfall, measured
+
+Gas bounded by the real fleet — **12,216 MW available at 2045** — rather than the unbounded ceiling
+the published runner still uses:
+
+| | 2045 |
+|---|---:|
+| loss of load hours | **5,671** |
+| unserved energy | **30.05 TWh**, 14.9% of demand |
+| peak shortfall | 10,265 MW |
+| events | 1,015, longest 67 hours |
+
+**Every rung runs at 100% capacity factor in all 8,760 hours.** There is no hour of the year where
+the existing fleet has spare capacity, including the simple-cycle plant, which is not peaking duty
+at all.
+
+### The run-length structure, and why the average misleads
+
+**Median run is 3 hours at every tranche** from 1 MW to 6,000 MW — 1,015 separate blocks. Nothing
+clears a combined-cycle unit's six-hour minimum uptime anywhere.
+
+But the gap's **implied capacity factor is 33.4%, above the 28.1% crossover**. So the average points
+to combined cycle and the shape points to simple cycle, which is the case the gas reference warns
+about: *an average cannot answer a marginal question.*
+
+### The flat shape was an artifact of the existing turbines
+
+Removing the 3,546 MW simple-cycle fleet from the stack entirely changes the picture: the gap grows
+to 60.61 TWh and the run-length profile becomes a **staircase** — 12–16 hours at the base, falling to
+2–4 hours above 10,000 MW.
+
+**The existing turbines were filling the bottom of the gap**, leaving only its ragged surface
+exposed. Both views are correct and neither alone is sufficient: with the fleet, what new plant must
+do *given the fleet as it is*; without, what duty the system actually has.
+
+**Roughly 9,000 MW of that duty is genuine combined-cycle work** — which is what the existing
+turbines had been standing in for, at an 11.0 heat rate on load that wants 6.4.
+
+### Sizing
+
+Adding a combined-cycle candidate to the stack and re-solving:
+
+| new CCGT | unserved | simple-cycle fleet CF | four-term cost |
+|---:|---:|---:|---:|
+| 5,000 MW | **zero** | 68.5% | — |
+| **6,500 MW** | zero | 40.5% | **$8,307M** |
+| 7,000 MW | zero | 29.5% | $8,323M |
+| 7,500 MW | zero | 19.0% | $8,342M |
+| 9,000 MW | zero | **0%** | — |
+
+**Adequacy sets a floor at 5,000 MW; cost sets the optimum at 6,500.** The extra 1,500 MW is not
+needed to serve load — it pays for itself in fuel saved.
+
+**The cost curve is nearly flat**: $35M across a 1,000 MW range, 0.4%. Each 500 MW saves about
+$280M of existing fuel and adds about $300M of new-build cost, and they nearly cancel.
+
+**That flatness is itself a finding.** Scenario 2's cost is dominated by fuel on a fleet that must
+run hard regardless, so the choice *between* combined and simple cycle moves it far less than the
+*quantity* of gas the scenario forces.
+
+**6,500 MW is adopted**, on cost. Two larger figures were considered and rejected: 7,000 and 7,500
+MW rest on a criterion — *"keep the simple-cycle fleet at or below its 28.1% crossover"* — that has
+no authority behind it. The crossover is a **new-build** decision about when a new combined-cycle
+unit's fuel saving repays its capital; the existing turbines have sunk capital and a zero-intercept
+screening curve, so the rule does not transfer to them.
+
+**Adequacy testing may revise this upward.** Simple-cycle plant at 40.5% capacity factor has less
+headroom for a forced outage than at 29.5%, and the loss-of-load metrics that would settle it need
+the draw loop described in `Common_Reference.md` section 3.
+
+### Not yet in the reported figure
+
+The published annualised cost does **not** include this capacity. The runner still uses the
+unbounded gas ceiling, so it reports zero unserved energy while the bounded run shows 30.05 TWh.
+**Reconciling the two is the open work**, tracked as activity 83.

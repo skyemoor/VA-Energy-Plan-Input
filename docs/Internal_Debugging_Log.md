@@ -7104,3 +7104,73 @@ unserved: the mandate is insufficient, not mismatched.
 **Working document sections 7 and 8 added** for the carve-out and agrivoltaic siting, with formulas,
 the statutory basis, the profile derivation and the NREL premium.
 
+
+## 149. Adequacy metrics, and three criteria I invented before finding the one with authority
+
+**2026-09-14.** Sizing new gas for Scenario 2 took four attempts, and three of them rested on rules
+with no source behind them.
+
+**(a) THE CT DIAGNOSTIC.** The simple-cycle fleet runs at 100% capacity factor, so I reasoned that
+the excess above its 28.1% crossover -- 22.3 TWh -- divided by an assumed CCGT capacity factor gives
+the CCGT shortfall. A literature search found no such method: no source treats "technology running
+outside its economic duty" as a capacity-planning signal. The assumed denominator did most of the
+work. Abandoned.
+
+**(b) THE FIT ON THE UNBOUNDED SERIES.** The first run-length fit used the total gas dispatch, which
+is baseload underneath and peaking on top. That describes what gas SERVED, not what capacity was
+MISSING. Wrong requirement.
+
+**(c) THE CAPACITY-FACTOR CRITERION, TWICE.** I coded "keep the simple-cycle fleet at or below
+28.1%" as a sizing rule, and it returned 7,000 MW and then 7,500 MW on successive runs. The
+crossover is a NEW-BUILD decision -- when a new combined-cycle unit's fuel saving repays its capital
+-- and Guner's brownfield point is exactly why it cannot transfer: existing turbines have sunk
+capital and a zero-intercept screening curve. Same error as (a), in a different disguise, and it
+took being asked "is there any industry standard supporting that" to see it.
+
+**WHAT HAS AUTHORITY: cost minimisation on the four-term formulation.** 6,500 MW, $8,307M/yr. The
+curve is flat -- $35M across 1,000 MW -- so the answer is weakly determined, which is itself worth
+reporting.
+
+**AND THE ORDER OF THE TWO BOUNDS MATTERS.** Adequacy sets a FLOOR at 5,000 MW, where unserved
+reaches zero. Cost sets the OPTIMUM at 6,500, because the extra 1,500 MW pays for itself in fuel.
+Reporting only one would misstate the result.
+
+**THE FLAT-SHAPE ARTIFACT WAS THE MOST INSTRUCTIVE PART.** With the existing turbines in the stack,
+the gap's run-length profile is flat at 3 hours everywhere, pointing to peaking duty at every level.
+Remove them and it becomes a staircase, 12-16 hours at the base. The turbines were filling the
+bottom of the gap, leaving only its surface exposed. Both views are correct; neither alone is
+sufficient.
+
+
+## 150. Solve timing measured on real hardware, and the parallel peak is below the core count
+
+**2026-09-14.** Sizing the forced-outage draw loop needed a per-solve time, and my container
+estimate of "90 minutes per scenario-year" was wrong by a factor of five -- 3-7 s times 100 draws is
+7 minutes, not 90. Arithmetic error, caught by being asked whether 90 minutes meant 30 hours for
+twenty years.
+
+**MEASURED on a 16-logical-core workstation:** solve 2.25-2.30 s, build 0.41-0.44 s.
+
+    workers   speedup   efficiency   per draw
+          4      2.4x          60%      0.95 s
+          8      3.1x          38%      0.75 s
+         16      2.7x          17%      0.85 s
+
+**EIGHT BEATS SIXTEEN.** Throughput peaks below the core count and turns down: memory bandwidth
+saturates around eight concurrent solves, after which hyperthread contention costs about 12% while
+occupying the whole machine. Efficiency falls monotonically, the bandwidth-bound signature.
+
+**The scheduling consequence is worth more than the 12%:** two jobs on eight workers each gives
+roughly 6.2x aggregate against 2.7x for one job on sixteen.
+
+**AND THE BENCHMARK ITSELF HAD A DEPENDENCY IT DID NOT NEED.** It imported
+distributed_solar_profile, which reads NSRDB CSVs that are deliberately not committed -- so a timing
+script failed on every machine except the one that built the profiles. Solve time depends on problem
+STRUCTURE, not on residual values, so a rescaled version of the committed weather file serves
+identically. Reaching for the real function was habit, not requirement.
+
+**Two issues surfaced and left alone**, on instruction not to change working solve paths before
+discussion: `paths.source_file('PJMMap.webp')` is used as the marker for locating the NSRDB data
+root, so a missing irradiance dataset reports a missing map image; and other scripts may carry the
+same unnecessary data dependency, which would mean they cannot run on a clean checkout.
+

@@ -1000,3 +1000,13 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `registers/Master_Citations.xlsx` -- C119, NERC Risk Mitigation for Emerging Large Loads (2026).
 - `docs/Common_Reference.md` -- section 2, resource adequacy metrics.
 
+## 2026-09-14 (adequacy sizing and solve benchmark)
+
+- `scripts/time_solve_benchmark.py` -- NEW. Per-machine solve timing and parallel scaling, with the
+  measured workstation results recorded. No source-data dependency: derives a stand-in distributed
+  profile from the committed weather file.
+- `docs/Common_Reference.md` -- section 3, probabilistic adequacy: what LOLE and CVaR require, draw
+  counts per metric, measured wall times, and the parallel scaling curve.
+- `docs/scenarios/Scenario2_Working_Document.md` -- section 9, adequacy and new gas capacity.
+- Sizing adopted: 6,500 MW of new CCGT at 2045 on cost; adequacy floor is 5,000 MW.
+

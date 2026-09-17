@@ -17,6 +17,7 @@ findings go to that scenario's working document; where things stand goes to
 |---|---|---|
 | 1 | Transmission and distribution | loss factor, load against generation basis, what "energy sold" means in statute |
 | 2 | Resource adequacy metrics | what is measured, what is not, and why the probabilistic names are not claimed |
+| 3 | Probabilistic adequacy | what LOLE and CVaR would require, and what the draw loop costs |
 
 *Sections are added as cross-cutting questions arise. A topic belongs here when a second scenario
 would otherwise need the same answer.*
@@ -131,3 +132,73 @@ Different questions, and the distinction governs how these figures are read. A s
 serve its load must show zero, and a non-zero value there is a defect — which is why the runners
 raise. Scenario 2 bounded by its real gas fleet legitimately shows **30.05 TWh over 5,671 hours** at
 2045, and that is a finding about the statutory minimum rather than a bug.
+
+---
+
+## 3. Probabilistic adequacy — what it would take
+
+Section 2 covers the metrics this model produces today: realisations under one weather year with no
+forced-outage draws. This section records what the probabilistic versions need, because the answer
+turned out to be far cheaper than first estimated and that changes what is worth attempting.
+
+### The scenario axis has to come from outages, not weather
+
+NERC asks for *"thousands of integrated weather, load, and generation scenarios."* This project holds
+**eight weather years** — the correlated axis, and the expensive one to produce. The second axis is
+**forced-outage draws**, sampled per unit, which multiply against the first:
+
+```
+8 weather years  ×  375 draws  =  3,000 scenarios
+```
+
+**More weather years would not help.** Conditional value at risk at 95% needs roughly 20 scenarios
+for a single tail observation and several hundred for a stable estimate; eight years give 0.4. Draws
+are what close that gap, and they are cheap.
+
+### What each metric needs
+
+| metric | converges at | why |
+|---|---|---|
+| **loss of load hours** | ~30 draws | a bounded count, 0–8,760, so variance is limited |
+| **unserved energy** | ~100 draws | unbounded above and heavy-tailed: one simultaneous outage in a cold snap can outweigh forty ordinary scenarios |
+| **CVaR at 95%** | ~375 draws | needs the tail itself, not a mean over it — 150 observations above the 95th percentile |
+
+**All three come from the same run.** An earlier staged plan — loss-of-load hours first, unserved
+energy later — was designed around a cost estimate that proved wrong by a factor of five.
+
+### What it costs, measured
+
+A Scenario 2 solve is 166,440 variables and 43,800 equality rows. On a 16-logical-core workstation
+it takes **2.25–2.30 s serial**, and the outage draw changes only rung upper bounds, so the problem
+can be rebuilt or mutated — the build is 0.4 s, so it barely matters which.
+
+| draws per weather year | scenarios | hours, 4 checkpoints |
+|---:|---:|---:|
+| 30 | 240 | 0.2 |
+| 100 | 800 | 0.7 |
+| **375** | **3,000** | **2.5** |
+
+**Checkpoint years only.** Capacity decisions are made at 2030, 2035, 2040 and 2045; intermediate
+years inherit the fleet, so the draw loop does not need all twenty.
+
+### Parallel scaling peaks below the core count
+
+| workers | speedup | efficiency |
+|---:|---:|---:|
+| 4 | 2.4× | 60% |
+| **8** | **3.1×** | 38% |
+| 16 | 2.7× | 17% |
+
+**Eight beats sixteen.** Memory bandwidth saturates around eight concurrent solves; past that,
+hyperthread contention costs about 12% of throughput while occupying the whole machine.
+
+**Two jobs on eight workers each gives roughly 6.2× aggregate against 2.7× for one job on sixteen** —
+more than double, from the same hardware. `scripts/time_solve_benchmark.py` measures this; the peak
+is machine-specific and going past it makes things worse, so it should be measured rather than
+assumed.
+
+### What is still missing
+
+**Per-unit forced outage rates.** NERC GADS publishes class-average equivalent forced outage rates
+and EIA-860 gives unit vintages; neither is in this repository. That input, and a draw loop around
+the existing solve, is the whole of the remaining work.
