@@ -1137,3 +1137,12 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `docs/appendices/APPENDIX_ORDER.md` -- NEW. Proposed sequence in reader order, with what each
   draws from and what must be merged or assembled first.
 
+## 2026-09-14 (appendix division and DER placeholder)
+
+- `docs/appendices/APPENDIX_ORDER.md` -- records the appendices/working-documents division; DER
+  inserted as H, everything after shifted; the Appendix A "merge" recommendation corrected to
+  "rewrite on migration"; Scenario 3's missing distribution-upgrade cost recorded alongside the
+  equally missing transmission-deferral benefit.
+- `docs/Common_Reference.md` -- states that it is a working document, with material migrating to
+  appendices when finalised.
+

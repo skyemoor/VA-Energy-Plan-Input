@@ -4,6 +4,12 @@
 or convention is shared across the model, it is defined here once rather than restated in each
 scenario's working paper.
 
+**And it is a WORKING document, not a reader-facing one.** Appendices are for the end reader and
+hold the settled account of a subject; this holds cross-scenario decisions, conventions and measured
+facts while they are still moving. Material migrates from here to an appendix when a subject is
+finalised — rewritten for a reader who was not present for the reasoning, not copied. See
+`appendices/APPENDIX_ORDER.md`.
+
 **This is a reference, not a log.** LP issues and their solutions go to
 `Internal_Debugging_Log.md`; recurring error patterns go to `Common_Mistake_Log.md`; scenario
 findings go to that scenario's working document; where things stand goes to
