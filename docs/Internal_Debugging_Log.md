@@ -7566,3 +7566,43 @@ future change to either does not silently assume the other.
 **Scenario 2 steps 1-10 are done.** Remaining: the gas price band, and the whitepaper section, whose
 figures have now moved three times today.
 
+
+## 162. The gas-price flag was inert, and an identical result to the cent is what caught it
+
+**2026-09-14.** Step 11: sweep the three sourced gas-price trajectories. The flag was added, the
+runner passed the right scalar, and the EIA run returned **$36.35/MWh -- identical to the Deloitte
+run to the cent.**
+
+**THE MERIT-ORDER RUNGS CARRY THEIR OWN COST COEFFICIENTS.** `GasRung.fuel_cost_mwh` hard-coded
+`lp_model.gas_cost_mwh`, the Deloitte path, so every rung priced itself at Deloitte regardless of
+what the builder was passed. The scalar reached `build_scenario2_problem` and did nothing, because
+with a stack enabled `c[IDX['g']]` is zeroed and the rung columns carry the cost.
+
+**Had EIA come back at $34 it would have been accepted.** An identical figure is implausible enough
+to check; a plausible wrong one is not. This is the same shape as the merit order never running --
+a capability present, wired at one level, and bypassed at another.
+
+**Fixed by threading the case from runner to rung**: `solver.gas_price_case` -> `solve()` ->
+`build_scenario2_problem(gas_price_case=...)` -> `rung.marginal_cost_mwh(year, case)`.
+
+**AND THE UNDERLYING FUNCTIONS DISAGREED ON UNITS, SILENTLY.** `gas_cost_mwh` takes a heat rate and
+returns $/MMBtu at 1.0; `gas_cost_mwh_eia` and `gas_cost_mwh_hughes` take no heat rate and always
+return $/MWh at the combined-cycle rate. Comparing them directly gives a 6.4x error that looks like
+a plausible number -- which is what my first comparison table did. `lp_model.gas_price_mwh(year,
+case, heat_rate)` is now the single accessor.
+
+**THE MEASURED BAND: $29.59 to $37.02/MWh, a 25% spread.**
+
+    case        source                     2045 $/MMBtu    SLCOE   societal   2045 $B
+    eia         EIA AEO                            4.58    29.59     115.96      8.59
+    deloitte    Deloitte (default)                 6.92    36.35     122.33     10.86
+    hughes      Hughes / Post Carbon               8.98    37.02     123.12     12.84
+
+**CLEAN SHARE DOES NOT MOVE** -- 31.6% at 2045 in all three. Gas price changes what Scenario 2
+COSTS, not what it ACHIEVES, because the build is statutory. That is specific to this scenario and
+would not hold where the LP chooses the build.
+
+**And the band is not symmetric**: high sits $0.67 above medium while low sits $6.76 below, because
+Deloitte front-loads its rise and Hughes overtakes only near the end. Hughes also STARTS LOWEST at
+$3.50 -- it is a supply-depletion narrative, not uniform pessimism.
+

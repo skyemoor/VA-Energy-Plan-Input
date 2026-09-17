@@ -308,6 +308,43 @@ def gas_cost_mwh(year, heat_rate=None):
                 break
     return mmbtu * heat_rate
 
+GAS_PRICE_CASES = ('eia', 'deloitte', 'hughes')
+
+
+def gas_price_mwh(year, case='deloitte', heat_rate=None):
+    """Fuel cost in $/MWh for one of the three sourced gas-price trajectories.
+
+    ONE ACCESSOR BECAUSE THE UNDERLYING FUNCTIONS DISAGREE ON UNITS, silently. `gas_cost_mwh` takes
+    a heat rate and returns $/MMBtu when given 1.0; `gas_cost_mwh_eia` and `gas_cost_mwh_hughes`
+    take no heat rate and always return $/MWh at the combined-cycle rate. Mixing them gives a 6.4x
+    error that looks like a plausible number -- found during the gas-price band work, 2026-09-14.
+
+        case        source                              2026     2045
+        eia         EIA Annual Energy Outlook          23.68    29.28   LOW
+        deloitte    Deloitte, this project's default   23.68    44.32   MEDIUM
+        hughes      Hughes / Post Carbon Institute     22.40    57.44   HIGH
+
+    All three start within $1.30/MWh of each other and diverge to a 2x spread by 2045: EIA has
+    shale supply holding, Deloitte has moderate tightening, and Hughes has Marcellus/Utica
+    production peaking 2030-33 then declining at 3.2%/yr.
+
+    `heat_rate` defaults to CCGT_HEAT_RATE. Passing 1.0 gives $/MMBtu for every case, not just the
+    Deloitte one.
+    """
+    if case not in GAS_PRICE_CASES:
+        raise ValueError(
+            f'unknown gas price case {case!r}; expected one of {GAS_PRICE_CASES}. These are three '
+            'independently sourced trajectories, not points on a scale -- there is no interpolation '
+            'between them that means anything.')
+    rate = CCGT_HEAT_RATE if heat_rate is None else heat_rate
+    if case == 'deloitte':
+        return gas_cost_mwh(year, heat_rate=rate)
+    # These two return $/MWh at the combined-cycle heat rate by construction, so rescale rather
+    # than re-deriving -- the sourced trajectory is the $/MWh series, not a $/MMBtu one.
+    at_ccgt_rate = gas_cost_mwh_eia(year) if case == 'eia' else gas_cost_mwh_hughes(year)
+    return at_ccgt_rate * (rate / CCGT_HEAT_RATE)
+
+
 def gas_cost_mwh_eia(year):
     """
     NEW (check 2, Scenario 2 Low case): EIA-derived fuel cost, the LOW gas price case, distinct
@@ -762,7 +799,8 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
                               fe_power_mw, fe_duration_hr, gas_price_mwh, ccgt_vom_mwh,
                               init_soc_frac=INIT_SOC_FRAC, verbose=True,
                               gas_merit_order=None, gas_merit_order_year=None,
-                              dist_solar_mw=0.0, dist_solar_cf=None):
+                              dist_solar_mw=0.0, dist_solar_cf=None,
+                              gas_price_case='deloitte'):
     """
     Scenario 2: dispatch-only, all capacities FIXED (no build variables, no RPS gas-percentage cap).
     Gas capped only by CCGT's hard MW nameplate. VCEA solar/wind target treated as solar-equivalent
@@ -982,7 +1020,7 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
     # MERIT ORDER, PART 3 OF 3 -- COSTS on the rung columns. See part 2 for bounds.
     if _rungs is not None:
         for _ri, _rung in enumerate(_rungs):
-            _cost = _rung.marginal_cost_mwh(gas_merit_order_year)
+            _cost = _rung.marginal_cost_mwh(gas_merit_order_year, gas_price_case)
             for t in range(T):
                 c[_rung_var(_ri, t)] = _cost
     price = export_price_profile(T)

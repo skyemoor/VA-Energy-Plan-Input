@@ -1475,6 +1475,7 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
             vcea_solar_mw=vcea_new_mw,
             dist_solar_mw=_dist_mw, dist_solar_cf=_dist_cf,
             **self._gas_merit_order_kwargs(),
+            gas_price_case=getattr(self, 'gas_price_case', 'deloitte'),
             ccgt_mw=ccgt_mw,
             na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
             na_duration_hr=na_duration_hr,

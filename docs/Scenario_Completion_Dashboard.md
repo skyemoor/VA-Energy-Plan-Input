@@ -55,7 +55,7 @@ Build only the 16,100 MW solar and 20,000 MW storage the Code names; meet the re
 | 8 | Twenty-year annual stream | **done** | — |
 | 9 | Annualised cost + capex band | **done** | — |
 | 10 | Social + health cost | **done** | — |
-| 11 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
+| 11 | Gas price band (EIA / Deloitte / Hughes) | **done** | — |
 | 12 | Whitepaper section | **superseded** | figures moved |
 | 13 | Unit commitment sensitivity | **blocked** | #17 |
 

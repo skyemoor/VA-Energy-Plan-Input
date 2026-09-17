@@ -1117,3 +1117,13 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - SLCOE $31.81 -> $36.35/MWh; clean share 32.5% -> 31.6%; societal $119.24 -> $122.33/MWh.
 - Dashboard: Scenario 2 steps 1-10 done.
 
+## 2026-09-14 (gas price band, step 11)
+
+- `lp_package/lp_model.py` -- `GAS_PRICE_CASES`, `gas_price_mwh(year, case, heat_rate)`;
+  `build_scenario2_problem` gains `gas_price_case`.
+- `lp_package/gas_merit_order.py` -- `fuel_cost_mwh` and `marginal_cost_mwh` take the case; the
+  Deloitte path was hard-coded, making the flag inert.
+- `lp_package/checkpoint_solver.py` -- passes `gas_price_case` to the builder.
+- `run_scenario2_slcoe.py` -- `--gas-price`, and the case in the output filename.
+- Band: $29.59 (EIA) / $36.35 (Deloitte) / $37.02 (Hughes) per MWh.
+

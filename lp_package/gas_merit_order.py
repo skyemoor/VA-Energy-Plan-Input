@@ -63,15 +63,24 @@ class GasRung:
     nameplate_mw: float
     vom_mwh: float
 
-    def fuel_cost_mwh(self, year: float) -> float:
+    def fuel_cost_mwh(self, year: float, gas_price_case: str = 'deloitte') -> float:
+        """Fuel cost for this rung's heat rate, under one of the sourced price trajectories.
+
+        THE CASE WAS HARD-CODED TO DELOITTE, which made the gas-price band inert: the runner's
+        --gas-price flag set the scalar passed to build_scenario2_problem, but the merit-order rungs
+        carry their OWN cost coefficients and priced themselves at Deloitte regardless. An EIA run
+        returned a figure identical to the Deloitte run to the cent, which is what surfaced it.
+        Build log 162.
+        """
         # Imported here rather than at module scope: lp_model imports assumptions, and a
         # module-level import in both directions would be circular.
         import lp_model
-        return lp_model.gas_cost_mwh(year, heat_rate=self.heat_rate_mmbtu_per_mwh)
+        return lp_model.gas_price_mwh(year, gas_price_case,
+                                      heat_rate=self.heat_rate_mmbtu_per_mwh)
 
-    def marginal_cost_mwh(self, year: float) -> float:
+    def marginal_cost_mwh(self, year: float, gas_price_case: str = 'deloitte') -> float:
         """Fuel plus VOM -- what the rung costs to run one more MWh, which is what sets price."""
-        return self.fuel_cost_mwh(year) + self.vom_mwh
+        return self.fuel_cost_mwh(year, gas_price_case) + self.vom_mwh
 
 
 class GasMeritOrder:

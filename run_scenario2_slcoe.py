@@ -65,14 +65,21 @@ ASSET_LIVES = {'solar': assumptions.CRF_LIFE_YEARS,
                'gas': assumptions.CCGT_LIFE_YEARS}
 
 
-def solve_year(year, weather, capex_basis):
+def solve_year(year, weather, capex_basis, gas_price_case='deloitte'):
     """One year: statutory pins, dispatch-only solve, full lifecycle cost."""
     demand = demand_basis.VirginiaOnlyGeneration(year).hourly_mw()
     solver = cs.Scenario2Solver(
         year=year, demand=demand, exist_solar=lp.exist_solar_mw(year) * weather['solar'],
         solar_cf=weather['solar'], wind_cf=weather['wind'], nuclear=weather['nuclear'],
         vcea_solar_mw=16_100.0)
-    result = solver.solve(gas_price_mwh=lp.gas_cost_mwh(year, heat_rate=lp.CCGT_HEAT_RATE))
+    # GAS PRICE IS THE LARGEST SENSITIVITY IN THIS SCENARIO -- it burns 130+ TWh of gas, and the
+    # three sourced trajectories span 2x by 2045 ($29.28 EIA against $57.44 Hughes). One accessor
+    # rather than three functions, because they silently disagree on units: gas_cost_mwh returns
+    # $/MMBtu at heat_rate=1.0 while the other two always return $/MWh.
+    # SET ON THE SOLVER, not only passed as a scalar: the merit-order rungs carry their own cost
+    # coefficients and would otherwise price themselves at the default regardless.
+    solver.gas_price_case = gas_price_case
+    result = solver.solve(gas_price_mwh=lp.gas_price_mwh(year, gas_price_case))
     if not result['success']:
         raise RuntimeError(f'{year}: solve failed with status {result["status"]}')
 
@@ -211,6 +218,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--capex-basis', default='central', choices=['low', 'central', 'high'])
+    ap.add_argument('--gas-price', default='deloitte', choices=list(lp.GAS_PRICE_CASES),
+                    help='sourced gas price trajectory: eia (low), deloitte (medium), '
+                         'hughes (high). Default deloitte.')
     ap.add_argument('--out', default='results')
     args = ap.parse_args()
 
@@ -222,7 +232,7 @@ def main():
     t0 = time.time()
     stream, final_cost = [], None
     for year in range(FIRST_YEAR, FINAL_YEAR + 1):
-        row, cost = solve_year(year, weather, args.capex_basis)
+        row, cost = solve_year(year, weather, args.capex_basis, args.gas_price)
         stream.append(row)
         final_cost = cost
         print(f'{year:<6}{row["clean_share"]:>7.1%}{row["peak_gas_mw"]:>11,.0f}'
@@ -275,9 +285,14 @@ def main():
     print(f'Done in {(time.time() - t0) / 60:.1f} min')
 
     os.makedirs(args.out, exist_ok=True)
-    path = os.path.join(args.out, f'scenario2_slcoe_{args.capex_basis}.json')
+    # THE GAS CASE IS IN THE FILENAME. Without it, the three price runs overwrite each other and
+    # the last one silently becomes "the" result -- the default case keeps its original name so
+    # existing references to scenario2_slcoe_central.json still resolve.
+    suffix = '' if args.gas_price == 'deloitte' else f'_{args.gas_price}'
+    path = os.path.join(args.out, f'scenario2_slcoe_{args.capex_basis}{suffix}.json')
     with open(path, 'w') as f:
-        json.dump({'capex_basis': args.capex_basis, 'stream': stream,
+        json.dump({'capex_basis': args.capex_basis, 'gas_price_case': args.gas_price,
+                   'stream': stream,
                    'levelised': summary, 'first_built': first_seen}, f, indent=2)
     print(f'Wrote {path}')
 

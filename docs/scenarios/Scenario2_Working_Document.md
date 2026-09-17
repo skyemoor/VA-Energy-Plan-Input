@@ -23,6 +23,7 @@ problems each have their own home.
 | 7 | Distributed carve-out | how the C.2 obligation is sized, and the solar cap assumption |
 | 8 | Agrivoltaic siting | the overlay, its premium, and its land footprint |
 | 9 | Adequacy and new gas | the measured shortfall, what closes it, how the size was chosen, and how much is the no-imports boundary |
+| 10 | Gas price band | three sourced trajectories, and what they do to the cost |
 
 **Scenario-specific methodology that is not cross-cutting stays here.** Gas capacity method is
 Appendix Q; the compliance definition is `Compliance_Definition_For_Sweep.md`.
@@ -509,3 +510,49 @@ leaves capacity factor free to emerge from dispatch rather than being imposed.
 The published annualised cost does **not** include this capacity. The runner still uses the
 unbounded gas ceiling, so it reports zero unserved energy while the bounded run shows 30.05 TWh.
 **Reconciling the two is the open work** — dashboard step 6, tracker activity 83.
+
+---
+
+## 10. Gas price band
+
+Scenario 2 burns 130+ TWh of gas a year by 2045, so **fuel price is its largest single
+sensitivity.** Three independently sourced trajectories, swept across all twenty years:
+
+| case | source | 2026 | 2045 | SLCOE | societal | 2045 annualised |
+|---|---|---:|---:|---:|---:|---:|
+| **low** | EIA Annual Energy Outlook | $3.70 | **$4.58** | **$29.59** | $115.96 | $8.59B |
+| **medium** | Deloitte *(project default)* | $3.70 | **$6.92** | **$36.35** | $122.33 | $10.86B |
+| **high** | Hughes / Post Carbon Institute | $3.50 | **$8.98** | **$37.02** | $123.12 | **$12.84B** |
+
+*$/MMBtu in 2026 real terms; SLCOE and societal cost in $/MWh, central capex basis.*
+
+**The band is $29.59–$37.02/MWh — a 25% spread.**
+
+### Three things the single number hides
+
+**Clean share does not move.** 31.6% at 2045 in all three cases. Gas price changes what the scenario
+*costs*, not what it *achieves*, because the build is statutory — the dispatch mix is fixed by what
+was built rather than by what fuel costs. That is a property of Scenario 2 specifically, and would
+not hold in a scenario where the LP chooses the build.
+
+**The band is narrow before 2030 and wide after.** All three start within $0.20/MMBtu. Deloitte
+rises fastest early then flattens; EIA barely moves; Hughes accelerates late. A reader taking the
+2045 spread as characteristic of the whole period would overstate near-term uncertainty
+substantially.
+
+**And it is not symmetric about the default.** High sits $0.67/MWh above medium while low sits
+$6.76/MWh below — because Deloitte front-loads its rise and Hughes only overtakes it near the end.
+
+### What the high case actually says
+
+**Hughes starts lowest, at $3.50/MMBtu, and ends highest at $8.98.** It is a supply-depletion
+narrative rather than uniform pessimism: Marcellus and Utica shale production peaking 2030–33, then
+declining at a 3.2%/yr terminal rate. Worth stating, because "high gas price case" invites the
+reading that it is simply the pessimistic one throughout.
+
+### Running it
+
+    python3 run_scenario2_slcoe.py --gas-price {eia,deloitte,hughes}
+
+Output lands in `results/scenario2_slcoe_<capex>_<case>.json`, with the default case keeping its
+original filename so existing references still resolve.
