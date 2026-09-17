@@ -1072,3 +1072,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `lp_package/checkpoint_solver.py` -- `new_gas_unit_mix()`; `new_gas_capacity_mw()` uses the mix.
 - Worst overshoot across the trajectory: 583 MW -> 168 MW.
 
+## 2026-09-14 (S2 audit fixes; import bracket)
+
+- `lp_package/checkpoint_solver.py` -- merit order defaulted on for Scenario 2;
+  `_merit_order_with_new_build()` adds a rung for procured capacity; `verify_result()` called;
+  `_describe_unit_mix()`; unit mix and capacity reported in the result.
+- `lp_package/assumptions.py` -- `VIRGINIA_IMPORT_SHARE_OF_ENERGY`, `VIRGINIA_IMPORTS_ARE_NOT_MODELLED`.
+- Measured: new gas 6,547 MW (no imports) / 5,000 (10%) / 2,000 (20%).
+

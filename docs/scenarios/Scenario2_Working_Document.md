@@ -22,7 +22,7 @@ problems each have their own home.
 | 6 | Bearing on the sweep | why this scenario sets the compliance axis's lower bound |
 | 7 | Distributed carve-out | how the C.2 obligation is sized, and the solar cap assumption |
 | 8 | Agrivoltaic siting | the overlay, its premium, and its land footprint |
-| 9 | Adequacy and new gas | the measured shortfall, what closes it, and how the size was chosen |
+| 9 | Adequacy and new gas | the measured shortfall, what closes it, how the size was chosen, and how much is the no-imports boundary |
 
 **Scenario-specific methodology that is not cross-cutting stays here.** Gas capacity method is
 Appendix Q; the compliance definition is `Compliance_Definition_For_Sweep.md`.
@@ -443,6 +443,66 @@ itself superseded.
 **Scenario 2 is explicitly exempt from the simple-cycle-only new-build rule** that governs the other
 scenarios. That rule's own text carves it out, and its rationale — written for *"short-duration (a
 few hours at a time) gap-filling needs"* — does not describe a shortfall spanning 65% of the year.
+
+### How much of this is the no-imports boundary
+
+**Virginia imports about 20% of its energy from PJM. This model forbids imports entirely**, so every
+megawatt-hour must be generated in state — and the solver builds gas to cover energy Dominion
+actually buys.
+
+Bracketing the effect by reducing demand:
+
+| import allowance | demand at 2045 | **new gas needed** |
+|---:|---:|---:|
+| **0% — the model as it stands** | 202.2 TWh | **6,547 MW** |
+| 10% | 182.0 TWh | 5,000 MW |
+| **20% — Dominion's actual** | 161.8 TWh | **2,000 MW** |
+
+**Roughly 70% of Scenario 2's new gas is a consequence of the boundary, not of the statute.** And
+the response is non-linear: the first 10% removes 1,547 MW, the second removes 3,000, as the peak
+comes off the steep part of the load duration curve.
+
+**The bracket reads in both directions, and neither end is the answer.** A flat demand reduction is
+*more generous* than imports, which are dispatchable and shaped — available when PJM is long — so
+2,000 MW is a lower bound. But in a scarcity year PJM may be tight exactly when Virginia is, and
+imports may not arrive at all, which is precisely when the capacity is needed.
+
+**So this is reported as a range, not a point:** *the statutory minimum requires 6,547 MW of new gas
+in a self-sufficient Virginia, or roughly 2,000 MW if imports continue at current levels. The
+difference measures what the no-imports assumption costs, not what the statute demands.*
+
+### Why the modelled fleet runs harder than Dominion's
+
+The merit order runs `ccgt_modern` at 100% capacity factor where Dominion's own plants averaged
+**66.8%** over 2022–2024. That gap is the same boundary seen from another angle.
+
+**Observed capacity factor by rung**, capacity-weighted, 2022–2024 average from EIA plant data:
+
+| rung | heat rate | MW | 2024 | 3-yr avg | modelled |
+|---|---:|---:|---:|---:|---:|
+| `ccgt_modern` | 6.40 | 4,058 | 72.5% | **66.8%** | 100% |
+| `ccgt_fleet` | 7.55 | 2,183 | 56.1% | **47.8%** | 87.1% |
+| `ct_fleet` | 11.00 | 3,865 | 8.5% | **7.0%** | 31.3% |
+
+**The merit order is visible in the data** — 66.8% → 47.8% → 7.0% tracks heat rate 6.40 → 7.55 →
+11.00 exactly, which is PJM dispatching on efficiency and confirms the rung structure.
+
+**Dominion's fleet is well-used, not under-used.** Greensville at 74.3% in 2024 sits close to the
+practical ceiling once maintenance, forced outages and ambient derating are allowed for.
+
+**These figures are a benchmark, not a constraint.** Capacity factor is a dispatch *outcome*, and
+the observed values carry at least three confounds that would not transfer to 2045:
+
+● **Regional supply.** PJM clears the whole market; a plant runs when it is called, and Doswell at
+  49.2% is the merit order working, not a limit on the plant.
+● **Ownership.** Tenaska, Doswell and Potomac Energy Center are merchant plants bidding to maximise
+  margin; Dominion's own plants recover fuel at cost through the fuel factor, without profit. The
+  `ccgt_fleet` rung mixes both.
+● **Market conditions.** `ccgt_fleet` swung 41.3% to 56.1% across 2022–2024 on gas price and
+  renewable output alone.
+
+**Availability, at 92%, remains the constraint** — it is what physically limits a plant, and it
+leaves capacity factor free to emerge from dispatch rather than being imposed.
 
 ### Not yet in the reported figure
 

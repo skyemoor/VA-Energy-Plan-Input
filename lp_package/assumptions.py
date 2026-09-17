@@ -1414,6 +1414,32 @@ PEAKER_FOM_USD_PER_KW_YR = {
     'f_class': 7.00,           # 237 MW single genset, 38.2% efficiency
 }
 
+#: Share of Virginia's energy Dominion imports from PJM. NOT MODELLED -- recorded here because it
+#: bounds how much of any scenario's in-state build is a consequence of the no-imports boundary
+#: rather than of the scenario itself.
+#:
+#: WHY IT IS NOT MODELLED (issue #3). The hourly PRICE data to value imports exists; the hourly
+#: VOLUME data does not, and inventing it would mean inventing the quantity that matters most.
+#: Excluding imports makes every scenario build more in-state capacity than Virginia needs, so
+#: every cost here is overstated -- conservative, but not neutral.
+#:
+#: MEASURED, Scenario 2 at 2045: new combined-cycle capacity needed to reach zero unserved energy
+#: falls from 6,547 MW at no imports, to 5,000 MW at 10%, to 2,000 MW at 20%. ROUGHLY 70% OF THE
+#: NEW GAS THIS SCENARIO BUILDS IS A CONSEQUENCE OF FORBIDDING IMPORTS, not of the statute.
+#:
+#: THE BRACKET IS NOT AN ESTIMATE, and reads in both directions:
+#:   - A flat demand reduction is MORE GENEROUS than imports, which are dispatchable and shaped --
+#:     available when PJM is long. So 2,000 MW is a LOWER bound.
+#:   - In a scarcity year PJM may be tight exactly when Virginia is, and imports may not arrive at
+#:     all -- which is precisely when the capacity is needed. So the upper bound is not absurd.
+#: The truth sits between, and reporting the bracket is more honest than reporting either end.
+VIRGINIA_IMPORT_SHARE_OF_ENERGY = 0.20
+VIRGINIA_IMPORTS_ARE_NOT_MODELLED = (
+    'Virginia imports about 20% of its energy from PJM and this model forbids imports entirely '
+    '(issue #3), so every scenario builds more in-state capacity than Virginia needs. Measured for '
+    "Scenario 2 at 2045: new gas falls from 6,547 MW to 2,000 MW at a 20% import allowance. Report "
+    'the bracket, not the endpoint.')
+
 #: SCENARIO 2 ONLY. New combined-cycle capacity target by year, MW, before rounding to whole
 #: reference units. A DECISION per Rule 8: revisitable, and revised if adequacy testing with
 #: forced-outage draws shows the simple-cycle fleet has too little headroom at 40.5% capacity factor.

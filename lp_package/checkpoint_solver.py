@@ -55,6 +55,16 @@ def _distributed_design_year_cf():
         _DIST_CF_CACHE['design'] = dsp.hydro_year_profile(2016)
     return _DIST_CF_CACHE['design']
 
+
+def _describe_unit_mix(mix):
+    """Human-readable combined-cycle unit mix, e.g. "5 x 1,083 MW + 2 x 566 MW"."""
+    if not mix:
+        return 'no new units'
+    parts = sorted(((assumptions.CCGT_REFERENCE_UNITS[key]['mw'], count)
+                    for key, count in mix.items()), reverse=True)
+    return ' + '.join(f'{count} x {mw:,.0f} MW' for mw, count in parts)
+
+
 class CheckpointSolver:
     """Base class for a single checkpoint's own year-solve (Appendix P.1's
     "checkpoint solve" -- optimizer decides both build and dispatch).
@@ -1101,6 +1111,40 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         _mix, total_mw, _capex = assumptions.ccgt_unit_mix_for(required_mw)
         return total_mw
 
+    def _merit_order_with_new_build(self):
+        """The standing stack plus a rung for the combined cycle THIS SCENARIO BUILDS.
+
+        THE STANDING STACK HAS NO SUCH RUNG. Its `new_build_ccgt` entry is the 2,862 MW
+        retain/overhaul pool -- existing plant kept past its formula retirement -- not capacity
+        this scenario procures. Enabling the stack without adding one capped gas at 12,216 MW
+        against a 16,800 MW fleet and the invariant check fired on 30.05 TWh unserved.
+
+        The new rung goes FIRST, ahead of every existing one: at a 6.40 heat rate it is the
+        cheapest plant on the system, so merit order would place it there in any case. Stating
+        the position explicitly rather than relying on the caller to sort correctly.
+
+        Found by the 2026-09-14 audit, build log 156.
+        """
+        import gas_merit_order
+
+        new_mw = self.new_gas_capacity_mw()
+        standing = gas_merit_order.GasMeritOrder()
+        if new_mw <= 0:
+            return standing
+        solver = self
+
+        class _StackWithScenarioBuild(gas_merit_order.GasMeritOrder):
+            def rungs(self, year):
+                built = list(super().rungs(year))
+                built.insert(0, gas_merit_order.GasRung(
+                    name='scenario_new_ccgt',
+                    heat_rate_mmbtu_per_mwh=lp.CCGT_HEAT_RATE,
+                    nameplate_mw=solver.new_gas_capacity_mw(year),
+                    vom_mwh=assumptions.CCGT_VOM_MWH))
+                return built
+
+        return _StackWithScenarioBuild()
+
     def new_gas_unit_mix(self, year=None):
         """Which combined-cycle blocks make up this year's build, as {unit key: count}.
 
@@ -1311,9 +1355,11 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
                     new_mw=new_gas_mw,
                     capex_usd_per_kw=CCGT_CAPEX_KW[ccgt_capex_basis],
                     fixed_om_usd_per_kw_yr=assumptions.CCGT_FOM_KW_YR,
+                    # THE NOTE DESCRIBED THE WRONG BUILD. It read the singular reference constant
+                    # and reported "6 x 1,083 MW" when the 2045 build is 5 x 1,083 plus 2 x 566.
+                    # The cost was right; the description was not. Build log 156.
                     note=f'{new_gas_mw:,.0f} MW new combined cycle, '
-                         f'{round(new_gas_mw / assumptions.CCGT_REFERENCE_UNIT_MW)} x '
-                         f'{assumptions.CCGT_REFERENCE_UNIT_MW:,.0f} MW reference units; '
+                         f'{_describe_unit_mix(self.new_gas_unit_mix())}; '
                          f'capex basis {ccgt_capex_basis}')
         self.result['lifecycle_cost'] = c
         return c
@@ -1394,10 +1440,23 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         _dist_cf = _distributed_design_year_cf()
         vcea_new_mw = _util_mw
 
+        # THE MERIT-ORDER STACK WAS PORTED, TESTED AND NEVER RUN. _gas_merit_order_kwargs is on the
+        # base class and the base solve uses it; this override did not, and nothing set the
+        # attribute it reads -- so every reported Scenario 2 figure burned 132 TWh at a flat 6.40
+        # heat rate, the best machine in the fleet in every hour. Measured understatement:
+        # $11.90/MWh. Found by the 2026-09-14 audit, build log 156.
+        #
+        # Defaulted ON here rather than left opt-in: a stack that must be remembered is a stack
+        # that gets forgotten, and this scenario's whole gas question turns on which rung is
+        # marginal. Pass gas_merit_order=None explicitly for a flat-price diagnostic.
+        if getattr(self, 'gas_merit_order', None) is None:
+            self.gas_merit_order = self._merit_order_with_new_build()
+
         problem = lp.build_scenario2_problem(
             self.solar_cf, self.wind_cf, self.nuclear, self.exist_solar, self.demand,
             vcea_solar_mw=vcea_new_mw,
             dist_solar_mw=_dist_mw, dist_solar_cf=_dist_cf,
+            **self._gas_merit_order_kwargs(),
             ccgt_mw=ccgt_mw,
             na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
             na_duration_hr=na_duration_hr,
@@ -1414,5 +1473,24 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
                            vcea_target_mw=self.vcea_solar_mw, vcea_new_build_mw=vcea_new_mw,
                            na_power_mw=drv.vcea_short_duration_floor_mw(self.year),
                            na_duration_hr=na_duration_hr,
-                           fe_power_mw=drv.vcea_long_duration_floor_mw(self.year))
+                           fe_power_mw=drv.vcea_long_duration_floor_mw(self.year),
+                           new_gas_capacity_mw=self.new_gas_capacity_mw(),
+                           new_gas_unit_mix=self.new_gas_unit_mix(),
+                           unserved_mwh=float(sum(
+                               res.x[t * problem['hv_params'][1] + problem['IDX']['unserved']]
+                               for t in range(len(self.demand)))),
+                           hourly={
+                               key: np.array([
+                                   res.x[t * problem['hv_params'][1] + problem['IDX'][key]]
+                                   for t in range(len(self.demand))])
+                               for key in ('nc', 'nd', 'fc', 'fd', 'bc', 'bd')
+                               if key in problem['IDX']})
+
+        # RULE 9: PHYSICAL INVARIANTS CHECKED HERE, not left to whichever runner happens to call
+        # this. This override did not call verify_result at all -- the base solve does, but this
+        # path replaces it -- so twenty years could be solved and reported with an invariant
+        # violation caught only if a runner remembered to look. run_scenario2_slcoe did look, which
+        # is why the 2034 shortfall surfaced; a caller that did not would have reported it silently.
+        # Found by the 2026-09-14 audit, build log 156.
+        self.verify_result()
         return self.result

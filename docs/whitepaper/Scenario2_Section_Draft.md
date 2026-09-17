@@ -123,11 +123,21 @@ recover its higher capital.
 
 Two modelling boundaries push the same way:
 
-● **Imports are excluded.** Virginia sits inside PJM and imports roughly 20% of its energy. The
-  hourly price data to value that exists; the hourly *volume* data does not, and inventing it would
-  mean inventing the quantity that matters most. Excluding imports makes every scenario build more
-  in-state capacity than Virginia needs, so **every cost here is overstated** — conservative, but
-  not neutral.
+● **Imports are excluded, and it accounts for most of the new gas.** Virginia sits inside PJM and
+  imports roughly 20% of its energy. The hourly price data to value that exists; the hourly *volume*
+  data does not, and inventing it would mean inventing the quantity that matters most.
+
+  **Measured:** new combined-cycle capacity needed to serve the load falls from **6,547 MW with no
+  imports to 2,000 MW at a 20% allowance** — so roughly **70% of the new gas this scenario builds is
+  a consequence of the boundary, not of the statute.** The response is non-linear, the first 10%
+  removing 1,547 MW and the second 3,000, as the peak comes off the steep part of the load duration
+  curve.
+
+  **Neither end is the answer.** A flat demand reduction is more generous than imports, which are
+  dispatchable and shaped, so 2,000 MW is a lower bound; but in a scarcity year PJM may be tight
+  exactly when Virginia is, and imports may not arrive when the capacity is most needed. The honest
+  statement is the range: **the statutory minimum requires 6,547 MW of new gas in a self-sufficient
+  Virginia, or roughly 2,000 MW if imports continue at current levels.**
 
 ● **Gas price is flat within each year.** Real PJM Mid-Atlantic prices show a **$45.92 spread**
   between overnight ($41.75/MWh) and evening peak ($87.67/MWh). Without that spread, storage can

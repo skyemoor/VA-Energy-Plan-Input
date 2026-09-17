@@ -7365,3 +7365,42 @@ would have failed loudly instead.
 **2034 now fails verification at 39,775.7 MWh unserved**, a year the placeholder table never
 measured. That is the sweep's job, not a defect in this mechanism.
 
+
+## 156. The audit found five defects, and the fleet data reframed two of them
+
+**2026-09-14.** A full audit of the Scenario 2 code path found five issues. The first was serious.
+
+**(1) THE MERIT-ORDER STACK NEVER RAN.** `_gas_merit_order_kwargs` is on the base class and the base
+solve uses it; `Scenario2Solver.solve` overrides that path and did not, and nothing set the
+attribute it reads. So the stack was ported, tested, committed -- and every reported figure still
+burned 132 TWh at a flat 6.40 heat rate. Now defaulted ON in this scenario: a stack that must be
+remembered is a stack that gets forgotten.
+
+**(2) THE STACK HAD NO RUNG FOR THE CAPACITY THIS SCENARIO BUILDS.** Its `new_build_ccgt` entry is
+the 2,862 MW retain pool, not procured capacity. Enabling the stack without adding one capped gas at
+12,216 MW against a 16,800 MW fleet, and the invariant check fired on 30.05 TWh unserved.
+
+**(3) `Scenario2Solver.solve` BYPASSED `verify_result`.** Rule 9 says invariant checks are inherited
+by extending CheckpointSolver; this override replaced the loop. The runner happened to check, which
+is why the 2034 shortfall surfaced -- a caller that did not would have reported it silently.
+
+**(4) `lifecycle_cost` DESCRIBED THE WRONG BUILD**, reading the singular reference constant and
+reporting "6 x 1,083 MW" for a build that is 5 x 1,083 plus 2 x 566.
+
+**(5) The unit mix was computed and never reported.**
+
+**THEN THE EIA PLANT DATA REFRAMED THE RESULT.** Observed 2022-2024 capacity factors, capacity-
+weighted by merit-order rung: ccgt_modern 66.8%, ccgt_fleet 47.8%, ct_fleet 7.0% -- tracking heat
+rates 6.40, 7.55 and 11.00 exactly, which confirms the rung structure from outside the model.
+
+**Our model runs ccgt_modern at 100%.** The proposal to cap capacity factor at observed levels was
+considered and rejected: capacity factor is a dispatch OUTCOME, and the observed values carry three
+confounds that would not transfer to 2045 -- regional supply, merchant-versus-rate-base ownership,
+and market conditions that swung ccgt_fleet from 41.3% to 56.1% in three years. Availability, which
+is what physically limits a plant, stays the constraint.
+
+**AND THE REAL CAUSE IS THE IMPORT BOUNDARY.** Measured: new gas needed falls from 6,547 MW with no
+imports, to 5,000 MW at 10%, to 2,000 MW at 20% -- Dominion's actual share. **Roughly 70% of
+Scenario 2's new gas is a consequence of forbidding imports, not of the statute.** Reported as a
+bracket in the whitepaper, with both ends explained.
+
