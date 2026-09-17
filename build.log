@@ -1087,3 +1087,13 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `lp_package/checkpoint_solver.py` -- rung dispatch on the result; cycling added to operating cost.
 - Measured at 2045: $645M/yr, 6.0% of a $10,819M total.
 
+## 2026-09-14 (distributed profile committed as a derived product)
+
+- `data/weather_years/distributed_solar_cf_45deg_8yr.npz` -- NEW, 260 KB. Eight hydro-year
+  distributed capacity-factor profiles, keyed hy<first_year>.
+- `lp_package/distributed_solar_profile.py` -- `CACHED_PROFILE_FILE`, `_cached_hydro_year()`;
+  `hydro_year_profile` reads the cache for the default sites and falls back to NSRDB.
+- `scripts/sweep_scenario2_gas_sizing.py` -- reads the shortfall from the Rule 9 invariant failure
+  rather than treating an undersized trial as an error.
+- `docs/DATA_SOURCES.md` -- records the new derived product and why it is committed.
+

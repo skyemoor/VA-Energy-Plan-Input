@@ -5,6 +5,14 @@ re-downloadable; storing them would bloat the repo without adding verifiability.
 Derived products that are small and expensive to rebuild (spliced weather years) **are** stored,
 under `data/weather_years/`.
 
+**`distributed_solar_cf_45deg_8yr.npz`** joins them (added 2026-09-14): eight hydro-year
+capacity-factor profiles for the C.2 distributed carve-out, five sites averaged at 45° fixed, keyed
+`hy<first_year>`. 260 KB, rebuilt by forty PVWatts runs over NSRDB files that are hundreds of
+megabytes. Without it a fresh clone cannot run anything touching the distributed profile —
+`sweep_scenario2_gas_sizing.py` failed on a missing `PJMMap.webp`, which is the marker used to
+locate the source data root. `lp_package/distributed_solar_profile.py` reads it when present and
+falls back to computing from NSRDB, so the source path remains the definition.
+
 ## Solar irradiance
 **NREL National Solar Radiation Database (NSRDB)**, GOES Aggregated v4.0.0, 60-minute.
 Sites used: Sterling, Arlington, Albemarle, Chesapeake, King George, Richmond.

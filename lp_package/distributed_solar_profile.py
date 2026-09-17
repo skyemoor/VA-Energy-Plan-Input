@@ -86,6 +86,8 @@ correlation between them is exactly what decides whether distributed capacity he
 """
 from typing import Dict, Optional, Sequence
 
+import os
+
 import numpy as np
 
 #: The five NSRDB locations averaged. They span the populated corridor from the northern suburbs to
@@ -150,13 +152,49 @@ def averaged_calendar_year(calendar_year, sites=DISTRIBUTED_SITES):
     return np.mean(profiles, axis=0)
 
 
+#: Committed derived product holding all eight hydro-year profiles, keyed `hy<first_year>`.
+#: DATA_SOURCES.md's standing rule: large source data is not committed because it is public and
+#: re-downloadable, but "derived products that are small and expensive to rebuild ARE stored".
+#: These are 260 KB and take forty PVWatts runs over NSRDB files that are hundreds of megabytes.
+CACHED_PROFILE_FILE = 'distributed_solar_cf_45deg_8yr.npz'
+
+
+def _cached_hydro_year(first_calendar_year):
+    """The committed profile for this hydro year, or None when the cache file is absent.
+
+    WHY THIS EXISTS. Without it, every caller needing a distributed profile needs the NSRDB source
+    CSVs -- and a fresh clone does not have them, so `sweep_scenario2_gas_sizing.py` failed on a
+    missing PJMMap.webp, which is the marker used to locate the data root. Reproducing a 260 KB
+    derived product from hundreds of megabytes of public data on every clone is the wrong trade.
+
+    The NSRDB path stays as the fallback and remains the definition; this is a cache of it.
+    """
+    try:
+        path = paths.weather_year(CACHED_PROFILE_FILE)
+    except Exception:
+        return None
+    if not os.path.exists(path):
+        return None
+    with np.load(path) as data:
+        key = f'hy{first_calendar_year}'
+        return data[key].copy() if key in data else None
+
+
 def hydro_year_profile(first_calendar_year, sites=DISTRIBUTED_SITES, _cache=None):
     """Five-site average for one HYDRO year, spliced April(n)-March(n+1).
+
+    Reads the committed cache when it covers this year and the default sites are in use, and falls
+    back to computing from NSRDB otherwise. A non-default `sites` list always computes, since the
+    cache holds the five-site average and nothing else.
 
     `_cache` optionally maps calendar year -> averaged profile, so a caller building all eight
     hydro years computes each calendar year once rather than twice. Forty PVWatts runs instead of
     eighty.
     """
+    if sites is DISTRIBUTED_SITES and _cache is None:
+        cached = _cached_hydro_year(first_calendar_year)
+        if cached is not None:
+            return cached
     cache = {} if _cache is None else _cache
     for y in (first_calendar_year, first_calendar_year + 1):
         if y not in cache:

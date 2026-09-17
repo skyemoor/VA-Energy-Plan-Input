@@ -82,8 +82,24 @@ def _unserved_mwh(year, units):
     cap_mw = (driver.gas_baseline_mw(year, solver.gas_retirement_schedule())
               + assumptions.GAS_NEW_BUILD_POOL_MW
               + units * assumptions.CCGT_REFERENCE_UNIT_MW)
-    result = solver.solve(gas_price_mwh=lp.gas_cost_mwh(year, heat_rate=lp.CCGT_HEAT_RATE),
-                          ccgt_mw=cap_mw)
+    # RULE 9'S INVARIANT CHECK RAISES ON UNSERVED ENERGY, which is correct for a scenario asked to
+    # serve its load and wrong for this sweep: measuring the shortfall at an inadequate capacity is
+    # the whole point. Catching it is not bypassing the check -- an undersized trial is EXPECTED to
+    # fail, and the failure is the measurement.
+    try:
+        result = solver.solve(gas_price_mwh=lp.gas_cost_mwh(year, heat_rate=lp.CCGT_HEAT_RATE),
+                              ccgt_mw=cap_mw)
+    except ValueError as invariant_failure:
+        message = str(invariant_failure)
+        if 'unserved energy' not in message:
+            raise
+        # The check reports the figure it rejected; parse rather than re-solve.
+        import re
+        found = re.search(r'has ([\d,.]+) MWh unserved', message)
+        if not found:
+            raise
+        return float(found.group(1).replace(',', ''))
+
     idx = result['problem']['IDX']
     vars_per_hour = result['problem']['hv_params'][1]
     return float(sum(result['raw'].x[t * vars_per_hour + idx['unserved']]
