@@ -7606,3 +7606,34 @@ would not hold where the LP chooses the build.
 Deloitte front-loads its rise and Hughes overtakes only near the end. Hughes also STARTS LOWEST at
 $3.50 -- it is a supply-depletion narrative, not uniform pessimism.
 
+
+## 163. Five appendices existed only inside a composite draft
+
+**2026-09-14.** `Reorganized_Appendices_Draft.md` held a lettered A-P scheme in 4,682 lines.
+Auditing it before recommending a sequence found three problems.
+
+**STALE COPIES.** It carried full copies of D, M, N, O and P alongside their standalone files. Its
+Appendix P had 14 of the solve procedure's requirements where the live file has 17 -- so a reader
+opening the composite would find a complete-looking appendix and miss three. Diffed all five: the
+standalone files are authoritative in every case.
+
+**FIVE APPENDICES WITH NO STANDALONE FILE AT ALL**, including Resource Adequacy Methodology at
+86,000 characters -- the largest single piece of unversioned content in the project, invisible to
+the index and impossible to revise without editing a file about something else. Extracted.
+
+**AND THE "UPDATED" DRAFT WAS NOT AN UPDATE.** 1,031 lines against 4,682, with Appendix D at 369
+characters against 23,650. A truncated copy, deleted rather than reconciled.
+
+**Two extracted appendices carry superseded figures and now say so at the top.** Scenario 2
+Methodology predates the bounded fleet, carve-out, siting, merit order and cycling cost -- its
+METHOD text is why it was extracted rather than deleted. Resource Adequacy predates the
+capacity-planning versus resource-adequacy distinction, and remains the fullest account of the
+accreditation method, so it should be merged with Common_Reference sections 2-3 rather than
+replaced.
+
+**Sequence proposed but NOT applied**, in APPENDIX_ORDER.md. Renumbering breaks every
+cross-reference -- Q becomes H, P becomes N -- and is worth doing once rather than after more
+citations accumulate against letters that will move anyway. Filenames stay descriptive: a letter in
+a filename is a second place for the scheme to drift out of sync with itself, which is how three
+competing schemes arose.
+

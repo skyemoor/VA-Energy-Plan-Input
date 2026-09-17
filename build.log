@@ -1127,3 +1127,13 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `run_scenario2_slcoe.py` -- `--gas-price`, and the case in the output filename.
 - Band: $29.59 (EIA) / $36.35 (Deloitte) / $37.02 (Hughes) per MWh.
 
+## 2026-09-14 (appendices extracted and sequenced)
+
+- `docs/appendices/` -- five appendices extracted from Reorganized_Appendices_Draft.md, which had
+  no standalone files: Resource_Adequacy_Methodology (86 KB), Scenario2_Methodology (38 KB),
+  Cost_Assumptions (16 KB), DER_Owner_Economics (7 KB), Known_Limitations (1 KB).
+- Both Reorganized_Appendices_Draft files DELETED. The _updated one was a truncated copy, not an
+  update -- 1,031 lines against 4,682, with Appendix D at 369 characters against 23,650.
+- `docs/appendices/APPENDIX_ORDER.md` -- NEW. Proposed sequence in reader order, with what each
+  draws from and what must be merged or assembled first.
+

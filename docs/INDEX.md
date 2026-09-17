@@ -104,6 +104,12 @@ of the other.
 | `research/Dominion_FRR_RPM_Status.md` | **Which capacity construct Dominion operates under** — FRR terminated May 2024, currently RPM; what that means for self-supply assumptions |
 | **`methodology/Reserves_Approach.md`** | **START HERE for reserves.** Reader-facing: what is modelled, what is not, and why |
 | `research/CAISO_Net_Load_Treatment.md` | **How CAISO sizes reserves against net load** — two parallel requirements, flexible capacity, Flexible Ramping Product |
+| **`appendices/APPENDIX_ORDER.md`** | **PROPOSED APPENDIX SEQUENCE** — reader order, what each draws from, and what must be merged or assembled first |
+| **`appendices/Appendix_Resource_Adequacy_Methodology.md`** | Accreditation and reserve-margin method — the fullest account; partly superseded by `Common_Reference.md` sections 2-3 |
+| **`appendices/Appendix_Cost_Assumptions.md`** | Cost assumptions and levelisation |
+| **`appendices/Appendix_Scenario2_Methodology.md`** | How Scenario 2 was constructed — METHOD current, FIGURES superseded |
+| **`appendices/Appendix_DER_Owner_Economics.md`** | DER owner economics, for Scenario 3 |
+| **`appendices/Appendix_Known_Limitations.md`** | Known limitations (stub) |
 | **`appendices/Appendix_Q_Gas_Capacity_Method.md`** | **Gas capacity expansion** — brownfield screening curve method, LEEMA cost formulas, what the method does not support, and how results are presented |
 | **`scenarios/Scenario1_Working_Document.md`** | **Scenario 1 working document** — result, build trajectory, curtailment, foresight comparison, solver structure |
 | **`scenarios/Scenario1B_Working_Document.md`** | **Scenario 1B working document** — the 5% ceiling, gas capacity, checkpoint structure |
