@@ -1414,7 +1414,10 @@ PEAKER_FOM_USD_PER_KW_YR = {
     'f_class': 7.00,           # 237 MW single genset, 38.2% efficiency
 }
 
-#: New combined-cycle reference unit, for the DISCRETE build Scenario 2 requires. Gas Turbine World
+#: SCENARIO 2 ONLY. New combined-cycle reference unit, for the DISCRETE build it requires.
+#: Resolve it through Scenario2Solver.new_gas_technology() rather than reaching for it directly:
+#: the other scenarios build simple-cycle under the standing rule, and a constant whose name gives
+#: no hint of its scope is how the dropped carve-out went unnoticed. Gas Turbine World
 #: 2024 Handbook: H-Class multi-shaft combined cycle, rated 1,083 MW, 59.4% efficiency, $958M total
 #: at $950/kW installed, $12.20/kW-yr fixed O&M.
 #:

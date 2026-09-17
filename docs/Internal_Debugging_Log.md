@@ -7239,3 +7239,41 @@ peak. Both were better instincts than my models.
 progress together. 4 x 3 is the alternative when four scenarios should FINISH sooner -- 7% less
 aggregate, each job 50% faster. For a single scenario, 1 x 8.
 
+
+## 153. New-gas technology declared per scenario, and the diagnostic nearly reproduced the trap
+
+**2026-09-14.** The standing rule -- new gas is simple-cycle only -- governs Scenarios 1, 1B, 3, 3B
+and 3C and carves out Scenario 2 explicitly. That carve-out was lost in the gas-document merge, and
+`CCGT_REFERENCE_UNIT_MW` carried no scope marker at all, so a reader would take it for the project's
+CCGT unit and Scenario 1 reaching for it would silently violate the rule.
+
+**Declared per scenario now**, with the same construction as `gas_retirement_schedule`: base class
+raises, each scenario declares in its own class, and a seventeenth audit check verifies none
+inherits.
+
+**THE RULE'S RATIONALE IS A PREDICTION, SO IT IS MEASURED.** It rests on shortfalls being
+"short-duration (a few hours at a time) gap-filling needs", and Scenario 2 falsified that.
+`shortfall_duty_profile()` reports run length, share of year and existing simple-cycle capacity
+factor, so a declaration the evidence contradicts is visible rather than inferred.
+
+**AND THE FIRST VERSION OF THAT DIAGNOSTIC REPRODUCED THE TRAP IT WAS BUILT TO CATCH.** It returned
+`looks_like_peaking_duty: True` for Scenario 2 -- median run 3 hours, below the combined-cycle
+minimum uptime -- which is the artifact, not the finding. The flat 3-hour profile exists because the
+existing simple-cycle fleet fills the bottom of the gap, leaving only its ragged surface exposed;
+remove that fleet and the profile is a staircase, 12-16 hours at the base.
+
+Renamed to `median_run_suggests_peaking` and paired with `existing_ct_saturated` and
+`median_run_may_be_masked`, which fire together on Scenario 2. **A short median run means "new plant
+must serve short blocks GIVEN THE FLEET AS IT IS", not "the system's duty is peaking"** -- and the
+two diverge exactly when the existing fleet is saturated.
+
+**No threshold decides the technology.** Three sizing criteria built on the 28.1% crossover during
+this session proved to have no authority, the crossover being a new-build decision that does not
+transfer to plant with sunk capital. The diagnostic reports two measurements and leaves the
+judgement outside.
+
+**Scenarios 1, 1B and 3 are declared but UNMEASURED**, since they are superseded pending the
+carve-out. 1B is the one most likely to move: its 5% gas from 2045 is an energy allowance rather
+than gap-filling. Scenario 1's 2035 and 2040 are next, since its clean build arrives late and those
+years carry large residuals against a retiring fleet.
+

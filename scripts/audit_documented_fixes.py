@@ -608,6 +608,37 @@ def check_section_symbol_only_in_va_code_citations():
 
 
 
+
+def check_scenarios_declare_new_gas_technology():
+    """Every scenario solver must declare how new gas capacity is built.
+
+    The standing rule is SIMPLE-CYCLE ONLY for Scenarios 1, 1B, 3, 3B and 3C, and its own text
+    carves out Scenario 2. That carve-out was DROPPED when the gas documents were consolidated,
+    leaving the rule reading as universal -- which produced a reported conflict with Scenario 2's
+    combined-cycle sizing that did not exist.
+
+    The rule's rationale is also a PREDICTION -- that shortfalls will be "short-duration (a few
+    hours at a time) gap-filling needs" -- and Scenario 2 falsified it. So the choice is a declared
+    scenario property, checked here against __dict__ rather than the MRO, for the same reason as
+    the retirement schedule: inheritance is what allows a scenario to carry the wrong one silently.
+    """
+    import checkpoint_solver as cs
+    valid = {'simple_cycle', 'combined_cycle'}
+    missing, wrong = [], []
+    for n in ('Scenario1Solver', 'Scenario1BSolver', 'Scenario2Solver', 'Scenario3Solver'):
+        k = getattr(cs, n)
+        if 'new_gas_technology' not in vars(k):
+            missing.append(n)
+        elif k.new_gas_technology(k) not in valid:
+            wrong.append(f'{n}={k.new_gas_technology(k)!r}')
+    if missing:
+        return False, ('scenario(s) inherit a new-gas technology instead of declaring one: '
+                       + ', '.join(missing))
+    if wrong:
+        return False, f'scenario(s) declare an unknown technology: {", ".join(wrong)}'
+    return True, 'all four scenarios declare how new gas capacity is built'
+
+
 def check_scenarios_declare_gas_retirement_schedule():
     """Every scenario solver must declare its own gas retirement schedule.
 
@@ -698,6 +729,7 @@ CHECKS = [
     ('section symbol only in VA Code citations', check_section_symbol_only_in_va_code_citations),
     ('scenarios state their own gas split', check_scenarios_state_their_own_gas_split),
     ('scenarios declare their gas retirement schedule', check_scenarios_declare_gas_retirement_schedule),
+    ('scenarios declare their new-gas technology', check_scenarios_declare_new_gas_technology),
     ('no export revenue in objectives (Appendix P.2 #8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 

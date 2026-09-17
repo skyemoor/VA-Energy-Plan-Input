@@ -61,6 +61,89 @@ class CheckpointSolver:
     own standing requirements (Appendix P.2 #11/#13/#14) before it can be
     treated as final."""
 
+    def new_gas_technology(self):
+        """Which technology new gas capacity is built as: 'simple_cycle' or 'combined_cycle'.
+
+        A TEMPLATE METHOD WITH NO DEFAULT, for the same reason gas_retirement_schedule has none:
+        the choice is a scenario property, and silent inheritance is the failure mode.
+
+        THE STANDING RULE IS CONDITIONAL, NOT ABSOLUTE. New gas is simple-cycle for Scenarios 1, 1B,
+        3, 3B and 3C, on the stated rationale that "most anticipated shortfalls are likely
+        short-duration (a few hours at a time) gap-filling needs" -- and the rule's own text carves
+        out Scenario 2, "which retains its own established CCGT-based new-build methodology".
+
+        THAT RATIONALE IS A PREDICTION AND CAN BE WRONG. Scenario 2 falsified it: its 2045 shortfall
+        is 30.05 TWh across 5,671 hours at a 33.4% capacity factor, and the existing simple-cycle
+        fleet runs at a 100% capacity factor until combined-cycle capacity is added. Whether the
+        other scenarios' shortfalls are genuinely peaky is an EMPIRICAL question, and
+        shortfall_duty_profile() measures it rather than assuming.
+
+        So this method records a declaration; the diagnostic records whether the evidence supports
+        it. A declaration that the evidence contradicts is visible rather than inferred.
+        """
+        raise NotImplementedError(
+            f'{type(self).__name__} must declare how new gas capacity is built. '
+            "Return 'simple_cycle' for the standing rule's three reference units, or "
+            "'combined_cycle' for Scenario 2's own methodology. The choice follows the SHAPE of "
+            'the shortfall, which shortfall_duty_profile() measures -- it is not a default.')
+
+    def shortfall_duty_profile(self, unserved_mwh, ct_fleet_mwh=None, ct_fleet_mw=None):
+        """Does this scenario's shortfall look like peaking duty or baseload duty?
+
+        The standing simple-cycle rule rests on shortfalls being "short-duration (a few hours at a
+        time) gap-filling needs". This measures whether that holds:
+
+            median_run_hours    below a combined-cycle minimum uptime means peaking duty
+            shortfall_hours     what share of the year the system is short
+            ct_capacity_factor  an existing simple-cycle fleet running far above its economic duty
+                                is serving load that wants combined-cycle plant
+
+        Returns the measurements, NOT a recommendation. Three sizing criteria built on this
+        project's 28.1% crossover during 2026-09-14 turned out to have no authority behind them --
+        the crossover is a NEW-BUILD decision and existing plant has sunk capital. So this reports
+        what is there and leaves the judgement where it belongs.
+        """
+        import numpy as np
+        import gas_capacity_fit as gcf
+
+        u = np.asarray(unserved_mwh, dtype=float)
+        flag = u > 1.0
+        edges = np.diff(np.concatenate(([0], flag.astype(np.int8), [0])))
+        runs = np.flatnonzero(edges == -1) - np.flatnonzero(edges == 1)
+        hours = len(u)
+        out = {
+            'shortfall_hours': int(flag.sum()),
+            'shortfall_share_of_year': float(flag.sum()) / hours if hours else 0.0,
+            'median_run_hours': float(np.median(runs)) if len(runs) else 0.0,
+            'longest_run_hours': int(runs.max()) if len(runs) else 0,
+            'event_count': int(len(runs)),
+            'ccgt_min_uptime_hr': gcf.CCGT_MIN_UPTIME_HR,
+            # NOT A CONCLUSION ON ITS OWN, and Scenario 2 is why. Its 2045 shortfall has a median
+            # run of 3 hours at every tranche, which reads as peaking duty -- but that flat profile
+            # is an ARTIFACT of the existing simple-cycle fleet filling the bottom of the gap,
+            # leaving only its ragged surface exposed. Remove that fleet from the stack and the
+            # profile becomes a staircase, 12-16 hours at the base: genuine combined-cycle duty.
+            #
+            # So a short median run means "new plant must serve short blocks GIVEN THE FLEET AS IT
+            # IS", not "the system's duty is peaking". The two diverge whenever the existing fleet
+            # is saturated, which ct_capacity_factor detects.
+            'median_run_suggests_peaking': bool(
+                len(runs) and np.median(runs) < gcf.CCGT_MIN_UPTIME_HR),
+        }
+        if ct_fleet_mwh is not None and ct_fleet_mw:
+            ct_cf = float(ct_fleet_mwh) / (ct_fleet_mw * hours)
+            out['ct_capacity_factor'] = ct_cf
+            # A simple-cycle fleet near saturation is serving load that wants combined-cycle plant,
+            # and it is also MASKING the true duty shape above -- so a short median run cannot be
+            # read at face value while this is high. No threshold is applied: three sizing criteria
+            # built on this project's 28.1% crossover during 2026-09-14 proved to have no authority,
+            # the crossover being a new-build decision that does not transfer to plant with sunk
+            # capital. The two measurements are reported together and the judgement stays outside.
+            out['existing_ct_saturated'] = ct_cf > 0.90
+            out['median_run_may_be_masked'] = bool(
+                out['median_run_suggests_peaking'] and ct_cf > 0.90)
+        return out
+
     def gas_retirement_schedule(self):
         """Which retirement world this scenario is in: 'A' physical, 'B' VCEA-driven.
 
@@ -342,6 +425,16 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
     accept prior_* kwargs specifically so linking and convergence could be combined in one
     call (previously required bypassing run_solve() entirely -- see Internal Debugging Log)."""
 
+    def new_gas_technology(self):
+        """SIMPLE CYCLE, under the standing rule. Scenario 1 builds to a 100% clean target, so gas
+        fills residual gaps after a large clean build -- the duty the rule was written for.
+
+        NOT YET CONFIRMED BY MEASUREMENT. The scenario's shortfall profile has not been run since
+        the carve-out and Bath corrections, and its clean build arrives late (59% of the fleet in
+        the final checkpoint), so 2035 and 2040 carry large residuals against a retiring fleet.
+        Those years are where this declaration is most likely to prove wrong."""
+        return 'simple_cycle'
+
     def gas_retirement_schedule(self):
         """SCHEDULE B. Scenario 1 reaches 100% clean at 2045, so Brunswick County, Potomac Energy
         Center and Greensville genuinely have no market -- which is the world Schedule B describes
@@ -431,6 +524,14 @@ class Scenario1BSolver(Scenario1Solver):
     2045-and-beyond checkpoints allows 5% gas rather than the ~0.08% 'true 100% clean'
     target -- the entire class body is this one override, versus a fully duplicated
     solve_2045_1b_*.py script under the pre-refactor pattern."""
+
+    def new_gas_technology(self):
+        """SIMPLE CYCLE, under the standing rule -- and the declaration most worth testing.
+
+        1B allows gas 5% of the statutory base from 2045, which is an ENERGY allowance rather than
+        gap-filling. If its simple-cycle fleet runs hard against that allowance, the same arithmetic
+        that moved Scenario 2 to combined cycle would apply here."""
+        return 'simple_cycle'
 
     def gas_retirement_schedule(self):
         """SCHEDULE B. At 5% gas from 2045 the fleet needs very little, so it retires as in a VCEA
@@ -738,6 +839,11 @@ class Scenario3Solver(Scenario1Solver):
     checkpoint's own solve is complete. Rooftop-WMA and canopy-WMA share ONE combined distributed
     pool (direct user decision, to avoid an overly complex LP) -- not modeled as separate LP segments."""
 
+    def new_gas_technology(self):
+        """SIMPLE CYCLE, as Scenario 1: the same 100% clean terminal year, reached by different
+        siting. Unmeasured for the same reason."""
+        return 'simple_cycle'
+
     def gas_retirement_schedule(self):
         """SCHEDULE B, as Scenario 1: the same 100% clean terminal year, reached by different
         siting."""
@@ -926,6 +1032,20 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
     are all Scenario-1-specific concepts that don't apply here. Wraps
     lp_model.build_scenario2_problem() directly, per that function's own, separate
     calling convention (Appendix C)."""
+
+    def new_gas_technology(self):
+        """COMBINED CYCLE, and the standing rule's own text carves this scenario out: "NOT Scenario
+        2, which retains its own established CCGT-based new-build methodology".
+
+        MEASURED, and the rule's rationale does not describe this shortfall. It was written for
+        needs that are "short-duration (a few hours at a time)"; Scenario 2's 2045 shortfall is
+        30.05 TWh across 5,671 hours -- 65% of the year -- at a 33.4% capacity factor, with the
+        existing simple-cycle fleet at a 100% capacity factor until combined-cycle capacity is
+        added.
+
+        What the new capacity does is not fill peaks but displace that fleet from baseload duty,
+        where it burns at an 11.0 heat rate on load that wants 6.4."""
+        return 'combined_cycle'
 
     def carve_out_mw(self, year=None):
         """Distributed capacity the C.2 carve-out requires in `year`, MW.

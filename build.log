@@ -1034,3 +1034,10 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   simple-cycle-only rule, dropped in the 2026-09-13 merge, restored.
 - Scenario 2 new build: 6 units, 6,498 MW, 2 MW under the 6,500 MW cost optimum.
 
+## 2026-09-14 (new-gas technology declared per scenario)
+
+- `lp_package/checkpoint_solver.py` -- `new_gas_technology()` template method, no default on the
+  base; `shortfall_duty_profile()` diagnostic. All four scenarios declare.
+- `scripts/audit_documented_fixes.py` -- seventeenth check.
+- `lp_package/assumptions.py` -- `CCGT_REFERENCE_UNIT_MW` marked Scenario 2 only.
+
