@@ -7469,3 +7469,36 @@ priced, and apply_gas_cap agreeing with fleet plus pool plus new build.
 error was exactly (2,600 - 2,587.2) x mean wind capacity factor. A review harness needs the same
 scrutiny as the code it reviews.
 
+
+## 159. Audit check 18: a capability must be invoked, not merely imported
+
+**2026-09-14.** `check_module_is_actually_called` asks whether anything IMPORTS a module. The
+merit-order stack passed it comfortably -- `gas_merit_order` was imported by `checkpoint_solver`,
+`lp_model` and `gas_capacity_fit`, three separate importers -- while `Scenario2Solver.solve` never
+passed the kwargs, so the capability was dead and every reported figure burned 132 TWh at a flat
+6.40 heat rate.
+
+**IMPORT IS NOT INVOCATION**, and that distinction is the whole check.
+
+**TWICE NOW.** `all_hours_reserve` failed the same way one level shallower -- built, documented as
+standard, imported by nothing -- which is why the import check exists at all. Two occurrences of the
+same failure at different depths is the argument for automating rather than remembering.
+
+`OPTIONAL_CAPABILITY_CALL_SITES` registers seven: merit-order stack, distributed carve-out, thermal
+cycling cost, new-gas capacity bound, physical invariants, agrivoltaic overlay, adequacy metrics.
+Each names the call that activates it and the function that must contain that call.
+
+**VERIFIED BY REINTRODUCING THE DEFECT.** Removing `**self._gas_merit_order_kwargs(),` from
+`Scenario2Solver.solve` makes check 18 fail by name: "merit-order stack:
+checkpoint_solver.Scenario2Solver.solve never calls _gas_merit_order_kwargs(". Restored, it passes.
+A check that has never been seen to fail is a check nobody knows works.
+
+**WHAT IT DOES NOT CATCH, stated so the scope is not overread.** It generalises ONE failure mode.
+The missing retain pool, the Phase I column read as Phase II, and the wrong build description in
+`lifecycle_cost` were correctness defects, not wiring, and none would trip this. My initial claim
+that it would automate "today's most valuable finding" overstated the reach -- it automates the
+RECURRING one.
+
+**And a test asserts an unresolvable registry entry FAILS rather than passing silently**, so a
+renamed function surfaces as a broken check rather than a green one.
+

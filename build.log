@@ -1097,3 +1097,9 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   rather than treating an undersized trial as an error.
 - `docs/DATA_SOURCES.md` -- records the new derived product and why it is committed.
 
+## 2026-09-14 (audit check 18)
+
+- `scripts/audit_documented_fixes.py` -- `OPTIONAL_CAPABILITY_CALL_SITES`,
+  `check_optional_capabilities_are_invoked()`. Seven capabilities registered.
+- Verified by reintroducing the merit-order defect: the check fails by name, then passes on restore.
+

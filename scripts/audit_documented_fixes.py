@@ -708,6 +708,63 @@ def check_constant_superseded(module, gone, present):
     return True, f'{gone} removed, {present} present'
 
 
+
+#: Optional capabilities: built, importable, and USELESS UNLESS A PATH ACTUALLY INVOKES THEM.
+#: Each entry is (capability, the call that activates it, the function that must contain that call).
+#:
+#: WHY THIS IS NOT check_module_is_actually_called. That check asks "does anything IMPORT this
+#: module?" and the merit-order stack passed it comfortably -- gas_merit_order was imported by
+#: checkpoint_solver, lp_model and gas_capacity_fit. IMPORT IS NOT INVOCATION.
+#: `_gas_merit_order_kwargs` existed on the base class, `build_scenario2_problem` accepted the
+#: parameter, and `Scenario2Solver.solve` simply never passed it -- so the stack was ported, tested,
+#: committed, and every reported figure still burned 132 TWh at a flat 6.40 heat rate.
+#:
+#: TWICE NOW. `all_hours_reserve` failed the same way, which is why the import check exists; this is
+#: the same failure one level deeper, and automating it is the only reason it would be caught
+#: without someone thinking to look.
+OPTIONAL_CAPABILITY_CALL_SITES = (
+    ('merit-order stack', '_gas_merit_order_kwargs(', 'checkpoint_solver.Scenario2Solver.solve'),
+    ('distributed carve-out', 'solar_split_mw(', 'checkpoint_solver.Scenario2Solver.solve'),
+    ('thermal cycling cost', 'gas_cycling_cost', 'checkpoint_solver.Scenario2Solver.lifecycle_cost'),
+    ('new-gas capacity bound', 'new_gas_capacity_mw(', 'checkpoint_solver.Scenario2Solver.apply_gas_cap'),
+    ('physical invariants', 'verify_result(', 'checkpoint_solver.Scenario2Solver.solve'),
+    ('agrivoltaic overlay', 'agrivoltaic_overlay.apply(', 'run_scenario2_slcoe.solve_year'),
+    ('adequacy metrics', 'reliability_metrics.compute(', 'run_scenario2_slcoe.solve_year'),
+)
+
+
+def check_optional_capabilities_are_invoked():
+    """Every optional capability must be CALLED by the function that should call it.
+
+    A capability that is built, imported and never invoked is indistinguishable from one that does
+    not exist -- except that it passes every other check, which is what makes this failure mode
+    expensive. See OPTIONAL_CAPABILITY_CALL_SITES for the two occurrences that motivated it.
+    """
+    import importlib
+    import inspect
+
+    sys.path.insert(0, os.path.join(REPO, 'lp_package'))
+    sys.path.insert(0, REPO)
+    missing = []
+    for capability, call, target in OPTIONAL_CAPABILITY_CALL_SITES:
+        module_name, _, attribute_path = target.partition('.')
+        try:
+            obj = importlib.import_module(module_name)
+            for part in attribute_path.split('.'):
+                obj = getattr(obj, part)
+            source = inspect.getsource(obj)
+        except Exception as problem:
+            missing.append(f'{capability}: cannot inspect {target} ({type(problem).__name__})')
+            continue
+        if call not in source:
+            missing.append(f'{capability}: {target} never calls {call}')
+    if missing:
+        return False, ('optional capability built but not invoked -- '
+                       + '; '.join(missing))
+    return True, (f'all {len(OPTIONAL_CAPABILITY_CALL_SITES)} optional capabilities are invoked '
+                  'by the path that should invoke them')
+
+
 def check_claim_matches_code(doc_path, claim_substring, code_check, description):
     """Guards against a document asserting something the code does not do."""
     doc = read(*doc_path.split('/'))
@@ -730,6 +787,7 @@ CHECKS = [
     ('scenarios state their own gas split', check_scenarios_state_their_own_gas_split),
     ('scenarios declare their gas retirement schedule', check_scenarios_declare_gas_retirement_schedule),
     ('scenarios declare their new-gas technology', check_scenarios_declare_new_gas_technology),
+    ('optional capabilities are invoked, not merely imported', check_optional_capabilities_are_invoked),
     ('no export revenue in objectives (Appendix P.2 #8)', check_no_export_revenue_in_objectives),
     ('curtailment cost present and agreeing (log #20)', check_curtailment_cost_is_present_and_agrees),
 
