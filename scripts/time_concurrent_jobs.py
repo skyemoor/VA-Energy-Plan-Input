@@ -33,6 +33,31 @@ serial baseline, so configurations with equal N x M can be compared directly.
     python3 scripts/time_concurrent_jobs.py --grid 1x8 2x4 4x2 1x16 2x8
     python3 scripts/time_concurrent_jobs.py --solves-per-job 8
 
+MEASURED RESULTS, 16-logical-core x86_64 workstation, 2026-09-14
+
+    config  concurrent  solves/s  speedup
+       1x4           4      1.09     2.9x
+       1x8           8      1.21     3.2x
+       2x4           8      1.27     3.4x
+       4x2           8      1.37     3.6x   <- best
+       3x4          12      1.22     3.2x
+       6x2          12      1.26     3.3x
+       4x3          12      1.28     3.4x
+      1x16          16      1.18     3.1x
+       4x4          16      1.14     3.0x
+       2x8          16      1.06     2.8x
+
+**TOTAL CONCURRENCY SETS THE ENVELOPE.** Eight beats twelve beats sixteen in every grouping; no
+arrangement of processes recovers what is lost past the bandwidth ceiling.
+
+**GROUPING MATTERS ONLY AT THE PEAK.** At eight concurrent, four jobs of two workers beats one job
+of eight by 12% -- likely pool coordination overhead, which shows when the last of the available
+bandwidth is being extracted. At twelve the three groupings sit within 5% and the effect has gone.
+
+Recommended: **4 jobs x 2 workers** for aggregate throughput with four scenarios progressing
+together; **4 x 3** when four scenarios should FINISH sooner (7% less aggregate, each job 50%
+faster); **1 x 8** for a single scenario.
+
 WHAT TO DO WITH THE ANSWER
 
 If configurations with equal N x M give equal throughput, group by what is convenient: two jobs of

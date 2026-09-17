@@ -7202,3 +7202,40 @@ aggregate gain over one job on sixteen.
 `scripts/time_concurrent_jobs.py` now measures the multi-job case directly, because I have reasoned
 wrongly about this once and measurement is cheaper than a second attempt.
 
+
+## 152. Correction to 151: grouping is not irrelevant either
+
+**2026-09-14.** Entry 151 corrected the claim that per-pool speedups multiply, and replaced it with
+"throughput is a function of TOTAL CONCURRENT SOLVES, however grouped". **That is also wrong**,
+though less so.
+
+Measured across a full grid:
+
+    concurrent   best grouping        solves/s   spread
+             8   4 jobs x 2 workers       1.37      12%
+            12   4 x 3                    1.28       5%
+            16   1 x 16                   1.18      10%
+
+**Total concurrency sets the envelope** -- eight beats twelve beats sixteen in every grouping, so
+that part of 151 holds. **But grouping matters AT the peak**: four jobs of two workers beats one job
+of eight by 12%, which is not noise.
+
+**And it only matters at the peak.** At twelve concurrent the three groupings sit within 5%. That
+pattern fits pool coordination overhead rather than memory locality: overhead shows when the last of
+the available bandwidth is being extracted, and is swamped once past it.
+
+**THREE MODELS, TWO WRONG, AND THE MEASUREMENT DECIDED EACH TIME.**
+
+    multiplicative    two jobs at 3.1x give 6.2x                      wrong
+    concurrency-only  grouping is irrelevant, N x M is all           wrong
+    measured          concurrency sets the envelope, grouping         holds
+                      fine-tunes at the peak
+
+The user proposed four jobs of four workers, which prompted the first correction; then asked for
+4x3, which produced the twelve-concurrent row that showed the grouping effect vanishing above the
+peak. Both were better instincts than my models.
+
+**Recommended configuration: 4 jobs x 2 workers.** Best aggregate measured, and four scenarios
+progress together. 4 x 3 is the alternative when four scenarios should FINISH sooner -- 7% less
+aggregate, each job 50% faster. For a single scenario, 1 x 8.
+

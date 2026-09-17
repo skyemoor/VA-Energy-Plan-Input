@@ -1018,3 +1018,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   corrected. The measured curve is a function of TOTAL CONCURRENT SOLVES, however grouped; two jobs
   of eight workers is sixteen concurrent, which is the 2.7x row, not twice the 3.1x one.
 
+## 2026-09-14 (concurrent-job grid measured)
+
+- `scripts/time_concurrent_jobs.py` -- measured results recorded in the docstring: ten configurations
+  across 4, 8, 12 and 16 total concurrent solves.
+- `docs/Common_Reference.md` -- parallel scaling section rewritten on the measured grid. Concurrency
+  sets the envelope; grouping fine-tunes at the peak only.
+- Recommended: 4 jobs x 2 workers (1.37 solves/s, 3.6x).
+

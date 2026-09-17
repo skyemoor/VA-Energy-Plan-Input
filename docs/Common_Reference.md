@@ -181,7 +181,9 @@ can be rebuilt or mutated — the build is 0.4 s, so it barely matters which.
 **Checkpoint years only.** Capacity decisions are made at 2030, 2035, 2040 and 2045; intermediate
 years inherit the fleet, so the draw loop does not need all twenty.
 
-### Parallel scaling peaks below the core count
+### Parallel scaling: concurrency sets the envelope, grouping fine-tunes at the peak
+
+Measured on a 16-logical-core x86_64 workstation, 2026-09-14. A single pool across worker counts:
 
 | workers | speedup | efficiency |
 |---:|---:|---:|
@@ -189,23 +191,40 @@ years inherit the fleet, so the draw loop does not need all twenty.
 | **8** | **3.1×** | 38% |
 | 16 | 2.7× | 17% |
 
-**Eight beats sixteen.** Memory bandwidth saturates around eight concurrent solves; past that,
-hyperthread contention costs about 12% of throughput while occupying the whole machine.
+**Throughput peaks at eight and turns down.** Memory bandwidth saturates around eight concurrent
+solves; past that, hyperthread contention costs about 12% while occupying the whole machine.
+Efficiency falls monotonically, which is the bandwidth-bound signature.
 
-**The numbers above are for TOTAL CONCURRENT SOLVES, however they are grouped.** Memory bandwidth
-does not care how processes are divided into jobs: two jobs on eight workers each is sixteen
-concurrent solves, which is the 2.7× row, not twice the 3.1× one. An earlier version of this
-section multiplied per-pool speedups and claimed 6.2× aggregate; that was wrong, and the error is
-recorded because it is an easy one to repeat.
+Running several independent jobs at once, each with its own pool:
 
-**So throughput is maximised at about eight concurrent solves in total.** One job on eight workers
-and two jobs on four workers each should deliver the same aggregate — the second being preferable
-when two scenarios are wanted at once, since they progress together rather than in sequence.
+| total concurrent | best grouping | solves/s | spread across groupings |
+|---:|---|---:|---:|
+| **8** | **4 jobs × 2 workers** | **1.37** | **12%** |
+| 12 | 4 × 3 | 1.28 | 5% |
+| 16 | 1 × 16 | 1.18 | 10% |
 
-`scripts/time_solve_benchmark.py` measures single-job scaling and
-`scripts/time_concurrent_jobs.py` measures the multi-job case directly. The peak is
-machine-specific and going past it makes things worse, so both should be measured rather than
-assumed.
+**Two things follow, and both were got wrong before being measured.**
+
+● **Total concurrency sets the envelope.** Eight beats twelve beats sixteen in every grouping. No
+  arrangement of processes recovers what is lost past the bandwidth ceiling.
+● **Grouping matters only AT the peak.** At eight concurrent, four jobs of two workers beats one job
+  of eight by **12%** — likely pool coordination overhead, which shows when the last of the
+  available bandwidth is being extracted. At twelve the three groupings sit within 5%, and the
+  effect has gone.
+
+**The recommended configuration is 4 jobs × 2 workers**: the best aggregate throughput measured, and
+four scenarios progress together rather than in sequence. **4 × 3 is the honest alternative** — 7%
+less aggregate, but each job runs 50% faster, so four scenarios *finish* sooner. For a single
+scenario, one job on eight workers remains the best option.
+
+**Two earlier models of this were wrong.** The first multiplied per-pool speedups and claimed 6.2×
+aggregate for two jobs of eight. The second, correcting it, held that grouping was irrelevant and
+only total concurrency mattered. Neither survived measurement, which is why
+`scripts/time_concurrent_jobs.py` compares equal-concurrency groupings explicitly rather than
+inferring them from the single-pool curve.
+
+**These figures are machine-specific.** The finding that transfers is the method: measure the
+single-pool peak, then measure groupings at and around it.
 
 ### What is still missing
 
