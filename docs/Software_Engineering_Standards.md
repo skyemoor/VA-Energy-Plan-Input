@@ -241,7 +241,7 @@ Anything the modeler has stated as direction other than the above -- the catch-a
 ### Rule 14 Follow PEP 8 – Style Guide for Python Code
 1. Always use PEP 8 – Style Guide for Python Code
 
-### Rule 15 Always refactor if a code change raised the cyclomatic complexity of a code unit above 15
+### Rule 15 Always refactor if a code change raised the cyclomatic complexity of a code unit above 15 (per NIST)
 
 ## Practical checklist before considering any code change complete
 - Does this logic already exist somewhere else in the class hierarchy? If yes, extend/override, don't duplicate. (Rule 1)
