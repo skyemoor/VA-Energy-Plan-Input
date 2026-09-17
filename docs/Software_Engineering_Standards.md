@@ -2,7 +2,7 @@
  
 Standing rules for this project's own codebase, read this before writing or modifying any code.
  
-### Rule 1: Consider extending any existing OO structure first -- do not add free-standing scripts for logic another class already owns. When creating code where no existing OO structure is present, consider other similar tasks that would likely have common attributes and/or services, then conceptualize an OO structure. 
+### Rule 1: Consider extending any existing OO structure first -- do not add free-standing scripts for logic another class already owns. When creating code where no existing OO structure is a candidate or present, consider other similar tasks that would likely have common attributes and/or services, then conceptualize an OO structure. 
  
 checkpoint_solver.py is one of this project's own class hierarchy (CheckpointSolver → Scenario1Solver/Scenario1BSolver/Scenario2Solver, plus composable mixins like ReserveMarginMixin and SocialCostRGGIMixin). Other class hierarchies exist for other areas within the project. When a new calculation is needed:
 1.	First check whether it belongs on an existing class or mixin. If every scenario needs it and the underlying formula is the same (differing only in minor scenario-specific inputs), it belongs in a shared method or mixin -- not reimplemented per scenario.
@@ -240,6 +240,8 @@ Anything the modeler has stated as direction other than the above -- the catch-a
 
 ### Rule 14 Follow PEP 8 – Style Guide for Python Code
 1. Always use PEP 8 – Style Guide for Python Code
+
+### Rule 15 Always refactor if a code change raised the cyclomatic complexity of a code unit above 15
 
 ## Practical checklist before considering any code change complete
 - Does this logic already exist somewhere else in the class hierarchy? If yes, extend/override, don't duplicate. (Rule 1)
