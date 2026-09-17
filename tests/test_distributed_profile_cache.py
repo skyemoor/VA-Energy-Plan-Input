@@ -18,11 +18,13 @@ import paths
 
 
 def _source_data_available():
-    try:
-        paths.source_file('PJMMap.webp')
-        return True
-    except Exception:
-        return False
+    """Is NSRDB source data present?
+
+    Uses the non-raising accessor rather than catching. A bare `except Exception` here would catch
+    a NameError or AttributeError of my own making and report it as "source data absent", which is
+    exactly the defect this file's own TestTheMissingCacheFailsLoudly was written about.
+    """
+    return paths.source_dir_marker_or_none() is not None
 
 
 class TestTheCacheIsPresentAndComplete:

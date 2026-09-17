@@ -283,3 +283,38 @@ sentence about a wider case than the original covered.
 established practice, read the ORIGINAL before concluding the practice is wrong -- the qualifier may
 be in the source and not in the summary, which is exactly what happened here.
 
+
+## Pattern: A broad `except` around code that cannot fail will only ever catch your own mistakes
+
+`_cached_hydro_year` opened with:
+
+    try:
+        path = paths.weather_year(CACHED_PROFILE_FILE)
+    except Exception:
+        return None
+
+`paths` was never imported -- not at module level, not in the function. Every call raised
+`NameError`, the bare `except Exception` swallowed it, and the function returned `None` as though
+the cache file were simply absent. **The committed 260 KB profile sat on disk and was never read
+once.** The caller fell through to the NSRDB path and failed on a missing map image, which is the
+exact error the cache had been built to eliminate -- so the fix appeared not to have worked, twice,
+across two sessions of the user's time.
+
+**What `weather_year` actually does is one `os.path.join`.** It cannot raise. I wrote the guard
+against a failure mode that does not exist, and what it caught instead was my own missing import.
+
+**What makes this a pattern rather than a typo:** a broad except is usually added defensively, at a
+point where the author has not thought hard about what could actually go wrong. When the guarded
+code genuinely cannot fail, the only exceptions it can ever catch are the author's own errors --
+`NameError`, `AttributeError`, `TypeError` -- and it converts each into a plausible-looking fallback
+value. The result passes every test that does not specifically exercise the cache hit.
+
+**And it was fixed by accident.** Adding `import paths` inside the function, while making the
+missing-cache case fail loudly, removed the `NameError` without my realising the import had been
+the bug. A defect fixed without being diagnosed will recur.
+
+**How to catch it:** before writing `except`, name the specific exception and the specific
+circumstance that raises it. If neither can be named, the guard is not protecting against anything
+known -- delete it, or narrow it to the exception that was actually in mind. Never `except
+Exception` around a single library call that does not do I/O.
+
