@@ -40,10 +40,6 @@ Narrative goes elsewhere:
 
 Build only the 16,100 MW solar and 20,000 MW storage the Code names; meet the rest with gas.
 
-**Steps 7–10 ran on the unbounded gas path**, which dispatches capacity the fleet does not have and
-so reports zero unserved energy; the bounded run shows 30.05 TWh at 2045. They are superseded until
-step 6 reconciles the two.
-
 *Renumbered 2026-09-14 so no step blocks a lower-numbered one: inputs (1–6), then the result chain
 (7–10), then reporting (11–13). What was step 10 — pinning and costing new gas — is now step 6.*
 
@@ -54,13 +50,13 @@ step 6 reconciles the two.
 | 3 | Agrivoltaic siting, applied evenly | **done** | — |
 | 4 | Merit-order stack in the solver | **done** | — |
 | 5 | Gas capacity fit on the measured gap | **done** | — |
-| 6 | New gas capacity pinned and costed; bounded and published runs reconciled | **in process** | — |
-| 7 | Four-checkpoint pathway | **superseded** | 6 |
-| 8 | Twenty-year annual stream | **superseded** | 7 |
-| 9 | Annualised cost + capex band | **superseded** | 8 |
-| 10 | Social + health cost | **superseded** | 8 |
-| 11 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | 9 |
-| 12 | Whitepaper section | **superseded** | 9, 10 |
+| 6 | New gas capacity pinned and costed; bounded and published runs reconciled | **done** | — |
+| 7 | Four-checkpoint pathway | **done** | — |
+| 8 | Twenty-year annual stream | **done** | — |
+| 9 | Annualised cost + capex band | **done** | — |
+| 10 | Social + health cost | **done** | — |
+| 11 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
+| 12 | Whitepaper section | **superseded** | figures moved |
 | 13 | Unit commitment sensitivity | **blocked** | #17 |
 
 ---

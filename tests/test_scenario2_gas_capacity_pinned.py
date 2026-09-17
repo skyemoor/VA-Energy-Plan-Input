@@ -51,8 +51,10 @@ class TestSizing:
     """Adequacy sets a FLOOR; cost sets the optimum ABOVE it."""
 
     @pytest.mark.parametrize('year,mw', [
-        (2030, 0.0), (2031, 566.0), (2036, 2_166.0), (2040, 5_168.0), (2045, 6_547.0)])
+        (2030, 0.0), (2031, 1_083.0), (2036, 2_166.0), (2040, 4_332.0), (2045, 6_498.0)])
     def test_whole_unit_combinations(self, year, mw):
+        """MEASURED by the full sweep on 2026-09-14, replacing interpolated placeholders. The
+        placeholders had 2031 at 500 MW and 2040 at 5,000; the sweep gives 1,083 and 4,332."""
         assert _solver(year).new_gas_capacity_mw() == pytest.approx(mw)
 
     def test_a_mix_fits_far_better_than_one_size(self):
@@ -99,13 +101,33 @@ class TestSizing:
 
 
 
-    def test_2045_is_the_cost_optimum_not_the_adequacy_floor(self):
-        """$8,307M/yr at 6,500 MW against $8,323M at 7,000 and $8,342M at 7,500. Adequacy alone
-        gives 5,000 MW -- the extra pays for itself in fuel saved on the existing fleet."""
-        assert a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR[2045] == 6_500.0
+    def test_2045_adequacy_floor_and_cost_optimum_coincide(self):
+        """The sweep measured six units, 6,498 MW, as the smallest adequate build; the four-term
+        cost minimum is 6,500 MW, which rounds to the same six units.
 
-    def test_the_table_is_marked_provisional(self):
-        assert 'interpolated placeholders' in a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR_IS_PROVISIONAL
+        THE COINCIDENCE IS NOT STRUCTURAL. An earlier measurement put the adequacy floor near
+        5,000 MW, well below the cost optimum -- they converged only after the merit-order stack was
+        wired in and the fleet re-ordered. Carrying 6,500 would make ccgt_unit_mix_for select
+        5 x 1,083 + 2 x 566 = 6,547 MW to clear it, spending 49 MW of capital on a rounding
+        artifact."""
+        assert a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR[2045] == pytest.approx(6_498.0)
+        assert abs(6_498.0 - 6_500.0) < 5.0
+
+    def test_the_table_is_measured_not_interpolated(self):
+        """Every year solved, stepping capacity until unserved reached zero."""
+        assert 'Every year measured' in a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR_IS_MEASURED
+        assert len(a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR) == 20
+
+    def test_the_requirement_is_not_monotonic(self):
+        """2031 needs a unit, 2032 and 2033 need NONE, 2034 needs one again -- statutory solar
+        ramping to 16,100 MW by 2035 outpaces load growth for two years, then demand catches up.
+        This is what broke checkpoint sizing twice."""
+        t = a.SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR
+        assert t[2031] > 0 and t[2032] == 0 and t[2033] == 0 and t[2034] > 0
+
+    def test_the_build_holds_through_the_dip(self):
+        """Capacity persists: 2032 requires nothing and runs what 2031 installed."""
+        assert _solver(2032).new_gas_capacity_mw() == _solver(2031).new_gas_capacity_mw()
 
     def test_a_year_outside_the_range_raises(self):
         """Rule 5: an interpolated guess would feed a reported figure."""

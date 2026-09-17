@@ -54,28 +54,30 @@ class TestMeasuredResult:
         come from reserve adequacy, not dispatch."""
         with open(RESULT) as f:
             d = json.load(f)['levelised']
-        # MOVED 2026-09-14 when the C.2 carve-out and agrivoltaic siting were wired in. The
+        # MOVED AGAIN 2026-09-14 when gas capacity was pinned to the real fleet: new combined-cycle
+        # capital, the merit order's true fuel burn, and $645M/yr of thermal cycling all entered the
+        # figure. Previously moved when the C.2 carve-out and agrivoltaic siting were wired in. The
         # carve-out shifts 6,862 MW at 2045 from tracking (0.2252 CF) to fixed 45-degree (0.1526),
         # so generation falls AND capital falls -- less energy from a cheaper resource.
-        assert d['slcoe_without_terminal_value'] == pytest.approx(36.41, abs=0.5)   # was 37.86
-        assert d['slcoe_with_terminal_value'] == pytest.approx(31.81, abs=0.5)      # was 32.80
+        assert d['slcoe_without_terminal_value'] == pytest.approx(40.19, abs=0.5)   # was 36.41, then 37.86
+        assert d['slcoe_with_terminal_value'] == pytest.approx(36.35, abs=0.5)      # was 31.81, then 32.80
 
     def test_terminal_value_is_material(self, run):
         """$10.01B of PV against $74.93B of PV cost -- 13%. Large enough that omitting it would
         materially overstate the baseline, which is why NREL's ATB treats residual value as
         standard rather than optional."""
         d = run['levelised']
-        assert d['pv_terminal_value_usd'] / d['pv_cost_usd'] == pytest.approx(0.134, abs=0.02)
+        assert d['pv_terminal_value_usd'] / d['pv_cost_usd'] == pytest.approx(0.095, abs=0.02)   # was 0.134: PV cost rose to $79.48B while terminal value fell to $7.59B
 
     def test_clean_share_falls_across_the_whole_stream(self, run):
-        """THE WHITEPAPER'S THESIS, now at annual resolution: 47.4% in 2026 falling to 32.5% in
+        """THE WHITEPAPER'S THESIS, now at annual resolution: 47.4% in 2026 falling to 31.6% in
         2045. Demand grows 72% while the solar target is fixed at 16,100 MW."""
         stream = sorted(run['stream'], key=lambda r: r['year'])
         assert stream[0]['clean_share'] == pytest.approx(0.474, abs=0.02)
         # 32.5%, was 34.7% before the C.2 carve-out. The carve-out LOWERS the clean share: it
         # shifts 6,862 MW at 2045 from tracking at a 0.2252 capacity factor to fixed 45-degree at
         # 0.1526, losing roughly 4.4 TWh on the same nameplate.
-        assert stream[-1]['clean_share'] == pytest.approx(0.325, abs=0.02)
+        assert stream[-1]['clean_share'] == pytest.approx(0.316, abs=0.01)
 
     def test_clean_share_peaks_mid_stream_then_declines(self, run):
         """It RISES to 2030-31 as the statutory solar builds out, then falls as demand overtakes
@@ -147,7 +149,9 @@ class TestTierOneAndTwo:
         create false precision. The broader SC-GHG is used here rather than the narrower CO2-only
         Virginia SCC, since this line is meant to capture the full climate cost."""
         d = run['levelised']
-        assert d['total_societal_slcoe'] == pytest.approx(119.47, abs=2.0)
+        # was 119.47, then 119.24. Rose with the direct cost when gas capacity was pinned to
+        # the real fleet -- more gas burned at true heat rates means more emissions.
+        assert d['total_societal_slcoe'] == pytest.approx(122.33, abs=2.0)
 
     def test_levelised_on_the_same_basis_as_the_financial_figure(self, run):
         """Same discount rate, same base year, same twenty years -- so the per-MWh figures are
@@ -173,7 +177,7 @@ class TestAgainstAppendixD:
         session also changed.
 
         The most likely driver is this session's demand and solar corrections: Scenario 2's clean
-        share fell from 39.2% to 32.5% at 2045 once post-VCEA solar stopped being double-counted,
+        share fell from 39.2% to 31.6% at 2045 once post-VCEA solar stopped being double-counted,
         which means more gas burned across the window."""
         t = run['levelised']['tiers']
         assert t['social_cost_ghg_usd']['per_mwh'] / 72.84 == pytest.approx(1.114, abs=0.03)

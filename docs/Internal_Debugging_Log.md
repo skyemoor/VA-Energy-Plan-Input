@@ -7526,3 +7526,43 @@ wanted, which is useful when that file IS the thing wanted and misleading when i
 **The marker itself is still PJMMap.webp**, and still wants replacing with something that names what
 it stands for.
 
+
+## 161. Scenario 2 step 6 complete: capacity measured year by year, and the figure moved 14%
+
+**2026-09-14.** The sizing sweep ran on the user's workstation -- twenty years, 1.6 minutes at two
+workers -- and the trajectory confirms why checkpoint sizing failed twice:
+
+    2026-2030   0 units        2036-2037   2
+    2031        1              2038-2039   3
+    2032-2033   0  <-- DIP     2040        4
+    2034-2035   1              2041-2043   5
+                               2044-2045   6
+
+**2031 needs a unit, 2032 and 2033 need NONE, 2034 needs one again.** Statutory solar ramping to
+16,100 MW by 2035 outpaces load growth for two years, then demand catches up. No interpolation
+between neighbouring years was ever safe.
+
+**Capacity persists**, so the BUILD holds at one unit through the dip while the REQUIREMENT falls to
+zero -- 2032 runs what 2031 installed at lower utilisation.
+
+**THE FIGURE MOVED 14%** once the bounded fleet, its true fuel burn and its cycling cost were all
+inside it:
+
+    SLCOE with terminal value    $31.81  ->  $36.35 /MWh
+    clean share at 2045           32.5%  ->   31.6%
+    annualised cost at 2045      $9.98B  ->  $10.86B
+    societal total              $119.24  -> $122.33 /MWh
+    PV cost                     $72.00B  ->  $79.48B
+
+**Terminal value fell sharply too** -- $9.08B to $7.59B, from 13.4% of PV cost to 9.5% -- because
+the new gas is late-built and short-lived relative to solar, so more of the build is consumed within
+the window.
+
+**2045's adequacy floor and cost optimum coincide at six units**, which is convenient and not
+structural: an earlier measurement put the floor near 5,000 MW, well below the optimum, and they
+converged only after the merit-order stack re-ordered the fleet. Recorded at the constant so a
+future change to either does not silently assume the other.
+
+**Scenario 2 steps 1-10 are done.** Remaining: the gas price band, and the whitepaper section, whose
+figures have now moved three times today.
+

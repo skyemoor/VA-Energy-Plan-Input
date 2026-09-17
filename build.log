@@ -1109,3 +1109,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   partial cache raises rather than falling through.
 - `lp_package/paths.py` -- `source_dir_marker_or_none()`, for asking without catching.
 
+## 2026-09-14 (Scenario 2 step 6 complete)
+
+- `lp_package/assumptions.py` -- `SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR` replaced with the measured
+  trajectory from scripts/sweep_scenario2_gas_sizing.py; `_IS_PROVISIONAL` becomes `_IS_MEASURED`.
+- `run_scenario2_slcoe.py` -- full twenty-year run on the bounded fleet.
+- SLCOE $31.81 -> $36.35/MWh; clean share 32.5% -> 31.6%; societal $119.24 -> $122.33/MWh.
+- Dashboard: Scenario 2 steps 1-10 done.
+

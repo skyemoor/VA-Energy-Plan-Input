@@ -1460,23 +1460,43 @@ VIRGINIA_IMPORTS_ARE_NOT_MODELLED = (
 #: itself in fuel saved on the existing fleet, so a least-cost plan builds above the floor.
 #:
 #: EARLIER YEARS ARE THE ADEQUACY FLOOR, pending the per-year sweep.
-SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR_IS_PROVISIONAL = (
-    'Only 2031, 2033, 2035, 2036, 2037, 2040 and 2045 are measured; the rest are interpolated '
-    'placeholders. Run scripts/sweep_scenario2_gas_sizing.py to replace this with a measured '
-    'trajectory.')
+SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR_IS_MEASURED = (
+    'Every year measured by scripts/sweep_scenario2_gas_sizing.py on 2026-09-14, on the design '
+    'weather year, as the smallest whole-unit build reaching zero unserved energy. 2045 carries '
+    'the COST optimum instead of its adequacy floor -- they coincide at six units.')
 
-#: MEGAWATTS REQUIRED, not unit counts. An earlier version held counts, to avoid a rounding rule
-#: that could not serve both an adequacy floor and a cost optimum -- but that was a symptom of
-#: forcing one unit size. With ccgt_unit_mix_for() choosing among three blocks, the requirement is
-#: the natural quantity and the combination follows from it.
+#: New combined-cycle capacity required by year, MW. MEASURED, not interpolated: the sweep solved
+#: every year from 2026 to 2045, stepping capacity until unserved energy reached zero.
+#:
+#: THE REQUIREMENT IS NOT MONOTONIC, which is why checkpoint sizing failed twice before this table
+#: existed. 2031 needs a unit, 2032 and 2033 need NONE, and 2034 needs one again -- the statutory
+#: solar build ramping to 16,100 MW by 2035 outpaces load growth for two years, then demand catches
+#: up. No interpolation between neighbouring years is safe, and a four-checkpoint table missed 2031
+#: entirely (4,022.9 MWh unserved) and then 2036 (6,173.5 MWh).
+#:
+#: CAPACITY PERSISTS, so what is BUILT is the running maximum of this requirement, not the
+#: requirement itself. Scenario2Solver.new_gas_capacity_mw applies that, and 2032-33 accordingly
+#: build nothing while running what 2031 installed at lower utilisation.
+#:
+#: THIS IS THE ADEQUACY FLOOR, and at 2045 it coincides with the cost optimum. The sweep measured
+#: six units (6,498 MW) as the smallest adequate build; the four-term cost minimum is 6,500 MW,
+#: which rounds to the same six units. The 2 MW difference is not worth carrying as a separate
+#: figure -- and carrying 6,500 would make ccgt_unit_mix_for select 5 x 1,083 + 2 x 566 = 6,547 MW
+#: to clear it, spending 49 MW of capital on a rounding artifact.
+#:
+#: A NOTE FOR ANYONE WHO CHANGES EITHER. The coincidence is not structural. An earlier measurement
+#: put the adequacy floor near 5,000 MW, well below the cost optimum, because the extra capacity
+#: pays for itself in fuel saved on the existing fleet -- the two moved together only after the
+#: merit-order stack was wired in and the fleet re-ordered. A change to fuel price, the stack, or
+#: the carve-out could separate them again.
 SCENARIO2_NEW_CCGT_REQUIRED_MW_BY_YEAR = {
     2026: 0.0, 2027: 0.0, 2028: 0.0, 2029: 0.0, 2030: 0.0,
-    2031: 500.0, 2032: 500.0, 2033: 500.0, 2034: 500.0, 2035: 500.0,
-    2036: 2_000.0, 2037: 2_000.0, 2038: 2_500.0, 2039: 3_000.0, 2040: 5_000.0,
-    2041: 5_000.0, 2042: 5_500.0, 2043: 6_000.0, 2044: 6_500.0, 2045: 6_500.0,
+    2031: 1_083.0, 2032: 0.0, 2033: 0.0, 2034: 1_083.0, 2035: 1_083.0,
+    2036: 2_166.0, 2037: 2_166.0, 2038: 3_249.0, 2039: 3_249.0, 2040: 4_332.0,
+    2041: 5_415.0, 2042: 5_415.0, 2043: 5_415.0, 2044: 6_498.0, 2045: 6_498.0,
 }
 
-#: SCENARIO 2 ONLY. New combined-cycle reference unit, for the DISCRETE build it requires.
+#: SCENARIO 2 ONLY. New combined-cycle reference unit#: SCENARIO 2 ONLY. New combined-cycle reference unit, for the DISCRETE build it requires.
 #: Resolve it through Scenario2Solver.new_gas_technology() rather than reaching for it directly:
 #: the other scenarios build simple-cycle under the standing rule, and a constant whose name gives
 #: no hint of its scope is how the dropped carve-out went unnoticed. Gas Turbine World
