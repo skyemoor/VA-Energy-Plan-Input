@@ -426,6 +426,24 @@ screening curve, so the rule does not transfer to them.
 headroom for a forced outage than at 29.5%, and the loss-of-load metrics that would settle it need
 the draw loop described in `Common_Reference.md` section 3.
 
+### The units
+
+**Six H-Class multi-shaft combined-cycle units, 1,083 MW each — 6,498 MW.** Gas Turbine World 2024
+Handbook: 59.4% efficiency, $12.20/kW-yr fixed O&M.
+
+**Two megawatts under the 6,500 MW optimum — 0.03%.** Solved at the discrete figure, the result is
+identical: $8,307M/yr, simple-cycle fleet at 40.5%. Discreteness costs far less here than in
+Scenario 1B, where 1,278 MW continuous becomes 1,422 MW as six F-Class units — an 11% overshoot.
+
+**Capital is not taken from that source.** Gas Turbine World's $950/kW is equipment-era; this
+analysis uses `ccgt_capex_kw` at **$3,000/kW**, Wood Mackenzie April 2026, as full installed project
+cost. The $2,400/kW figure recorded in `new_peaker_ccgt_costs_by_size.md` as this project's own is
+itself superseded.
+
+**Scenario 2 is explicitly exempt from the simple-cycle-only new-build rule** that governs the other
+scenarios. That rule's own text carves it out, and its rationale — written for *"short-duration (a
+few hours at a time) gap-filling needs"* — does not describe a shortfall spanning 65% of the year.
+
 ### Not yet in the reported figure
 
 The published annualised cost does **not** include this capacity. The runner still uses the

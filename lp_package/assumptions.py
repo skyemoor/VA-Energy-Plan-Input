@@ -1414,6 +1414,29 @@ PEAKER_FOM_USD_PER_KW_YR = {
     'f_class': 7.00,           # 237 MW single genset, 38.2% efficiency
 }
 
+#: New combined-cycle reference unit, for the DISCRETE build Scenario 2 requires. Gas Turbine World
+#: 2024 Handbook: H-Class multi-shaft combined cycle, rated 1,083 MW, 59.4% efficiency, $958M total
+#: at $950/kW installed, $12.20/kW-yr fixed O&M.
+#:
+#: SCENARIO 2 IS EXPLICITLY EXEMPT from the simple-cycle-only new-build rule that governs Scenarios
+#: 1, 1B, 3, 3B and 3C. That rule's own text carves it out -- "NOT Scenario 2, which retains its own
+#: established CCGT-based new-build methodology" -- and its rationale does not apply here: it was
+#: written for shortfalls that are "short-duration (a few hours at a time) gap-filling needs", where
+#: Scenario 2's 2045 shortfall is 30.05 TWh across 5,671 hours at a 33.4% capacity factor.
+#:
+#: WHAT THE NEW CAPACITY ACTUALLY DOES is not fill peaks but displace the existing simple-cycle
+#: fleet from baseload duty, where it burns at an 11.0 heat rate on load that wants 6.4. Adding
+#: 6,500 MW takes that fleet from a 100% capacity factor to 40.5%.
+#:
+#: CAPITAL COST IS NOT TAKEN FROM THIS SOURCE. Gas Turbine World's $950/kW is an equipment-era
+#: figure; `ccgt_capex_kw(year)` gives $3,000/kW from Wood Mackenzie's April 2026 market analysis,
+#: as full installed project cost. The note in new_peaker_ccgt_costs_by_size.md that this project
+#: uses $2,400/kW is itself superseded. The unit size is what this constant supplies; the price
+#: comes from the year-varying function.
+CCGT_REFERENCE_UNIT_MW = 1083.0
+CCGT_REFERENCE_UNIT_FOM_KW_YR = 12.20
+CCGT_REFERENCE_UNIT_EFFICIENCY = 0.594
+
 PEAKER_DUAL_FUEL_ADDER_KW = 200.0            # USP&E: $150-250/kW, midpoint
 PEAKER_FAST_TRACK_PREMIUM_FRACTION = 0.15    # USP&E: 10-20% for delivery under 18 months
 

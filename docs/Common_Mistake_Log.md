@@ -256,3 +256,30 @@ combination, because it survives fact-checking.
 domain actually is. Grain is the output of a grain crop; animal product is the output of a pasture.
 The intermediate quantity is not the result.
 
+
+## Pattern: A consolidation drops a scope qualifier, and the surviving text reads as universal
+
+The standing new-build rule opens "For Scenario 1, 1B, 3, 3B, and 3C specifically (NOT Scenario 2,
+which retains its own established CCGT-based new-build methodology)". When seven gas documents were
+merged into one reference, the merged version starts at "any new gas capacity needed to fill a
+shortfall...", and the carve-out is gone.
+
+**The surviving sentence is not wrong. It is unqualified**, which reads as universal, and I acted on
+it: I reported a conflict between Scenario 2's 6,500 MW of combined-cycle capacity and a
+simple-cycle-only rule that had never applied to it.
+
+**Why the consolidation is still right.** Seven fragmented documents cost more than one merged
+document with a dropped clause -- the merge was undertaken precisely because "the CT capex figures
+the project needed were in one file while another recorded 'no simple-cycle capex exists in the
+code' as an open gap". The fix is not to un-merge.
+
+**What makes this a pattern:** a scope qualifier is the easiest thing to lose in a merge, because it
+often sits in a parenthesis before the substantive text, and the substantive text survives
+grammatically without it. Nothing flags the loss -- the result is a complete, readable, confident
+sentence about a wider case than the original covered.
+
+**How to catch it:** when merging, treat every "for X specifically", "NOT Y", "except where" and
+"applies to" as load-bearing and check it survives. And when a rule seems to conflict with an
+established practice, read the ORIGINAL before concluding the practice is wrong -- the qualifier may
+be in the source and not in the summary, which is exactly what happened here.
+

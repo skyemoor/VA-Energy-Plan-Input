@@ -1026,3 +1026,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   sets the envelope; grouping fine-tunes at the peak only.
 - Recommended: 4 jobs x 2 workers (1.37 solves/s, 3.6x).
 
+## 2026-09-14 (CCGT reference unit; dropped carve-out restored)
+
+- `lp_package/assumptions.py` -- `CCGT_REFERENCE_UNIT_MW` 1,083, efficiency 0.594, FOM $12.20/kW-yr.
+  Gas Turbine World H-Class multi-shaft. Size only: capital stays with `ccgt_capex_kw`.
+- `docs/methodology/Gas_Consolidated_Reference.md` -- the Scenario 2 carve-out from the
+  simple-cycle-only rule, dropped in the 2026-09-13 merge, restored.
+- Scenario 2 new build: 6 units, 6,498 MW, 2 MW under the 6,500 MW cost optimum.
+

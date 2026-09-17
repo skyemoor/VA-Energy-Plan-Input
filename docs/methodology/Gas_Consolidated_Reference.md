@@ -920,7 +920,17 @@ retains its own established CCGT-based new-build methodology): any new
 gas capacity needed to fill a shortfall against Schedule A/B, beyond what
 overhaul/retention of near-EOL plants can cover, is modeled as
 SIMPLE-CYCLE COMBUSTION TURBINES ONLY, using one or a combination of
-these three specific units:
+these three specific units.
+
+**This rule governs Scenarios 1, 1B, 3, 3B and 3C — NOT Scenario 2**, which retains its own
+established combined-cycle new-build methodology. The source document carries that carve-out
+explicitly; it was dropped when the gas documents were merged, leaving the rule reading as
+universal. Restored 2026-09-14 after the omission caused a real conflict: Scenario 2's 2045
+shortfall is 30.05 TWh across 5,671 hours at a 33.4% capacity factor, which is not the
+"short-duration gap-filling" duty this rule was written for.
+
+Scenario 2's unit is `assumptions.CCGT_REFERENCE_UNIT_MW` — the Gas Turbine World H-Class
+multi-shaft combined cycle, 1,083 MW at 59.4% efficiency.
 
 | Unit | Rated capacity | Total cost | $/kW | Fixed O&M |
 |---|---|---|---|---|
