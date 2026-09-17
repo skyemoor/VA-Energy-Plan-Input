@@ -7404,3 +7404,68 @@ imports, to 5,000 MW at 10%, to 2,000 MW at 20% -- Dominion's actual share. **Ro
 Scenario 2's new gas is a consequence of forbidding imports, not of the statute.** Reported as a
 bracket in the whitepaper, with both ends explained.
 
+
+## 157. Thermal cycling priced rather than forbidden, and why the hard limit was the wrong instrument
+
+**2026-09-14.** `MAX_ANNUAL_STARTS` -- 300 for combined cycle, 900 for simple -- had sat unread since
+it was added. The obvious move was a Rule 9 invariant check raising past the limit. It was nearly
+built.
+
+**IT WOULD HAVE BEEN A CATEGORY ERROR.** Unserved energy is a HARD invariant: you cannot serve load
+you did not generate, and a result violating it is not a result. A starts limit is SOFT: exceed it
+and the machine does not stop working, it consumes its maintenance interval faster and costs more.
+Batlle & Rodilla's "set to infinite" is a SCREENING-CURVE device for choosing between candidate
+technologies, not a dispatch constraint.
+
+**A HARD THRESHOLD ON A SOFT QUANTITY CREATES A TUNING LOOP WITH NO END.** Measured before building
+anything: ccgt_legacy sits at 268 starts against a 300 limit -- 89%. One availability derate, one
+different weather year, one import sensitivity, and it breaches. Each time the choice would be
+"block the run or move the limit", and neither is a finding.
+
+**PRICED INSTEAD.** gas_cycling_cost computes maintenance from realised starts and firing hours on
+the maintenance-interval function, and MAX_ANNUAL_STARTS becomes a reported comparison. Heavy
+cycling shows up as money a reviewer can weigh.
+
+**MEASURED AT 2045: $645M/yr**, 6.0% of a $10,819M total.
+
+    rung                starts   ratio      EOH   maint $M   vs limit
+    scenario_new_ccgt        1    8760    8,805        178         0%
+    ccgt_modern              1    8760    8,805         94         0%
+    ccgt_fleet             193      41   16,556         71        64%
+    ccgt_legacy            268      27   19,234         71        89%
+    ct_fleet               320      20   20,811        159        36%
+
+**THE RATIO DOES THE WORK, exactly as the source says.** ccgt_legacy at 268 starts costs $71M;
+ccgt_modern at ONE start costs $94M -- because maintenance scales with capacity as well as cycling.
+
+**AND IT SETTLES THE MIXED-INTEGER QUESTION.** At 6.0% of total cost, nobody should build 52,560
+binary variables for this. The ladder -- price it, constrain the shape, cluster commitment, full
+commitment -- stops at the first rung, measured rather than assumed.
+
+**WHAT THE LP STILL CANNOT SEE, stated precisely.** A linear program charges per unit of a variable;
+fuel is per MWh so a coefficient works, which is what the merit order does. A START IS NOT PER MWh
+-- the same 1,000 MWh in one block and in fifty costs identical fuel and wildly different
+maintenance, and no coefficient on a continuous hourly variable distinguishes them. That is a
+FORMULATION boundary, not a wiring gap, and my earlier "reachable later" was wrong. The bias runs
+one way: the LP chose a more cycling-heavy pattern than one charged for cycling would have, so this
+is an UPPER bound.
+
+
+## 158. Structural and correctness review of the Scenario 2 path, post-fix
+
+**2026-09-14.** Re-run after the five audit fixes and the cycling work.
+
+**STRUCTURAL: clean.** 28 modules in the graph, none unreached. All six optional capabilities --
+merit order, carve-out, agrivoltaic overlay, cycling cost, reliability metrics, all-hours reserve --
+verified reachable from the path that should use them. That last check is the generalised form of
+what audit check 10 does for one capability, and it is what would have caught the merit order.
+
+**CORRECTNESS: clean at 2031 and 2045.** Conservation exact to 0.00 MWh, rung sum equals the gas
+total exactly, no rung over nameplate, no simultaneous charge/discharge, zero unserved, cycling
+priced, and apply_gas_cap agreeing with fleet plus pool plus new build.
+
+**One false positive worth recording.** My first conservation check showed a 5.26 MWh mean imbalance
+-- alarming until traced to my own check using CVOW_MW = 2,600 where the model holds 2,587.2. The
+error was exactly (2,600 - 2,587.2) x mean wind capacity factor. A review harness needs the same
+scrutiny as the code it reviews.
+

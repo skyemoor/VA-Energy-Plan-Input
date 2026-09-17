@@ -1316,7 +1316,25 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         peak_gas_mw = max(x[t * 14 + IDX['g']] for t in range(len(self.demand)))
         existing_gas_mw = GasMeritOrder().total_available_mw(self.year)
 
-        c = ScenarioLifecycleCost(self.year, operating_cost_usd=self.result['obj'])
+        # THERMAL CYCLING, PRICED RATHER THAN FORBIDDEN. MAX_ANNUAL_STARTS is a screening-curve
+        # device for choosing between candidate technologies, not a dispatch constraint -- treating
+        # it as one would make every fleet change a tuning exercise against a threshold, with no
+        # end. See gas_cycling_cost and build log 157.
+        #
+        # IT IS A CONSEQUENCE OF THE DISPATCH, NOT AN INPUT TO IT: a start is a discrete event that
+        # the LP's continuous hourly variables cannot express, so the objective never saw this cost
+        # when it chose the pattern. That makes it an UPPER bound on what a commitment-aware
+        # operator would incur.
+        cycling_usd = 0.0
+        if self.result.get('hourly_gas_rungs'):
+            import gas_cycling_cost
+            per_rung, cycling_usd = gas_cycling_cost.for_fleet(
+                self.result['hourly_gas_rungs'], self.result['gas_rung_nameplate_mw'])
+            self.result['gas_cycling'] = per_rung
+            self.result['gas_cycling_cost_usd'] = cycling_usd
+
+        c = ScenarioLifecycleCost(
+            self.year, operating_cost_usd=self.result['obj'] + cycling_usd)
         c.add_asset('solar',
                     existing_mw=lp.exist_solar_mw(self.year),
                     new_mw=self.result['vcea_new_build_mw'],
@@ -1492,5 +1510,20 @@ class Scenario2Solver(CheckpointSolver, SocialCostRGGIMixin):
         # violation caught only if a runner remembered to look. run_scenario2_slcoe did look, which
         # is why the 2034 shortfall surfaced; a caller that did not would have reported it silently.
         # Found by the 2026-09-14 audit, build log 156.
+        # RUNG DISPATCH ON THE RESULT, so cycling cost can be priced without re-solving and so a
+        # reader can see which rung carried which duty. Named for what it is: 'hourly'
+        # already means storage variables in this result dict.
+        _rungs = (self.gas_merit_order.rungs(self.year)
+                  if getattr(self, 'gas_merit_order', None) else [])
+        if _rungs:
+            _hours = len(self.demand)
+            _rung_base = len(problem['c']) - len(_rungs) * _hours
+            self.result['hourly_gas_rungs'] = {
+                rung.name: np.array([res.x[_rung_base + i * _hours + t]
+                                     for t in range(_hours)])
+                for i, rung in enumerate(_rungs)}
+            self.result['gas_rung_nameplate_mw'] = {
+                rung.name: rung.nameplate_mw for rung in _rungs}
+
         self.verify_result()
         return self.result

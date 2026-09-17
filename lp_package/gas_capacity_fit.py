@@ -72,8 +72,12 @@ class CapacityFit:
         return self.ccgt_mw + self.ct_mw
 
 
-def _run_lengths(mask):
-    """Lengths of contiguous True blocks. Empty array when there are none."""
+def run_lengths(mask):
+    """Lengths of contiguous True blocks. Empty array when there are none.
+
+    PUBLIC because gas_cycling_cost needs the same computation to count starts, and Rule 6 says one
+    source of truth rather than a second counter that can drift.
+    """
     flags = np.concatenate(([0], mask.astype(np.int8), [0]))
     edges = np.diff(flags)
     return np.flatnonzero(edges == -1) - np.flatnonzero(edges == 1)
@@ -85,7 +89,7 @@ def median_run_hours(gas_mw, level_mw):
     Returns 0.0 where the level is never reached, which correctly assigns an unreachable tranche to
     neither technology.
     """
-    runs = _run_lengths(np.asarray(gas_mw) >= level_mw)
+    runs = run_lengths(np.asarray(gas_mw) >= level_mw)
     return float(np.median(runs)) if len(runs) else 0.0
 
 
