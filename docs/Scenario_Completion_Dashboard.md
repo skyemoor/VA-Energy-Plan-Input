@@ -36,6 +36,10 @@ Narrative goes elsewhere:
 
 Build only the 16,100 MW solar and 20,000 MW storage the Code names; meet the rest with gas.
 
+**Steps 6–9 ran on the unbounded gas path**, which dispatches capacity the fleet does not have and
+so reports zero unserved energy; the bounded run shows 30.05 TWh at 2045. They are superseded until
+step 10 reconciles the two.
+
 | # | step | status | blockers |
 |---|---|---|---|
 | 1 | Solver wired and verified | **done** | — |
@@ -43,13 +47,13 @@ Build only the 16,100 MW solar and 20,000 MW storage the Code names; meet the re
 | 3 | Agrivoltaic siting, applied evenly | **done** | — |
 | 4 | Merit-order stack in the solver | **done** | — |
 | 5 | Gas capacity fit on the measured gap | **done** | — |
-| 6 | Four-checkpoint pathway | **done** | — |
-| 7 | Twenty-year annual stream | **done** | — |
-| 8 | Annualised cost + capex band | **done** | — |
-| 9 | Social + health cost | **done** | — |
-| 10 | New gas capacity costed in | **not started** | — |
+| 6 | Four-checkpoint pathway | **superseded** | step 10 |
+| 7 | Twenty-year annual stream | **superseded** | step 10 |
+| 8 | Annualised cost + capex band | **superseded** | step 10 |
+| 9 | Social + health cost | **superseded** | step 10 |
+| 10 | New gas capacity costed in; bounded and published runs reconciled | **in process** | — |
 | 11 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
-| 12 | Whitepaper section | **superseded** | steps 2, 3 changed the figures |
+| 12 | Whitepaper section | **superseded** | step 10 |
 | 13 | Unit commitment sensitivity | **blocked** | #17 |
 
 ---

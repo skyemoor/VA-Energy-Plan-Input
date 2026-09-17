@@ -30,6 +30,31 @@ class TestEachScenarioDeclaresItsOwn:
         assert k.new_gas_technology(k) == expected
 
 
+class TestOnlyScenario2IsConfirmed:
+    """Scenarios 1, 1B and 3 carry the standing rule's default and are marked DRAFT. They were
+    declared alongside Scenario 2's on 2026-09-14, but their shortfall profiles have not been run
+    since the carve-out, Bath and retirement-schedule corrections -- so no evidence supports or
+    contradicts them."""
+
+    @pytest.mark.parametrize('name', ['Scenario1Solver', 'Scenario1BSolver', 'Scenario3Solver'])
+    def test_the_unconfirmed_three_say_so(self, name):
+        import inspect
+        doc = inspect.getdoc(getattr(cs, name).new_gas_technology)
+        assert doc.startswith('DRAFT, NOT CONFIRMED'), f'{name} no longer marked draft'
+        assert 'WHAT WOULD CHANGE THIS' in doc, f'{name} does not say what would settle it'
+
+    def test_scenario_2_is_not_marked_draft(self):
+        import inspect
+        doc = inspect.getdoc(cs.Scenario2Solver.new_gas_technology)
+        assert not doc.startswith('DRAFT')
+        assert 'MEASURED' in doc
+
+    def test_the_base_method_records_the_asymmetry(self):
+        import inspect
+        assert "ONLY SCENARIO 2'S DECLARATION IS CONFIRMED" in inspect.getdoc(
+            cs.CheckpointSolver.new_gas_technology)
+
+
 class TestTheDiagnosticMeasuresRatherThanRecommends:
     """The rule's rationale -- shortfalls are "short-duration (a few hours at a time) gap-filling
     needs" -- is a PREDICTION. Scenario 2 falsified it. So the premise is measured."""

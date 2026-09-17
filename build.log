@@ -1041,3 +1041,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `scripts/audit_documented_fixes.py` -- seventeenth check.
 - `lp_package/assumptions.py` -- `CCGT_REFERENCE_UNIT_MW` marked Scenario 2 only.
 
+## 2026-09-14 (draft status marked; Scenario 2 statuses corrected)
+
+- `lp_package/checkpoint_solver.py` -- Scenarios 1, 1B and 3 new-gas declarations marked DRAFT, NOT
+  CONFIRMED, each naming what would settle it. Only Scenario 2's is measured.
+- `docs/Scenario_Completion_Dashboard.md` -- Scenario 2 steps 6-9 and 12 moved from done to
+  superseded by step 10: they ran on the unbounded gas path, which reports zero unserved where the
+  bounded run shows 30.05 TWh.
+

@@ -80,6 +80,12 @@ class CheckpointSolver:
 
         So this method records a declaration; the diagnostic records whether the evidence supports
         it. A declaration that the evidence contradicts is visible rather than inferred.
+
+        ONLY SCENARIO 2'S DECLARATION IS CONFIRMED BY MEASUREMENT. The other three carry the
+        standing rule's default and are marked DRAFT: they were declared on 2026-09-14 alongside
+        Scenario 2's, but their shortfall profiles have not been run since the carve-out, Bath and
+        retirement-schedule corrections, so no evidence yet supports or contradicts them. They are
+        not to be treated as settled.
         """
         raise NotImplementedError(
             f'{type(self).__name__} must declare how new gas capacity is built. '
@@ -426,13 +432,15 @@ class Scenario1Solver(CheckpointSolver, SocialCostRGGIMixin):
     call (previously required bypassing run_solve() entirely -- see Internal Debugging Log)."""
 
     def new_gas_technology(self):
-        """SIMPLE CYCLE, under the standing rule. Scenario 1 builds to a 100% clean target, so gas
+        """DRAFT, NOT CONFIRMED -- see the note below.
+
+        SIMPLE CYCLE, under the standing rule. Scenario 1 builds to a 100% clean target, so gas
         fills residual gaps after a large clean build -- the duty the rule was written for.
 
-        NOT YET CONFIRMED BY MEASUREMENT. The scenario's shortfall profile has not been run since
-        the carve-out and Bath corrections, and its clean build arrives late (59% of the fleet in
-        the final checkpoint), so 2035 and 2040 carry large residuals against a retiring fleet.
-        Those years are where this declaration is most likely to prove wrong."""
+        WHAT WOULD CHANGE THIS: the scenario's shortfall profile has not been run since the
+        carve-out, Bath and retirement-schedule corrections, and its clean build arrives late -- 59%
+        of the fleet in the final checkpoint -- so 2035 and 2040 carry large residuals against a
+        retiring fleet. Those years are where this declaration is most likely to prove wrong."""
         return 'simple_cycle'
 
     def gas_retirement_schedule(self):
@@ -526,11 +534,17 @@ class Scenario1BSolver(Scenario1Solver):
     solve_2045_1b_*.py script under the pre-refactor pattern."""
 
     def new_gas_technology(self):
-        """SIMPLE CYCLE, under the standing rule -- and the declaration most worth testing.
+        """DRAFT, NOT CONFIRMED -- see the note below.
+
+        SIMPLE CYCLE, under the standing rule -- and the declaration most worth testing.
 
         1B allows gas 5% of the statutory base from 2045, which is an ENERGY allowance rather than
         gap-filling. If its simple-cycle fleet runs hard against that allowance, the same arithmetic
-        that moved Scenario 2 to combined cycle would apply here."""
+        that moved Scenario 2 to combined cycle would apply here.
+
+        WHAT WOULD CHANGE THIS: a shortfall_duty_profile showing the existing simple-cycle fleet
+        near saturation, or a cost comparison in which combined cycle wins at 1B's capacity factor.
+        Neither has been run."""
         return 'simple_cycle'
 
     def gas_retirement_schedule(self):
@@ -840,8 +854,14 @@ class Scenario3Solver(Scenario1Solver):
     pool (direct user decision, to avoid an overly complex LP) -- not modeled as separate LP segments."""
 
     def new_gas_technology(self):
-        """SIMPLE CYCLE, as Scenario 1: the same 100% clean terminal year, reached by different
-        siting. Unmeasured for the same reason."""
+        """DRAFT, NOT CONFIRMED -- see the note below.
+
+        SIMPLE CYCLE, as Scenario 1: the same 100% clean terminal year, reached by different
+        siting. Unmeasured for the same reason.
+
+        WHAT WOULD CHANGE THIS: Scenario 3's distributed siting shifts generation toward urban load,
+        which may leave a differently shaped residual than Scenario 1's. It has never been solved
+        with the merit-order stack."""
         return 'simple_cycle'
 
     def gas_retirement_schedule(self):
