@@ -448,4 +448,4 @@ few hours at a time) gap-filling needs"* — does not describe a shortfall spann
 
 The published annualised cost does **not** include this capacity. The runner still uses the
 unbounded gas ceiling, so it reports zero unserved energy while the bounded run shows 30.05 TWh.
-**Reconciling the two is the open work**, tracked as activity 83.
+**Reconciling the two is the open work** — dashboard step 6, tracker activity 83.

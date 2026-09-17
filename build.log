@@ -1049,3 +1049,11 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   superseded by step 10: they ran on the unbounded gas path, which reports zero unserved where the
   bounded run shows 30.05 TWh.
 
+## 2026-09-14 (dashboard steps renumbered in dependency order)
+
+- `docs/Scenario_Completion_Dashboard.md` -- all four scenarios renumbered so no step blocks a
+  lower-numbered one: inputs first, then the result chain, then reporting. Scenario 2's step 10
+  (pin and cost new gas) becomes step 6; its carve-out and siting steps move ahead of the solver
+  steps they supersede in Scenarios 1, 1B and 3.
+- Step numbers cited in build-log entries before this date may not match.
+

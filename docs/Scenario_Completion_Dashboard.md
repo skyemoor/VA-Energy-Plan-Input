@@ -2,6 +2,10 @@
 
 **Status only.** One row per step per scenario, its status, and what blocks it.
 
+**Steps run in dependency order: no step blocks a lower-numbered one.** Inputs first, then the
+result chain, then reporting. Renumbered 2026-09-14, so step numbers cited in older build-log
+entries may not match.
+
 A step is **done** only when its result has been produced on current code, constants and scenario
 definition — not when the code to produce it exists.
 
@@ -36,9 +40,12 @@ Narrative goes elsewhere:
 
 Build only the 16,100 MW solar and 20,000 MW storage the Code names; meet the rest with gas.
 
-**Steps 6–9 ran on the unbounded gas path**, which dispatches capacity the fleet does not have and
+**Steps 7–10 ran on the unbounded gas path**, which dispatches capacity the fleet does not have and
 so reports zero unserved energy; the bounded run shows 30.05 TWh at 2045. They are superseded until
-step 10 reconciles the two.
+step 6 reconciles the two.
+
+*Renumbered 2026-09-14 so no step blocks a lower-numbered one: inputs (1–6), then the result chain
+(7–10), then reporting (11–13). What was step 10 — pinning and costing new gas — is now step 6.*
 
 | # | step | status | blockers |
 |---|---|---|---|
@@ -47,13 +54,13 @@ step 10 reconciles the two.
 | 3 | Agrivoltaic siting, applied evenly | **done** | — |
 | 4 | Merit-order stack in the solver | **done** | — |
 | 5 | Gas capacity fit on the measured gap | **done** | — |
-| 6 | Four-checkpoint pathway | **superseded** | step 10 |
-| 7 | Twenty-year annual stream | **superseded** | step 10 |
-| 8 | Annualised cost + capex band | **superseded** | step 10 |
-| 9 | Social + health cost | **superseded** | step 10 |
-| 10 | New gas capacity costed in; bounded and published runs reconciled | **in process** | — |
-| 11 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | — |
-| 12 | Whitepaper section | **superseded** | step 10 |
+| 6 | New gas capacity pinned and costed; bounded and published runs reconciled | **in process** | — |
+| 7 | Four-checkpoint pathway | **superseded** | 6 |
+| 8 | Twenty-year annual stream | **superseded** | 7 |
+| 9 | Annualised cost + capex band | **superseded** | 8 |
+| 10 | Social + health cost | **superseded** | 8 |
+| 11 | Gas price band (Deloitte MED/HIGH, EIA) | **not started** | 9 |
+| 12 | Whitepaper section | **superseded** | 9, 10 |
 | 13 | Unit commitment sensitivity | **blocked** | #17 |
 
 ---
@@ -64,16 +71,17 @@ Full VCEA and RPS compliance, firmed solar co-located with storage, no standalon
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver wired, all-hours reserve applied | **superseded** | steps 7, 8 |
-| 2 | Four-checkpoint pathway | **superseded** | #24, steps 7, 8 |
-| 3 | Twenty-year annual stream | **ready** | step 2 |
-| 4 | SLCOE | **not started** | step 3 |
-| 5 | Social + health cost, all 20 years | **not started** | step 3 |
-| 6 | Myopic vs perfect-foresight comparison | **blocked** | #22 |
-| 7 | Statutory distributed carve-out | **not started** | profile built, not wired |
-| 8 | Agrivoltaic siting, applied evenly | **not started** | — |
-| 9 | Merit-order stack in the solver | **done** | — |
-| 10 | Whitepaper section | **not started** | step 4 |
+| 1 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 2 | Agrivoltaic siting, applied evenly | **not started** | — |
+| 3 | Merit-order stack in the solver | **done** | — |
+| 4 | Solver wired, all-hours reserve applied | **superseded** | 1, 2 |
+| 5 | Four-checkpoint pathway | **superseded** | #24, 4 |
+| 6 | Twenty-year annual stream | **ready** | 5 |
+| 7 | Annualised cost | **not started** | 6 |
+| 8 | Social + health cost, all 20 years | **not started** | 6 |
+| 9 | Myopic vs perfect-foresight comparison | **blocked** | #22 |
+| 10 | New-gas technology confirmed by measurement | **not started** | 5 |
+| 11 | Whitepaper section | **not started** | 7 |
 
 ---
 
@@ -83,15 +91,16 @@ As Scenario 1, except gas may supply 5% of the statutory base from 2045.
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver and reserve variant | **superseded** | steps 7, 8 |
-| 2 | Capacity sweep result implemented (6,000 MW) | **re-check** | steps 7, 8 |
-| 3 | Five-checkpoint pathway incl. 2044 | **superseded** | #24, steps 7, 8 |
-| 4 | Twenty-year annual stream | **not started** | no runner |
-| 5 | SLCOE | **not started** | step 4 |
-| 6 | Social + health cost | **partial** | step 4 |
-| 7 | Statutory distributed carve-out | **not started** | profile built, not wired |
-| 8 | Agrivoltaic siting, applied evenly | **not started** | — |
-| 9 | Whitepaper section | **not started** | step 5 |
+| 1 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 2 | Agrivoltaic siting, applied evenly | **not started** | — |
+| 3 | Solver and reserve variant | **superseded** | 1, 2 |
+| 4 | Capacity sweep result implemented (6,000 MW) | **re-check** | 1, 2 |
+| 5 | Five-checkpoint pathway incl. 2044 | **superseded** | #24, 3 |
+| 6 | Twenty-year annual stream | **not started** | no runner; 5 |
+| 7 | New-gas technology confirmed by measurement | **not started** | 5 |
+| 8 | Annualised cost | **not started** | 6 |
+| 9 | Social + health cost | **partial** | 6 |
+| 10 | Whitepaper section | **not started** | 8 |
 
 ---
 
@@ -102,15 +111,18 @@ agrivoltaic; FERC 2222 participation and hourly retail rates.
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Solver, reserve variant, distributed bounds | **superseded** | step 8 |
-| 2 | Four-checkpoint pathway | **not started** | #14, #24 |
-| 3 | Twenty-year annual stream | **not started** | step 2 |
-| 4 | SLCOE | **not started** | step 3 |
-| 5 | DER owner economics | **blocked** | #5, #15 |
-| 6 | Transmission-deferral assessment | **not started** | #4 |
-| 7 | Social + health cost | **not started** | step 3 |
-| 8 | Statutory distributed carve-out | **not started** | profile built, not wired |
-| 9 | Whitepaper section | **not started** | step 4 |
+| 1 | Siting cap re-derived on floor area | **blocked** | #14 |
+| 2 | Statutory distributed carve-out | **not started** | profile built, not wired |
+| 3 | Solver, reserve variant, distributed bounds | **superseded** | 1, 2 |
+| 4 | Merit-order stack in the solver | **not started** | 3 |
+| 5 | Four-checkpoint pathway | **not started** | #24, 3 |
+| 6 | Twenty-year annual stream | **not started** | 5 |
+| 7 | New-gas technology confirmed by measurement | **not started** | 5 |
+| 8 | Annualised cost | **not started** | 6 |
+| 9 | Social + health cost | **not started** | 6 |
+| 10 | DER owner economics | **blocked** | #5, #15 |
+| 11 | Transmission-deferral assessment | **not started** | #4 |
+| 12 | Whitepaper section | **not started** | 8 |
 
 ---
 
@@ -118,7 +130,7 @@ agrivoltaic; FERC 2222 participation and hourly retail rates.
 
 | # | step | status | blockers |
 |---|---|---|---|
-| 1 | Compliance sweep, 30–100% | **not started** | S1 step 2 |
+| 1 | Compliance sweep, 30–100% | **not started** | S1 step 5 |
 | 2 | Gas price band across the sweep | **not started** | step 1 |
 | 3 | Siting overlay (utility / 20% distributed / 85% agrivoltaic) | **not started** | #14, S3 |
 | 4 | Data-centre demand axis | **not started** | deferred by decision |
