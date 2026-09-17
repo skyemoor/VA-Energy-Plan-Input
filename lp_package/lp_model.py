@@ -657,28 +657,14 @@ def build_dispatch_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_
     row = 0
 
     # (A) energy balance, one row per hour -- unserved (shortfall) and curt (excess-generation outlet)
-    for t in range(T):
-        eq_rows += [row]*8
-        eq_cols += [hv(t,IDX['g']), hv(t,IDX['e']), hv(t,IDX['bd']), hv(t,IDX['bc']),
-                    hv(t,IDX['nd']), hv(t,IDX['nc']), hv(t,IDX['fd']), hv(t,IDX['fc'])]
-        eq_data += [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0]
-        eq_rows += [row, row]; eq_cols += [hv(t,IDX['unserved']), hv(t,IDX['curt'])]; eq_data += [1.0, -1.0]
-        eq_rhs.append(residual[t])
-        row += 1
+    row = emit_energy_balance_rows((eq_rows, eq_cols, eq_data, eq_rhs),
+                                   hv, IDX, residual, row=row, hours=T)
 
     # (B) Bath SoC dynamics -- unchanged, Bath's power/energy were always constants
     init_bath = init_soc_frac*BATH_MWH
-    for t in range(T):
-        if t == 0:
-            eq_rows += [row, row]; eq_cols += [hv(t,IDX['bsoc']), hv(t,IDX['bc'])]; eq_data += [1.0, -BATH_RTE_CHARGE]
-            eq_rows += [row]; eq_cols += [hv(t,IDX['bd'])]; eq_data += [1.0]
-            eq_rhs.append(init_bath)
-        else:
-            eq_rows += [row, row, row, row]
-            eq_cols += [hv(t,IDX['bsoc']), hv(t-1,IDX['bsoc']), hv(t,IDX['bc']), hv(t,IDX['bd'])]
-            eq_data += [1.0, -1.0, -BATH_RTE_CHARGE, 1.0]
-            eq_rhs.append(0.0)
-        row += 1
+    row = emit_bath_state_of_charge_rows((eq_rows, eq_cols, eq_data, eq_rhs), hv, IDX,
+                                         row=row, hours=T, initial_mwh=init_bath,
+                                         charge_efficiency=BATH_RTE_CHARGE)
     eq_rows += [row]; eq_cols += [hv(T-1, IDX['bsoc'])]; eq_data += [1.0]; eq_rhs.append(init_bath); row += 1
 
     # (C) Sodium SoC dynamics -- init/end tied to FIXED ENA_mwh (a constant now, not a variable)
@@ -835,28 +821,13 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
                 - _dist_generation)
 
     eq_rows, eq_cols, eq_data, eq_rhs = [], [], [], []
-    row = 0
-    for t in range(T):
-        eq_rows += [row]*8
-        eq_cols += [hv(t,IDX['g']), hv(t,IDX['e']), hv(t,IDX['bd']), hv(t,IDX['bc']),
-                    hv(t,IDX['nd']), hv(t,IDX['nc']), hv(t,IDX['fd']), hv(t,IDX['fc'])]
-        eq_data += [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0]
-        eq_rows += [row, row]; eq_cols += [hv(t,IDX['unserved']), hv(t,IDX['curt'])]; eq_data += [1.0, -1.0]
-        eq_rhs.append(residual[t])
-        row += 1
+    row = emit_energy_balance_rows((eq_rows, eq_cols, eq_data, eq_rhs),
+                                   hv, IDX, residual, row=0, hours=T)
 
     init_bath = init_soc_frac*BATH_MWH
-    for t in range(T):
-        if t == 0:
-            eq_rows += [row, row]; eq_cols += [hv(t,IDX['bsoc']), hv(t,IDX['bc'])]; eq_data += [1.0, -BATH_RTE_CHARGE]
-            eq_rows += [row]; eq_cols += [hv(t,IDX['bd'])]; eq_data += [1.0]
-            eq_rhs.append(init_bath)
-        else:
-            eq_rows += [row, row, row, row]
-            eq_cols += [hv(t,IDX['bsoc']), hv(t-1,IDX['bsoc']), hv(t,IDX['bc']), hv(t,IDX['bd'])]
-            eq_data += [1.0, -1.0, -BATH_RTE_CHARGE, 1.0]
-            eq_rhs.append(0.0)
-        row += 1
+    row = emit_bath_state_of_charge_rows((eq_rows, eq_cols, eq_data, eq_rhs), hv, IDX,
+                                         row=row, hours=T, initial_mwh=init_bath,
+                                         charge_efficiency=BATH_RTE_CHARGE)
     # CHANGED (this session, Internal Debugging Log #40, per direct user proposal): final-SoC
     # requirement relaxed from an EXACT equality (bsoc[T-1] == init_bath) to an inequality floor
     # (bsoc[T-1] >= init_bath). Addresses the root cause the literature search identified, not just
@@ -1119,6 +1090,86 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
                 IDX=IDX, hv_params=(0, NVAR_PER_HOUR), T=T,
                 fixed_build=(vcea_solar_mw, na_power_mw, ENA_mwh, fe_power_mw, EFE_mwh, ccgt_mw))
 
+
+
+# ---------------------------------------------------------------------------
+# ROW BUILDERS
+#
+# Each emits one KIND of constraint row into the sparse-triplet accumulators every builder shares.
+# Extracted 2026-09-14 under Rule 15: build_problem measured a cyclomatic complexity of 67 against
+# a limit of 15, with 30 `if` statements and 21 `for` loops in 830 lines. Cyclomatic complexity is
+# a LOWER BOUND on the paths needed for branch coverage, so at 67 exhaustive coverage is not
+# achievable -- which is how the merit-order stack ran unreached for a full session: no test
+# exercised that combination of flags.
+#
+# The three builders (build_problem, build_scenario2_problem, build_dispatch_problem) assemble the
+# same physics with different policy around it. These are the physics.
+#
+# VERIFIED BY FINGERPRINT. scripts/capture_lp_baseline.py hashes c, bounds, A_eq, b_eq, A_ub and
+# b_ub for a representative call of each builder; every extraction step is checked against the
+# baseline captured before any change. Sparse matrices hash on canonically sorted COO triplets, so
+# a reordering that does not change the problem passes, while a changed coefficient does not.
+# ---------------------------------------------------------------------------
+
+
+def emit_energy_balance_rows(accumulator, hourly_variable, index_map, residual, row, hours):
+    """Hourly energy balance: everything supplied equals everything drawn, in every hour.
+
+        gas + Bath_discharge + Na_discharge + Fe_discharge + unserved
+          - export - Bath_charge - Na_charge - Fe_charge - curtailment  =  residual
+
+    `residual` is demand net of everything NOT dispatched -- nuclear, existing solar, wind, and the
+    pinned solar build. What each builder puts into the residual differs; the row does not.
+    """
+    eq_rows, eq_cols, eq_data, eq_rhs = accumulator
+    for hour in range(hours):
+        eq_rows += [row] * 8
+        eq_cols += [hourly_variable(hour, index_map['g']), hourly_variable(hour, index_map['e']),
+                    hourly_variable(hour, index_map['bd']), hourly_variable(hour, index_map['bc']),
+                    hourly_variable(hour, index_map['nd']), hourly_variable(hour, index_map['nc']),
+                    hourly_variable(hour, index_map['fd']), hourly_variable(hour, index_map['fc'])]
+        eq_data += [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0]
+        eq_rows += [row, row]
+        eq_cols += [hourly_variable(hour, index_map['unserved']),
+                    hourly_variable(hour, index_map['curt'])]
+        eq_data += [1.0, -1.0]
+        eq_rhs.append(residual[hour])
+        row += 1
+    return row
+
+
+def emit_bath_state_of_charge_rows(accumulator, hourly_variable, index_map, row, hours,
+                                   initial_mwh, charge_efficiency):
+    """Bath County state of charge, one row per hour.
+
+        hour 0:  soc - eta*charge + discharge  =  initial
+        after:   soc - soc[t-1] - eta*charge + discharge  =  0
+
+    ROUND-TRIP EFFICIENCY IS APPLIED ON CHARGE ONLY, never on discharge -- applying it to both
+    would double-count the loss. Bath's power and energy ratings are constants rather than build
+    variables in every scenario, so this row is identical across all three builders.
+    """
+    eq_rows, eq_cols, eq_data, eq_rhs = accumulator
+    for hour in range(hours):
+        if hour == 0:
+            eq_rows += [row, row]
+            eq_cols += [hourly_variable(hour, index_map['bsoc']),
+                        hourly_variable(hour, index_map['bc'])]
+            eq_data += [1.0, -charge_efficiency]
+            eq_rows += [row]
+            eq_cols += [hourly_variable(hour, index_map['bd'])]
+            eq_data += [1.0]
+            eq_rhs.append(initial_mwh)
+        else:
+            eq_rows += [row, row, row, row]
+            eq_cols += [hourly_variable(hour, index_map['bsoc']),
+                        hourly_variable(hour - 1, index_map['bsoc']),
+                        hourly_variable(hour, index_map['bc']),
+                        hourly_variable(hour, index_map['bd'])]
+            eq_data += [1.0, -1.0, -charge_efficiency, 1.0]
+            eq_rhs.append(0.0)
+        row += 1
+    return row
 
 
 def build_problem(solar_cf, wind_cf, nuclear, exist_solar, demand, gas_allowed_frac,

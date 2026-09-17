@@ -1146,3 +1146,14 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `docs/Common_Reference.md` -- states that it is a working document, with material migrating to
   appendices when finalised.
 
+## 2026-09-14 (LP builder restructuring begins)
+
+- `lp_package/lp_invariance.py` -- NEW. Fingerprints an assembled LP on c, bounds, A_eq, b_eq,
+  A_ub, b_ub. Sparse matrices hash on canonically sorted COO triplets.
+- `scripts/capture_lp_baseline.py` -- NEW. Captures or compares fingerprints for four builder
+  configurations.
+- `lp_package/lp_model.py` -- `emit_energy_balance_rows` (3 sites), `emit_bath_state_of_charge_rows`
+  (2 sites). All four fingerprints identical after each step.
+- `docs/Common_Reference.md` -- section 4 tracks the restructuring.
+- Complexity: build_dispatch_problem 19 -> 16, build_scenario2_problem 26 -> 23, build_problem 67.
+

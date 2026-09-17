@@ -133,6 +133,12 @@ UNCALLED_BY_DESIGN = {
     'assumptions.py':      'the parameter surface; imported by nearly everything',
     'paths.py':            'path resolution; imported by nearly everything',
     'provenance.py':       'provenance helper',
+    # Verification tooling, not pipeline: fingerprints an assembled LP so a refactor can be
+    # proven to change nothing. Called by scripts/capture_lp_baseline.py, which runs by hand
+    # before and after a restructuring step. Wiring it into the pipeline would mean hashing
+    # every matrix on every solve, which costs time for a check that only matters when the
+    # builder is being changed.
+    'lp_invariance.py':    'LP fingerprinting; called by capture_lp_baseline.py, run by hand',
     '__init__.py':          'package marker',
     # --- county-level siting estimates: standalone analyses whose OUTPUT (a MW or sqft figure)
     # was transcribed into assumptions.py. The module is the derivation record, not a runtime

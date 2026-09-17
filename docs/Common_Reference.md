@@ -24,6 +24,7 @@ findings go to that scenario's working document; where things stand goes to
 | 1 | Transmission and distribution | loss factor, load against generation basis, what "energy sold" means in statute |
 | 2 | Resource adequacy metrics | what is measured, what is not, and why the probabilistic names are not claimed |
 | 3 | Probabilistic adequacy | what LOLE and CVaR would require, and what the draw loop costs |
+| 4 | LP builder restructuring | why it is happening, how it is verified, and where it stands |
 
 *Sections are added as cross-cutting questions arise. A topic belongs here when a second scenario
 would otherwise need the same answer.*
@@ -237,3 +238,71 @@ single-pool peak, then measure groupings at and around it.
 **Per-unit forced outage rates.** NERC GADS publishes class-average equivalent forced outage rates
 and EIA-860 gives unit vintages; neither is in this repository. That input, and a draw loop around
 the existing solve, is the whole of the remaining work.
+
+---
+
+## 4. LP builder restructuring — in progress
+
+### Why
+
+**Rule 15 sets a cyclomatic complexity limit of 15.** Measured 2026-09-14:
+
+| function | complexity | lines |
+|---|---:|---:|
+| `build_problem` | **67** | 830 |
+| `build_scenario2_problem` | **26** | 323 |
+| `build_dispatch_problem` | **19** | 169 |
+
+The other 17 functions in `lp_model` sit at 6 or below, so this is concentrated in the builders.
+
+**Complexity is a lower bound on the paths needed for branch coverage.** At 67, exhaustive coverage
+is not achievable — which is how the merit-order stack ran unreached for a full session: no test
+exercised that combination of flags. `build_problem` carries 30 `if` statements and 21 `for` loops,
+with one scenario's logic scattered across five separate locations rather than sitting in one block.
+
+**And `build_scenario2_problem` is evidence for the direction.** It exists because splitting was
+easier than extending, and it is the more readable of the two — an expedient split that produced
+the better structure.
+
+### How it is verified
+
+**`scripts/capture_lp_baseline.py` fingerprints the assembled problem** — `c`, `bounds`, `A_eq`,
+`b_eq`, `A_ub`, `b_ub` — for a representative call of each builder configuration. Every extraction
+step is checked against a baseline captured **before any change**.
+
+**Sparse matrices hash on canonically sorted COO triplets**, so a reordering that does not change
+the problem passes while a changed coefficient does not. Shape is hashed separately, because
+gaining or losing variables is a different kind of event from perturbing one.
+
+    python3 scripts/capture_lp_baseline.py --capture   # before
+    python3 scripts/capture_lp_baseline.py             # after
+
+**What it does not catch:** a change to the problem and the baseline together. The baseline must be
+captured from unmodified code, which is why `capture_baseline` and `compare_to_baseline` are
+separate entry points rather than one function that refreshes on mismatch.
+
+### Where it stands
+
+| step | state |
+|---|---|
+| Fingerprint harness | **done** — 4 configurations |
+| `emit_energy_balance_rows` | **done** — 3 call sites |
+| `emit_bath_state_of_charge_rows` | **done** — 2 call sites |
+| Sodium-ion and iron-air state of charge | pending |
+| Reserve margin rows | pending |
+| Bounds and objective assembly | pending |
+| Re-measure, then attack the remaining branching | pending |
+
+**After two extractions:** `build_dispatch_problem` 19 → 16, `build_scenario2_problem` 26 → 23,
+`build_problem` unchanged at 67 — its share of those particular loops was small, and its complexity
+is concentrated in the scenario branching rather than the row assembly.
+
+### The decision behind it
+
+**One builder per scenario, sharing a core** — rather than a segment protocol, or continuing to add
+parameters. Measured before committing: **80% of `build_problem` is scenario-agnostic**, and the
+merit order, which is another 12%, belongs in the core too. That leaves roughly 8% genuinely
+scenario-specific, which is what a thin per-scenario builder would hold.
+
+**The row extraction comes first** regardless, because splitting an 830-line body four ways before
+making it readable would duplicate an untested structure rather than fix it.

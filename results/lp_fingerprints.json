@@ -1,0 +1,66 @@
+{
+  "build_problem_distributed": {
+    "coefficients": {
+      "A_eq": "847dcc472d86baaa",
+      "A_ub": "4b2b71d664bd9f7f",
+      "b_eq": "aacbf9069ce9eb9d",
+      "b_ub": "660e056b7f8eff96",
+      "bounds": "a8c36af61eb02018",
+      "c": "e1b04314d8c792b0"
+    },
+    "shape": {
+      "bounds": 183968,
+      "equality_rows": 61325,
+      "inequality_rows": 166807,
+      "variables": 183968
+    }
+  },
+  "build_problem_merit_order": {
+    "coefficients": {
+      "A_eq": "43b33df1d0e649f9",
+      "A_ub": "6eb23e1e14dfdd36",
+      "b_eq": "9903c93a10026ba0",
+      "b_ub": "399d8d27d4de65e9",
+      "bounds": "68b5b7530a1bd3e9",
+      "c": "06bca50c344a3511"
+    },
+    "shape": {
+      "bounds": 227768,
+      "equality_rows": 70085,
+      "inequality_rows": 236878,
+      "variables": 227768
+    }
+  },
+  "build_problem_plain": {
+    "coefficients": {
+      "A_eq": "f727efbdf181c102",
+      "A_ub": "de8aaf33e6dd1ed2",
+      "b_eq": "aacbf9069ce9eb9d",
+      "b_ub": "c57234eacb2256d0",
+      "bounds": "6e8d9dec51e97052",
+      "c": "25a88fb6b542aca6"
+    },
+    "shape": {
+      "bounds": 183968,
+      "equality_rows": 61325,
+      "inequality_rows": 166806,
+      "variables": 183968
+    }
+  },
+  "build_scenario2_problem": {
+    "coefficients": {
+      "A_eq": "77381815c7105788",
+      "A_ub": "619344be1ba2fb63",
+      "b_eq": "6ecccae42a7d41ca",
+      "b_ub": "d2097c8775303c7e",
+      "bounds": "2679ba9bee8e9922",
+      "c": "dd264414a11c114e"
+    },
+    "shape": {
+      "bounds": 166440,
+      "equality_rows": 43800,
+      "inequality_rows": 26283,
+      "variables": 166440
+    }
+  }
+}
