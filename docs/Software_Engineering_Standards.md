@@ -236,7 +236,7 @@ Anything the modeler has stated as direction other than the above -- the catch-a
 2.	No abbreviations, single-letter names, or terse fragments where a clear word or short phrase would fit -- peak_gas_mw over pgm, battery_capacity_stated_kwh over cap_kwh. The cost of a longer name is trivial; the cost of a name that requires guessing or checking is not.
 3.	A name should describe what a value is or what a function does, not merely hint at it. If a value carries a caveat that matters for correct use (a derived figure resting on a now-unreliable assumption, a figure that should not be treated as settled), that caveat belongs in the name itself where practical -- see BATTERY_CAPACITY_DERIVED_KWH_DO_NOT_USE in dominion_school_bus_v2g_assumptions.py for the pattern: the name alone stops a future reader from using it incorrectly, without requiring them to have first read the surrounding comment.
 4.	This applies uniformly -- constants, function/method names, class names, loop variables, test names. A quick loop counter in a short-lived, obvious scope is the narrow exception; anything that outlives a few lines or crosses a function boundary gets a real name.
-5.	
+	
 ### Rule 13 Log all changes
 1. Always update the build.log with the request change text and the code module.
 
