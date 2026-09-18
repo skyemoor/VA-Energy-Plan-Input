@@ -123,17 +123,23 @@ of the other.
 | **`Common_Reference.md`** | **CROSS-CUTTING FACTS AND CONVENTIONS** — quantities and unit bases shared across every scenario, defined once. Section 1: transmission and distribution |
 | **`Scenario_Completion_Dashboard.md`** | **WHERE EACH SCENARIO STANDS** — every step, its status, and the issue numbers blocking it |
 | **`whitepaper/Scenario2_Section_Draft.md`** | **Whitepaper draft section for Scenario 2** — modelled figures, with the conflicts against the existing draft text flagged |
-| **`Session_Handoff_2026-09-14.md`** | **START HERE** — results, corrections, the resistor threshold, the foresight technique, and what to run next |
-| `Session_Handoff_2026-09-13.md` | Prior handoff — superseded by the 2026-09-14 one above |
+| **`Session_Handoff_2026-09-14.md`** | **START HERE** — Scenario 2 complete at steps 1–11, the LP restructuring in flight, open items in blocking order |
+| `Session_Handoff_2026-09-13.md` | Prior handoff — superseded |
 | | |
 | **Appendices state the END PRODUCT.** What changed and why belongs in `Internal_Debugging_Log.md`. An appendix carrying a correction narrative is telling the reader about the process instead of the result — a whitepaper reader wants the finding, not its history. Where a result is not yet re-measured, the appendix says so plainly and points at the runner; it does not narrate the defect. | |
 | | |
-| **`appendices/Reorganized_Appendices_Draft.md`** | **The full appendix draft**, 275 KB. The repo previously held only a 61 KB truncation |
+| **`appendices/APPENDIX_ORDER.md`** | **THE AGREED SEQUENCE** — sixteen entries in reader order (methods, scenarios, topics, reference), what each draws from, and the appendices/working-documents division |
+| **`appendices/Appendix_Resource_Adequacy_Methodology.md`** | 86 KB — the fullest account of accreditation and reserve margin. Extracted 2026-09-14; predates the capacity-planning vs resource-adequacy distinction |
+| `appendices/Appendix_Cost_Assumptions.md` | Cost assumptions and levelisation. Extracted 2026-09-14 |
+| `appendices/Appendix_Scenario2_Methodology.md` | How Scenario 2 was constructed — METHOD current, FIGURES awaiting migration from the working document |
+| `appendices/Appendix_DER_Owner_Economics.md` | DER owner economics, for Scenario 3. Extracted 2026-09-14 |
+| `appendices/Appendix_Known_Limitations.md` | Known limitations — stub, to be assembled |
+| **`appendices/Appendix_Q_Gas_Capacity_Method.md`** | **Brownfield screening curve** — how new gas capacity is sized and costed on the four-term formulation |
 | `appendices/Appendix_D_Tiered_Social_Cost.md` | Tier 1/2/3 framework — full methodology and sourcing (P.2 #9 points here) |
 | `appendices/Appendix_M_Reference_Literature.md` | Reference literature |
 | `appendices/Appendix_N_Scenario_1B.md` | Scenario 1B methodology |
 | **`appendices/Appendix_O_Intermediate_Year_Demand_Shape.md`** | **Data-centre flattening methodology** — cited normatively by P.2 #7 |
-| **`appendices/Appendix_P_Solve_Procedure.md`** | **THE SOLVE REQUIREMENTS.** Thirteen general rules applying to every scenario and every solve, plus disclosed gaps. Added to the repo 2026-09-13 |
+| **`appendices/Appendix_P_Solve_Procedure.md`** | **THE SOLVE REQUIREMENTS.** Seventeen rules applying to every scenario and every solve, plus disclosed gaps |
 | **`methodology/Scenario_Restructuring_Compliance_Sweep.md`** | **START HERE for the whitepaper's structure** — compliance as the axis, the counterfactual, what the sweep drops |
 | `methodology/Scenario2_Runnability_Audit.md` | Why the baseline scenario is not currently runnable — three blockers |
 | **`methodology/Compliance_Definition_For_Sweep.md`** | **What the sweep axis means** — clean generation share vs statutory RPS, and why they differ by ~38% |
@@ -212,21 +218,28 @@ RPS compliance accounting.
 
 ## Deliverables
 
-`appendices/Reorganized_Appendices_Draft_updated.md`; `deliverables/` holds the whitepaper outline
+`deliverables/` holds the whitepaper outline
 and summaries.
 
 ---
 
 ## Consolidation candidates, in priority order
 
-1. **Gas fleet (7 files)** — absorb lifespans and capex material into `Gas_Fleet_Working_Notes.md`,
-   leaving `VA_gas_capacity_schedules.md` authoritative for retirements only.
-2. **DER/VPP/WMA (6 files)** — the consolidated note already exists and is good; the other five
-   should be cross-referenced from it rather than merged, since each is a distinct research pass.
-3. **Scenario 3 (381 KB)** — `Scope_and_Gaps.md` alone is 246 KB and likely holds resolved items
-   that belong in the technical notes or can be retired.
+**Done.** Gas — seven files merged into `methodology/Gas_Consolidated_Reference.md` (2026-09-13).
+Appendices — two composite drafts removed and five draft-only appendices extracted to standalone
+files (2026-09-14); `appendices/APPENDIX_ORDER.md` holds the agreed sequence.
 
----
+**A caution from the gas merge**, worth carrying into the next one: it dropped a scope qualifier.
+The standing simple-cycle rule opens *"For Scenario 1, 1B, 3, 3B, and 3C specifically (NOT Scenario
+2…)"*, and the merged text starts after that parenthesis — leaving a rule that reads as universal
+and is not. It produced a reported conflict that did not exist. **When merging, treat every "for X
+specifically", "NOT Y" and "except where" as load-bearing and check it survives.**
+
+1. **Scenario 3 (381 KB)** — `methodology/Scenario3_Scope_and_Gaps.md` alone is 246 KB and likely
+   holds resolved items. Blocked behind issue #14 in any case.
+2. **DER / VPP / WMA (6 files)** — becomes Appendix H, and the policy material outside the
+   repository needs locating first.
+3. **Process & standards (8 files, 689 KB)** — overlapping guidance on how the project works.
 
 ## Task tracking — **GitHub Issues**
 
