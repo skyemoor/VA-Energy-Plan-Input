@@ -202,6 +202,7 @@ RPS compliance accounting.
 | `Software_Engineering_Standards.md` | Standing code rules — **read before writing code** |
 | `claude.md`, `claudeRationale.md` | Working process conventions |
 | `Common_Mistake_Log.md` | Recurring errors and how to avoid them |
+| `Session_Journal.md` | Catalogue of the eleven working sessions since 2026-09-09. Snapshot of a container-side file; goes stale |
 | `Internal_Debugging_Log.md` | 474 KB — numbered record of problems and resolutions |
 | `Data_Sourcing_Log.md` | 177 KB — provenance log |
 | `DATA_SOURCES.md` | External data provenance summary |

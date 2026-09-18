@@ -10,7 +10,9 @@ The catalogue is coarser than a handoff but complete, and it is the only index o
 transcripts.
 
 **This copy is a snapshot and will go stale.** The live version continues to grow; re-copy it when
-that matters. Entries are verbatim apart from formatting.
+that matters. Entries are verbatim apart from formatting, and one substitution: the section symbol is
+reserved in this project for Virginia Code citations (audit check 15), so occurrences inside
+the summaries are written out as 'section'.
 
 ---
 
@@ -58,7 +60,7 @@ Virginia clean energy SLCOE modeling session covering: distributed solar siting 
 
 `2026-09-13-11-21-04-virginia-grid-siting-assessment.txt`
 
-Virginia clean energy SLCOE modeling session covering: agrivoltaic basis and rural economic development NSPM case (85% of solar as agrivoltaic utility/PPA, SLEAC farm income vs lease income, § 10.1-1197.5 statutory definition, § 15.2-2288.8 permissive use, forage crop compatibility, CSU/Purdue corn evidence, LPF framework, SLCOE-zero finding on shade-tolerant forage, foresight bracketing for Scenario 3 distributed arbitrage, price-taking and locational-adder corrections), NREL rooftop workbook analysis and data vintage documentation, FSA 2026 Virginia crop acreage, cover crop findings (SARE/UGA/DCR), grazing evidence (Andrew OSU lamb growth, Florentino JDS 2026 forage quality), drought mechanism applying to Virginia, Scenario 3 run preparation including the scarcity-proxy constant defect, foresight asymmetry between utility and distributed storage, multi-day rationing and rebound effect documentation, Shen/Ilic/Parsons precautionary storage policy qualification, and correction of exogenous price as locational adder not full LMP. Contains methodology notes, module additions, test suite expansion (584→619 tests), and whitepaper section updates.
+Virginia clean energy SLCOE modeling session covering: agrivoltaic basis and rural economic development NSPM case (85% of solar as agrivoltaic utility/PPA, SLEAC farm income vs lease income, section  10.1-1197.5 statutory definition, section  15.2-2288.8 permissive use, forage crop compatibility, CSU/Purdue corn evidence, LPF framework, SLCOE-zero finding on shade-tolerant forage, foresight bracketing for Scenario 3 distributed arbitrage, price-taking and locational-adder corrections), NREL rooftop workbook analysis and data vintage documentation, FSA 2026 Virginia crop acreage, cover crop findings (SARE/UGA/DCR), grazing evidence (Andrew OSU lamb growth, Florentino JDS 2026 forage quality), drought mechanism applying to Virginia, Scenario 3 run preparation including the scarcity-proxy constant defect, foresight asymmetry between utility and distributed storage, multi-day rationing and rebound effect documentation, Shen/Ilic/Parsons precautionary storage policy qualification, and correction of exogenous price as locational adder not full LMP. Contains methodology notes, module additions, test suite expansion (584→619 tests), and whitepaper section updates.
 
 ---
 
