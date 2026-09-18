@@ -1171,3 +1171,9 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `lp_package/checkpoint_solver.py` -- `CheckpointSolver.lp_segment_spec()` returning empty.
 - All four LP fingerprints identical; nothing in the pipeline consumes a spec yet.
 
+## 2026-09-14 (session close)
+
+- `Session_Handoff_2026-09-14.md` -- state, the restructuring in flight, what changed and why,
+  open items in blocking order, and what to do differently.
+- Head 894c759, tag pre-lp-restructure, 1,386 tests, 18 audit checks, 4 LP fingerprints identical.
+
