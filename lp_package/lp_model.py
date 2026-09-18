@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from typing import Optional, Tuple
+
 import numpy as np
 
 # ---------------------------------------------------------------------------
@@ -1110,6 +1113,170 @@ def build_scenario2_problem(solar_cf, wind_cf, nuclear, exist_solar, demand,
 # baseline captured before any change. Sparse matrices hash on canonically sorted COO triplets, so
 # a reordering that does not change the problem passes, while a changed coefficient does not.
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# LP SEGMENT SPECIFICATION
+#
+# What a scenario adds to the shared problem, declared as data rather than as branches inside the
+# builder. Extracted 2026-09-14 under Rule 15.
+#
+# THE PROBLEM IT SOLVES. `build_problem` measured a cyclomatic complexity of 67 against a limit of
+# 15, and five separate `if enable_additional_distributed_segment:` sites -- at validation, input
+# preparation, equality rows, bounds and objective -- each asked the same question ("is this
+# Scenario 3?") and answered it differently by LP layer. Reducing_Cyclomatic_Complexity.md names
+# this case exactly: replacing a repeated type-check with polymorphism "reduces complexity across
+# every call site simultaneously".
+#
+# WHAT IS IN THE CORE AND WHAT IS IN A SPEC. The core holds the physics AND the statutory
+# distributed carve-out -- Va. Code 56-585.5(C)(2) applies to every scenario, so it is not optional
+# and does not belong in a spec. A spec carries only what a scenario adds BEYOND the statute, which
+# today is Scenario 3's additional distributed segment and its FERC 2222 arbitrage.
+#
+# WHY A SPECIFICATION RATHER THAN LETTING A SCENARIO EMIT ROWS. The assembler owns variable
+# ordering and row indexing. A scenario that computed its own column numbers could collide with the
+# core's silently, and an index collision is the failure mode this model is least able to detect --
+# the matrices still solve, and the answer is simply wrong.
+#
+# WHAT IT DOES NOT YET EXPRESS. Scenario 4's day-ahead/real-time retail pricing makes demand
+# partly ELASTIC, which turns an input array into a decision variable. No field here expresses that,
+# and it should be an obvious extension rather than a sixth field bolted on. Designed against
+# today's four scenarios, deliberately (agreed with the user, 2026-09-14).
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class LpSegmentSpec:
+    """What one scenario adds to the shared LP, beyond the physics and the statutory carve-out.
+
+    An EMPTY spec is the common case: Scenarios 1, 1B and 2 add nothing, so `apply_segment_spec`
+    returns the problem untouched and they never enter that path at all. That is what takes
+    complexity down rather than moving it.
+    """
+
+    #: Hourly MW to subtract from demand before the core builds the energy balance. Generation the
+    #: scenario adds that is NOT a decision variable -- pinned output, not something the LP sizes.
+    residual_adjustments_mw: Optional[np.ndarray] = None
+
+    #: Column names this segment appends, in order. The assembler assigns their indices; the
+    #: scenario never computes one.
+    extra_column_names: Tuple[str, ...] = ()
+
+    #: (lower, upper) per extra column, in the same order. None means unbounded on that side.
+    extra_column_bounds: Tuple[Tuple[Optional[float], Optional[float]], ...] = ()
+
+    #: Objective coefficient per extra column, same order. Positive is a cost, negative a revenue.
+    extra_objective_terms: Tuple[float, ...] = ()
+
+    #: Extra constraint rows, each as (kind, {column name or core index: coefficient}, rhs) where
+    #: kind is 'eq' or 'ub'. Column names resolve against extra_column_names, so a row can reference
+    #: this segment's own columns without knowing where they landed.
+    extra_rows: Tuple[Tuple[str, dict, float], ...] = ()
+
+    #: Short human-readable label, used in error messages and in the assembled problem's metadata so
+    #: a reader can tell which segment contributed which columns.
+    label: str = ''
+
+    def __post_init__(self):
+        widths = {
+            'extra_column_bounds': len(self.extra_column_bounds),
+            'extra_objective_terms': len(self.extra_objective_terms),
+        }
+        expected = len(self.extra_column_names)
+        wrong = {name: width for name, width in widths.items() if width != expected}
+        if wrong:
+            raise ValueError(
+                f'LpSegmentSpec({self.label!r}) declares {expected} extra column(s) but '
+                f'{wrong} -- these must line up one-to-one, because the assembler zips them by '
+                'position. A mismatch would silently attach a bound or a cost to the wrong column.')
+        for kind, _terms, _rhs in self.extra_rows:
+            if kind not in ('eq', 'ub'):
+                raise ValueError(
+                    f"LpSegmentSpec({self.label!r}) has a row of kind {kind!r}; expected 'eq' or "
+                    "'ub'. Guessing would put a constraint in the wrong matrix.")
+
+    @property
+    def is_empty(self):
+        """True when this scenario adds nothing -- the common case."""
+        return (self.residual_adjustments_mw is None
+                and not self.extra_column_names
+                and not self.extra_rows)
+
+
+EMPTY_SEGMENT_SPEC = LpSegmentSpec(label='none')
+
+
+def apply_segment_spec(problem, spec):
+    """Extend an assembled problem with whatever a scenario's segment spec adds.
+
+    A NO-OP FOR AN EMPTY SPEC, which is the point: Scenarios 1, 1B and 2 add nothing, return
+    immediately, and never execute any of the segment logic. That is what takes complexity DOWN
+    rather than moving it from the builder into the assembler.
+
+    THE ASSEMBLER OWNS INDEXING. Extra columns are appended after everything the core built, and
+    their positions are resolved here. A spec's rows reference columns BY NAME, so a scenario never
+    computes a column number and cannot collide with the core's -- an index collision being the
+    failure mode this model is least able to detect, since the matrices still solve and the answer
+    is simply wrong.
+    """
+    if spec.is_empty:
+        return problem
+
+    first_extra = len(problem['c'])
+    column_index = {name: first_extra + offset
+                    for offset, name in enumerate(spec.extra_column_names)}
+
+    problem['c'] = np.concatenate([problem['c'], np.asarray(spec.extra_objective_terms,
+                                                            dtype=float)])
+    problem['bounds'] = list(problem['bounds']) + list(spec.extra_column_bounds)
+
+    equality_rows = [row for row in spec.extra_rows if row[0] == 'eq']
+    inequality_rows = [row for row in spec.extra_rows if row[0] == 'ub']
+    _append_segment_rows(problem, 'A_eq', 'b_eq', equality_rows, column_index, spec)
+    _append_segment_rows(problem, 'A_ub', 'b_ub', inequality_rows, column_index, spec)
+
+    problem.setdefault('segments', []).append(
+        {'label': spec.label, 'columns': column_index})
+    return problem
+
+
+def _append_segment_rows(problem, matrix_key, rhs_key, rows, column_index, spec):
+    """Append a segment's rows to one of the problem's matrices, widening it for the new columns."""
+    total_columns = len(problem['c'])
+    existing = problem.get(matrix_key)
+    if existing is not None and existing.shape[1] < total_columns:
+        # The core's matrix was built before the extra columns existed, so it is too narrow. Pad
+        # with explicit zeros rather than relying on broadcasting, which would silently succeed on
+        # some sparse formats and fail on others.
+        padding = sparse.csr_matrix((existing.shape[0], total_columns - existing.shape[1]))
+        problem[matrix_key] = sparse.hstack([existing, padding], format='csr')
+    if not rows:
+        return
+
+    row_indices, col_indices, values, right_hand_sides = [], [], [], []
+    for offset, (_kind, terms, rhs) in enumerate(rows):
+        for column, coefficient in terms.items():
+            resolved = column_index.get(column) if isinstance(column, str) else column
+            if resolved is None:
+                raise KeyError(
+                    f'segment {spec.label!r} references column {column!r}, which is neither one of '
+                    f'its own extra columns {sorted(column_index)} nor an integer core index. '
+                    'Guessing would attach the coefficient to whatever column happened to sit '
+                    'there.')
+            row_indices.append(offset)
+            col_indices.append(resolved)
+            values.append(float(coefficient))
+        right_hand_sides.append(float(rhs))
+
+    addition = sparse.coo_matrix((values, (row_indices, col_indices)),
+                                 shape=(len(rows), total_columns)).tocsr()
+    current = problem.get(matrix_key)
+    problem[matrix_key] = (addition if current is None
+                           else sparse.vstack([current, addition], format='csr'))
+    current_rhs = problem.get(rhs_key)
+    problem[rhs_key] = (np.asarray(right_hand_sides, dtype=float) if current_rhs is None
+                        else np.concatenate([np.asarray(current_rhs, dtype=float),
+                                             np.asarray(right_hand_sides, dtype=float)]))
 
 
 def emit_energy_balance_rows(accumulator, hourly_variable, index_map, residual, row, hours):

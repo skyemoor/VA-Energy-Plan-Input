@@ -300,10 +300,34 @@ similar objective and pass every test.
 | Fingerprint harness | **done** — 4 configurations |
 | `emit_energy_balance_rows` | **done** — 3 call sites |
 | `emit_bath_state_of_charge_rows` | **done** — 2 call sites |
+| `LpSegmentSpec` + `apply_segment_spec` | **done** — complexity 7 and 10 |
+| `CheckpointSolver.lp_segment_spec()` | **done** — base returns empty |
+| Scenario 3's spec populated | pending |
+| Five flag sites replaced by spec consumption | pending |
 | Sodium-ion and iron-air state of charge | pending |
 | Reserve margin rows | pending |
-| Bounds and objective assembly | pending |
 | Re-measure, then attack the remaining branching | pending |
+
+### The specification, as built
+
+**A frozen dataclass declaring what a scenario adds** — residual adjustments, extra columns with
+their bounds and objective terms, extra rows, and a label. It validates that the three per-column
+tuples line up, because the assembler zips them by position and a mismatch would silently attach a
+bound to the wrong column.
+
+**`apply_segment_spec` returns immediately on an empty spec.** Scenarios 1, 1B and 2 add nothing and
+never execute any segment logic — which is what takes complexity *down* rather than moving it from
+the builder into the assembler.
+
+**The assembler owns indexing.** A spec's rows reference columns by *name*, resolved against that
+segment's own columns, so a scenario never computes a column number. An index collision is the
+failure mode this model is least able to detect: the matrices still solve, and the answer is simply
+wrong.
+
+**The base-class hook returns empty rather than raising.** Unlike `gas_retirement_schedule` and
+`new_gas_technology`, where every scenario makes a real choice and silent inheritance is the failure
+mode, adding nothing here is a meaningful and correct answer for most scenarios. Forcing each to
+declare it would be ceremony that hides which one actually differs.
 
 **After two extractions:** `build_dispatch_problem` 19 → 16, `build_scenario2_problem` 26 → 23,
 `build_problem` unchanged at 67 — its share of those particular loops was small, and its complexity

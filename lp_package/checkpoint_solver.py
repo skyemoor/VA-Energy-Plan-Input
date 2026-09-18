@@ -73,6 +73,27 @@ class CheckpointSolver:
     own standing requirements (Appendix P.2 #11/#13/#14) before it can be
     treated as final."""
 
+    def lp_segment_spec(self):
+        """What this scenario adds to the shared LP, beyond the physics and the statutory carve-out.
+
+        RETURNS AN EMPTY SPEC BY DEFAULT, which is the common case and deliberately NOT a
+        NotImplementedError. Unlike `gas_retirement_schedule` and `new_gas_technology` -- where
+        every scenario makes a real choice and inheriting silently is the failure mode -- adding
+        nothing here is a meaningful and correct answer for most scenarios. Forcing each to declare
+        `return EMPTY_SEGMENT_SPEC` would be ceremony that hides which scenario actually differs.
+
+        WHAT BELONGS IN A SPEC. Only what a scenario adds BEYOND the statute. The distributed
+        carve-out of Va. Code 56-585.5(C)(2) applies to every scenario and lives in the core, so
+        Scenario 3's spec carries its ADDITIONAL distributed segment and the FERC 2222 arbitrage
+        that goes with it -- not its statutory minimum, which it receives like everyone else.
+
+        WHY THIS EXISTS. `build_problem` measured a cyclomatic complexity of 67 against Rule 15's
+        limit of 15, with five separate checks of the same scenario flag scattered across five LP
+        layers. Replacing a repeated type-check with polymorphism removes it from every call site
+        at once. See Common_Reference.md section 4.
+        """
+        return lp.EMPTY_SEGMENT_SPEC
+
     def new_gas_technology(self):
         """Which technology new gas capacity is built as: 'simple_cycle' or 'combined_cycle'.
 

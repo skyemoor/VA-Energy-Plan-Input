@@ -1164,3 +1164,10 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - Marks the state before build_problem is restructured from scattered configuration flags to
   scenario-supplied segment specifications.
 
+## 2026-09-14 (LP segment specification)
+
+- `lp_package/lp_model.py` -- `LpSegmentSpec` frozen dataclass with width and row-kind validation;
+  `EMPTY_SEGMENT_SPEC`; `apply_segment_spec()` (complexity 7) and `_append_segment_rows()` (10).
+- `lp_package/checkpoint_solver.py` -- `CheckpointSolver.lp_segment_spec()` returning empty.
+- All four LP fingerprints identical; nothing in the pipeline consumes a spec yet.
+
