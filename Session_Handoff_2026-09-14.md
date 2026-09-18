@@ -1,6 +1,6 @@
 # Session handoff — 2026-09-14
 
-**Head:** `894c759` · **Tag:** `pre-lp-restructure` · **1,386 tests · 18 audit checks · 4 LP
+**Head:** `a400946` · **Tag:** `pre-lp-restructure` · **1,386 tests · 18 audit checks · 4 LP
 fingerprints identical to baseline**
 
 Read this, then `docs/Common_Reference.md` section 4 if you are picking up the LP restructuring, or
@@ -33,7 +33,10 @@ scattered over five separate LP layers.
 base-class hook returning an empty spec.
 
 **Next, and this is the risky step:** populate Scenario 3's spec, then replace the five
-`enable_additional_distributed_segment` sites with spec consumption. **The figures can move here if
+`enable_distributed_segment` sites with spec consumption. **That flag is still under its old name in
+the code** — `enable_additional_distributed_segment` was agreed as the better name and never
+applied, so grep for the old one (18 occurrences in `lp_model.py`). Renaming it is part of the next
+step, not something already done. **The figures can move here if
 anything is wrong**, where every step so far has been pure addition.
 
 **Before touching it:**
@@ -133,7 +136,9 @@ $/MWh.** Mixing them gives a 6.4× error that looks plausible. Use `lp_model.gas
 
 **Appendices are for end readers; working documents are for the collaboration.** Material migrates
 one way, rewritten rather than copied, when a subject is finalised. `appendices/APPENDIX_ORDER.md`
-holds the agreed sequence — sixteen, reader order, DER at H.
+holds the agreed sequence — sixteen entries in reader order, DER at H. **Fourteen exist as files**;
+B is a working-notes document to be promoted and G is to be assembled from the Scenario 3 working
+document.
 
 **Two appendices carry superseded figures and say so at the top.** That is not drift; it is awaiting
 migration.
