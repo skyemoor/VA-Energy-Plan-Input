@@ -124,6 +124,41 @@ benchmark.
 
 ---
 
+## Source data: the archive, and what supersedes what
+
+**The repository deliberately excludes large source data** — `.gitignore` drops `*.csv` on the
+grounds that it is public and re-downloadable. That is right for a public repo, but it left the
+NSRDB irradiance, NOAA weather, PJM market, EIA fleet and GIS siting data with no version-controlled
+home, accumulated across two machines with some of it possibly lost.
+
+**`project_knowledge_base_2026-09-18.zip` consolidates it** — 180 files, 71 MB compressed, grouped
+into twelve folders with a manifest giving each dataset's provenance and where to re-download it.
+Will is uploading it to the project knowledge base, so it should be available in the next session as
+it is today.
+
+**What is NOT in it, because the repository has it:** all model code, tests, appendices, working
+documents, the citation register, the tracker, session handoffs, and the derived weather years and
+distributed solar profiles under `data/weather_years/`.
+
+### Three documents in that archive are superseded and must be read as such
+
+`documents/Virginia_Energy_Plan_Input.docx`, `documents/Executive_Legislative_Summary.md` and
+`documents/Technical_Official_Summary.md` predate the current results by several corrections. Their
+figures put Scenario 2's direct cost at **$43.77–$49.43/MWh** against the current **$29.59–$37.02**,
+and Scenario 1 and 1B at values that predate the Bath County correction, the retirement schedules,
+the distributed carve-out, the merit-order stack and the bounded gas fleet. One of them still leads
+with a scenario-comparison table on levelised cost, which is the framing this project moved away
+from — **the headline is the compliance curve, with annualised cost primary and levelised cost
+informal.**
+
+**Two things in them remain valuable.** The DER policy material in the `.docx` — aggregator market
+access, distribution upgrades, DER caps, Direct Transfer Trip, near-term recommendations — is not
+yet in the repository at all and is scheduled to become Appendix H. And the summaries' habit of
+disclosing their own prior errors in the text is a posture worth keeping, and is carried into
+`docs/whitepaper/Executive_Summary_Draft.md`.
+
+---
+
 ## Things worth knowing that are easy to miss
 
 **The measured parallel scaling is machine-specific and counterintuitive.** On a 16-core workstation
@@ -142,6 +177,33 @@ document.
 
 **Two appendices carry superseded figures and say so at the top.** That is not drift; it is awaiting
 migration.
+
+---
+
+## What the next session starts with
+
+**The repository** — code, tests, appendices, working documents, registers, and the derived data
+under `data/weather_years/`. Everything this session produced is committed.
+
+**A source-data archive**, `project_knowledge_base_2026-09-18.zip`, 71 MB, to be uploaded to the
+project knowledge base. 180 files in twelve folders with a manifest: NSRDB irradiance for six sites
+2012–2020, PVWatts output runs, NOAA weather records, offshore wind, PJM market data, EIA fleet and
+plant generation, GIS siting polygons, reference PDFs, and the standalone scripts. **The repository
+deliberately excludes this** — `.gitignore` drops `*.csv` on the grounds that it is public and
+re-downloadable — so the archive is its only consolidated home, and the manifest records where each
+dataset came from in case any of it needs replacing.
+
+**Three documents in that archive predate the current results and should not be read for figures.**
+`Virginia_Energy_Plan_Input.docx`, `Executive_Legislative_Summary.md` and
+`Technical_Official_Summary.md` were superseded several times over — the last of them reports
+Scenario 2 at $43.77–$49.43/MWh against the current $29.59–$37.02, on a horizon to 2050 rather than
+2045, before the bounded gas fleet, the carve-out, agrivoltaic siting, the merit order and thermal
+cycling.
+
+**They are worth keeping for one thing:** their DER policy material — aggregator market access,
+distribution upgrades, DER caps, Direct Transfer Trip, and near-term recommendations — is not in the
+repository and is the largest unversioned piece of the project. It is scheduled to become Appendix
+H. `docs/whitepaper/Executive_Summary_Draft.md` supersedes the summary drafts for everything else.
 
 ---
 
