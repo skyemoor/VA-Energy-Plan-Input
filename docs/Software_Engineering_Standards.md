@@ -27,8 +27,6 @@ Core Philosophy
 Objects as Encapsulated State and Behavior
 Object-oriented programming bundles data (state) with the operations (behavior) that act on that data. An object presents a clean interface while hiding implementation details. This encapsulation creates boundaries that limit coupling and enable local reasoning.
 
-Quote to remember: "Bad programmers worry about the code. Good programmers worry about data structures and their relationships." — Linus Torvalds
-
 Polymorphism Enables Abstraction
 Polymorphism allows treating different types uniformly through shared interfaces. This enables writing code against abstractions rather than concrete types, making systems more flexible and extensible.
 
@@ -133,6 +131,7 @@ Square extending Rectangle (breaks area calculation expectations)
 ReadOnlyCollection extending Collection (throws on mutating methods)
 Overriding methods to do nothing or throw exceptions
 When inheritance violates LSP, use composition instead.
+
 ### Rule 2: Every shared calculation needs a test that locks it to a trusted baseline
  
 test_checkpoint_solver.py is the standing test suite. Before trusting any new shared method's own output:
@@ -140,6 +139,7 @@ test_checkpoint_solver.py is the standing test suite. Before trusting any new sh
 2.	Write a test that reproduces that baseline exactly (or within a stated, small tolerance), using the real code path, not a synthetic stand-in, wherever the real path is fast enough to run in a test.
 3.	Every bug found and fixed in this codebase gets a regression test, named and documented well enough that the next person (or the next session) understands what class of error it guards against without needing to re-read the full debugging-log entry. See test_checkpoint_solver.py's own four test classes for the pattern: each one's docstring names the specific bug and the log entry that found it.
 4.	Standard requirement, applied uniformly, not just where a bug happened to be found: every scenario gets its own end-to-end, baseline-locked test for every shared calculation it uses -- not only the scenario where a bug happened to surface. See TestSocialCostRGGIMixinCorrectness's three test_scenarioN_reproduces_established_figures_exactly tests for the pattern every new scenario (or new shared calculation on an existing scenario) should follow: same structure, same baseline-comparison approach, scenario-specific only in which dispatch files it loads.
+
 ### Rule 3: Any time a code file is modified, examine the comments and test suite for whether it needs upgrading -- and if so, upgrade it, every time
  
 This applies to every edit, not just refactors or bug fixes:
@@ -148,23 +148,27 @@ This applies to every edit, not just refactors or bug fixes:
 3.	If the change legitimately shifts a baseline (e.g. a new, correctly-sourced constant changes an established figure), update the test's own expected value in the same change, with a comment explaining why the baseline moved and pointing to the debugging-log entry that justifies it -- never silently loosen a tolerance or delete an inconvenient assertion to make a test pass.
 4.	If the change adds new shared logic, apply Rule 2 directly: it needs its own baseline-locked test before the change is done, not as a follow-up.
 5.	Run the full suite (python3 -m pytest test_checkpoint_solver.py -v) after every edit, not a subset chosen because it seemed relevant -- a change in one method can have non-obvious effects on another (exactly what MRO/inheritance makes possible in this class hierarchy).
+
 ### Rule 4: Cross-verify against an independent baseline as a standing habit -- not only at formal test time
  
 Rule 2 covers this for the test suite specifically; this rule states the broader habit, which paid off before any formal test existed:
 1.	Before presenting any new figure as correct, ask whether it agrees with an independently-derived version of the same thing -- a different script, a different scenario's own analogous figure, or a value already established in prior work.
 2.	A single calculation path, however carefully built, is not sufficient evidence of correctness on its own. Agreement between two independent paths is much stronger evidence than internal consistency within one path.
 3.	When two independent figures disagree, chase the disagreement to its actual root cause before accepting either one -- don't assume the newer, more carefully-built, or more recently-checked path is the correct one by default.
+
 ### Rule 5: Fail loudly, never silently default or guess
  
 1.	A method that needs a value it wasn't given should raise, not substitute a plausible-looking guess. Scenario2Solver.get_existing_new_mw() raises ValueError if peak_gas_mw was never set, rather than falling back to some default split that would produce a wrong-but-unremarkable-looking number.
 2.	An abstract method with no sensible universal default should have no default at all. SocialCostRGGIMixin.get_existing_new_mw() raises NotImplementedError unconditionally -- there is no "reuse Scenario 1's own split" fallback, because a silently-wrong default (reusing the wrong scenario's own methodology) is worse than a crash that points directly at the missing override.
 3.	When in doubt between "guess something reasonable and continue" and "stop and demand the caller be explicit," choose the latter for anything that feeds into a reported figure.
+
 ### Rule 6: Single source of truth for constants
  
 1.	A parameter used in more than one place and/or defined by a policy or assumption belongs in assumptions.py, not duplicated locally in each file that needs it.
 2.	When a value must legitimately be re-derived in more than one place (e.g. a sourced constant documented with its own citation in the file that originally derived it), add a runtime assertion cross-checking the two rather than trusting them to stay in sync by convention. See compute_tier123_final.py's own CPI_DEFLATOR_2020_TO_2026 assertion against assumptions.py's copy as the pattern.
 3.	Before adding a new named constant, check assumptions.py first -- a re-derivation of an existing value under a new name is exactly the kind of duplication Rule 6 exists to prevent.
-### Rule 7: Unambiguous naming, especially for concepts with a natural opposite
+
+### Rule 7: Unambiguous naming using CapWords style, especially for concepts with a natural opposite
  
 1.	When a quantity could reasonably be read as either of two opposite things (a clean share vs. a gas share; an existing value vs. a new increment), the name must disambiguate, not rely on context or convention to carry the distinction.
 2.	Always use a longer, self-documenting name over a shorter, ambiguous one, especially for any value that flows through multiple layers of the call stack before being used.
@@ -225,23 +229,25 @@ Anything the modeler has stated as direction other than the above -- the catch-a
 1.	Any calculation of a "fresh increment" (this year's new build, on top of a prior, degraded total) must be explicitly floored at zero -- max(0.0, current_total - prior_total * degradation_factor) -- never left to produce a negative value even transiently.
 2.	State the physical reasoning at the point of the floor, not just the mechanical max(0.0, ...) -- e.g. "no un-building an asset" -- so the floor reads as a deliberate physical constraint, not an arbitrary numerical safeguard.
 3.	This pattern is not yet centralized into a shared helper -- TestFreshIncrementNeverNegative documents the required behavior specifically so a future centralization has something concrete to be checked against. Centralizing this into a shared utility function is flagged here as follow-up work, not yet done.
+	
 ### Rule 12: Always use readable, unambiguous names for variables, constants, functions, and classes
  
 1.	This is broader than Rule 7. Rule 7 addresses one specific failure mode -- a name that could be misread as its own opposite. This rule is the general case: every name should be readable and unambiguous on its own, whether or not an opposite concept is involved.
 2.	No abbreviations, single-letter names, or terse fragments where a clear word or short phrase would fit -- peak_gas_mw over pgm, battery_capacity_stated_kwh over cap_kwh. The cost of a longer name is trivial; the cost of a name that requires guessing or checking is not.
 3.	A name should describe what a value is or what a function does, not merely hint at it. If a value carries a caveat that matters for correct use (a derived figure resting on a now-unreliable assumption, a figure that should not be treated as settled), that caveat belongs in the name itself where practical -- see BATTERY_CAPACITY_DERIVED_KWH_DO_NOT_USE in dominion_school_bus_v2g_assumptions.py for the pattern: the name alone stops a future reader from using it incorrectly, without requiring them to have first read the surrounding comment.
 4.	This applies uniformly -- constants, function/method names, class names, loop variables, test names. A quick loop counter in a short-lived, obvious scope is the narrow exception; anything that outlives a few lines or crosses a function boundary gets a real name.
+5.	
 ### Rule 13 Log all changes
 1. Always update the build.log with the request change text and the code module.
-2. If any results change values in the VA SLCOE, update them after notifying the modeler
-3. Log any data sources used to extract data for coding use or any other analytical use.
-4. If there is a substantive problem solved, enter the issues, options considered and their tradeoffs, and the solution that worked in the debugging-log
-5. Update the Virginia grid analysis tracker updated.xlsx
 
 ### Rule 14 Follow PEP 8 – Style Guide for Python Code
 1. Always use PEP 8 – Style Guide for Python Code
 
 ### Rule 15 Always refactor if a code change raised the cyclomatic complexity of a code unit above 15 (per NIST)
+1. After any code change, calculate the Cyclomatic Complexity before building a test or a commit
+2. If the Cyclomatic Complexity exceeds 15, read Reducing_Cyclomatic_Complexity.md to determine how to lower the score of the code unit.
+3. Change the code to achieve the needed functionality with a Cyclomatic Complexity equal to or less than 15.
+4. If there is a special case where reducing Cyclomatic Complexity equal to or less than 15 is extremely problematic, present this to the user in the form of a code review with full rationale.
 
 ## Practical checklist before considering any code change complete
 - Does this logic already exist somewhere else in the class hierarchy? If yes, extend/override, don't duplicate. (Rule 1)
