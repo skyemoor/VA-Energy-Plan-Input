@@ -1157,3 +1157,10 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
 - `docs/Common_Reference.md` -- section 4 tracks the restructuring.
 - Complexity: build_dispatch_problem 19 -> 16, build_scenario2_problem 26 -> 23, build_problem 67.
 
+## 2026-09-14 (checkpoint tagged)
+
+- Tag `pre-lp-restructure` at 966a261 (rebased onto 5932431). 1,370 tests, 18 audit checks, 4 LP
+  fingerprints identical to baseline. Scenario 2 steps 1-11 complete, SLCOE $36.35/MWh.
+- Marks the state before build_problem is restructured from scattered configuration flags to
+  scenario-supplied segment specifications.
+

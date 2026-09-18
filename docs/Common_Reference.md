@@ -281,6 +281,18 @@ gaining or losing variables is a different kind of event from perturbing one.
 captured from unmodified code, which is why `capture_baseline` and `compare_to_baseline` are
 separate entry points rather than one function that refreshes on mismatch.
 
+### Returning to the checkpoint
+
+**Tag `pre-lp-restructure`** marks the state immediately before this work: 1,370 tests, 18 audit
+checks, 4 LP fingerprints identical to baseline, Scenario 2 steps 1–11 complete.
+
+    git checkout pre-lp-restructure
+    python3 scripts/capture_lp_baseline.py     # must report 4 problems IDENTICAL
+
+**The fingerprint check is the meaningful one.** Tests confirm results are unchanged; fingerprints
+confirm the *problem* is unchanged, which is stricter — a perturbed coefficient can still solve to a
+similar objective and pass every test.
+
 ### Where it stands
 
 | step | state |
