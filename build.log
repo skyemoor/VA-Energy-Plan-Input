@@ -1177,3 +1177,8 @@ Status: NOT YET FIXED -- flagging for whoever attempts the rebuild next.
   open items in blocking order, and what to do differently.
 - Head 894c759, tag pre-lp-restructure, 1,386 tests, 18 audit checks, 4 LP fingerprints identical.
 
+## 2026-09-18 (session journal copied into the repo)
+
+- `docs/Session_Journal.md` -- NEW. Eleven entries from the container-side journal at
+  /mnt/transcripts/journal.txt, which is not reachable from a clone. Snapshot; re-copy when stale.
+
